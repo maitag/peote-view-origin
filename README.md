@@ -14,4 +14,4 @@ to build.
 `$ lime build peoteViewJS.lime html5`
 
 more [examples here](http://maitag.de/~semmi/haxelime/viewer_gpuanimtiles/)
-zoom with mousewheel and have [fun](http://maitag.de/~semmi/haxelime/viewer_gpuanimtiles/halloWeltYT.html) ;)
+(zoom in with mousewheel and have [fun](http://maitag.de/~semmi/haxelime/viewer_gpuanimtiles/halloWeltYT.html) ;)
