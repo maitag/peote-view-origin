@@ -13,5 +13,5 @@ to build.
 ####Build as Javascript Library (see js_examples/ )
 `$ lime build peoteViewJS.lime html5`
 
-
-have fun ;)
+more [examples here](http://maitag.de/~semmi/haxelime/viewer_gpuanimtiles/)
+zoom with mousewheel and have [fun](http://maitag.de/~semmi/haxelime/viewer_gpuanimtiles/halloWeltYT.html) ;)
