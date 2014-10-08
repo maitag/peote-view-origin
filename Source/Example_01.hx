@@ -35,16 +35,10 @@ import haxe.Timer;
 class Example_01
 {
 	public var peoteView:PeoteView;
-	public var startTime:Float;
-	
-	private var x:Int;
-	private var y:Int;
-	private var z:Int;
-	
-	private var last_y:Int = 0;
 	
 	private var main:Main;
-	
+	private var startTime:Float;
+
 	
 	public function new(_main:Main) 
 	{
@@ -54,48 +48,48 @@ class Example_01
 		var w:Int = 160;
 		var h:Int = 120;
 		var s:Int = 14;
+		var last_y:Int = h - 1;
+		var nr:Int = 0;
+		var switchBGanim:Int = 1;
 
 		peoteView = new PeoteView(w*h+1, 2);
 		
-		peoteView.setShaderSrc(0, ExampleShader.lyapunov_01);
-		peoteView.setShaderSrc(1); // default shaders
+		// set shaders
+		peoteView.setShader(0,"assets/lyapunov_01.frag");
+		peoteView.setShader(1); // default shaders
 		
+		// set images
 		peoteView.setImage(0, "assets/peote_font_green.png");
 		peoteView.setImage(1, "assets/peote_tiles.png");
 		
-		var nr:Int = 0;
+		// set Time
 		startTime = Timer.stamp();
 		var t:Float = Timer.stamp() - startTime;
-		var switchBGanim:Int = 1;
-		last_y = h - 1;
-
+		
 		// fractal BG
-		peoteView.setElement( nr, 0, 0, -1, 3000, 3000, 0);
+		peoteView.setElement( nr,     0,     0, -1,  3000,  3000, 0);
 		peoteView.animElement(nr, -1500, -1500, -1, 11000, 11000, t, t + h );
 		
 		// tiles		
+		var x,y:Int;
 		for (x in 0...w)
 		{
 			for (y in 0...h)
 			{
 				nr = 1 + y*w +x;
-				peoteView.setElement( nr, x*s, y*s-s,     0, s, s, 1, random(2), random(256));
+				peoteView.setElement (nr, x*s, y*s-s,     0, s, s, 1, random(2), random(256));
 				peoteView.animElement(nr, x*s, y*s-s+h*s, 0, s, s, t, t + h );
 			}
 		}
 		
-		// TODO: may own Timer inside RenderLoop
+		// Timer every second  - TODO: may own Timer inside RenderLoop
 		var timer:Timer = new Timer(1000);
 		timer.run = function() 
 			{
 				var t:Float = Timer.stamp() - startTime;
-				var nr:Int;
 				for (x in 0...w)
 				{
 					nr = 1 + last_y*w +x;
-					//peoteView.delElement( nr );
-					//peoteView.setElement( nr, x*s, -s,     0, s, s, 1, random(2), random(256));
-					//peoteView.animElement(nr, x*s, -s+h*s, 0, s, s, t, t + h );
 					peoteView.animElement(nr, x*s, -s,     0, s, s, 0, 0 );
 					peoteView.animElement(nr, x*s, -s+h*s, 0, s, s, t, t + h );
 				}
@@ -103,7 +97,8 @@ class Example_01
 				{
 					last_y = h - 1;
 					// anim BG
-					if (switchBGanim == 1) peoteView.animElement(0, 0, 0, -1, 3000, 3000, t, t + h );
+					if (switchBGanim == 1)
+					     peoteView.animElement(0,     0,     0, -1,  3000,  3000, t, t + h );
 					else peoteView.animElement(0, -1500, -1500, -1, 11000, 11000, t, t + h );
 					switchBGanim = -switchBGanim;
 				}

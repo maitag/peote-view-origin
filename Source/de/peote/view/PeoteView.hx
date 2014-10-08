@@ -57,10 +57,10 @@ class PeoteView
 	// ------------------------------------------------------------------------------------------------------
 	// -------------------------------- API --------- -------------------------------------------------------
 	// ------------------------------------------------------------------------------------------------------
-	public inline function setShader(shader_nr:Int, shaderUrl:String):Void
+	public inline function setShader(shader_nr:Int, fragmentShaderUrl:String='', vertexShaderUrl:String=''):Void
 	{
 		// TODO: load shader source from url
-		displaylist.setShaderSrc(shader_nr, '','');
+		displaylist.setShader(shader_nr, fragmentShaderUrl, vertexShaderUrl);
 	}
 	
 	public inline function setShaderSrc(shader_nr:Int,

@@ -26,41 +26,61 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var w = 160;
-var h = 120;
-var s = 14;
-var _last_y = h-1;
-var t;
 
 function starter(peoteView)
-{
-	peoteView.setShaderSrc(0);
-	peoteView.setShaderSrc(1);
+{	
+	var w = 160;
+	var h = 120;
+	var s = 14;
+	var last_y = h-1;
+	var nr = 0;
+	var switchBGanim = 1;
 	
-	peoteView.setImage(0, "./assets/peote_font.png");
-	peoteView.setImage(1, "./assets/peote_tiles.png");
+	// set shaders
+	peoteView.setShader(0, "assets/lyapunov_01.frag");
+	peoteView.setShader(1);
+	
+	// set images
+	peoteView.setImage(0, "assets/peote_font_green.png");
+	peoteView.setImage(1, "assets/peote_tiles.png");
 
-	t = Peote.getTime();
-	
+	// set Time
+	var t = Peote.getTime();
+		
+	// fractal BG
+	peoteView.setElement (nr,     0,     0, -1,  3000,  3000, 0);
+	peoteView.animElement(nr, -1500, -1500, -1, 11000, 11000, t, t + h );
+		
+	// tiles
 	for (var x=0; x<w; x++)
 	{
 		for (var y=0; y<h; y++)
 		{
-			peoteView.setElement( y*w +x, x*s, y*s-s,     0, s, s, 1, Math.floor(Math.random() * 2), Math.floor(Math.random() * 256));
-			peoteView.animElement(y*w +x, x*s, y*s-s+h*s, 0, s, s, t, t + h );
+			nr = 1 + y*w +x;
+			peoteView.setElement ( nr, x*s, y*s-s,     0, s, s, 1, Math.floor(Math.random() * 2), Math.floor(Math.random() * 256));
+			peoteView.animElement( nr, x*s, y*s-s+h*s, 0, s, s, t, t + h );
 		}
 	}
 	
+	// Timer every second
 	window.setInterval(function() {
 		t = Peote.getTime();
 		for (var x=0; x<w; x++)
 		{
-			peoteView.delElement( _last_y * w + x);
-			peoteView.setElement( _last_y * w + x, x*s, -s    , 0, s, s, 1, Math.floor(Math.random() * 2), Math.floor(Math.random() * 256));
-			peoteView.animElement(_last_y * w + x, x*s, -s+h*s, 0, s, s, t, t + h );
+			nr = 1 + last_y*w + x;
+			peoteView.animElement( nr, x*s, -s    , 0, s, s, 0, 0 );
+			peoteView.animElement( nr, x*s, -s+h*s, 0, s, s, t, t + h );
 		}
-		if (_last_y == 0) _last_y = h-1;
-		else _last_y--;
+		if (last_y == 0)
+		{
+			last_y = h-1;
+			// anim BG
+			if (switchBGanim == 1)
+			     peoteView.animElement(0,     0,     0, -1,  3000,  3000, t, t + h );
+			else peoteView.animElement(0, -1500, -1500, -1, 11000, 11000, t, t + h );
+			switchBGanim = -switchBGanim;
+		}
+		else last_y--;
 	}, 1000);
 	
 }

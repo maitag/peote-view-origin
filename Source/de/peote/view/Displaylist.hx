@@ -32,6 +32,8 @@ import haxe.ds.IntMap;
 import haxe.ds.Vector;
 import lime.gl.GLProgram;
 import lime.gl.GLShader;
+import lime.utils.Assets;
+import haxe.Http;
 
 class Displaylist
 {
@@ -58,19 +60,44 @@ class Displaylist
 	
 	public function onerror(msg:String):Void { trace(msg); }
 	
-	public inline function setShaderUrl(shader_nr:Int, url:String):Void
+	public inline function setShader(shader_nr:Int, fragmentShaderUrl:String, vertexShaderUrl:String):Void
 	{
-		var program:Program = programsCache.get(shader_nr);
-		if (program == null) 
+		//var fragmentShaderSrc:String = (fragmentShaderUrl == '') ? Shader.default_fragmentShaderSrc : Assets.getText(fragmentShaderUrl);
+		//var vertexShaderSrc:String = (vertexShaderUrl == '') ? Shader.default_vertexShaderSrc : Assets.getText(vertexShaderUrl);
+		//var fragmentShaderSrc:String = (fragmentShaderUrl == '') ? Shader.default_fragmentShaderSrc :  Http.requestUrl(fragmentShaderUrl);
+		//var vertexShaderSrc:String = (vertexShaderUrl == '') ? Shader.default_vertexShaderSrc : Http.requestUrl(vertexShaderUrl);
+
+		// TODO: doesnt work yet with assets.gettext on html5 target (with http.requestUrl sandbox prbl. for easy testing)
+		var fragmentShaderSrc:String = Shader.default_fragmentShaderSrc;
+		if (fragmentShaderUrl != '') 
 		{
-			program = new Program(defaultProgram);
-			programsCache.set(shader_nr, program);
+			#if js
+			var req = js.Browser.createXMLHttpRequest();
+			req.open('GET', fragmentShaderUrl, false);
+			req.send();
+			fragmentShaderSrc = req.responseText;
+			#else
+			fragmentShaderSrc = Assets.getText(fragmentShaderUrl);
+			#end
 		}
-		// onload.. setShaderSrc(nr, src)
+		var vertexShaderSrc:String = Shader.default_vertexShaderSrc;
+		if (vertexShaderUrl != '') 
+		{
+			#if js
+			var req = js.Browser.createXMLHttpRequest();
+			req.open('GET', vertexShaderUrl, false);
+			req.send();
+			vertexShaderSrc = req.responseText;
+			#else
+			vertexShaderSrc = Assets.getText(vertexShaderUrl);
+			#end
+		}
+		
+		setShaderSrc(shader_nr, fragmentShaderSrc, vertexShaderSrc);
 	}
 	
 	public inline function setShaderSrc(shader_nr:Int, fragmentShaderSrc:String, vertexShaderSrc:String):Void
-	{
+	{	trace("fragmentShaderSrc="+fragmentShaderSrc);
 		if (programsCache.get(shader_nr) == null) programsCache.set(shader_nr, new Program() );
 		programsCache.get(shader_nr).compile(fragmentShaderSrc, vertexShaderSrc, onerror);
 	}
