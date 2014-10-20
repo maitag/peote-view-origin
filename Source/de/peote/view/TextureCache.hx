@@ -29,8 +29,8 @@
 package de.peote.view;
 
 import haxe.ds.Vector;
-import lime.gl.GL;
-import lime.gl.GLTexture;
+import lime.graphics.opengl.GL;
+import lime.graphics.opengl.GLTexture;
 import lime.utils.UInt8Array;
 
 class TextureCache

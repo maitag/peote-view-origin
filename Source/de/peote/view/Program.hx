@@ -29,10 +29,10 @@
 package de.peote.view;
 
 import haxe.ds.Vector.Vector;
-import lime.gl.GL;
-import lime.gl.GLProgram;
-import lime.gl.GLShader;
-import lime.gl.GLUniformLocation;
+import lime.graphics.opengl.GL;
+import lime.graphics.opengl.GLProgram;
+import lime.graphics.opengl.GLShader;
+import lime.graphics.opengl.GLUniformLocation;
 
 class Program
 {

@@ -31,7 +31,7 @@ package de.peote.view;
 import format.png.Reader;
 import format.png.Tools;
 import haxe.io.BytesInput;
-import lime.utils.Assets;
+import lime.Assets;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
 

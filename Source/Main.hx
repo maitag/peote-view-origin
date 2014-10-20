@@ -28,17 +28,10 @@
 
 package;
 
-#if js
-import js.Browser;
-#end
-import lime.Lime;
-import lime.InputHandler;
-import lime.InputHandler.MouseEvent;
-import lime.InputHandler.TouchEvent;
+import lime.app.Application;
+import lime.graphics.RenderContext;
 
-class Main {
-	
-	private var lime:Lime;
+class Main extends Application {
 	
     public var width: Int;
     public var height: Int;
@@ -46,106 +39,81 @@ class Main {
     public var mouse_y: Int = 0;
     public var zoom: Int = 1;
 	
-	public var render:Void->Void;
+	public var render_example:Int->Int->Int->Int->Int->Void;
 	
-	public function ready(lime:Lime)
-	{
-		this.lime = lime;
-		
-		#if js
-		Browser.document.getElementById('lime_canvas').style.marginTop = '0px';
-		js_onresize(null);
-		Browser.window.addEventListener("resize", js_onresize);
-		Browser.window.addEventListener("mousemove", js_onmousemove);
-		Browser.window.addEventListener("touchmove", js_ontouchmove);
-		Browser.window.addEventListener("mousewheel", js_onmousewheel);     //chrome
-		Browser.window.addEventListener("DOMMouseScroll", js_onmousewheel); //FF
-		#else
-		width = lime.config.width;
-		height = lime.config.height;
-		#end		
-		
-		// start Examples
-		new Example_01(this);
+	public function new () {
+		super ();
 	}
+	
+	public override function init (context:RenderContext):Void
+	{
+		switch (context) {
+			case OPENGL (gl):
+				
+				width = window.width;
+				height = window.height;
+				
+				// start Example
+				var example:Example_01 = new Example_01();
+				render_example = example.render;
+				
+			default:
+				trace("only opengl supported");
+		}
+	}
+
+	// ----------- Render Loop ------------------------------------
+	public override function render(context:RenderContext):Void
+	{
+		render_example(width, height, mouse_x, mouse_y, zoom);
+	}
+
+
 	
 	// ------------------------------------------------------------
 	// ----------- EVENT HANDLER ----------------------------------
+	public override function onWindowResize (width:Int, height:Int):Void
+	{
+		trace("onWindowResize:"+width+','+height);
+		this.width = width;
+		this.height = height;
+	}
+	public override function onMouseMove (x:Float, y:Float, button:Int):Void
+	{
+		//trace("onMouseMove: " + x + "," + y );
+		mouse_x = Std.int(x);
+		mouse_y = Std.int(y);
+	}
+	public override function onTouchMove (x:Float, y:Float, id:Int):Void
+	{
+		trace("onTouchMove: " + x + "," + y );
+		mouse_x = Std.int(x);
+		mouse_y = Std.int(y);
+	}
+	public override function onMouseDown (x:Float, y:Float, button:Int):Void
+	{	
+		trace("onMouseDown: x=" + x + " y="+ y);
+		if ( button == 0) zoom++;
+		else if (button == 1 && zoom>1) zoom--;
+	}
+	public override function onMouseUp (x:Float, y:Float, button:Int):Void
+	{	
+		trace("onmouseup: "+button+" x=" + x + " y="+ y);
+	}
+	public override function onMouseWheel (deltaX:Float, deltaY:Float):Void
+	{	
+		trace("onmousewheel: " + deltaX + ',' + deltaY );
+		#if windows
+		if ( deltaY>0 ) zoom++;
+		#else
+		if ( deltaY<0 ) zoom++;
+		#end
+		else if (zoom > 1) zoom--;
+		
+	}
 
-	#if js
-	private function js_onmousemove( e:Dynamic )
-	{
-		//trace("js_onmousemove: " + mouse_x + "," + mouse_y );
-		mouse_x = Std.int(e.clientX);
-		mouse_y = Std.int(e.clientY);
-	}
-	private function js_ontouchmove( e:Dynamic )
-	{
-		//trace("js_ontouchmove: " + mouse_x + "," + mouse_y );
-		mouse_x = Std.int(e.changedTouches[0].clientX);
-		mouse_y = Std.int(e.changedTouches[0].clientY);
-		e.preventDefault();
-	}
-	private function js_onresize(e:Dynamic)
-	{
-		if (Browser.document.getElementById('lime_canvas') != null)
-		{
-			//trace("js_onresize:" + width + "," + height);
-			width = Browser.window.innerWidth;
-			height = Browser.window.innerHeight;
-			
-			js.Lib.eval("document.getElementById('lime_canvas').style.width='" + width + "px';" +
-						"document.getElementById('lime_canvas').style.height='" + height + "px';" + 
-						"document.getElementById('lime_canvas').setAttribute('width', '" + width + "');" +
-						"document.getElementById('lime_canvas').setAttribute('height', '" + height + "');"
-			);
-		}
-	}
-	private function js_onmousewheel( e:Dynamic )
-	{
-		//trace("js_onmousewheel: " + e.detail );
-		var delta:Float = Math.max(-1, Math.min(1, (Std.int(e.wheelDelta) + -Std.int(e.detail))));
-		if (delta > 0) zoom++;
-		else if (zoom>1) zoom--;
-	}	
-	#else
-	public function onmousemove( e:MouseEvent )
-	{
-		//trace("onmousemove: " + mouse_x + "," + mouse_y );
-		mouse_x = Std.int(e.x);
-		mouse_y = Std.int(e.y);
-	}
-	public function ontouchmove( e:TouchEvent )
-	{
-		//trace("ontouchmove: " + mouse_x + "," + mouse_y );
-		mouse_x = Std.int(e.x);
-		mouse_y = Std.int(e.y);
-	}
-	public function onresize(e:Dynamic)
-	{
-		//trace("onresize");
-		width = Std.int(e.x);
-		height = Std.int(e.y);
-	}
-	public function onmousedown( e:MouseEvent )
-	{	
-		if ( e.button == MouseButton.left) zoom++;
-		else if (e.button == MouseButton.right && zoom>1) zoom--;
-		//trace("onmousedown: x=" + e.x + " y="+ e.y);
-	}
-	public function onmouseup( e:MouseEvent )
-	{	
-		//trace("onmouseup: "+e.button+" x=" + e.x + " y="+ e.y);
-	}
-	public function onmousewheel( e:MouseEvent ) // lime: does only work if onmouseup() exist !!!
-	{	
-		trace("onmousewheel: " + e.button );
-		if ( e.button == MouseButton.wheel_down) zoom++;
-		else if (zoom>1) zoom--;
-	}
-	#end
 	// end Event Handler
-	
+
 	
 	
 

@@ -28,34 +28,34 @@
 
 package;
 
-import de.peote.view.PeoteView;
-import de.peote.view.Shader;
+import de.peote.view.PeoteViewSimple;
 import haxe.Timer;
+
+typedef PeoteView = PeoteViewSimple;
 
 class Example_01
 {
-	public var peoteView:PeoteView;
-	
-	private var main:Main;
+	private var peoteView:PeoteView;
 	private var startTime:Float;
 
-	
-	public function new(_main:Main) 
-	{
-		main = _main;
-		main.render = this.render;
-		
-		var w:Int = 160;
-		var h:Int = 120;
-		var s:Int = 14;
-		var last_y:Int = h - 1;
-		var nr:Int = 0;
-		var switchBGanim:Int = 1;
+	var w:Int = 160;
+	var h:Int = 120;
+	var s:Int = 14;
+	var last_y:Int = 120 - 1;
+	var nr:Int = 0;
+	var switchBGanim:Int = 1;
 
-		peoteView = new PeoteView(w*h+1, 2);
+	
+	#if cpp // fix for cpp (lime 2.0.0-alpha issue)
+	var cpp_timer_fix:Float;
+	#end
+	
+	public function new()
+	{
+		peoteView = new PeoteView(w * h + 1, 2);
 		
 		// set shaders
-		peoteView.setShader(0,"assets/lyapunov_01.frag");
+		peoteView.setShader(0, "assets/lyapunov_01.frag");
 		peoteView.setShader(1); // default shaders
 		
 		// set images
@@ -65,6 +65,7 @@ class Example_01
 		// set Time
 		startTime = Timer.stamp();
 		var t:Float = Timer.stamp() - startTime;
+		trace("t:"+t);
 		
 		// fractal BG
 		peoteView.setElement( nr,     0,     0, -1,  3000,  3000, 0);
@@ -82,40 +83,55 @@ class Example_01
 			}
 		}
 		
+		#if cpp // fix for cpp (lime 2.0.0-alpha issue)
+		cpp_timer_fix = Timer.stamp() + 1.0;
+		#else
 		// Timer every second  - TODO: may own Timer inside RenderLoop
-		var timer:Timer = new Timer(1000);
-		timer.run = function() 
-			{
-				var t:Float = Timer.stamp() - startTime;
-				for (x in 0...w)
-				{
-					nr = 1 + last_y*w +x;
-					peoteView.animElement(nr, x*s, -s,     0, s, s, 0, 0 );
-					peoteView.animElement(nr, x*s, -s+h*s, 0, s, s, t, t + h );
-				}
-				if (last_y == 0)
-				{
-					last_y = h - 1;
-					// anim BG
-					if (switchBGanim == 1)
-					     peoteView.animElement(0,     0,     0, -1,  3000,  3000, t, t + h );
-					else peoteView.animElement(0, -1500, -1500, -1, 11000, 11000, t, t + h );
-					switchBGanim = -switchBGanim;
-				}
-				else last_y--;
-			};
+		var timer = new Timer(1000);
+		timer.run = moveTilesUp;
+		#end
 	}
 	
+	private inline function moveTilesUp():Void
+	{
+		var t:Float = Timer.stamp() - startTime;
+		trace("t:"+t);
+		for (x in 0...w)
+		{
+			nr = 1 + last_y*w +x;
+			peoteView.animElement(nr, x*s, -s,     0, s, s, 0, 0 );
+			peoteView.animElement(nr, x*s, -s+h*s, 0, s, s, t, t + h );
+		}
+		if (last_y == 0)
+		{
+			last_y = h - 1;
+			// anim BG
+			if (switchBGanim == 1)
+				 peoteView.animElement(0,     0,     0, -1,  3000,  3000, t, t + h );
+			else peoteView.animElement(0, -1500, -1500, -1, 11000, 11000, t, t + h );
+			switchBGanim = -switchBGanim;
+		}
+		else last_y--;
+	};
+
 	// ------------------------------------------------------------
 	// ----------- Render Loop ------------------------------------
 	
-	public inline function render():Void
+	public inline function render(width:Int, height:Int, mouse_x:Int, mouse_y:Int, zoom:Int ):Void
 	{
-		peoteView.render(Timer.stamp() - startTime, main.width, main.height, main.mouse_x, main.mouse_y, main.zoom);
+		peoteView.render(Timer.stamp() - startTime, width, height, mouse_x, mouse_y, zoom);
+		
+		#if cpp // fix for cpp (lime 2.0.0-alpha issue)
+		if (Timer.stamp() >= cpp_timer_fix)
+		{
+			cpp_timer_fix = Timer.stamp() + 1.0;
+			moveTilesUp();
+		}
+		#end
 	}
 	
 	// -- Math-Stuff
-	public inline function random(n:Int):Int
+	private inline function random(n:Int):Int
 	{
 		return Math.floor(Math.random() * n);
 	}

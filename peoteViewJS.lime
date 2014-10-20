@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 	
-	<meta title="peote_view" package="de.peote.view" version="0.1.0" company="Sylvio Sell - maitag" />
+	<meta title="peote_view" package="de.peote.view" version="0.1.1" company="Sylvio Sell - maitag" />
 	
 	<!--<app main="MainJS" path="js_examples/Export" file="../../../peoteViewLib" />-->
 	<app main="MainJS" path="js_examples/Export" file="peoteViewLib" />
@@ -16,15 +16,16 @@
 	<template path="js_examples/example_02.js" rename="example_02.js" />
 	-->
 	
-	<window fps="60" width="800" height="600" vsync="true" antialiasing="4" resizable="true" require-shaders="true" />
+	<window fps="0" width="0" height="0" vsync="true" antialiasing="4" resizable="true" require-shaders="true" />
 	
 	<source path="Source" />
 	
 	<haxelib name="lime" />
 	<haxelib name="format" />
 	
-	<!--<assets path="Assets" rename="../../../assets" exclude="*.svg" />-->
+	<!--
 	<assets path="Assets" rename="assets" exclude="*.svg" />
+	-->
 	<icon path="Assets/lime.svg" />
 	
 </project>

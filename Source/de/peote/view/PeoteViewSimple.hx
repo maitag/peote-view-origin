@@ -29,13 +29,13 @@
 package de.peote.view;
 
 import haxe.Timer;
-import lime.gl.GL;
 import lime.utils.Float32Array;
-import lime.utils.Matrix3D;
+import lime.math.Matrix3;
+import lime.graphics.opengl.GL;
 
-class PeoteView
+class PeoteViewSimple
 {
-	private var displaylist:Displaylist;
+	private var displaylist:DisplaylistSimple;
 	private var texturecache:TextureCache;
 	
 	
@@ -51,7 +51,7 @@ class PeoteView
 		// TODO: multiple Displaylists for different Usage (plain/tree/transp.)
 		
 		// (for low-end devices better max_elements < 100 000)
-		displaylist = new Displaylist(max_elements, max_programs);
+		displaylist = new DisplaylistSimple(max_elements, max_programs);
 		// TODO:  img_width, img_height, max_images
 		texturecache = new TextureCache(512, 512, 64, onLoadImage);
 	}
@@ -93,17 +93,17 @@ class PeoteView
 			if (img.cache_nr >= 0)
 			{
 				//trace("Image exist:" + image_nr);
-				displaylist.setElement(nr, x, y, z, w, h, scaleX, scaleY, shader_nr, img.tx, img.ty, img.tw, img.th, image_nr, tile_nr);
+				displaylist.setElement(nr, x, y, z, w, h, shader_nr, img.tx, img.ty, img.tw, img.th, image_nr, tile_nr);
 			}
 			else
 			{
 				//trace("load Image:" + image_nr);
 				// TODO: default Image
-				displaylist.setElement(nr, x, y, z, w, h, scaleX, scaleY, shader_nr, 0, 0, 0, 0, image_nr,  tile_nr);
+				displaylist.setElement(nr, x, y, z, w, h, shader_nr, 0.0, 0.0, 0.0, 0.0, image_nr,  tile_nr);
 				texturecache.loadImage( nr, image_nr, tile_nr);
 			}
 		}
-		else displaylist.setElement(nr, x, y, z, w, h, scaleX, scaleY, shader_nr, 0.0, 0.0, 1.0, 1.0, image_nr, tile_nr);
+		else displaylist.setElement(nr, x, y, z, w, h, shader_nr, 0.0, 0.0, 1.0, 1.0, image_nr, tile_nr);
 	}
 	
 	public function onLoadImage(nr:Int, image_nr:Int, tile_nr:Int, img:Image):Void

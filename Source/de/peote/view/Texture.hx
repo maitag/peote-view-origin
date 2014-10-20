@@ -33,9 +33,9 @@ import format.png.Tools;
 import haxe.io.BytesInput;
 import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
-import lime.gl.GL;
-import lime.gl.GLTexture;
-import lime.utils.Assets;
+import lime.graphics.opengl.GL;
+import lime.graphics.opengl.GLTexture;
+import lime.Assets;
 
 #if js
 import js.Browser;

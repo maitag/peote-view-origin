@@ -28,10 +28,9 @@
 
 package de.peote.view;
 
-import lime.gl.GL;
-import lime.gl.GLBuffer;
+import lime.graphics.opengl.GL;
+import lime.graphics.opengl.GLBuffer;
 import lime.utils.Float32Array;
-import lime.utils.Libs;
 
 class Buffer
 {

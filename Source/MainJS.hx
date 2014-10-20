@@ -29,18 +29,14 @@
 package;
 
 import js.Browser;
-import lime.Lime;
 import haxe.Timer;
-import lime.InputHandler;
-import lime.InputHandler.MouseEvent;
-import lime.InputHandler.TouchEvent;
+import lime.app.Application;
+import lime.graphics.RenderContext;
 
-import de.peote.view.PeoteView;
+import de.peote.view.PeoteViewSimple;
 
-@:expose("Peote") class MainJS {
+@:expose("Peote") class MainJS extends Application {
 	
-	private var lime:Lime;
-
 	private static var startTime:Float;
 	
     private var width: Int;
@@ -49,79 +45,78 @@ import de.peote.view.PeoteView;
     private var mouse_y: Int = 0;
     private var zoom: Int = 1;
 
-	public static var peoteView:PeoteView;
-	//public var render:Void->Void;
+	public static var peoteView:PeoteViewSimple;
 	
-	public function new () {}
 	public static function getTime():Float { return(Math.floor((Timer.stamp() - startTime)*100)/100); }
 	
-	public function ready(lime:Lime) {
-		
-		this.lime = lime;
-		//trace("PEOTE JAVASCRIPT LIB" );
-		//trace("multitouch_supported:"+lime.config.multitouch_supported );
-		
-		Browser.document.getElementById('lime_canvas').style.marginTop = '0px';
-		js_onresize(null);
-		Browser.window.addEventListener("resize", js_onresize);
-		Browser.window.addEventListener("mousemove", js_onmousemove);
-		Browser.window.addEventListener("touchmove", js_ontouchmove);
-		Browser.window.addEventListener("mousewheel", js_onmousewheel);     //chrome
-		Browser.window.addEventListener("DOMMouseScroll", js_onmousewheel); //FF
-		
-		peoteView = new PeoteView();
-		startTime = Timer.stamp();
-		
-		untyped __js__("starter(Peote.peoteView);");
+	public function new () {
+		super ();
 	}
 	
-	// EVENTS ------------------------------------------
-	// -------------------------------------------------
-	private function js_onmousemove( e:Dynamic )
+	public override function init (context:RenderContext):Void
 	{
-		mouse_x = Std.int(e.clientX);
-		mouse_y = Std.int(e.clientY);
-		//trace("js_onmousemove: " + mouse_x + "," + mouse_y );
-	}
-	private function js_ontouchmove( e:Dynamic )
-	{
-		mouse_x = Std.int(e.changedTouches[0].clientX);
-		mouse_y = Std.int(e.changedTouches[0].clientY);
-		//trace("js_ontouchmove: " + mouse_x + "," + mouse_y );
-		e.preventDefault();
-	}		
-	private function js_onresize(e:Dynamic)
-	{
-		if (Browser.document.getElementById('lime_canvas') != null)
-		{
-			width = Browser.window.innerWidth;
-			height = Browser.window.innerHeight;
-			//trace("js_onresize:" + width + "," + height);
-			
-			js.Lib.eval("document.getElementById('lime_canvas').style.width='" + width + "px';" +
-						"document.getElementById('lime_canvas').style.height='" + height + "px';" + 
-						"document.getElementById('lime_canvas').setAttribute('width', '" + width + "');" +
-						"document.getElementById('lime_canvas').setAttribute('height', '" + height + "');"
-			);
+		switch (context) {
+			case OPENGL (gl):
+				
+				width = window.width;
+				height = window.height;
+				
+				peoteView = new PeoteViewSimple();
+				startTime = Timer.stamp();
+				
+				untyped __js__("starter(Peote.peoteView);");
+				
+			default:
+				trace("only opengl supported");
 		}
-	}		
-	private function js_onmousewheel( e:Dynamic )
-	{
-		var delta:Float = Math.max(-1, Math.min(1, (Std.int(e.wheelDelta) + -Std.int(e.detail))));
-		if (delta > 0) zoom++;
-		else if (zoom>1) zoom--;
-		//trace("js_onmousewheel: " + e.detail );
-	}	
-	// end Event Handler
+	}
 	
-	
-	// ------------------------------------------------------------
 	// ----------- Render Loop ------------------------------------
-	// ------------------------------------------------------------
-
-	public inline function render():Void
+	public override function render(context:RenderContext):Void
 	{
 		peoteView.render(Math.floor((Timer.stamp() - startTime) * 100) / 100, width, height, mouse_x, mouse_y, zoom);
+	}
+	
+	// ------------------------------------------------------------
+	// ----------- EVENT HANDLER ----------------------------------
+	public override function onWindowResize (width:Int, height:Int):Void
+	{
+		trace("onWindowResize:"+width+','+height);
+		this.width = width;
+		this.height = height;
+	}
+	public override function onMouseMove (x:Float, y:Float, button:Int):Void
+	{
+		//trace("onMouseMove: " + x + "," + y );
+		mouse_x = Std.int(x);
+		mouse_y = Std.int(y);
+	}
+	public override function onTouchMove (x:Float, y:Float, id:Int):Void
+	{
+		trace("onTouchMove: " + x + "," + y );
+		mouse_x = Std.int(x);
+		mouse_y = Std.int(y);
+	}
+	public override function onMouseDown (x:Float, y:Float, button:Int):Void
+	{	
+		trace("onMouseDown: x=" + x + " y="+ y);
+		if ( button == 0) zoom++;
+		else if (button == 1 && zoom>1) zoom--;
+	}
+	public override function onMouseUp (x:Float, y:Float, button:Int):Void
+	{	
+		trace("onmouseup: "+button+" x=" + x + " y="+ y);
+	}
+	public override function onMouseWheel (deltaX:Float, deltaY:Float):Void
+	{	
+		trace("onmousewheel: " + deltaX + ',' + deltaY );
+		#if windows
+		if ( deltaY>0 ) zoom++;
+		#else
+		if ( deltaY<0 ) zoom++;
+		#end
+		else if (zoom > 1) zoom--;
+		
 	}
 	
 	

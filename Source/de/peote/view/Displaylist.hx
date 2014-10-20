@@ -38,133 +38,69 @@ import haxe.Http;
 class Displaylist
 {
 	
-	public var element:Vector<Element>;
-	public var programsCache:Vector<Program>;
-	public var buffer:Buffer;
-	
-	private var defaultProgram:Program;
+	public var treeElement:Vector<TreeElement>;
 	
 	public function new(max_elements:Int, max_programs:Int) 
 	{
-		element = new Vector<Element>(max_elements);
-		
-		programsCache = new Vector<Program>(max_programs);
-		
-		// default Shader
-		defaultProgram = new Program();
-		defaultProgram.compile(Shader.default_fragmentShaderSrc, Shader.default_vertexShaderSrc, onerror);
-		
-		buffer = new Buffer(1000, 200*2);
-	
+		treeElement = new Vector<TreeElement>(max_elements);
+		super(max_elements, max_programs);
 	}
 	
-	public function onerror(msg:String):Void { trace(msg); }
-	
-	public inline function setShader(shader_nr:Int, fragmentShaderUrl:String, vertexShaderUrl:String):Void
+	public function setTreeElement1(parent_nr:Int, nr:Int, x:Int, y:Int, z:Int, w:Int, h:Int,
+	                                           scaleX:Float, scaleY:Float, shader_nr:Int,
+	                                           tx:Float, ty:Float, tw:Float, th:Float, image_nr:Int, tile_nr:Int ):Void
 	{
-		//var fragmentShaderSrc:String = (fragmentShaderUrl == '') ? Shader.default_fragmentShaderSrc : Assets.getText(fragmentShaderUrl);
-		//var vertexShaderSrc:String = (vertexShaderUrl == '') ? Shader.default_vertexShaderSrc : Assets.getText(vertexShaderUrl);
-		//var fragmentShaderSrc:String = (fragmentShaderUrl == '') ? Shader.default_fragmentShaderSrc :  Http.requestUrl(fragmentShaderUrl);
-		//var vertexShaderSrc:String = (vertexShaderUrl == '') ? Shader.default_vertexShaderSrc : Http.requestUrl(vertexShaderUrl);
-
-		// TODO: doesnt work yet with assets.gettext on html5 target (with http.requestUrl sandbox prbl. for easy testing)
-		var fragmentShaderSrc:String = Shader.default_fragmentShaderSrc;
-		if (fragmentShaderUrl != '') 
+		if (parent_nr != -1)
 		{
-			#if js
-			var req = js.Browser.createXMLHttpRequest();
-			req.open('GET', fragmentShaderUrl, false);
-			req.send();
-			fragmentShaderSrc = req.responseText;
-			#else
-			fragmentShaderSrc = Assets.getText(fragmentShaderUrl);
-			#end
-		}
-		var vertexShaderSrc:String = Shader.default_vertexShaderSrc;
-		if (vertexShaderUrl != '') 
-		{
-			#if js
-			var req = js.Browser.createXMLHttpRequest();
-			req.open('GET', vertexShaderUrl, false);
-			req.send();
-			vertexShaderSrc = req.responseText;
-			#else
-			vertexShaderSrc = Assets.getText(vertexShaderUrl);
-			#end
-		}
-		
-		setShaderSrc(shader_nr, fragmentShaderSrc, vertexShaderSrc);
-	}
-	
-	public inline function setShaderSrc(shader_nr:Int, fragmentShaderSrc:String, vertexShaderSrc:String):Void
-	{	trace("fragmentShaderSrc="+fragmentShaderSrc);
-		if (programsCache.get(shader_nr) == null) programsCache.set(shader_nr, new Program() );
-		programsCache.get(shader_nr).compile(fragmentShaderSrc, vertexShaderSrc, onerror);
-	}
-	
-	public inline function setElement(nr:Int, x:Int, y:Int, z:Int, w:Int, h:Int, shader_nr:Int,
-	                           tx:Float, ty:Float, tw:Float, th:Float, image_nr:Int, tile_nr:Int ):Void
-	{
-		var tile_x:Float = 0.0;
-		var tile_y:Float = 0.0;
-		var tile_scaleX:Float = 1.0;
-		var tile_scaleY:Float = 1.0;
-		
-		if (tile_nr > -1)
-		{
-			tile_x = tile_nr % 16;
-			tile_y = Math.floor(tile_nr / 16);
+			var parent = treeElement.get(parent_nr);
+			x += parent.x;
+			y += parent.y;
+			z += parent.z;
+			scaleX *= parent.scaleX;
+			scaleY *= parent.scaleY;
 			
-			tile_scaleX = 1 / 16;
-			tile_scaleY = 1 / 16;
+			treeElement.set(nr, new TreeElement( parent.child, x, y, z, w, h, scaleX, scaleY) );
+			parent.child = nr;
 		}
-		
-		var program:Program = programsCache.get(shader_nr);
-		if (program == null) 
-		{
-			program = new Program(defaultProgram);
-			programsCache.set(shader_nr, program);
-		}
-		
-		element.set(nr, buffer.addElement(program,
-							x,y,z,w,h,
-							tx + tile_x * tw * tile_scaleX,
-							ty + tile_y * th * tile_scaleY,
-							tw * tile_scaleX,
-							th * tile_scaleY,
-							image_nr) );
+		else treeElement.set(nr, new TreeElement(-1, x, y, z, w, h, scaleX, scaleY) );
+
+		super.setElement( nr, x, y, z, Math.round(w*scaleX), Math.round(h*scaleY), shader_nr, tx, ty, tw, th, image_nr, tile_nr );
 	}
 	
-	public inline function delElement(e:Element):Void
+	override public function delElement(e:Element):Void
 	{
 		buffer.delElement(e);
+		// TODO: deleta all childs
 	}
 	
-	public inline function animElement(nr:Int, x:Int, y:Int, z:Int, w:Int, h:Int, t1:Float, t2:Float):Void
+	public function animTreeElement(nr:Int, x:Int, y:Int, z:Int, w:Int, h:Int,
+	                                            scaleX:Float, scaleY:Float, t1:Float, t2:Float):Void
 	{
-		buffer.animElement(element.get(nr), x, y, z, w, h, t1, t2);
-	}
-	
-	public inline function setElementTexCoord(nr:Int, tx:Float, ty:Float, tw:Float, th:Float, image_nr:Int, tile_nr:Int):Void
-	{
-		var tile_x:Float = 0.0;
-		var tile_y:Float = 0.0;
-		var tile_scaleX:Float = 1.0;
-		var tile_scaleY:Float = 1.0;
+		var elem:TreeElement = treeElement.get(nr);
+		var parent_nr:Int = elem.parent;
 		
-		if (tile_nr > -1)
+		if (parent_nr != -1)
 		{
-			tile_x = tile_nr % 16;
-			tile_y = Math.floor(tile_nr / 16);
-			
-			tile_scaleX = 1 / 16;
-			tile_scaleY = 1 / 16;
+			var parent = treeElement.get(parent_nr);
+			x += parent.x;
+			y += parent.y;
+			z += parent.z;
+			scaleX *= parent.scaleX;
+			scaleY *= parent.scaleY;
 		}
-		buffer.setElementTexCoord(element.get(nr),
-								tx + tile_x * tw * tile_scaleX,
-								ty + tile_y * th * tile_scaleY,
-								tw * tile_scaleX,
-								th * tile_scaleY,
-								image_nr);
+		
+		elem.update(x, y, z, w, h, scaleX, scaleY);
+		super.animElement(nr, x, y, z, Math.round(w*scaleX), Math.round(h*scaleY), t1, t2);
+		
+		// all childs relative
+		var child_nr:Int = elem.child;
+		while (child_nr != -1)
+		{
+			elem = treeElement.get(child_nr); // elem is child now
+			animTreeElement(child_nr, elem.x, elem.y, elem.z, elem.w, elem.h, elem.scaleX, elem.scaleY, t1, t2);
+			child_nr = elem.sib;
+		}
 	}
+	
+	
 }
