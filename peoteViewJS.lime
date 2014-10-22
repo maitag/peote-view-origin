@@ -3,18 +3,8 @@
 	
 	<meta title="peote_view" package="de.peote.view" version="0.1.1" company="Sylvio Sell - maitag" />
 	
-	<!--<app main="MainJS" path="js_examples/Export" file="../../../peoteViewLib" />-->
-	<app main="MainJS" path="js_examples/Export" file="peoteViewLib" />
-	
-	<template path="js_examples/peoteTimer.js" rename="peoteTimer.js" />
-	
-	<template path="js_examples/templates/index.html" rename="index.html" />
-	<template path="js_examples/templates/example_01.html" rename="example_01.html" />
-	<template path="js_examples/example_01.js" rename="example_01.js" />
-	<!--
-	<template path="js_examples/templates/example_02.html" rename="example_02.html" />
-	<template path="js_examples/example_02.js" rename="example_02.js" />
-	-->
+	<!-- peoteViewLib.js will be moved to js_examples for easy testing locally -->
+	<app main="MainJS" path="js_examples/Export" file="../../../peoteViewLib" />
 	
 	<window fps="0" width="0" height="0" vsync="true" antialiasing="4" resizable="true" require-shaders="true" />
 	
@@ -23,9 +13,6 @@
 	<haxelib name="lime" />
 	<haxelib name="format" />
 	
-	<!--
-	<assets path="Assets" rename="assets" exclude="*.svg" />
-	-->
-	<icon path="Assets/lime.svg" />
+	<!-- assets for js_examples not preloaded, so better testing locally with FF -->
 	
 </project>

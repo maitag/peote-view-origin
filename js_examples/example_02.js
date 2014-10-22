@@ -37,17 +37,17 @@ function starter(peoteView)
 	var switchBGanim = 1;
 	
 	// set shaders
-	peoteView.setShader(0, "Assets/lyapunov_01.frag");
-	peoteView.setShader(1);
+	peoteView.setShader(0, "Assets/HerokuShaders/nebula.frag");
+	peoteView.setShader(1, "Assets/lyapunov_02.frag");
+	peoteView.setShader(2);
 	
 	// set images
 	peoteView.setImage(0, "Assets/peote_font_green.png");
-	peoteView.setImage(1, "Assets/peote_tiles.png");
 
 	// set Time
 	var t = Peote.getTime();
 		
-	// fractal BG
+	// nebula BG
 	peoteView.setElement (nr,     0,     0, -1,  3000,  3000, 0);
 	peoteView.animElement(nr, -1500, -1500, -1, 11000, 11000, t, t + h );
 		
@@ -57,8 +57,9 @@ function starter(peoteView)
 		for (var y=0; y<h; y++)
 		{
 			nr = 1 + y*w +x;
-			peoteView.setElement ( nr, x*s, y*s-s,     0, s, s, 1, Math.floor(Math.random() * 2), Math.floor(Math.random() * 256));
-			peoteView.animElement( nr, x*s, y*s-s+h*s, 0, s, s, t, t + h );
+			var rs = s + Math.floor(Math.random() * 150);
+			peoteView.setElement ( nr, Math.floor(Math.random() * 1550), Math.floor(Math.random() * 1550), 0, s/2, s/2, 1, null, Math.floor(Math.random() * 256));
+			peoteView.animElement( nr, Math.floor(Math.random() * 1550), Math.floor(Math.random() * 1550), 0, rs, rs, t, t + h );
 		}
 	}
 	
@@ -68,8 +69,9 @@ function starter(peoteView)
 		for (var x=0; x<w; x++)
 		{
 			nr = 1 + last_y*w + x;
-			peoteView.animElement( nr, x*s, -s    , 0, s, s, 0, 0 );
-			peoteView.animElement( nr, x*s, -s+h*s, 0, s, s, t, t + h );
+			var rs = s + Math.floor(Math.random() * 150);
+			peoteView.animElement( nr, Math.floor(Math.random() * 1550), Math.floor(Math.random() * 1550), 0, s/2, s/2, 0, 0 );
+			peoteView.animElement( nr, Math.floor(Math.random() * 1550), Math.floor(Math.random() * 1550), 0, rs, rs, t, t + h );
 		}
 		if (last_y == 0)
 		{
