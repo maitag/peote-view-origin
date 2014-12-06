@@ -15,3 +15,12 @@ on multiple hardware devices.
 
 more [examples here](http://maitag.de/~semmi/haxelime/viewer_gpuanimtiles/)
 (zoom in with mousewheel and have [fun](http://maitag.de/~semmi/haxelime/viewer_gpuanimtiles/halloWeltYT.html) ;)
+
+
+####How To Use ?
+
+- this lib should to be small and useful
+- to handle imagedata and procedural shadercode equal
+- with power of haxe-nme-lime multiplatform code generation for opengl-rendering
+
+(1/φ milestone at Version 1;)
