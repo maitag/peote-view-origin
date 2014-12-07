@@ -1,7 +1,7 @@
 ###Peote View - 2D OpenGL Render Library
 
-This Library is written in [Haxe](http://haxe.org) and can be used with [OpenFl/Lime](http://www.openfl.org/documentation/setup/install-haxe/)
-on multiple hardware devices.
+This Library is written in [Haxe](http://haxe.org). Uses [OpenFl/Lime](http://www.openfl.org/documentation/setup/install-haxe/)
+to run on multiple hardware devices.
 
 
 ####Build [Examples](http://maitag.github.io/peote-view/examples/example_01.html) (written in haxe)
