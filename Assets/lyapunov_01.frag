@@ -25,8 +25,8 @@ void main( void ) {
 	//float b = position.y;
 	//float a = gl_FragCoord.x / uResolution.x;
 	//float b = gl_FragCoord.y / uResolution.y;
-	float a = vTexCoord.x*2.0; // uResolution.x;
-	float b = vTexCoord.y*2.0; // uResolution.y;
+	float a = vTexCoord.x/400.0; // uResolution.x;
+	float b = vTexCoord.y/400.0; // uResolution.y;
 	
 	// PArameter
 	float p1 = 1.7+(uMouse.x / 3.0);

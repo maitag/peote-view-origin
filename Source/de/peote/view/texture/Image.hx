@@ -26,7 +26,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.peote.view;
+package de.peote.view.texture;
 
 import format.png.Reader;
 import format.png.Tools;
@@ -44,26 +44,24 @@ class Image
 {
 	
 	public var url:String;
-	public var cache_nr:Int = -2; // -2 isnt at loading, -1 is loading
-	public var element_nr:Array<Int>;
-	public var image_nr:Array<Int>;
-	public var tile_nr:Array<Int>;
+	public var holePos:Int = -1;
 	
-	public var used:Int = 0; // TODO
+	public var used:Int = 0;
+	// TODO: priority 
 	
-	public var tx:Float;
-	public var ty:Float;
-	public var tw:Float;
-	public var th:Float;
+	public var tx:Int;
+	public var ty:Int;
+	public var tw:Int;
+	public var th:Int;
 	
-	public function new(image_url:String) 
+	public function new(image_url:String, w:Int, h:Int) 
 	{
 		url = image_url;
-		element_nr = new Array<Int>();
-		image_nr = new Array<Int>();
-		tile_nr = new Array<Int>();
+		tw = w;
+		th = h;
 	}
 	
+	// TODO: how t ocancel loading ?
 	#if js
 	public function load(onload:Image->Int->Int->UInt8Array->Void, onerror:String->Void):Void
 	{

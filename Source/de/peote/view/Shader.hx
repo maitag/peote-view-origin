@@ -39,8 +39,8 @@ class Shader
 	{
 		this.url = url;
 	}
-	
-	public static inline var default_vertexShaderSrc:String =
+	/*
+	public static inline var default_vertexShaderSrc_old:String =
 	"	precision mediump float;
 
 		attribute vec3 aVertexPosStart;
@@ -72,8 +72,8 @@ class Shader
 			float bottom = height-deltaY*zoom;
 			float top = -deltaY * zoom;
 			
-			float far = 100.0;
-			float near = -100.0;
+			float far = 1000.0;
+			float near = -1000.0;
 			
 			gl_Position = mat4 (
 				vec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),
@@ -82,6 +82,108 @@ class Shader
 				vec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1.0)
 			)
 			* vec4 (aVertexPosStart + floor( (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0) * zoom)/zoom, 1.0);
+		}
+	";
+	*/
+	/*
+	public static inline var default_vertexShaderSrc:String =
+	"	precision mediump float;
+
+		attribute vec2 aVertexPosStart;
+		attribute float aTimeStart;
+		attribute float aTimeEnd;
+		attribute vec2 aVertexPosEnd;
+		attribute float aZindex;
+		attribute vec2 aTexCoord;
+		
+		varying vec2 vTexCoord;
+		
+		uniform float uTime;
+		uniform float uZoom;
+		uniform vec2 uResolution;
+		uniform vec2 uDelta;
+		
+		void main(void) {
+			vTexCoord = aTexCoord/2048.0;
+			
+			float zoom = uZoom;
+			float width = uResolution.x;
+			float height = uResolution.y;
+			float deltaX = floor(uDelta.x);
+			float deltaY = floor(uDelta.y);
+			
+			float right = width-deltaX*zoom;
+			float left = -deltaX*zoom;
+			float bottom = height-deltaY*zoom;
+			float top = -deltaY * zoom;
+			
+			gl_Position = mat4 (
+				vec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),
+				vec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),
+				vec4(0.0, 0.0, -0.001, 0.0),
+				vec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)
+			)
+			//* vec4 (aVertexPosStart + floor( (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTimeStart)/(aTimeEnd-aTimeStart), 1.0) * zoom)/zoom, aZindex ,1.0);
+		* vec4 (aVertexPosStart + floor( (aVertexPosEnd-aVertexPosStart) * max( 0.0, min( (uTime-aTimeStart)/(aTimeEnd-aTimeStart), 1.0)) * zoom)/zoom, aZindex ,1.0);
+		}
+	";
+	*/
+	
+	// TODO: TextureCache.max_texture_size auch per Template dynamisch ersetzen!!!
+	public static inline var default_vertexShaderSrc:String =
+	"	precision mediump float;
+
+		// always twice if time dependend
+		attribute vec4 aPosition;
+		attribute vec2 aTime;
+		
+		attribute float aZindex;
+		attribute vec2 aTexCoord;
+		
+		#if_RGBA
+		attribute vec4 aRGBA;
+		varying vec4 vRGBA;
+		#end_RGBA
+
+		varying vec2 vTexCoord;
+		
+		uniform float uTime;
+		uniform float uZoom;
+		uniform vec2 uResolution;
+		uniform vec2 uDelta;
+		
+		void main(void) {
+			#if_RGBA
+			vRGBA = 255.0/aRGBA;
+			#end_RGBA
+			
+			vTexCoord = aTexCoord;
+			
+			vec2 VertexPosStart = vec2( aPosition ); //vec2 (aPosition.x, aPosition.y);
+			vec2 VertexPosEnd   = vec2 (aPosition.z, aPosition.w);
+			
+			float zoom = uZoom;
+			float width = uResolution.x;
+			float height = uResolution.y;
+			float deltaX = floor(uDelta.x);
+			float deltaY = floor(uDelta.y);
+			
+			float right = width-deltaX*zoom;
+			float left = -deltaX*zoom;
+			float bottom = height-deltaY*zoom;
+			float top = -deltaY * zoom;
+			
+			gl_Position = mat4 (
+				vec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),
+				vec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),
+				vec4(0.0, 0.0, -0.001, 0.0),
+				vec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)
+			)
+			* vec4 (VertexPosStart + floor( 
+								(VertexPosEnd - VertexPosStart)
+								* max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0))
+								* zoom) / zoom
+				, aZindex ,1.0);
 		}
 	";
 	
@@ -94,7 +196,9 @@ class Shader
 		
 		void main(void)
 		{
-			gl_FragColor = texture2D (uImage, vTexCoord);
+			vec4 texel = texture2D(uImage, vTexCoord / %MAX_TEXTURE_SIZE%);
+			if(texel.a < 0.5) discard;
+			gl_FragColor = texel;
 		}
 	";
 

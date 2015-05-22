@@ -54,7 +54,10 @@ class Main extends Application {
 				height = window.height;
 				
 				// start Example
+				//var example:ExampleTesting = new ExampleTesting();
 				var example:Example_01 = new Example_01();
+				
+				//var example:Example_02 = new Example_02();
 				render_example = example.render;
 				
 			default:
@@ -78,11 +81,12 @@ class Main extends Application {
 		this.width = width;
 		this.height = height;
 	}
-	public override function onMouseMove (x:Float, y:Float, button:Int):Void
+	public override function onMouseMove (x:Float, y:Float):Void
 	{
 		//trace("onMouseMove: " + x + "," + y );
 		mouse_x = Std.int(x);
 		mouse_y = Std.int(y);
+		
 	}
 	public override function onTouchMove (x:Float, y:Float, id:Int):Void
 	{
@@ -103,13 +107,8 @@ class Main extends Application {
 	public override function onMouseWheel (deltaX:Float, deltaY:Float):Void
 	{	
 		trace("onmousewheel: " + deltaX + ',' + deltaY );
-		#if windows
 		if ( deltaY>0 ) zoom++;
-		#else
-		if ( deltaY<0 ) zoom++;
-		#end
 		else if (zoom > 1) zoom--;
-		
 	}
 
 	// end Event Handler

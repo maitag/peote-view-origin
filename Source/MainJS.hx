@@ -33,7 +33,7 @@ import haxe.Timer;
 import lime.app.Application;
 import lime.graphics.RenderContext;
 
-import de.peote.view.PeoteViewSimple;
+import de.peote.view.PeoteView;
 
 @:expose("Peote") class MainJS extends Application {
 	
@@ -45,7 +45,9 @@ import de.peote.view.PeoteViewSimple;
     private var mouse_y: Int = 0;
     private var zoom: Int = 1;
 
-	public static var peoteView:PeoteViewSimple;
+	public static var peoteView:PeoteView;
+	public static var max_displaylists:Int;
+	public static var max_programs:Int;
 	
 	public static function getTime():Float { return(Math.floor((Timer.stamp() - startTime)*100)/100); }
 	
@@ -61,7 +63,8 @@ import de.peote.view.PeoteViewSimple;
 				width = window.width;
 				height = window.height;
 				
-				peoteView = new PeoteViewSimple();
+				//peoteView = new PeoteView(560 * 360 +1, 2, 1000); // TODO
+				peoteView = new PeoteView(max_displaylists, max_programs); // TODO
 				startTime = Timer.stamp();
 				
 				untyped __js__("starter(Peote.peoteView);");
@@ -85,7 +88,7 @@ import de.peote.view.PeoteViewSimple;
 		this.width = width;
 		this.height = height;
 	}
-	public override function onMouseMove (x:Float, y:Float, button:Int):Void
+	public override function onMouseMove (x:Float, y:Float):Void
 	{
 		//trace("onMouseMove: " + x + "," + y );
 		mouse_x = Std.int(x);
@@ -109,14 +112,9 @@ import de.peote.view.PeoteViewSimple;
 	}
 	public override function onMouseWheel (deltaX:Float, deltaY:Float):Void
 	{	
-		trace("onmousewheel: " + deltaX + ',' + deltaY );
-		#if windows
+		//trace("onmousewheel: " + deltaX + ',' + deltaY );
 		if ( deltaY>0 ) zoom++;
-		#else
-		if ( deltaY<0 ) zoom++;
-		#end
 		else if (zoom > 1) zoom--;
-		
 	}
 	
 	

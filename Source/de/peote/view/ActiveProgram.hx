@@ -28,9 +28,15 @@
 
 package de.peote.view;
 
+import de.peote.tools.Holes;
+
 class ActiveProgram
 {
+	// CHECK
 	public var program:Program;
+	public var program_nr:Int;
+	
+	
 	public var buf_start:Int;
 	
 	public var start:Int;
@@ -38,9 +44,11 @@ class ActiveProgram
 	
 	public var element_holes:Holes;
 	
-	public inline function new(program:Program, segment_size:Int, buf_start:Int)
+	public inline function new(program:Program, program_nr:Int, segment_size:Int, buf_start:Int)
 	{
 		this.program = program;
+		this.program_nr = program_nr;
+		
 		this.buf_start = buf_start * segment_size;
 		element_holes = new Holes(segment_size);
 	}

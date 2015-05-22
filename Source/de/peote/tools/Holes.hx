@@ -26,9 +26,10 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.peote.view;
+package de.peote.tools;
 
-class Holes
+// this cheese holds all its holes "together?"
+class Holes // amount of manysized cheese-holes may grow up (memory-consume-temple.. ;)=
 {
 	public var hole:Array<Hole>;
 	public var size:Int;
@@ -80,7 +81,6 @@ class Holes
 			}
 			else if ( pos < hole[i].start)
 			{	//trace("C");
-				// Array Element einfuegen
 				hole.insert(i, new Hole(pos));
 				//trace("addHole: if ( pos < hole[i].start):" + hole);
 				return;

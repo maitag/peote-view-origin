@@ -28,6 +28,7 @@
 
 package de.peote.view;
 
+import de.peote.view.texture.TextureCache;
 import haxe.ds.Vector.Vector;
 import lime.graphics.opengl.GL;
 import lime.graphics.opengl.GLProgram;
@@ -36,15 +37,16 @@ import lime.graphics.opengl.GLUniformLocation;
 
 class Program
 {
-	public var activeProgram:Array<ActiveProgram>;
-	public var fragment_shader_url:String = "";
+	
+	
+	//public var fragment_shader_url:String = "";
 	
 	public var glProgram:GLProgram = null;
 	public var uniforms:Vector<GLUniformLocation>;
 	
-	public static var aVertexPosStart:Int = -1; // -1 -> uninitialized
-	public static var aVertexPosEnd:Int;
+	public static var aPosition:Int = -1; // -1 -> uninitialized
 	public static var aTime:Int;
+	public static var aZindex:Int;
 	public static var aTexCoord:Int;
 	
 	public static inline var uMODELVIEWMATRIX:Int = 0;
@@ -63,11 +65,53 @@ class Program
 			this.glProgram = defaultProgram.glProgram;
 			this.uniforms = defaultProgram.uniforms;
 		}
-		activeProgram = new Array<ActiveProgram>();
+		
+		// CHECK
+		// activeProgramArray = new Array<ActiveProgram>();
 	}
 	
 	public inline function compile(fragmentShaderSrc:String, vertexShaderSrc:String, onerror:String->Void):Void
 	{
+		// testing regexp shader parsing
+		var r = new EReg("//.*?$","gm");
+		vertexShaderSrc = r.replace(vertexShaderSrc, "");
+		r = new EReg("\r?\n","g");
+		vertexShaderSrc = r.replace(vertexShaderSrc, "");
+		r = new EReg("\t\t+","g");
+		vertexShaderSrc = r.replace(vertexShaderSrc, "");
+		
+		// TODO ::: Displaylist->Element specific PROGRAM ^~
+		//if (type & Displaylist.RGBA ==0) //RGBA
+		if (false) //RGBA
+		{
+			r = new EReg("#if_RGBA(.*?)#else_RGBA(.*?)#end_RGBA","ig");
+			vertexShaderSrc = r.replace(vertexShaderSrc, "$1");
+			r = new EReg("#if_RGBA(.*?)#end_RGBA","ig");
+			vertexShaderSrc = r.replace(vertexShaderSrc, "$1");
+		} 
+		else
+		{
+			r = new EReg("#if_RGBA(.*?)#else_RGBA(.*?)#end_RGBA","ig");
+			vertexShaderSrc = r.replace(vertexShaderSrc, "$2");
+			r = new EReg("#if_RGBA(.*?)#end_RGBA","ig");
+			vertexShaderSrc = r.replace(vertexShaderSrc, "");
+		}
+		
+		// reformat to test
+		r = new EReg(";","g");
+		vertexShaderSrc = r.replace(vertexShaderSrc, ";\n");
+
+		
+		// replace template variables
+		r = new EReg("%MAX_TEXTURE_SIZE%","g");
+		vertexShaderSrc = r.replace(vertexShaderSrc, TextureCache.max_texture_size+".0");
+		fragmentShaderSrc = r.replace(fragmentShaderSrc, TextureCache.max_texture_size+".0");
+
+		//trace(vertexShaderSrc);
+		//trace(fragmentShaderSrc);
+		
+		// -----------------------------------------------------------------------
+		
 		var fs = GL.createShader(GL.FRAGMENT_SHADER);
 		GL.shaderSource(fs, fragmentShaderSrc);
 		GL.compileShader(fs);
@@ -97,12 +141,12 @@ class Program
 			}
 			else
 			{
-				if (aVertexPosStart == -1)
+				if (aPosition == -1)
 				{
-					aVertexPosStart = GL.getAttribLocation(glProgram, "aVertexPosStart");
-					aVertexPosEnd   = GL.getAttribLocation(glProgram, "aVertexPosEnd");
-					aTime           = GL.getAttribLocation(glProgram, "aTime");
-					aTexCoord       = GL.getAttribLocation(glProgram, "aTexCoord");
+					aPosition = GL.getAttribLocation(glProgram, "aPosition");
+					aTime     = GL.getAttribLocation(glProgram, "aTime");
+					aZindex   = GL.getAttribLocation(glProgram, "aZindex");
+					aTexCoord = GL.getAttribLocation(glProgram, "aTexCoord");
 				}
 				// set uniforms
 				uniforms = new Vector<GLUniformLocation>(GL.getProgramParameter(glProgram, GL.ACTIVE_UNIFORMS));

@@ -28,38 +28,45 @@
 
 package de.peote.view;
 
-import lime.graphics.opengl.GL;
-import lime.graphics.opengl.GLBuffer;
-import lime.utils.Float32Array;
+import haxe.ds.IntMap;
+
+import de.peote.view.element.I_Element;
+import de.peote.tools.Holes;
 
 class Buffer
 {
 	public static var VERTEX_COUNT:Int = 6;
-	public static var STRAW:Int = 10;
-	
-	public var buffer:GLBuffer;
+		
+	public var segment_size:Int;
+	public var max_segments:Int;
 	
 	public var activeProgram:Array<ActiveProgram>;
-	public var segment_holes:Holes;
+	private var segment_holes:Holes;
 	
-	private var segment_size:Int;
+	// CHECK:
+	private var activeProgramSlots:IntMap<Array<ActiveProgram>>;
 	
 	public function new(segment_size:Int, max_segments:Int)
 	{	
 		this.segment_size = segment_size;
+		this.max_segments = max_segments;
 		
-		this.activeProgram = new Array<ActiveProgram>();
-		
-		createEmptyBuffer(max_segments * segment_size * VERTEX_COUNT * STRAW);
+		activeProgram = new Array<ActiveProgram>();
 		segment_holes = new Holes(max_segments);
+		
+		// CHECK:
+		activeProgramSlots = new IntMap<Array<ActiveProgram>>();
 	}
 	
-	public inline function delElement(e:Element):Void
+	public inline function delete():Void
 	{
-		GL.bindBuffer (GL.ARRAY_BUFFER, buffer);
-		GL.bufferSubData(GL.ARRAY_BUFFER, e.buf_pos * 10 * 4 , new Float32Array (60));
-		GL.bindBuffer (GL.ARRAY_BUFFER, null);
-		
+		activeProgram = null;
+		segment_holes = null;
+		activeProgramSlots = null;
+	}
+	
+	public inline function delElement(e:I_Element):Void
+	{
 		e.act_program.element_holes.addHole(Math.floor( (e.buf_pos - e.act_program.buf_start) / VERTEX_COUNT));
 		e.act_program.start = e.act_program.buf_start + 1 + e.act_program.element_holes.first() * VERTEX_COUNT;
 		e.act_program.size = (e.act_program.element_holes.last() + 1
@@ -73,36 +80,50 @@ class Buffer
 		{
 			//trace("delete SEGMENT: ");
 			segment_holes.addHole(  Math.floor(e.act_program.buf_start / segment_size / VERTEX_COUNT) );
-			e.act_program.program.activeProgram.remove(e.act_program);
-			activeProgram.remove(e.act_program);
+			
+			// CHECK
+			//e.act_program.program.activeProgramArray.remove(e.act_program);
+			activeProgramSlots.get(e.act_program.program_nr).remove(e.act_program);
+			
+			this.activeProgram.remove(e.act_program);
 			//trace("segment-holes:"+ segment_holes);
 		}
 			
 	}
-	public function addElement(program:Program, x:Int, y:Int, z:Int, w:Int, h:Int,
-	                                       tx:Float, ty:Float, tw:Float, th:Float, image_nr:Int, slot:Int=0):Element
+
+	public function addElement(e:I_Element, program:Program, program_nr:Int, slot:Int = 0	 ):Void
 	{
 		// TODO:
 		// var i:Int = program.activeProgram_index[slot];
 		var buf_pos:Int = 0;
 		var act_program:ActiveProgram = null;
 		
-		if (slot == program.activeProgram.length) // program is not in use
+		// CHECK
+		//if (slot == program.activeProgramArray.length) // program is not in use
+		if ( ! activeProgramSlots.exists(program_nr) )  activeProgramSlots.set(program_nr, new Array<ActiveProgram>());
+		if (slot == activeProgramSlots.get(program_nr).length) // program is not in use
 		{
 			//trace("NEUES SEGMENT: ");
-			act_program = new ActiveProgram(program, segment_size, segment_holes.getHole() * VERTEX_COUNT);
-			program.activeProgram.push(act_program);
-			activeProgram.push(act_program);
+			                                          // CHECK
+			act_program = new ActiveProgram(program, program_nr, segment_size, segment_holes.getHole() * VERTEX_COUNT);
+			
+			// CHECK
+			//program.activeProgramArray.push(act_program);
+			activeProgramSlots.get(program_nr).push(act_program);
+			
+			this.activeProgram.push(act_program);
 		}
 		else
 		{
-			act_program = program.activeProgram[slot]; // TODO: may optimize with holes to
+			// CHECK
+			//act_program = program.activeProgramArray[slot]; // TODO: may optimize with holes to
+			act_program = activeProgramSlots.get(program_nr)[slot]; // TODO: may optimize with holes to
 		}
 		
-		if (act_program.element_holes.is_full())
+		if (act_program.element_holes.is_full()) // TODO: PROBLEM!!!!
 		{
 			//trace("SEGMENT full");
-			return addElement(program, x, y, z, w, h, tx, ty, tw, th, image_nr, slot + 1);			
+			addElement(e, program, program_nr, slot+1);
 		}
 		else
 		{
@@ -116,169 +137,12 @@ class Buffer
 			act_program.size = 
 				(act_program.element_holes.last() + 1
 				- act_program.element_holes.first()) * VERTEX_COUNT - 2;
-			//trace("buf_pos :"+buf_pos + " start" + act_program.start+ " size" + act_program.size);
+			
+			
+			e.bufferUpdate(act_program, buf_pos);
 		}
-		
-		var xw:Float = x + w;
-		var yh:Float = y + h;
-		var txw:Float = tx + tw;
-		var tyh:Float = ty + th;
-		
-		GL.bindBuffer (GL.ARRAY_BUFFER, buffer);
-		GL.bufferSubData(GL.ARRAY_BUFFER, buf_pos * 10 * 4 , new Float32Array ( // 60 Floats -> 60*4 Bytes
-			[
-				xw, yh, z,		// 1 VERTEX_START twice
-				0, 0, 			// 1 TIME         twice
-				xw, yh, z,    	// 1 VERTEX_END   twice
-				txw, tyh,		// 1 TEXT COORD   twice
-				
-				xw, yh, z,		// 1 VERTEX_START
-				0, 0,			// 1 TIME
-				xw, yh, z,		// 1 VERTEX_END
-				txw, tyh,		// 1 TEXT_COORD
-				
-				x,  yh, z,		// 2 VERTEX_START
-				0, 0,			// 2 TIME
-				x,  yh, z,		// 2 VERTEX_END
-				tx, tyh,		// 2 TEXT_COORD
-				
-				xw, y,  z,		// 3 VERTEX_START
-				0, 0,			// 3 TIME
-				xw, y,  z,		// 3 VERTEX_END
-				txw, ty,		// 3 TEXT_COORD
-				
-				x,  y,  z,		// 4 VERTEX_START
-				0, 0,			// 4 TIME
-				x,  y,  z,		// 4 VERTEX_END
-				tx,  ty,		// 4 TEXT_COORD
-				
-				x,  y,  z,		// 4 VERTEX_START twice
-				0, 0,			// 4 TIME         twice
-				x,  y,  z,		// 4 VERTEX_END   twice
-				tx,  ty,		// 4 TEXT_COORD   twice
-			]
-		));
-		// TODO OPTIMIZE with buffer-copy on GPU ?
-		GL.bindBuffer (GL.ARRAY_BUFFER, null);
-		return(new Element(act_program, buf_pos, image_nr));
 	}
 	
-	public inline function animElement(e:Element, x:Int, y:Int, z:Int, w:Int, h:Int, t1:Float, t2:Float):Void
-	{
-		var buf_pos:Int = e.buf_pos;
-		var xw:Float = x + w;
-		var yh:Float = y + h;
-		
-		GL.bindBuffer (GL.ARRAY_BUFFER, buffer);
-		if (e.anim_switch)
-		{
-			e.anim_switch = false;
-			GL.bufferSubData(GL.ARRAY_BUFFER, buf_pos * 10 * 4 + 3*4, new Float32Array (
-				[
-					t1, t2, 		// 1 TIME       twice
-					xw, yh, z,    	// 1 VERTEX_END twice
-				]));
-			GL.bufferSubData(GL.ARRAY_BUFFER, (buf_pos+1) * 10 * 4 + 3*4, new Float32Array (
-				[
-					t1, t2,			// 1 TIME
-					xw, yh, z,		// 1 VERTEX_END
-				]));	
-			GL.bufferSubData(GL.ARRAY_BUFFER, (buf_pos+2) * 10 * 4 + 3*4, new Float32Array (
-				[
-					t1, t2,			// 2 TIME
-					x,  yh, z,		// 2 VERTEX_END
-				]));	
-			GL.bufferSubData(GL.ARRAY_BUFFER, (buf_pos+3) * 10 * 4 + 3*4, new Float32Array (
-				[
-					t1, t2,			// 3 TIME
-					xw, y,  z,		// 3 VERTEX_END
-				]));	
-			GL.bufferSubData(GL.ARRAY_BUFFER, (buf_pos+4) * 10 * 4 + 3*4, new Float32Array (
-				[
-					t1, t2,			// 4 TIME
-					x,  y,  z,		// 4 VERTEX_END
-				]));				
-			GL.bufferSubData(GL.ARRAY_BUFFER, (buf_pos+5) * 10 * 4 + 3*4, new Float32Array (
-				[
-					t1, t2,			// 4 TIME       twice
-					x,  y,  z,		// 4 VERTEX_END twice
-				]));
-		}
-		else
-		{
-			e.anim_switch = true;
-			GL.bufferSubData(GL.ARRAY_BUFFER, buf_pos * 10 * 4 , new Float32Array (
-				[
-					xw, yh, z,    	// 1 VERTEX_END twice
-					t2, t1, 		// 1 TIME       twice
-				]));
-			GL.bufferSubData(GL.ARRAY_BUFFER, (buf_pos+1) * 10 * 4 , new Float32Array (
-				[
-					xw, yh, z,		// 1 VERTEX_END
-					t2, t1,			// 1 TIME
-				]));	
-			GL.bufferSubData(GL.ARRAY_BUFFER, (buf_pos+2) * 10 * 4 , new Float32Array (
-				[
-					x,  yh, z,		// 2 VERTEX_END
-					t2, t1,			// 2 TIME
-				]));	
-			GL.bufferSubData(GL.ARRAY_BUFFER, (buf_pos+3) * 10 * 4 , new Float32Array (
-				[
-					xw, y,  z,		// 3 VERTEX_END
-					t2, t1,			// 3 TIME
-				]));	
-			GL.bufferSubData(GL.ARRAY_BUFFER, (buf_pos+4) * 10 * 4 , new Float32Array (
-				[
-					x,  y,  z,		// 4 VERTEX_END
-					t2, t1,			// 4 TIME
-				]));				
-			GL.bufferSubData(GL.ARRAY_BUFFER, (buf_pos+5) * 10 * 4 , new Float32Array (
-				[
-					x,  y,  z,		// 4 VERTEX_END twice
-					t2, t1,			// 4 TIME       twice
-				]));
-		}
-		GL.bindBuffer (GL.ARRAY_BUFFER, null);
-	}
 	
-	public inline function setElementTexCoord(e:Element, tx:Float, ty:Float, tw:Float, th:Float, image_nr:Int):Void
-	{
-		var buf_pos:Int = e.buf_pos;
-		var txw:Float = tx + tw;
-		var tyh:Float = ty + th;
-		
-		e.image_nr = image_nr;
-		
-		GL.bindBuffer (GL.ARRAY_BUFFER, buffer);
-		GL.bufferSubData(GL.ARRAY_BUFFER, buf_pos * 10 * 4 + 8*4, new Float32Array (
-			[	txw, tyh,		// 1 TEXT COORD twice
-			]));
-		GL.bufferSubData(GL.ARRAY_BUFFER, (buf_pos+1) * 10 * 4 + 8*4, new Float32Array (
-			[	txw, tyh,		// 1 TEXT COORD
-			]));	
-		GL.bufferSubData(GL.ARRAY_BUFFER, (buf_pos+2) * 10 * 4 + 8*4, new Float32Array (
-			[	tx, tyh,		// 2 TEXT_COORD
-			]));	
-		GL.bufferSubData(GL.ARRAY_BUFFER, (buf_pos+3) * 10 * 4 + 8*4, new Float32Array (
-			[	txw, ty,		// 3 TEXT_COORD
-			]));	
-		GL.bufferSubData(GL.ARRAY_BUFFER, (buf_pos+4) * 10 * 4 + 8*4, new Float32Array (
-			[	tx,  ty,		// 4 TEXT_COORD 
-			]));				
-		GL.bufferSubData(GL.ARRAY_BUFFER, (buf_pos+5) * 10 * 4 + 8*4, new Float32Array (
-			[	tx,  ty,		// 4 TEXT_COORD twice
-			]));
-		GL.bindBuffer (GL.ARRAY_BUFFER, null);		
-	}
-	
-	public inline function createEmptyBuffer(size:Int):Void
-	{
-		buffer = GL.createBuffer();
-		GL.bindBuffer (GL.ARRAY_BUFFER, buffer);
-		GL.bufferData (GL.ARRAY_BUFFER, new Float32Array (size), GL.STATIC_DRAW);
-		//GL.bufferData (GL.ARRAY_BUFFER, new Float32Array (size), GL.DYNAMIC_DRAW);
-		//GL.bufferData (GL.ARRAY_BUFFER, new Float32Array (size), GL.STREAM_DRAW);
-		GL.bindBuffer (GL.ARRAY_BUFFER, null);
-	}
 	
 }

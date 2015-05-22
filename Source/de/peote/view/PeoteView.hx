@@ -7,7 +7,7 @@
  * 
  * PEOTE VIEW - haxe 2D OpenGL Render Library
  * Copyright (c) 2014 Sylvio Sell, http://maitag.de
- * 
+ * |\|  \/\ | //  |\  /\ \/  || /\ \ |\ / \ \/\7\/ \
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
  * "Software"), to deal in the Software without restriction, including
@@ -28,18 +28,35 @@
 
 package de.peote.view;
 
+import de.peote.view.texture.TextureCache;
+import haxe.ds.Vector;
 import haxe.Timer;
-import lime.gl.GL;
 import lime.utils.Float32Array;
-import lime.utils.Matrix3D;
+import lime.math.Matrix3;
+import lime.graphics.opengl.GL;
+import lime.graphics.opengl.GLBuffer;
+import lime.graphics.opengl.GLProgram;
+import lime.utils.GLUtils;
+
+import de.peote.view.displaylist.*;
 
 class PeoteView
 {
-	private var displaylist:Displaylist;
+	private var displaylist:Vector<Displaylist>;
+	private var startDisplaylist:Displaylist = null; // first index with lowest z value
+	
+	private var lastUsedDisplaylist:Int = 0;
+	
 	private var texturecache:TextureCache;
+	private var programCache:ProgramCache;
 	
+	// for background-GL-quad
+	private var background_buffer:GLBuffer;
+	private var background_program:GLProgram;
+	private var	background_aPosition:Int;
+	private var background_uRGBA:Int; // GLUniformLocation;
 	
-	public function new(max_elements:Int = 100000, max_programs:Int = 100) 
+	public function new(max_displaylists:Int = 10, max_programs:Int = 100) // TODO -> PARAM 
 	{
 		trace("GL.MAX_TEXTURE_IMAGE_UNITS:" + GL.getParameter(GL.MAX_TEXTURE_IMAGE_UNITS));
 		trace("GL.MAX_VERTEX_TEXTURE_IMAGE_UNITS:" + GL.getParameter(GL.MAX_VERTEX_TEXTURE_IMAGE_UNITS));
@@ -48,145 +65,240 @@ class PeoteView
 		trace("GL.MAX_VERTEX_UNIFORM_VECTORS:" + GL.getParameter(GL.MAX_VERTEX_UNIFORM_VECTORS));
 		trace("GL.MAX_FRAGMENT_UNIFORM_VECTORS:" + GL.getParameter(GL.MAX_FRAGMENT_UNIFORM_VECTORS));
 		
-		// TODO: multiple Displaylists for different Usage (plain/tree/transp.)
-		
-		// (for low-end devices better max_elements < 100 000)
-		displaylist = new Displaylist(max_elements, max_programs);
 		// TODO:  img_width, img_height, max_images
-		texturecache = new TextureCache(512, 512, 64, onLoadImage);
-	}
-	
-	// ------------------------------------------------------------------------------------------------------
-	// -------------------------------- API --------- -------------------------------------------------------
-	// ------------------------------------------------------------------------------------------------------
-	public inline function setShader(shader_nr:Int, fragmentShaderUrl:String='', vertexShaderUrl:String=''):Void
-	{
-		// TODO: load shader source from url
-		displaylist.setShader(shader_nr, fragmentShaderUrl, vertexShaderUrl);
-	}
-	
-	public inline function setShaderSrc(shader_nr:Int,
-	                                    fsSrc:String = Shader.default_fragmentShaderSrc,
-	                                    vsSrc:String = Shader.default_vertexShaderSrc):Void
-	{
-		displaylist.setShaderSrc(shader_nr, fsSrc, vsSrc);
-	}
-	
-	public inline function setImage(image_nr:Int, imageUrl:String):Void
-	{
-		texturecache.setImage(image_nr, imageUrl);
-	}
-	
-	public inline function setTilesheet(tilesheet_nr:Int, image_nr:Int, textCoordArray:Float32Array):Void
-	{
-		// TODO: custom mapping
-	}
-	
-	public function setElement(nr:Int, x:Int, y:Int, z:Int, w:Int, h:Int,
-	                                  shader_nr:Int, image_nr:Int = -1, tile_nr:Int = -1):Void
-	{
+		texturecache = new TextureCache(512, 512, 64);
+
+		programCache = new ProgramCache( max_programs,
+								 Shader.default_fragmentShaderSrc,
+								 Shader.default_vertexShaderSrc);
+
+		displaylist = new Vector<Displaylist>(max_displaylists);
 		
-		if (image_nr > -1) // image_nr uebergeben
+		// for background-GL-quad
+		createBackgroundBuffer();
+	}
+	
+	// ------------------------------------------------------------------------------------------------------
+	// -------------------------------- DISPLAYLIST ---------------------------------------------------------
+	// ------------------------------------------------------------------------------------------------------
+	public inline function setDisplaylist(param:DParam):Void
+	{
+		var d:Displaylist = displaylist.get(param.displaylist);
+		
+		if (d == null) // create new Displaylist
 		{
-			//trace("Image:" + image_nr);
-			var img:Image = texturecache.getImage(image_nr);
-			if (img.cache_nr >= 0)
+			d = new Displaylist(param, texturecache, programCache);
+			displaylist.set(param.displaylist, d);
+			
+			// sort in
+			if (param.enable != false)
+				insertSortDisplaylist(d);
+			else d.enable = false;
+			
+		}
+		else // change enable or change z-order
+		{
+			// enable disable
+			if (param.enable != null && param.enable != d.enable)
 			{
-				//trace("Image exist:" + image_nr);
-				displaylist.setElement(nr, x, y, z, w, h, scaleX, scaleY, shader_nr, img.tx, img.ty, img.tw, img.th, image_nr, tile_nr);
+				if (param.z != null && param.z != d.z) d.z = param.z;
+				
+				d.enable = param.enable;
+				
+				if (param.enable)
+					insertSortDisplaylist(d);
+				else 
+					unlinkDisplaylist(d);
 			}
 			else
 			{
-				//trace("load Image:" + image_nr);
-				// TODO: default Image
-				displaylist.setElement(nr, x, y, z, w, h, scaleX, scaleY, shader_nr, 0, 0, 0, 0, image_nr,  tile_nr);
-				texturecache.loadImage( nr, image_nr, tile_nr);
+				// change z order
+				if (param.z != null && param.z != d.z)
+				{	
+					d.z = param.z; // trace("change z order");
+					if (d.enable)
+					{	//trace("reorder d");
+						unlinkDisplaylist(d);
+						insertSortDisplaylist(d);
+					}
+				}
 			}
 		}
-		else displaylist.setElement(nr, x, y, z, w, h, scaleX, scaleY, shader_nr, 0.0, 0.0, 1.0, 1.0, image_nr, tile_nr);
+		
+		d.set(param);
+			
+		lastUsedDisplaylist = param.displaylist;
 	}
 	
-	public function onLoadImage(nr:Int, image_nr:Int, tile_nr:Int, img:Image):Void
+	private inline function unlinkDisplaylist(d:Displaylist):Void
 	{
-		//trace("Image READY:",nr, image_nr, tile_nr);
-		displaylist.setElementTexCoord(nr, img.tx, img.ty, img.tw, img.th, image_nr, tile_nr);
+		if (d == startDisplaylist) startDisplaylist = (d.next != d) ? d.next : null;
+		// unlink
+		d.prev.next = d.next;	d.next.prev = d.prev;	
+		d.next = d.prev = d;
 	}
 	
-	// TODO:  setAnimElement()
-	
-	public inline function delElement(nr:Int):Void
+	private inline function insertSortDisplaylist(d:Displaylist):Void
 	{
-		var e:Element = displaylist.element.get(nr);
-		texturecache.delUnusedImage(e.image_nr);
-		displaylist.delElement(e);
+		if (startDisplaylist == null) startDisplaylist = d; // first in dd
+		else
+		{
+			var i:Displaylist = startDisplaylist.prev;
+			//trace("d.z="+i.z+" i.z="+i.z);
+			while (d.z < i.z &&  i != startDisplaylist)
+			{
+				i = i.prev; //trace("d.z="+i.z+" i.z="+i.z);
+			}
+			
+			d.prev = i.prev; d.next = i;
+			i.prev.next = d; i.prev = d;
+			
+			if (d.next == startDisplaylist && d.z <= startDisplaylist.z)
+			{
+				startDisplaylist = d; //trace("is startDisplaylist");
+			}
+		}
+	}
+
+	public inline function delDisplaylist(param:DParam):Void
+	{
+		var d:Displaylist = displaylist.get(param.displaylist);
+		
+		if (d != null)
+		{
+			if (d.enable) unlinkDisplaylist(d);
+			displaylist.set(param.displaylist, null);
+			d.delete();
+		}
+	}
+
+	
+	// ------------------------------------------------------------------------------------------------------
+	// -------------------------------- SHADER --------------------------------------------------------------
+	// ------------------------------------------------------------------------------------------------------
+	public inline function setProgram(program_nr:Int, type:Int=0, fragmentShaderUrl:String='', vertexShaderUrl:String=''):Void
+	{	
+		programCache.loadShaderSrc(program_nr, fragmentShaderUrl, vertexShaderUrl);
 	}
 	
-	public inline function animElement(nr:Int, x:Int, y:Int, z:Int, w:Int, h:Int, t1:Float, t2:Float):Void
+	public inline function setProgramSrc(program_nr:Int,
+										fragmentShaderSrc:String = Shader.default_fragmentShaderSrc,
+	                                    vertexShaderSrc:String = Shader.default_vertexShaderSrc):Void
+	{	
+		programCache.setShaderSrc( program_nr, fragmentShaderSrc, vertexShaderSrc );
+	}
+	
+	// ------------------------------------------------------------------------------------------------------
+	// -------------------------------- IMAGE ---------------------------------------------------------------
+	// ------------------------------------------------------------------------------------------------------
+	public inline function setImage(image_nr:Int, imageUrl:String, w:Int, h:Int):Void
 	{
-		displaylist.animElement(nr, x, y, z, w, h, t1, t2);
+		texturecache.setImage(image_nr, imageUrl, w ,h);
+	}
+	
+	// TODO: custom mapping
+	//public inline function setTilesheet(tilesheet_nr:Int, image_nr:Int, textCoordArray:Float32Array):Void {}
+
+	// ------------------------------------------------------------------------------------------------------
+	// -------------------------------- ELEMENT -------------------------------------------------------------
+	// ------------------------------------------------------------------------------------------------------
+	public function setElement(param:Param):Void
+	{		
+		if (param.element != null)
+			displaylist.get( (param.displaylist!=null) ? param.displaylist : lastUsedDisplaylist ).setElement(param);
+		else trace("ERROR: no element specified");
+	}
+	
+	public inline function delElement(param:Param):Void
+	{
+		if (param.element != null)
+			displaylist.get( (param.displaylist!=null) ? param.displaylist : lastUsedDisplaylist ).delElement(param.element);
+		else trace("ERROR: no element specified");
+	}
+	
+	public inline function delAllElement(param:Param):Void
+	{
+		displaylist.get( (param.displaylist!=null) ? param.displaylist : lastUsedDisplaylist ).delAllElement();
 	}
 	
 	// ------------------------------------------------------------------------------------------------------
 	// -------------------------------- Render - Loop -------------------------------------------------------
 	// ------------------------------------------------------------------------------------------------------
-	public var activeProgram:ActiveProgram; //  OPTIMIERUNG!
+	private var dl:Displaylist; // actual displaylist inside renderloop
+	private var ap:ActiveProgram; //  actual Program shader inside loop
 	public inline function render(time:Float, width:Int, height:Int, mouse_x:Int, mouse_y:Int, zoom:Int):Void
 	{	
 		GL.viewport (0, 0, width, height);
 		
-		GL.enable(GL.DEPTH_TEST); GL.depthFunc(GL.LESS);
-		// TODO: alpha+zbuff
+		GL.scissor(0, 0, width, height);
+		GL.enable(GL.SCISSOR_TEST);	
 		
-		// alpha einschalten
-		GL.enable(GL.BLEND); GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
+		GL.clearColor(0.0, 0.0, 0.0, 1.0); //GL.clearDepth(0.0);
+		GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT); //GL.STENCIL_BUFFER_BIT
 		
-		GL.bindBuffer(GL.ARRAY_BUFFER, displaylist.buffer.buffer); // nur EIN BUffer zum knechten
-		
-		// vertexAttribPointers
-		GL.enableVertexAttribArray (Program.aVertexPosStart);
-		GL.enableVertexAttribArray (Program.aVertexPosEnd);
-		GL.enableVertexAttribArray (Program.aTime);
-		GL.enableVertexAttribArray (Program.aTexCoord);
-		
-		GL.vertexAttribPointer (Program.aVertexPosStart, 3, GL.FLOAT, false, 10*4, 0   );
-		GL.vertexAttribPointer (Program.aTime,           2, GL.FLOAT, false, 10*4, 3*4 );
-		GL.vertexAttribPointer (Program.aVertexPosEnd,   3, GL.FLOAT, false, 10*4, 5*4 );
-		GL.vertexAttribPointer (Program.aTexCoord,       2, GL.FLOAT, false, 10*4, 8*4 );
-		
-		// Texture
-		GL.activeTexture (GL.TEXTURE0);
-		GL.bindTexture (GL.TEXTURE_2D, texturecache.texture);
-		
-		GL.clearColor(0.0, 0.0, 0.0, 1.0);
-		GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT );
-		//GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT| GL.STENCIL_BUFFER_BIT );
-		//GL.clear(GL.COLOR_BUFFER_BIT );
-		
-		for (i in 0...displaylist.buffer.activeProgram.length )
-		{
-			activeProgram = displaylist.buffer.activeProgram[i];
-			GL.useProgram(activeProgram.program.glProgram); // ------ Shader Program
+		// loop over enabled displaylists
+		dl = startDisplaylist;
+		while (dl != null)
+		{	
+			// TODO: max/min values, optimize
+			GL.scissor(
+				dl.x,
+				((dl.h != 0) ? height - dl.h : 0) - dl.y,
+				(dl.w != 0) ? dl.w : width,
+				(dl.h != 0) ? dl.h : height
+			);
 			
-			// UNIFORMS
-			//GL.uniformMatrix3D (activeProgram.program.uniforms.get(Program.uPROJECTIONMATRIX), false, Matrix3D.createOrtho (0, width/zoom, height/zoom, 0, 1000, -1000));
-			GL.uniform1i (activeProgram.program.uniforms.get(Program.uIMAGE), 0);
-			GL.uniform2f (activeProgram.program.uniforms.get(Program.uMOUSE),(mouse_x / width) * 2 - 1,(mouse_y / height) * 2 - 1);
-			GL.uniform2f (activeProgram.program.uniforms.get(Program.uRESOLUTION), width, height);
-			GL.uniform1f (activeProgram.program.uniforms.get(Program.uTIME), time);
-			GL.uniform1f (activeProgram.program.uniforms.get(Program.uZOOM), zoom);
-			//GL.uniform2f (activeProgram.program.uniforms.get(Program.uDELTA), 0.0, 0.0);// (mouse_x - width / 1.1) * 0.1 / zoom, (mouse_y - height / 1.1) * 0.1 / zoom);
-			GL.uniform2f (activeProgram.program.uniforms.get(Program.uDELTA), (-mouse_x) * (zoom-1) / 4, (-mouse_y) * (zoom-1) / 4);
+			GL.enable(GL.DEPTH_TEST); GL.depthFunc(GL.LEQUAL); //GL.depthFunc(GL.LESS);
+			// TODO: alpha (+ filter?) je nach dl
 			
-			//draw
-			GL.drawArrays (GL.TRIANGLE_STRIP,  activeProgram.start,  activeProgram.size);
+			//GL.enable(GL.TEXTURE_2D);
 			
-		}
-		
-		// --- aufrauemen
-		GL.disableVertexAttribArray (Program.aVertexPosStart);
-		GL.disableVertexAttribArray (Program.aVertexPosEnd);
-		GL.disableVertexAttribArray (Program.aTime);
-		GL.disableVertexAttribArray (Program.aTexCoord);
+			// alpha einschalten
+			GL.enable(GL.BLEND); GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
+			
+			// Texture
+			GL.activeTexture (GL.TEXTURE0);
+			GL.bindTexture (GL.TEXTURE_2D, texturecache.texture);
+			
+			if (dl != startDisplaylist &&
+			    dl.z != dl.prev.z
+			   )
+				GL.clear( GL.DEPTH_BUFFER_BIT );
+
+			if (dl.renderBackground) renderBackground ( dl.r, dl.g, dl.b, dl.a );
+			
+			GL.bindBuffer(GL.ARRAY_BUFFER, dl.bufferElement.glBuff); // nur EIN BUffer zum knechten (pro displaylist)
+			dl.bufferElement.setVertexAttributes(); // VertexAttributes
+			
+			for (i in 0...dl.buffer.activeProgram.length )
+			{
+				ap = dl.buffer.activeProgram[i];
+				GL.useProgram(ap.program.glProgram); // ------ Shader Program
+				
+				// UNIFORMS
+				//GL.uniformMatrix3D (ap.program.uniforms.get(Program.uPROJECTIONMATRIX), false, Matrix3D.createOrtho (0, width/zoom, height/zoom, 0, 1000, -1000));
+				GL.uniform1i (ap.program.uniforms.get(Program.uIMAGE), 0);
+				GL.uniform2f (ap.program.uniforms.get(Program.uMOUSE),(mouse_x / width) * 2 - 1,(mouse_y / height) * 2 - 1);
+				//GL.uniform2f (ap.program.uniforms.get(Program.uRESOLUTION), (dl.w!=0) ? dl.w : width, (dl.h != 0) ? dl.h : height);
+				GL.uniform2f (ap.program.uniforms.get(Program.uRESOLUTION), width, height);
+				GL.uniform1f (ap.program.uniforms.get(Program.uTIME), time);
+				GL.uniform1f (ap.program.uniforms.get(Program.uZOOM), zoom);
+				GL.uniform2f (ap.program.uniforms.get(Program.uDELTA),
+						dl.x + dl.xOffset, // + ( -mouse_x) * (zoom - 1) / 4,
+						dl.y + dl.yOffset // + ( -mouse_y) * (zoom - 1) / 4
+						);
+				//draw
+				GL.drawArrays (GL.TRIANGLE_STRIP,  ap.start,  ap.size);
+				
+			}
+			
+			// --- aufrauemen
+			dl.bufferElement.disableVertexAttributes();
+			
+			// next displaylist in loop
+			dl = (dl.next != startDisplaylist) ? dl.next : null;
+			
+		} // end loop displaylists
 		
 		// --- clean Buffers
 		GL.bindBuffer (GL.ARRAY_BUFFER, null);
@@ -194,5 +306,72 @@ class PeoteView
 		GL.useProgram (null);
 	}
 	
+	// ------------------------------------------------------------------------------
+	// ---------------------------------------------------- Displaylist Background --
+	// ------------------------------------------------------------------------------
 
+	public inline function createBackgroundBuffer():Void
+	{
+		background_program = GLUtils.createProgram (
+			// ---------------------------- VERTEX SHADER ---
+			"
+			attribute vec2 aPosition;
+			
+			void main(void)
+			{
+				gl_Position = mat4 ( // TODO: mathstar-optimize this ;)=
+					vec4(2.0, 0.0, 0.0, 0.0),
+					vec4(0.0, -2.0, 0.0, 0.0),
+					vec4(0.0, 0.0, 0.0, 0.0),
+					vec4(-1.0, 1.0, 0.0, 1.0)
+				)
+				* vec4 (aPosition, -65000.0 ,1.0); // 65000? -> zIndex (todo for <zero)
+			}
+			",
+			// -------------------------- FRAGMENT SHADER ---
+			#if !desktop
+			"precision mediump float;" +
+			#end
+			"
+			uniform vec4 uRGBA;
+			void main(void)
+			{
+				gl_FragColor = uRGBA;
+			}
+			"				
+		);
+		
+		background_aPosition = GL.getAttribLocation (background_program, "aPosition");
+		background_uRGBA = cast GL.getUniformLocation (background_program, "uRGBA");
+		
+		var data = [
+			1, 1,
+			0, 1,
+			1, 0,
+			0, 0
+		];
+		background_buffer = GL.createBuffer ();
+		GL.bindBuffer (GL.ARRAY_BUFFER, background_buffer);
+		GL.bufferData (GL.ARRAY_BUFFER, new Float32Array (cast data), GL.STATIC_DRAW);
+		GL.bindBuffer (GL.ARRAY_BUFFER, null);
+	}
+	
+	public inline function renderBackground(r:Float, g:Float, b:Float, a:Float):Void 
+	{
+		GL.bindBuffer (GL.ARRAY_BUFFER, background_buffer);
+		
+		GL.enableVertexAttribArray (background_aPosition);
+		GL.vertexAttribPointer (background_aPosition, 2, GL.FLOAT, false, 8, 0);
+		
+		GL.useProgram (background_program);
+		GL.uniform4f ( cast background_uRGBA, r,g,b,a);
+		
+		GL.drawArrays (GL.TRIANGLE_STRIP, 0, 4);
+		GL.disableVertexAttribArray (background_aPosition);
+
+	}
+	
+	
+	
+	
 }
