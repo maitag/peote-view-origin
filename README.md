@@ -11,10 +11,9 @@ to run on multiple hardware devices.
 `$ lime build peoteView.lime linux  (android/windows)` - for native OS
 
 
-####How To Use ?
+####Why this lib ?
 
-- this lib should to be small and useful
-- to handle imagedata and procedural shadercode equal
-- with power of haxe-nme-lime multiplatform code generation for opengl-rendering
+- handle imagedata and procedural shadercode equal
+- fast OpenGl 2D-Render Engine with GPU optimized Animation
+- power of haxe-lime multiplatform code generation
 
-(1/φ milestone at Version 1;)
