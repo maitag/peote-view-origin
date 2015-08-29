@@ -28,80 +28,155 @@
 
 package de.peote.view;
 
-import lime.Assets;
+import de.peote.view.displaylist.*;
+import de.peote.view.element.*;
+
 import haxe.ds.Vector;
+import haxe.ds.IntMap;
+
+import lime.Assets;
 
 class ProgramCache
 {
-	public var program:Vector<Program>;
-	public var defaultProgram:Program;
+	public var fragmentShaderSrc:Vector<String>;
+	public var vertexShaderSrc:Vector<String>;
+	public var program:Vector<IntMap<Program>>;
 	
-	public inline function new(max_programs:Int, defaultFragmentShaderSrc:String, defaultVertexShaderSrc:String)
+	public var defaultProgram:IntMap<Program>;
+	public var attr:IntMap<Vector<Int>> = null;
+	
+	public inline function new(max_programs:Int)
 	{
-		program = new Vector<Program>(max_programs);
-		defaultProgram = new Program();
-		defaultProgram.compile(defaultFragmentShaderSrc, defaultVertexShaderSrc, onerror);
+		fragmentShaderSrc = new Vector<String>(max_programs);
+		vertexShaderSrc = new Vector<String>(max_programs);
+		
+		program = new Vector<IntMap<Program>>(max_programs);
+		for (i in 0...max_programs) program.set(i, new IntMap<Program>() );
+		
+		defaultProgram = new IntMap<Program>();
+		attr = new IntMap<Vector<Int>>();
 	}
 	
-	public static inline function onerror(msg:String):Void { trace(msg); }
+	public inline function onerror(msg:String):Void { trace(msg); }
 	
-	public inline function get(nr:Int):Program
-	{	return(program.get(nr));
-		// TODO
-		/*
-		var p:Program = program.get(nr);
+	public inline function addDisplaylist(type:Int, elemBuff:I_ElementBuffer):Void
+	{
+		trace("addDisplaylist:" + type);
+		if ( ! defaultProgram.exists(type) )
+		{
+			var p = new Program();
+			p.compile( elemBuff, type,
+						elemBuff.getDefaultFragmentShaderSrc(),
+						elemBuff.getDefaultVertexShaderSrc(),
+						onerror
+			);
+			defaultProgram.set(type, p);
+			attr.set(type, elemBuff.attr);
+		} 
+		else elemBuff.attr = attr.get(type);
+	}
+
+	public inline function delDisplaylist(type:Int):Void
+	{
+		// TODO: clear
+	}
+
+	public inline function getProgram(nr:Int, type:Int, elemBuff:I_ElementBuffer):Program
+	{	
+		var p:Program = program.get(nr).get(type);
 		if (p == null)
 		{
-			p = new Program(defaultProgram);
-			program.set(nr, p );
+			var fs:String = fragmentShaderSrc.get(nr);
+			var vs:String = vertexShaderSrc.get(nr);
+			if (fs != null || vs != null)
+			{
+				p = new Program();
+				if (fs == null ) fs = elemBuff.getDefaultFragmentShaderSrc();
+				if (vs == null ) vs = elemBuff.getDefaultVertexShaderSrc();
+
+				p.compile(elemBuff, type, fs, vs, onerror);
+			}
+			else
+			{
+				p = new Program(defaultProgram.get(type));
+			}
+			program.get(nr).set(type, p );
 		}
-		return(p);*/
+		return(p);
 	}
-		
-	public inline function loadShaderSrc(nr:Int, fragmentShaderUrl:String, vertexShaderUrl:String):Void
+
+	public inline function setShaderSrc(nr:Int, fs:String, vs:String):Void
 	{
-		//var fragmentShaderSrc:String = (fragmentShaderUrl == '') ? Shader.default_fragmentShaderSrc : Assets.getText(fragmentShaderUrl);
-		//var vertexShaderSrc:String = (vertexShaderUrl == '') ? Shader.default_vertexShaderSrc : Assets.getText(vertexShaderUrl);
-		//var fragmentShaderSrc:String = (fragmentShaderUrl == '') ? Shader.default_fragmentShaderSrc :  Http.requestUrl(fragmentShaderUrl);
-		//var vertexShaderSrc:String = (vertexShaderUrl == '') ? Shader.default_vertexShaderSrc : Http.requestUrl(vertexShaderUrl);
+		if (fs != '' || vs != '')
+		{
+			var pmap:IntMap<Program> = program.get(nr);
+			var default_fs:String;
+			var default_vs:String;
+			
+			for (type in pmap.keys())
+			{
+				if (type & DType.ANIM != 0) 
+				{
+					default_fs = ElementAnimBuffer.defaultFragmentShaderSrc;
+					default_vs = ElementAnimBuffer.defaultVertexShaderSrc;
+				}
+				//else if (type & Dtype.??? != 0) 
+				else
+				{
+					default_fs = ElementSimpleBuffer.defaultFragmentShaderSrc;
+					default_vs = ElementSimpleBuffer.defaultVertexShaderSrc;
+				}
+				trace("setShaderSrc:" + type);
+				if (fs == '' )
+					pmap.get(type).compile(null, type, default_fs, vs, onerror);
+				else if (vs == '' )
+					pmap.get(type).compile(null, type, fs, default_vs, onerror);
+				
+			}
+			
+			if (fs != '' ) fragmentShaderSrc.set(nr, fs);
+			if (vs != '' ) vertexShaderSrc.set(nr, vs);	
+		}
+	}
+
+	public inline function loadShaderSrc(nr:Int, fsUrl:String, vsUrl:String):Void
+	{
+		//var fsSrc:String = (fsUrl == '') ? Shader.default_fsSrc : Assets.getText(fsUrl);
+		//var vsSrc:String = (vsUrl == '') ? Shader.default_vsSrc : Assets.getText(vsUrl);
+		//var fsSrc:String = (fsUrl == '') ? Shader.default_fsSrc :  Http.requestUrl(fsUrl);
+		//var vsSrc:String = (vsUrl == '') ? Shader.default_vsSrc : Http.requestUrl(vsUrl);
 
 		// TODO: doesnt work yet with assets.gettext on html5 target (with http.requestUrl sandbox prbl. for easy testing)
-		var fragmentShaderSrc:String = Shader.default_fragmentShaderSrc;
-		if (fragmentShaderUrl != '') 
+		var fsSrc:String = '';
+		if (fsUrl != '') 
 		{
 			#if js
 			var req = js.Browser.createXMLHttpRequest();
-			req.open('GET', fragmentShaderUrl, false);
+			req.open('GET', fsUrl, false);
 			req.send();
-			fragmentShaderSrc = req.responseText;
+			fsSrc = req.responseText;
 			#else
-			//fragmentShaderSrc = Assets.getText(fragmentShaderUrl);
-			fragmentShaderSrc = Assets.getBytes(fragmentShaderUrl).asString(); // TODO: getText dont work with windows-target
+			//fsSrc = Assets.getText(fsUrl);
+			fsSrc = Assets.getBytes(fsUrl).asString(); // TODO: getText dont work with windows-target
 			#end
 		}
-		var vertexShaderSrc:String = Shader.default_vertexShaderSrc;
-		if (vertexShaderUrl != '') 
+		var vsSrc:String = '';
+		if (vsUrl != '') 
 		{
 			#if js
 			var req = js.Browser.createXMLHttpRequest();
-			req.open('GET', vertexShaderUrl, false);
+			req.open('GET', vsUrl, false);
 			req.send();
-			vertexShaderSrc = req.responseText;
+			vsSrc = req.responseText;
 			#else
-			//vertexShaderSrc = Assets.getText(vertexShaderUrl);
-			vertexShaderSrc = Assets.getBytes(vertexShaderUrl).asString(); // TODO: getText dont work with windows-target;
+			//vsSrc = Assets.getText(vsUrl);
+			vsSrc = Assets.getBytes(vsUrl).asString(); // TODO: getText dont work with windows-target;
 			#end
 		}
 		
-		setShaderSrc( nr, fragmentShaderSrc, vertexShaderSrc);
+		setShaderSrc( nr, fsSrc, vsSrc);
 	}
 
-	public inline function setShaderSrc(nr:Int, fragmentShaderSrc:String, vertexShaderSrc:String):Void
-	{
-		//trace("fragmentShaderSrc="+fragmentShaderSrc);
-		if (program.get(nr) == null) program.set(nr, new Program(defaultProgram) );
-		program.get(nr).compile(fragmentShaderSrc, vertexShaderSrc, onerror);
-	}
 
 	
 }

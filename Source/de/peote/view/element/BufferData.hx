@@ -49,7 +49,7 @@ class BufferData #if !js extends ArrayBufferView #end
 		#if js
 		dataView = new DataView(new ArrayBuffer(length), 0);
 		#else
-		super(length);
+		super(length, 0); // -> TypedArrayType.None
 		dataView = this;
 		#end
 	}
@@ -66,9 +66,12 @@ class BufferData #if !js extends ArrayBufferView #end
 	public inline function write_3_Short(a1:Int, a2:Int, a3:Int):Void
 	{
 			#if cpp
-			untyped __global__.__hxcpp_memory_set_i16 (bytes, byteOffset,   a1);
-			untyped __global__.__hxcpp_memory_set_i16 (bytes, byteOffset+2, a2);
-			untyped __global__.__hxcpp_memory_set_i16 (bytes, byteOffset+4, a3);
+			//untyped __global__.__hxcpp_memory_set_i16 (buffer, byteOffset,   a1);
+			//untyped __global__.__hxcpp_memory_set_i16 (buffer, byteOffset+2, a2);
+			//untyped __global__.__hxcpp_memory_set_i16 (buffer, byteOffset + 4, a3);
+			ArrayBufferIO.setInt16(buffer, byteOffset, a1);
+			ArrayBufferIO.setInt16(buffer, byteOffset+2, a2);
+			ArrayBufferIO.setInt16(buffer, byteOffset+4, a3);
 			#elseif js
 			dataView.setInt16 (byteOffset,   a1,true);
 			dataView.setInt16 (byteOffset+2, a2,true);
@@ -85,8 +88,10 @@ class BufferData #if !js extends ArrayBufferView #end
 	public inline function write_2_Short(a1:Int, a2:Int):Void
 	{
 			#if cpp
-			untyped __global__.__hxcpp_memory_set_i16 (bytes, byteOffset,   a1);
-			untyped __global__.__hxcpp_memory_set_i16 (bytes, byteOffset+2, a2);
+			//untyped __global__.__hxcpp_memory_set_i16 (buffer, byteOffset,   a1);
+			//untyped __global__.__hxcpp_memory_set_i16 (buffer, byteOffset+2, a2);
+			ArrayBufferIO.setInt16(buffer, byteOffset, a1);
+			ArrayBufferIO.setInt16(buffer, byteOffset+2, a2);
 			#elseif js
 			dataView.setInt16 (byteOffset,   a1,true);
 			dataView.setInt16 (byteOffset+2, a2,true);			
@@ -98,10 +103,25 @@ class BufferData #if !js extends ArrayBufferView #end
 			byteOffset += 4;
 	}
 	
+	public inline function write_1_UInt(a1:UInt):Void
+	{
+			#if cpp
+			//untyped __global__.__hxcpp_memory_set_i32 (buffer, byteOffset,   a1); // check for uint !?
+			ArrayBufferIO.setUint32(buffer, byteOffset, a1);
+			#elseif js
+			dataView.setUint32 (byteOffset,     a1, true);
+			#else
+			buffer.writeUnsignedInt (a1);
+			#end
+			
+			byteOffset += 4;
+	}
+	
 	public inline function write_1_Float(a1:Float):Void
 	{
 			#if cpp
-			untyped __global__.__hxcpp_memory_set_float (bytes, byteOffset,   a1);
+			//untyped __global__.__hxcpp_memory_set_float (buffer, byteOffset,   a1);
+			ArrayBufferIO.setFloat32(buffer, byteOffset, a1);
 			#elseif js
 			dataView.setFloat32 (byteOffset,     a1, true);
 			#else
@@ -110,11 +130,14 @@ class BufferData #if !js extends ArrayBufferView #end
 			
 			byteOffset += 4;
 	}
+	
 	public inline function write_2_Float(a1:Float, a2:Float):Void
 	{
 			#if cpp
-			untyped __global__.__hxcpp_memory_set_float (bytes, byteOffset,   a1);
-			untyped __global__.__hxcpp_memory_set_float (bytes, byteOffset+4, a2);
+			//untyped __global__.__hxcpp_memory_set_float (buffer, byteOffset,   a1);
+			//untyped __global__.__hxcpp_memory_set_float (buffer, byteOffset+4, a2);
+			ArrayBufferIO.setFloat32(buffer, byteOffset, a1);
+			ArrayBufferIO.setFloat32(buffer, byteOffset+4, a2);
 			#elseif js
 			dataView.setFloat32 (byteOffset,     a1, true);
 			dataView.setFloat32 (byteOffset + 4, a2, true);

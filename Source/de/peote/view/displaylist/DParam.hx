@@ -7,6 +7,7 @@ package de.peote.view.displaylist;
 typedef DParam =
 {
 	?displaylist:Int,
+	?type:Int,
 	?enable:Bool,
 	?max_elements:Int, ?max_programs:Int, ?buffer_segment_size:Int,
 	?x:Int,

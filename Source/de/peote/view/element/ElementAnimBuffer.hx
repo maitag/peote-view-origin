@@ -28,30 +28,35 @@
 
 package de.peote.view.element;
 
+import de.peote.view.ProgramCache;
+
 import lime.graphics.opengl.GL;
 import lime.graphics.opengl.GLBuffer;
 import lime.utils.ArrayBufferView;
+import haxe.ds.Vector;
 
 //import lime.utils.Float32Array;
 //import lime.utils.Int16Array;
-
-class BufferElementSimple implements I_BufferElement
+class ElementAnimBuffer implements I_ElementBuffer
 {
 	public static var VERTEX_COUNT:Int = 6;
 	
+	public var attr:Vector<Int> = null;
 	public var glBuff:GLBuffer;
 		
-	private var emptyBuffFull:BufferData;
-	private var buffFull:BufferData;
+	var emptyBuffFull:BufferData;
+	var buffFull:BufferData;
 	
-	private var buffTex_0:BufferData;
-	private var buffTex_1:BufferData;
-	private var buffTex_2:BufferData;
-	private var buffTex_3:BufferData;
+	var buffTex_0:BufferData;
+	var buffTex_1:BufferData;
+	var buffTex_2:BufferData;
+	var buffTex_3:BufferData;
 	
-	public function new(b:Buffer)
+	var type:Int;
+	
+	public function new(t:Int, b:Buffer)
 	{	
-		
+		type = t;
 		var full = new BufferData(b.max_segments * b.segment_size * VERTEX_COUNT * VERTEX_STRIDE);
 
 		// create new opengl buffer 
@@ -63,12 +68,12 @@ class BufferElementSimple implements I_BufferElement
 		// ------------ BufferViews pre initialized -----------------
 		buffFull      = new BufferData (VERTEX_COUNT * VERTEX_STRIDE);
 		emptyBuffFull = new BufferData (VERTEX_COUNT * VERTEX_STRIDE);
-		
+		/*
 		buffTex_0     = new BufferData (4);
 		buffTex_1     = new BufferData (4);
 		buffTex_2     = new BufferData (4);
 		buffTex_3     = new BufferData (4);
-
+		*/
 	}
 	
 	public inline function delete():Void
@@ -87,31 +92,31 @@ class BufferElementSimple implements I_BufferElement
 	
 	public inline function disableVertexAttributes():Void
 	{
-		GL.disableVertexAttribArray (Program.aPosition);
-		GL.disableVertexAttribArray (Program.aTime);
-		GL.disableVertexAttribArray (Program.aZindex);
-		GL.disableVertexAttribArray (Program.aTexCoord);
+		GL.disableVertexAttribArray (attr.get(Program.aPOSITION));
+		GL.disableVertexAttribArray (attr.get(Program.aTIME));
+		GL.disableVertexAttribArray (attr.get(Program.aZINDEX));
+		GL.disableVertexAttribArray (attr.get(Program.aTEXTCOORD));
 	}
 	public inline function setVertexAttributes():Void
 	{		
 		// vertexAttribPointers
-		GL.enableVertexAttribArray (Program.aPosition);
-		GL.enableVertexAttribArray (Program.aTime);
-		GL.enableVertexAttribArray (Program.aZindex);
-		GL.enableVertexAttribArray (Program.aTexCoord);
+		GL.enableVertexAttribArray (attr.get(Program.aPOSITION));
+		GL.enableVertexAttribArray (attr.get(Program.aTIME));
+		GL.enableVertexAttribArray (attr.get(Program.aZINDEX));
+		GL.enableVertexAttribArray (attr.get(Program.aTEXTCOORD));
 		
-		GL.vertexAttribPointer (Program.aPosition, 4, GL.SHORT, false, VERTEX_STRIDE, 0   );
+		GL.vertexAttribPointer (attr.get(Program.aPOSITION), 4, GL.SHORT, false, VERTEX_STRIDE, 0   );
 		//GL.vertexAttribPointer (Program.aRGBA,    2, GL.UNSIGNED_SHORT,false, VERTEX_STRIDE, +4  );
 		//GL.vertexAttribPointer (Program.aScale,   2, GL.SHORT        , false, VERTEX_STRIDE, +8  );
 		//GL.vertexAttribPointer (Program.aRotation,2, GL.SHORT        , false, VERTEX_STRIDE, +12 );
 		//kein TREE: GL.vertexAttribPointer (Program.aTile,      2, GL.UNSIGNED_SHORT,false, VERTEX_STRIDE, +16  );
 		
-		GL.vertexAttribPointer (Program.aTime,      2, GL.FLOAT, false, VERTEX_STRIDE, TIME_OFFSET );
+		GL.vertexAttribPointer (attr.get(Program.aTIME),     2, GL.FLOAT, false, VERTEX_STRIDE, TIME_OFFSET );
 		
 		// GL.vertexAttribPointer (Program.aPivot,       2, GL.SHORT, false, VERTEX_STRIDE, TREE_PARAM_OFFSET+8);
-		GL.vertexAttribPointer (Program.aZindex,         1, GL.FLOAT, false, VERTEX_STRIDE, PARAM_OFFSET);
+		GL.vertexAttribPointer (attr.get(Program.aZINDEX),   1, GL.FLOAT, false, VERTEX_STRIDE, PARAM_OFFSET);
 		// GL.vertexAttribPointer (Program.aParam,       2, GL.SHORT, false, VERTEX_STRIDE, PARAM_OFFSET+4 );
-		GL.vertexAttribPointer (Program.aTexCoord,       2, GL.SHORT, false, VERTEX_STRIDE, TEX_OFFSET );// TODO: evtl. optimize mit medium_float
+		GL.vertexAttribPointer (attr.get(Program.aTEXTCOORD),2, GL.SHORT, false, VERTEX_STRIDE, TEX_OFFSET );// TODO: evtl. optimize mit medium_float
 		// damit stride hinhaut einfach VERTEX_STRIDE erhoehen wenn noetig
 	}
 
@@ -258,5 +263,88 @@ class BufferElementSimple implements I_BufferElement
 	}
 	*/
 	
+	// ----------------------------------------------------------------------------------
+	public inline function getDefaultFragmentShaderSrc():String
+	{
+		return(ElementAnimBuffer.defaultFragmentShaderSrc);
+	}
+	
+	public inline function getDefaultVertexShaderSrc():String
+	{
+		return(ElementAnimBuffer.defaultVertexShaderSrc);
+	}
+	
+	// ----------------------------------------------------------------------------------
+	
+	public static inline var defaultVertexShaderSrc:String =
+	"	precision mediump float;
 
+		// always twice if time dependend
+		attribute vec4 aPosition;
+		attribute vec2 aTime;
+		
+		attribute float aZindex;
+		attribute vec2 aTexCoord;
+		
+		#if_RGBA
+		attribute vec4 aRGBA;
+		varying vec4 vRGBA;
+		#end_RGBA
+
+		varying vec2 vTexCoord;
+		
+		uniform float uTime;
+		uniform float uZoom;
+		uniform vec2 uResolution;
+		uniform vec2 uDelta;
+		
+		void main(void) {
+			#if_RGBA
+			vRGBA = 255.0/aRGBA;
+			#end_RGBA
+			
+			vTexCoord = aTexCoord;
+			
+			vec2 VertexPosStart = vec2( aPosition ); //vec2 (aPosition.x, aPosition.y);
+			vec2 VertexPosEnd   = vec2 (aPosition.z, aPosition.w);
+			
+			float zoom = uZoom;
+			float width = uResolution.x;
+			float height = uResolution.y;
+			float deltaX = floor(uDelta.x);
+			float deltaY = floor(uDelta.y);
+			
+			float right = width-deltaX*zoom;
+			float left = -deltaX*zoom;
+			float bottom = height-deltaY*zoom;
+			float top = -deltaY * zoom;
+			
+			gl_Position = mat4 (
+				vec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),
+				vec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),
+				vec4(0.0, 0.0, -0.001, 0.0),
+				vec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)
+			)
+			* vec4 (VertexPosStart + floor( 
+								(VertexPosEnd - VertexPosStart)
+								* max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0))
+								* zoom) / zoom
+				, aZindex ,1.0);
+		}
+	";
+	
+	public static inline var defaultFragmentShaderSrc:String =
+	"	precision mediump float;
+		varying vec2 vTexCoord;
+		uniform sampler2D uImage;
+		
+		uniform vec2 uMouse, uResolution;
+		
+		void main(void)
+		{
+			vec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE);
+			if(texel.a < 0.5) discard;
+			gl_FragColor = texel;
+		}
+	";
 }

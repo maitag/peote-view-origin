@@ -31,9 +31,9 @@ package de.peote.view.texture;
 import format.png.Reader;
 import format.png.Tools;
 import haxe.io.BytesInput;
-import lime.Assets;
-import lime.utils.ByteArray;
 import lime.utils.UInt8Array;
+import lime.utils.ByteArray;
+import lime.Assets;
 
 #if js
 import js.Browser;

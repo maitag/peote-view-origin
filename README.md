@@ -6,9 +6,7 @@ to run on multiple hardware devices.
 
 ####Build [Examples](http://maitag.github.io/peote-view/examples/example_01.html)
 
-`$ lime build peoteView.lime html5` - for Javascript/WebGL
-
-`$ lime build peoteView.lime linux  (android/windows)` - for native OS
+`$ lime build peoteView.lime linux  (|android|windows)` - for native OS
 
 
 ####Why this lib ?

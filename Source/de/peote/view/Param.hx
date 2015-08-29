@@ -19,7 +19,10 @@ typedef Param =
 	
 	?tx:Int, ?ty:Int, ?tw:Int, ?th:Int,
 	?z:Int, ?program:Int, ?image:Int, ?tile:Int,
-	?parent:Int,
+	
+	//?parent:Int,
+	
+	?rgba:UInt,
 	
 	?img:Image
 }

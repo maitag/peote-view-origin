@@ -29,7 +29,11 @@
 package;
 
 import lime.app.Application;
+import lime.app.Config;
 import lime.graphics.RenderContext;
+import lime.ui.Touch;
+import lime.ui.Window;
+import lime.graphics.Renderer;
 
 class Main extends Application {
 	
@@ -45,19 +49,18 @@ class Main extends Application {
 		super ();
 	}
 	
-	public override function init (context:RenderContext):Void
+	//public override function create (config:Config):Void [ super.create (config) };
+
+	public override function onWindowCreate (window:Window):Void
 	{
-		switch (context) {
+		switch (window.renderer.context) {
 			case OPENGL (gl):
-				
 				width = window.width;
 				height = window.height;
-				
-				// start Example
-				//var example:ExampleTesting = new ExampleTesting();
+				// test examples
 				var example:Example_01 = new Example_01();
+				//var example:Example_RandomColor = new Example_RandomColor();
 				
-				//var example:Example_02 = new Example_02();
 				render_example = example.render;
 				
 			default:
@@ -66,45 +69,49 @@ class Main extends Application {
 	}
 
 	// ----------- Render Loop ------------------------------------
-	public override function render(context:RenderContext):Void
+	public override function render(renderer:Renderer):Void
 	{
-		render_example(width, height, mouse_x, mouse_y, zoom);
+		switch (renderer.context) {
+			case OPENGL (gl): render_example(width, height, mouse_x, mouse_y, zoom);
+		default:
+				// not implemented
+		}	
 	}
 
 
 	
 	// ------------------------------------------------------------
 	// ----------- EVENT HANDLER ----------------------------------
-	public override function onWindowResize (width:Int, height:Int):Void
+	public override function onWindowResize (window:Window, width:Int, height:Int):Void
 	{
-		trace("onWindowResize:"+width+','+height);
-		this.width = width;
-		this.height = height;
+		trace("onWindowResize:"+ window.width+','+ window.height);
+		this.width = window.width;
+		this.height = window.height;
 	}
-	public override function onMouseMove (x:Float, y:Float):Void
+	public override function onMouseMove (window:Window, x:Float, y:Float):Void
 	{
 		//trace("onMouseMove: " + x + "," + y );
 		mouse_x = Std.int(x);
 		mouse_y = Std.int(y);
 		
 	}
-	public override function onTouchMove (x:Float, y:Float, id:Int):Void
+	public override function onTouchMove (touch:Touch):Void
 	{
-		trace("onTouchMove: " + x + "," + y );
-		mouse_x = Std.int(x);
-		mouse_y = Std.int(y);
+		trace("onTouchMove: " + touch.x + "," + touch.y );
+		mouse_x = Std.int(touch.x); //* window.width;
+		mouse_y = Std.int(touch.y);
 	}
-	public override function onMouseDown (x:Float, y:Float, button:Int):Void
+	public override function onMouseDown (window:Window, x:Float, y:Float, button:Int):Void
 	{	
 		trace("onMouseDown: x=" + x + " y="+ y);
 		if ( button == 0) zoom++;
 		else if (button == 1 && zoom>1) zoom--;
 	}
-	public override function onMouseUp (x:Float, y:Float, button:Int):Void
+	public override function onMouseUp (window:Window, x:Float, y:Float, button:Int):Void
 	{	
 		trace("onmouseup: "+button+" x=" + x + " y="+ y);
 	}
-	public override function onMouseWheel (deltaX:Float, deltaY:Float):Void
+	public override function onMouseWheel (window:Window, deltaX:Float, deltaY:Float):Void
 	{	
 		trace("onmousewheel: " + deltaX + ',' + deltaY );
 		if ( deltaY>0 ) zoom++;

@@ -31,6 +31,7 @@ package de.peote.view;
 import de.peote.view.texture.TextureCache;
 import haxe.ds.Vector;
 import haxe.Timer;
+import lime.graphics.opengl.GLUniformLocation;
 import lime.utils.Float32Array;
 import lime.math.Matrix3;
 import lime.graphics.opengl.GL;
@@ -39,40 +40,53 @@ import lime.graphics.opengl.GLProgram;
 import lime.utils.GLUtils;
 
 import de.peote.view.displaylist.*;
+import de.peote.view.element.*;
 
 class PeoteView
-{
-	private var displaylist:Vector<Displaylist>;
-	private var startDisplaylist:Displaylist = null; // first index with lowest z value
+{	
+	public static var elementDefaults:Param = {
+			displaylist:0,
+			program:null,
+		
+			image:null,
+			tile:null,
+			
+			x:0,
+			y:0,
+			w:100,
+			h:100,
+			z:0
+		};
+
+	var displaylist:Vector<I_Displaylist>;
+	var startDisplaylist:I_Displaylist; // first index with lowest z value
 	
-	private var lastUsedDisplaylist:Int = 0;
-	
-	private var texturecache:TextureCache;
-	private var programCache:ProgramCache;
+	var texturecache:TextureCache;
+	var programCache:ProgramCache;
 	
 	// for background-GL-quad
-	private var background_buffer:GLBuffer;
-	private var background_program:GLProgram;
-	private var	background_aPosition:Int;
-	private var background_uRGBA:Int; // GLUniformLocation;
+	var background_buffer:GLBuffer;
+	var background_program:GLProgram;
+	var	background_aPosition:Int;
+	var background_uRGBA:GLUniformLocation;
 	
 	public function new(max_displaylists:Int = 10, max_programs:Int = 100) // TODO -> PARAM 
-	{
+	{	/*
 		trace("GL.MAX_TEXTURE_IMAGE_UNITS:" + GL.getParameter(GL.MAX_TEXTURE_IMAGE_UNITS));
 		trace("GL.MAX_VERTEX_TEXTURE_IMAGE_UNITS:" + GL.getParameter(GL.MAX_VERTEX_TEXTURE_IMAGE_UNITS));
 		trace("GL.MAX_TEXTURE_SIZE:" + GL.getParameter(GL.MAX_TEXTURE_SIZE));
 		trace("GL.MAX_VERTEX_ATTRIBS:" + GL.getParameter(GL.MAX_VERTEX_ATTRIBS));
 		trace("GL.MAX_VERTEX_UNIFORM_VECTORS:" + GL.getParameter(GL.MAX_VERTEX_UNIFORM_VECTORS));
 		trace("GL.MAX_FRAGMENT_UNIFORM_VECTORS:" + GL.getParameter(GL.MAX_FRAGMENT_UNIFORM_VECTORS));
-		
+		*/
 		// TODO:  img_width, img_height, max_images
 		texturecache = new TextureCache(512, 512, 64);
 
-		programCache = new ProgramCache( max_programs,
-								 Shader.default_fragmentShaderSrc,
-								 Shader.default_vertexShaderSrc);
-
-		displaylist = new Vector<Displaylist>(max_displaylists);
+		programCache = new ProgramCache( max_programs + 1 ); // last one is DEFAULT Program
+		
+		
+		startDisplaylist = null;
+		displaylist = new Vector<I_Displaylist>(max_displaylists);
 		
 		// for background-GL-quad
 		createBackgroundBuffer();
@@ -83,11 +97,17 @@ class PeoteView
 	// ------------------------------------------------------------------------------------------------------
 	public inline function setDisplaylist(param:DParam):Void
 	{
-		var d:Displaylist = displaylist.get(param.displaylist);
+		var d:I_Displaylist = displaylist.get(param.displaylist);
 		
 		if (d == null) // create new Displaylist
 		{
-			d = new Displaylist(param, texturecache, programCache);
+			if (param.type == null) param.type = 0;
+			
+			if (param.type & DType.ANIM != 0) 
+				d = new Displaylist<ElementAnim, ElementAnimBuffer>(param, programCache, texturecache);
+			else
+			    d = new Displaylist<ElementSimple, ElementSimpleBuffer>(param, programCache, texturecache);	
+			
 			displaylist.set(param.displaylist, d);
 			
 			// sort in
@@ -126,11 +146,9 @@ class PeoteView
 		}
 		
 		d.set(param);
-			
-		lastUsedDisplaylist = param.displaylist;
 	}
 	
-	private inline function unlinkDisplaylist(d:Displaylist):Void
+	private inline function unlinkDisplaylist(d:I_Displaylist):Void
 	{
 		if (d == startDisplaylist) startDisplaylist = (d.next != d) ? d.next : null;
 		// unlink
@@ -138,12 +156,12 @@ class PeoteView
 		d.next = d.prev = d;
 	}
 	
-	private inline function insertSortDisplaylist(d:Displaylist):Void
+	private inline function insertSortDisplaylist(d:I_Displaylist):Void
 	{
 		if (startDisplaylist == null) startDisplaylist = d; // first in dd
 		else
 		{
-			var i:Displaylist = startDisplaylist.prev;
+			var i:I_Displaylist = startDisplaylist.prev;
 			//trace("d.z="+i.z+" i.z="+i.z);
 			while (d.z < i.z &&  i != startDisplaylist)
 			{
@@ -162,7 +180,7 @@ class PeoteView
 
 	public inline function delDisplaylist(param:DParam):Void
 	{
-		var d:Displaylist = displaylist.get(param.displaylist);
+		var d:I_Displaylist = displaylist.get(param.displaylist);
 		
 		if (d != null)
 		{
@@ -176,16 +194,14 @@ class PeoteView
 	// ------------------------------------------------------------------------------------------------------
 	// -------------------------------- SHADER --------------------------------------------------------------
 	// ------------------------------------------------------------------------------------------------------
-	public inline function setProgram(program_nr:Int, type:Int=0, fragmentShaderUrl:String='', vertexShaderUrl:String=''):Void
+	public inline function setProgram(program_nr:Int, fsUrl:String = '', vsUrl:String = ''):Void
 	{	
-		programCache.loadShaderSrc(program_nr, fragmentShaderUrl, vertexShaderUrl);
+		programCache.loadShaderSrc(program_nr, fsUrl, vsUrl);
 	}
 	
-	public inline function setProgramSrc(program_nr:Int,
-										fragmentShaderSrc:String = Shader.default_fragmentShaderSrc,
-	                                    vertexShaderSrc:String = Shader.default_vertexShaderSrc):Void
+	public inline function setProgramSrc(program_nr:Int, fsSrc:String = '', vsSrc:String = ''):Void
 	{	
-		programCache.setShaderSrc( program_nr, fragmentShaderSrc, vertexShaderSrc );
+		programCache.setShaderSrc( program_nr, fsSrc, vsSrc );
 	}
 	
 	// ------------------------------------------------------------------------------------------------------
@@ -205,26 +221,55 @@ class PeoteView
 	public function setElement(param:Param):Void
 	{		
 		if (param.element != null)
-			displaylist.get( (param.displaylist!=null) ? param.displaylist : lastUsedDisplaylist ).setElement(param);
+			displaylist.get( (param.displaylist!=null) ? param.displaylist : elementDefaults.displaylist ).setElement(param);
 		else trace("ERROR: no element specified");
+	}
+	
+	public function getElement(param:Param):Param
+	{		
+		var p:Param = {};
+		if (param.element != null)
+			p = displaylist.get( (param.displaylist != null) ? param.displaylist : elementDefaults.displaylist ).getElement(param.element);
+		else trace("ERROR: no element specified");
+		return p;
+	}
+	
+	public function hasElement(param:Param):Bool
+	{		
+		return (param.element == null) ? false : displaylist.get( (param.displaylist != null) ? param.displaylist : elementDefaults.displaylist ).hasElement(param.element);
 	}
 	
 	public inline function delElement(param:Param):Void
 	{
 		if (param.element != null)
-			displaylist.get( (param.displaylist!=null) ? param.displaylist : lastUsedDisplaylist ).delElement(param.element);
+			displaylist.get( (param.displaylist!=null) ? param.displaylist : elementDefaults.displaylist ).delElement(param.element);
 		else trace("ERROR: no element specified");
 	}
 	
 	public inline function delAllElement(param:Param):Void
 	{
-		displaylist.get( (param.displaylist!=null) ? param.displaylist : lastUsedDisplaylist ).delAllElement();
+		displaylist.get( (param.displaylist!=null) ? param.displaylist : elementDefaults.displaylist ).delAllElement();
+	}
+	
+	public inline function setElementDefaults(param:Param):Void
+	{
+		if (param.displaylist != null) elementDefaults.displaylist = param.displaylist;	
+		if (param.program != null) elementDefaults.program = param.program;
+		
+		if (param.image != null) elementDefaults.image = param.image;	
+		if (param.tile != null) elementDefaults.tile = param.tile;	
+		
+		if (param.x != null) elementDefaults.x = param.x;	
+		if (param.y != null) elementDefaults.y = param.y;	
+		if (param.w != null) elementDefaults.w = param.w;	
+		if (param.h != null) elementDefaults.h = param.h;	
+		if (param.z != null) elementDefaults.z = param.z;	
 	}
 	
 	// ------------------------------------------------------------------------------------------------------
 	// -------------------------------- Render - Loop -------------------------------------------------------
 	// ------------------------------------------------------------------------------------------------------
-	private var dl:Displaylist; // actual displaylist inside renderloop
+	private var dl:I_Displaylist; // actual displaylist inside renderloop
 	private var ap:ActiveProgram; //  actual Program shader inside loop
 	public inline function render(time:Float, width:Int, height:Int, mouse_x:Int, mouse_y:Int, zoom:Int):Void
 	{	
@@ -253,7 +298,7 @@ class PeoteView
 			
 			//GL.enable(GL.TEXTURE_2D);
 			
-			// alpha einschalten
+			// alpha blend
 			GL.enable(GL.BLEND); GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
 			
 			// Texture
@@ -267,8 +312,8 @@ class PeoteView
 
 			if (dl.renderBackground) renderBackground ( dl.r, dl.g, dl.b, dl.a );
 			
-			GL.bindBuffer(GL.ARRAY_BUFFER, dl.bufferElement.glBuff); // nur EIN BUffer zum knechten (pro displaylist)
-			dl.bufferElement.setVertexAttributes(); // VertexAttributes
+			GL.bindBuffer(GL.ARRAY_BUFFER, dl.elemBuff.glBuff); // nur EIN BUffer zum knechten (pro displaylist)
+			dl.elemBuff.setVertexAttributes(); // VertexAttributes
 			
 			for (i in 0...dl.buffer.activeProgram.length )
 			{
@@ -276,7 +321,6 @@ class PeoteView
 				GL.useProgram(ap.program.glProgram); // ------ Shader Program
 				
 				// UNIFORMS
-				//GL.uniformMatrix3D (ap.program.uniforms.get(Program.uPROJECTIONMATRIX), false, Matrix3D.createOrtho (0, width/zoom, height/zoom, 0, 1000, -1000));
 				GL.uniform1i (ap.program.uniforms.get(Program.uIMAGE), 0);
 				GL.uniform2f (ap.program.uniforms.get(Program.uMOUSE),(mouse_x / width) * 2 - 1,(mouse_y / height) * 2 - 1);
 				//GL.uniform2f (ap.program.uniforms.get(Program.uRESOLUTION), (dl.w!=0) ? dl.w : width, (dl.h != 0) ? dl.h : height);
@@ -292,8 +336,7 @@ class PeoteView
 				
 			}
 			
-			// --- aufrauemen
-			dl.bufferElement.disableVertexAttributes();
+			dl.elemBuff.disableVertexAttributes();
 			
 			// next displaylist in loop
 			dl = (dl.next != startDisplaylist) ? dl.next : null;
@@ -342,7 +385,7 @@ class PeoteView
 		);
 		
 		background_aPosition = GL.getAttribLocation (background_program, "aPosition");
-		background_uRGBA = cast GL.getUniformLocation (background_program, "uRGBA");
+		background_uRGBA = GL.getUniformLocation (background_program, "uRGBA");
 		
 		var data = [
 			1, 1,
@@ -352,7 +395,7 @@ class PeoteView
 		];
 		background_buffer = GL.createBuffer ();
 		GL.bindBuffer (GL.ARRAY_BUFFER, background_buffer);
-		GL.bufferData (GL.ARRAY_BUFFER, new Float32Array (cast data), GL.STATIC_DRAW);
+		GL.bufferData (GL.ARRAY_BUFFER, new Float32Array (data), GL.STATIC_DRAW);
 		GL.bindBuffer (GL.ARRAY_BUFFER, null);
 	}
 	
@@ -364,7 +407,7 @@ class PeoteView
 		GL.vertexAttribPointer (background_aPosition, 2, GL.FLOAT, false, 8, 0);
 		
 		GL.useProgram (background_program);
-		GL.uniform4f ( cast background_uRGBA, r,g,b,a);
+		GL.uniform4f ( background_uRGBA, r,g,b,a);
 		
 		GL.drawArrays (GL.TRIANGLE_STRIP, 0, 4);
 		GL.disableVertexAttribArray (background_aPosition);

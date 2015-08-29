@@ -6,9 +6,16 @@ package de.peote.view.element;
 
 import lime.graphics.opengl.GLBuffer;
 
-interface I_BufferElement
+import de.peote.view.ProgramCache;
+import haxe.ds.Vector;
+
+interface I_ElementBuffer
 {
+	public var attr:Vector<Int>;
 	public var glBuff:GLBuffer;
+	
+	public function getDefaultFragmentShaderSrc():String;
+	public function getDefaultVertexShaderSrc():String;
 	
 	public function disableVertexAttributes():Void;
 	public function setVertexAttributes():Void;

@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 	
-	<meta title="peote_view" package="de.peote.view" version="0.1.1" company="Sylvio Sell - maitag" />
+	<meta title="peote_view" package="de.peote.view" version="0.1.5" company="Sylvio Sell - maitag" />
 	<app main="Main" path="Export" file="peoteView" />
 	
-	<window if="cpp" fps="60" width="800" height="600" vsync="true" antialiasing="4" resizable="true" hardware="true" allow-shaders="true" require-shaders="true" />
-	<window if="html5" fps="0" width="0" height="0" vsync="true" antialiasing="4" resizable="true" require-shaders="true" />
+	<window fps="60" width="800" height="600" vsync="true" antialiasing="4" resizable="true" hardware="true" allow-shaders="true" require-shaders="true" depth-buffer="true" stencil-buffer="false" />
+	<window if="html5" fps="60" width="0" height="0" />
 	
 	<source path="Source" />
 	
 	<haxelib name="lime" />
 	<haxelib name="format" />
+	
+	<!-- -Dwebgl -debug -->
+	
+	<!-- if dead code elimination problem: -->
+	<!-- <haxeflag name="-dce" value="no" if="cpp" /> -->
 	
 	<assets path="Assets" rename="assets" exclude="lime.svg" />
 	<icon path="Assets/lime.svg" />

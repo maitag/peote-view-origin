@@ -1,1 +1,1 @@
-haXe Build Directory (see peoteView.lime)
+haxe build directory

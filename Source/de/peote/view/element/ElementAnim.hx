@@ -32,7 +32,7 @@ import de.peote.view.texture.TextureCache;
 
 //import de.peote.view.ActiveProgram;
 
-class ElementSimple implements I_Element
+class ElementAnim implements I_Element
 {
 	public var act_program:ActiveProgram;
 	public var buf_pos:Int;
@@ -40,11 +40,14 @@ class ElementSimple implements I_Element
 	public var image:Int = -1;
 	public var tile:Int = -1;
 	
-	// stored
+	// animated per gpu
 	public var x:Int;
 	public var y:Int;
 	public var w:Int;
 	public var h:Int;
+	public var time:Float = 0.0;
+	
+	// not animated
 	public var z:Int;
 	/*
 	public var tx:Int = 0;
@@ -62,7 +65,7 @@ class ElementSimple implements I_Element
 		//tile = PeoteView.elementDefaults.tile;	
 	}
 	
-	public inline function set(elemBuff:I_ElementBuffer, param:Param, texturecache:TextureCache):Void
+	public inline function set(bufferElement:I_ElementBuffer, param:Param, texturecache:TextureCache):Void
 	{	
 		
 		// TODO: nur bestimmte buffer-werte aendern
@@ -78,6 +81,24 @@ class ElementSimple implements I_Element
 		if (param.y == null) param.y = y;
 		if (param.w == null) param.w = w;
 		if (param.h == null) param.h = h;
+		if (param.time == null) param.time = time;
+		
+		if (param.start == null) param.start = {};
+
+		if (param.start.x == null) param.start.x = param.x;
+		if (param.start.y == null) param.start.y = param.y;
+		if (param.start.w == null) param.start.w = param.w;
+		if (param.start.h == null) param.start.h = param.h;
+		if (param.start.time == null) param.start.time = param.time;
+			
+		if (param.end == null) param.end = {};
+
+		if (param.end.x == null) param.end.x = param.x;
+		if (param.end.y == null) param.end.y = param.y;
+		if (param.end.w == null) param.end.w = param.w;
+		if (param.end.h == null) param.end.h = param.h;
+		if (param.end.time == null) param.end.time = param.time;
+			
 		
 		if (param.z == null) param.z = z;
 		
@@ -119,8 +140,14 @@ class ElementSimple implements I_Element
 		}
 		
 		//trace(param.element, param.tx, param.ty, param.tw, param.th);
-		elemBuff.set(this, param);
+		bufferElement.set(this, param);
 		
+		x = param.end.x;
+		y = param.end.y;
+		z = param.z;
+		w = param.end.w;
+		h = param.end.h;
+		time = param.end.time;
 	}
 	
 	public inline function get():Param
@@ -142,13 +169,13 @@ class ElementSimple implements I_Element
 		buf_pos = b;		
 	}
 	
-	public inline function del(elemBuff:I_ElementBuffer, texturecache:TextureCache):Void
+	public inline function del(bufferElement:I_ElementBuffer, texturecache:TextureCache):Void
 	{	
-		elemBuff.del(this);
+		bufferElement.del(this);
 		if (image != -1) texturecache.unUseImage(image);
 	}
 	/*	
-	public inline function setTexCoord(elemBuff:I_elemBuff, param:Param):Void
+	public inline function setTexCoord(bufferElement:I_BufferElement, param:Param):Void
 	{	
 		// IMAGE
 		if (param.img != img) img = param.img;
@@ -176,7 +203,7 @@ class ElementSimple implements I_Element
 			param.th  = Math.floor( param.th/16 );
 		}
 		trace(param.element,param.tx, param.ty, param.tw, param.th);
-		elemBuff.setTexCoord(this, param);
+		bufferElement.setTexCoord(this, param);
 	}
 	*/
 

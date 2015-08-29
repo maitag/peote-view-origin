@@ -28,8 +28,12 @@
 
 package de.peote.view;
 
+import de.peote.view.displaylist.Displaylist;
+import de.peote.view.displaylist.DType;
+import de.peote.view.element.I_ElementBuffer;
 import de.peote.view.texture.TextureCache;
-import haxe.ds.Vector.Vector;
+
+import haxe.ds.Vector;
 import lime.graphics.opengl.GL;
 import lime.graphics.opengl.GLProgram;
 import lime.graphics.opengl.GLShader;
@@ -37,17 +41,11 @@ import lime.graphics.opengl.GLUniformLocation;
 
 class Program
 {
-	
-	
-	//public var fragment_shader_url:String = "";
-	
-	public var glProgram:GLProgram = null;
-	public var uniforms:Vector<GLUniformLocation>;
-	
-	public static var aPosition:Int = -1; // -1 -> uninitialized
-	public static var aTime:Int;
-	public static var aZindex:Int;
-	public static var aTexCoord:Int;
+	public static inline var aPOSITION:Int  = 0;
+	public static inline var aTEXTCOORD:Int = 1;
+	public static inline var aZINDEX:Int    = 2;
+	public static inline var aRGBA:Int      = 3;
+	public static inline var aTIME:Int      = 4;
 	
 	public static inline var uMODELVIEWMATRIX:Int = 0;
 	public static inline var uPROJECTIONMATRIX:Int = 1;
@@ -58,6 +56,26 @@ class Program
 	public static inline var uZOOM:Int = 6;
 	public static inline var uDELTA:Int = 7;
 	
+	public static var rComment:EReg = new EReg("//.*?$","gm");
+	public static var rNewline:EReg = new EReg("\r?\n", "g");
+	public static var rSpaces: EReg = new EReg("\t\t+", "g");
+	
+	//public static var rZINDEXstart: EReg = new EReg("#if_ZINDEX(.*?)#else_ZINDEX(.*?)#end_ZINDEX","ig");
+	public static var rZINDEXstart: EReg = new EReg("#else_ZINDEX(.*?)#end_ZINDEX","ig");
+	public static var rZINDEXend:   EReg = new EReg("#if_ZINDEX(.*?)#end_ZINDEX","ig");
+	
+	public static var rRGBAstart:   EReg = new EReg("#else_RGBA(.*?)#end_RGBA","ig");
+	public static var rRGBAend:     EReg = new EReg("#if_RGBA(.*?)#end_RGBA","ig");
+	
+	
+	public static var rMAX_TEXTURE_SIZE:EReg = new EReg("#MAX_TEXTURE_SIZE","g");
+		
+
+	public var glProgram:GLProgram = null;
+	public var uniforms:Vector<GLUniformLocation>;
+	
+	// -----------------------------------------------------------------------
+
 	public inline function new(defaultProgram:Program = null):Void
 	{
 		if (defaultProgram != null)
@@ -65,50 +83,46 @@ class Program
 			this.glProgram = defaultProgram.glProgram;
 			this.uniforms = defaultProgram.uniforms;
 		}
-		
-		// CHECK
-		// activeProgramArray = new Array<ActiveProgram>();
 	}
 	
-	public inline function compile(fragmentShaderSrc:String, vertexShaderSrc:String, onerror:String->Void):Void
+	public inline function parseType(type:Int, s:String):String
 	{
-		// testing regexp shader parsing
-		var r = new EReg("//.*?$","gm");
-		vertexShaderSrc = r.replace(vertexShaderSrc, "");
-		r = new EReg("\r?\n","g");
-		vertexShaderSrc = r.replace(vertexShaderSrc, "");
-		r = new EReg("\t\t+","g");
-		vertexShaderSrc = r.replace(vertexShaderSrc, "");
+		// regexp shader parsing
+		s = rComment.replace(s, "");
+		s = rNewline.replace(s, "");
+		s = rSpaces.replace(s, "");
 		
-		// TODO ::: Displaylist->Element specific PROGRAM ^~
-		//if (type & Displaylist.RGBA ==0) //RGBA
-		if (false) //RGBA
-		{
-			r = new EReg("#if_RGBA(.*?)#else_RGBA(.*?)#end_RGBA","ig");
-			vertexShaderSrc = r.replace(vertexShaderSrc, "$1");
-			r = new EReg("#if_RGBA(.*?)#end_RGBA","ig");
-			vertexShaderSrc = r.replace(vertexShaderSrc, "$1");
-		} 
-		else
-		{
-			r = new EReg("#if_RGBA(.*?)#else_RGBA(.*?)#end_RGBA","ig");
-			vertexShaderSrc = r.replace(vertexShaderSrc, "$2");
-			r = new EReg("#if_RGBA(.*?)#end_RGBA","ig");
-			vertexShaderSrc = r.replace(vertexShaderSrc, "");
+		if (type & DType.ZINDEX != 0) {
+			//s = rZINDEXstart.replace(s, "$1"); s = rZINDEXend.replace(s, "$1");
+			s = rZINDEXstart.replace(s, "#end_ZINDEX"); s = rZINDEXend.replace(s, "$1");
+		} else {
+			//s = rZINDEXstart.replace(s, "$2"); s = rZINDEXend.replace(s, "");
+			s = rZINDEXstart.replace(s, "#end_ZINDEX$1"); s = rZINDEXend.replace(s, "");
 		}
 		
-		// reformat to test
-		r = new EReg(";","g");
-		vertexShaderSrc = r.replace(vertexShaderSrc, ";\n");
-
+		if (type & DType.RGBA != 0) {
+			s = rRGBAstart.replace(s, "#end_RGBA"); s = rRGBAend.replace(s, "$1");
+		} else {
+			s = rRGBAstart.replace(s, "#end_RGBA$1"); s = rRGBAend.replace(s, "");
+		}
 		
 		// replace template variables
-		r = new EReg("%MAX_TEXTURE_SIZE%","g");
-		vertexShaderSrc = r.replace(vertexShaderSrc, TextureCache.max_texture_size+".0");
-		fragmentShaderSrc = r.replace(fragmentShaderSrc, TextureCache.max_texture_size+".0");
-
-		//trace(vertexShaderSrc);
-		//trace(fragmentShaderSrc);
+		s = rMAX_TEXTURE_SIZE.replace(s, TextureCache.max_texture_size+".0");
+		
+		return s;
+	}
+	
+	public inline function compile(elemBuff:I_ElementBuffer, type:Int,
+								fragmentShaderSrc:String, vertexShaderSrc:String,
+								onerror:String->Void):Void
+	{
+		fragmentShaderSrc = parseType(type, fragmentShaderSrc);
+		vertexShaderSrc = parseType(type, vertexShaderSrc);
+		
+		// reformat to debug
+		var r:EReg = new EReg(";", "g");
+		trace("VERTEXSHADER:\n",r.replace(vertexShaderSrc, ";\n"));
+		trace("FRAGMENTSHADER:\n",r.replace(fragmentShaderSrc, ";\n"));
 		
 		// -----------------------------------------------------------------------
 		
@@ -140,17 +154,33 @@ class Program
 				);
 			}
 			else
-			{
-				if (aPosition == -1)
-				{
-					aPosition = GL.getAttribLocation(glProgram, "aPosition");
-					aTime     = GL.getAttribLocation(glProgram, "aTime");
-					aZindex   = GL.getAttribLocation(glProgram, "aZindex");
-					aTexCoord = GL.getAttribLocation(glProgram, "aTexCoord");
+			{				
+				var name:String;
+				
+				// set attributes
+				if (elemBuff != null)
+				{	if (elemBuff.attr == null)
+					{
+						trace( "ANZAHL " + GL.getProgramParameter(glProgram, GL.ACTIVE_ATTRIBUTES) );
+						elemBuff.attr = new Vector<Int>(GL.getProgramParameter(glProgram, GL.ACTIVE_ATTRIBUTES));
+						for (i in 0 ... GL.getProgramParameter(glProgram, GL.ACTIVE_ATTRIBUTES))
+						{	
+							name = GL.getActiveAttrib(glProgram, i).name;
+							trace( name + ":" + GL.getAttribLocation(glProgram, name) );
+							switch (name)
+							{
+								case "aPosition":	elemBuff.attr.set(aPOSITION,  GL.getAttribLocation(glProgram, name) );
+								case "aTexCoord":	elemBuff.attr.set(aTEXTCOORD, GL.getAttribLocation(glProgram, name) );
+								case "aZindex":		elemBuff.attr.set(aZINDEX,    GL.getAttribLocation(glProgram, name) );
+								case "aRGBA":		elemBuff.attr.set(aRGBA,      GL.getAttribLocation(glProgram, name) );
+								case "aTime":		elemBuff.attr.set(aTIME,      GL.getAttribLocation(glProgram, name) );
+							}
+						}
+						
+					}
 				}
 				// set uniforms
 				uniforms = new Vector<GLUniformLocation>(GL.getProgramParameter(glProgram, GL.ACTIVE_UNIFORMS));
-				var name:String;
 				for (i in 0 ... GL.getProgramParameter(glProgram, GL.ACTIVE_UNIFORMS))
 				{	
 					name = GL.getActiveUniform(glProgram, i).name;

@@ -28,31 +28,26 @@
 
 package de.peote.view.displaylist;
 
+import de.peote.view.Program;
+import de.peote.view.ProgramCache;
 import de.peote.view.texture.TextureCache;
-import haxe.ds.Vector;
+import de.peote.view.element.*;
+import de.peote.view.Param;
+
 import lime.graphics.opengl.GLProgram;
 import lime.graphics.opengl.GLShader;
-import lime.Assets;
+
+import haxe.ds.Vector;
 import haxe.Http;
 
-import de.peote.view.element.*;
-
-class Displaylist
+@:generic
+class Displaylist<ELEMENT:{function new():Void;}, BUFFER:{function new(t:Int, b:Buffer):Void;}> implements I_Displaylist
 {
-	public static inline var ANIM:Int = 1;
-	public static inline var TREE:Int = 2;
-
-	public static inline var ZINDEX:Int = 4;
-	public static inline var RGBA:Int = 8;
-	public static inline var ROTATION:Int = 16;
-	public static inline var SCALE:Int = 32;
-	public static inline var TILE:Int = 64;
-	
 	public var type:Int = 0;
 	
 	// double linked circular list
-	public var prev:Displaylist = this; // pref displaylist (in order)
-	public var next:Displaylist = this; // next displaylist (in order)
+	public var prev:I_Displaylist = this; // pref displaylist (in order)
+	public var next:I_Displaylist = this; // next displaylist (in order)
 	
 	// params
 	public var x:Int=0; // x Position
@@ -77,7 +72,7 @@ class Displaylist
 	public var element:Vector<I_Element>;
 	
 	public var buffer:Buffer;
-	public var bufferElement:I_BufferElement;
+	public var elemBuff:I_ElementBuffer;
 	
 	// von parent (peoteView)
 	public var texturecache:TextureCache;
@@ -85,32 +80,30 @@ class Displaylist
 	
 	// -----------
 	
-	public function new(param:DParam, texturecache:TextureCache, programCache:ProgramCache) 
+	public function new(param:DParam, programCache:ProgramCache, texturecache:TextureCache) 
 	{
 		this.texturecache = texturecache;
 		this.programCache = programCache;
-		//this.type = type;
+		this.type = param.type;
 		
 		z = (param.z != null) ? param.z : 0;
 		
 		element = new Vector<I_Element>(param.max_elements);
-		/*
-		programCache = new ProgramCache( param.max_programs,
-		                                 Shader.default_fragmentShaderSrc,
-		                                 Shader.default_vertexShaderSrc);
-		*/
 		trace("max_segments: "+(Math.floor( param.max_elements / param.buffer_segment_size ) + param.max_programs));
+
 		buffer = new Buffer(param.buffer_segment_size, Math.floor( param.max_elements/param.buffer_segment_size ) + param.max_programs ); // TODO
 		
-		// je nach Typ
-		bufferElement = new BufferElementSimple(buffer);
-		//bufferElement = new BufferElement(buffer);
+		elemBuff = cast( new BUFFER(type, buffer), I_ElementBuffer);
+		
+		programCache.addDisplaylist(type, elemBuff);
+		
 	}
 		
 	public inline function delete():Void
 	{
-		bufferElement.delete();
+		elemBuff.delete();
 		buffer.delete();
+		programCache.delDisplaylist(type);
 		element = null;
 	}
 
@@ -135,24 +128,37 @@ class Displaylist
 		
 		if (e == null) // create new Element
 		{
-			e = new ElementSimple( param ); // oder ElementTree( param );
+			e = cast( new ELEMENT(), I_Element);
 			
-			if (programCache.get(param.program) != null)
-			{
-				buffer.addElement( e, programCache.get(param.program), param.program ); // TODO: eigene program-cache fuer active-programm-zuordnungen
-				
-				element.set( param.element, e );
-				
-				//trace("addElement "+param.element+" displaylist:"+param.displaylist+" buf_pos :"+e.buf_pos + " start" + e.act_program.start+ " size" + e.act_program.size);
-			} else trace(" ERROR: no program specified for new element"); // TODO
-			
-		} //else trace("set element "+param.element+"--------- buf_pos :"+e.buf_pos);
+			if (param.program == null) param.program = programCache.program.length-1;
+
+			buffer.addElement( e, programCache.getProgram(param.program, type, elemBuff), param.program );
+			element.set( param.element, e );
+			//trace("addElement "+param.element+" displaylist:"+param.displaylist+" buf_pos :"+e.buf_pos + " start" + e.act_program.start+ " size" + e.act_program.size);
+		}
+		else if (param.program != null && param.program != e.act_program.program_nr ) //change program
+		{
+			elemBuff.del(e);
+			buffer.delElement(e);
+			buffer.addElement( e, programCache.getProgram(param.program, type, elemBuff), param.program );
+		}
+		//else trace("set element "+param.element+"--------- buf_pos :"+e.buf_pos);
 		
-		
-		e.set(bufferElement, param, texturecache);
+		e.set(elemBuff, param, texturecache);
 	}
 
 			
+	public inline function getElement(element_nr:Int):Param
+	{
+		var e:I_Element = element.get(element_nr);
+		return (e == null) ? null : e.get();
+	}
+	
+	public inline function hasElement(element_nr:Int):Bool
+	{
+		return (element.get(element_nr) != null);
+	}
+	
 	public inline function delElement(element_nr:Int):Void
 	{
 		var e:I_Element = element.get(element_nr);
@@ -162,7 +168,7 @@ class Displaylist
 			element.set(element_nr, null);
 			
 			buffer.delElement(e);
-			e.del(bufferElement, texturecache);
+			e.del(elemBuff, texturecache);
 		}
 	}
 	
