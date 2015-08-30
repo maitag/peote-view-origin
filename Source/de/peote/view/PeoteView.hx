@@ -271,7 +271,7 @@ class PeoteView
 	// ------------------------------------------------------------------------------------------------------
 	private var dl:I_Displaylist; // actual displaylist inside renderloop
 	private var ap:ActiveProgram; //  actual Program shader inside loop
-	public inline function render(time:Float, width:Int, height:Int, mouse_x:Int, mouse_y:Int, zoom:Int):Void
+	public inline function render(time:Float, width:Int, height:Int, mouseX:Int, mouseY:Int, zoom:Int, xOffset:Int = 0, yOffset:Int = 0):Void
 	{	
 		GL.viewport (0, 0, width, height);
 		
@@ -285,13 +285,24 @@ class PeoteView
 		dl = startDisplaylist;
 		while (dl != null)
 		{	
-			// TODO: max/min values, optimize
-			GL.scissor(
-				dl.x,
-				((dl.h != 0) ? height - dl.h : 0) - dl.y,
-				(dl.w != 0) ? dl.w : width,
-				(dl.h != 0) ? dl.h : height
-			);
+			// max/min values, optimize
+			var sx:Int = (dl.x + xOffset) * zoom;
+			var sy:Int = (dl.y + yOffset) * zoom;
+			var sw:Int = (dl.w != 0) ? dl.w * zoom: width;
+			var sh:Int = (dl.h != 0) ? dl.h * zoom: height;
+			
+			if (sx < 0) sw += sx;
+			sx = Std.int( Math.max(0, Math.min(width, sx)) );
+			sw = Std.int( Math.max(0, Math.min(width-sx, sw)) );
+			
+			if (sy < 0) sh += sy;
+			sy = Std.int( Math.max(0, Math.min(height, sy)) );
+			sh = Std.int( Math.max(0, Math.min(height-sy, sh)) );
+			
+			
+			//sh -= dl.y;
+			
+			GL.scissor(sx, height-sh-sy, sw, sh);
 			
 			GL.enable(GL.DEPTH_TEST); GL.depthFunc(GL.LEQUAL); //GL.depthFunc(GL.LESS);
 			// TODO: alpha (+ filter?) je nach dl
@@ -322,15 +333,12 @@ class PeoteView
 				
 				// UNIFORMS
 				GL.uniform1i (ap.program.uniforms.get(Program.uIMAGE), 0);
-				GL.uniform2f (ap.program.uniforms.get(Program.uMOUSE),(mouse_x / width) * 2 - 1,(mouse_y / height) * 2 - 1);
+				GL.uniform2f (ap.program.uniforms.get(Program.uMOUSE),(mouseX / width) * 2 - 1,(mouseY / height) * 2 - 1); // remap from -1 to +1
 				//GL.uniform2f (ap.program.uniforms.get(Program.uRESOLUTION), (dl.w!=0) ? dl.w : width, (dl.h != 0) ? dl.h : height);
 				GL.uniform2f (ap.program.uniforms.get(Program.uRESOLUTION), width, height);
-				GL.uniform1f (ap.program.uniforms.get(Program.uTIME), time);
-				GL.uniform1f (ap.program.uniforms.get(Program.uZOOM), zoom);
-				GL.uniform2f (ap.program.uniforms.get(Program.uDELTA),
-						dl.x + dl.xOffset, // + ( -mouse_x) * (zoom - 1) / 4,
-						dl.y + dl.yOffset // + ( -mouse_y) * (zoom - 1) / 4
-						);
+				GL.uniform1f (ap.program.uniforms.get(Program.uTIME),  time);
+				GL.uniform1f (ap.program.uniforms.get(Program.uZOOM),  dl.zoom * zoom);
+				GL.uniform2f (ap.program.uniforms.get(Program.uDELTA), dl.x + dl.xOffset + xOffset, dl.y + dl.yOffset + yOffset);
 				//draw
 				GL.drawArrays (GL.TRIANGLE_STRIP,  ap.start,  ap.size);
 				

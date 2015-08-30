@@ -16,6 +16,8 @@ typedef DParam =
 	?w:Int,
 	?h:Int,
 	
+	?zoom:Int,
+	
 	?xOffset:Int,
 	?yOffset:Int,
 	

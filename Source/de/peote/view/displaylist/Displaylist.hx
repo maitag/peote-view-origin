@@ -55,6 +55,8 @@ class Displaylist<ELEMENT:{function new():Void;}, BUFFER:{function new(t:Int, b:
 	public var w:Int=0; // width
 	public var h:Int=0; // height
 
+	public var zoom:Int=1; // zoom level
+
 	public var xOffset:Int=0; // x Offset for all Elements
 	public var yOffset:Int=0; // y Offset for all Elements
 
@@ -113,6 +115,7 @@ class Displaylist<ELEMENT:{function new():Void;}, BUFFER:{function new(t:Int, b:
 		if (param.y != null) y = param.y;		
 		if (param.w != null) w = param.w;		
 		if (param.h != null) h = param.h;		
+		if (param.zoom != null) h = param.zoom;		
 		if (param.xOffset != null) xOffset = param.xOffset;
 		if (param.yOffset != null) yOffset = param.yOffset;		
 		if (param.r != null) r = param.r;		

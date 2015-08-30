@@ -18,6 +18,8 @@ interface I_Displaylist
 	public var y:Int; // y Position
 	public var w:Int; // width
 	public var h:Int; // height
+	
+	public var zoom:Int; // zoom level
 
 	public var xOffset:Int; // x Offset for all Elements
 	public var yOffset:Int; // y Offset for all Elements

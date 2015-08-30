@@ -28,25 +28,19 @@
 
 package;
 
-import de.peote.view.PeoteView;
-import de.peote.view.displaylist.DType;
 import haxe.Timer;
 
-class Example_RandomColor
+import de.peote.view.PeoteView;
+import de.peote.view.displaylist.DType;
+
+class ExampleRandomLetter extends Example
 {
-	private var peoteView:PeoteView;
-	private var startTime:Float;
-
 	
-	public function new() 
+	public override function run() 
 	{
-		#if openfl
-		trace("OPENFL");
-		#end
-
 		startTime = Timer.stamp();
 		
-		peoteView = new PeoteView(10, 1000); // max_displaylists, max_programs (for all displaylists)
+		peoteView = new PeoteView(1, 1); // max_displaylists, max_programs (for all displaylists)
 		
 		var w:Int = 162;
 		var h:Int = 110;
@@ -65,7 +59,7 @@ class Example_RandomColor
 		
 		peoteView.setDisplaylist( { displaylist:0, type:DType.RGBA,
 			max_elements:w*h+1, max_programs:10, buffer_segment_size:w*h+1,
-			w:1000, h:1000,
+			w:1920, h:1280,
 			z:0,
 			enable:true
 		});
@@ -79,12 +73,9 @@ class Example_RandomColor
 		var firstrun:Bool = true;
 		timer.run = function()
 		{
-			//var update_time = Timer.stamp();
 			for (x in 0...w)
 			{	for (y in 0...h)
 				{	
-					//peoteView.delElement( { element: y * w +x } );
-					//if (random(6) == 0 )
 					var nr:Int = y * w + x;
 					if ( !firstrun )
 					{	
@@ -111,25 +102,10 @@ class Example_RandomColor
 					});		
 				}
 			}
-			//trace("update_time: " + Math.round((Timer.stamp() - update_time)*100000)/100000);
 			firstrun = false;
 		}
 		
 		
-	}
-	
-	// ------------------------------------------------------------
-	// ----------- Render Loop ------------------------------------
-	
-	public inline function render(width:Int, height:Int, mouse_x:Int, mouse_y:Int, zoom:Int ):Void
-	{	
-		peoteView.render(Timer.stamp() - startTime, width, height, mouse_x, mouse_y, zoom);
-	}
-	
-	// -- Math-Stuff
-	public inline function random(n:Int):Int
-	{
-		return Math.floor(Math.random() * n);
 	}
 	
 }

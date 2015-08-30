@@ -28,15 +28,13 @@
 
 package;
 
-import de.peote.view.PeoteView;
-import de.peote.view.displaylist.DType;
 import haxe.Timer;
 
-class Example_01
-{
-	private var peoteView:PeoteView;
-	private var startTime:Float;
+import de.peote.view.PeoteView;
+import de.peote.view.displaylist.DType;
 
+class ExampleMassAnim extends Example
+{
 	var w:Int = 280;
 	var h:Int = 180;
 	var s:Int = 7;
@@ -44,11 +42,11 @@ class Example_01
 	var switchBGanim:Int = 1;
 	var speed:Float = 1;
 		
-	public var frames:Int = 0;
-	public var render_time:Float = 0;
-	public var update_time:Float = 0;
+	var frames:Int = 0;
+	var render_time:Float = 0;
+	var update_time:Float = 0;
 	
-	public function new()
+	public override function run()
 	{
 		last_y = h - 1;
 		
@@ -61,7 +59,7 @@ class Example_01
 		
 		// set shaders
 		peoteView.setProgram(0, "assets/lyapunov_01.frag");
-		peoteView.setProgram(1); // default shaders
+		peoteView.setProgram(1); // default image shader
 		
 		// set images
 		peoteView.setImage(0, "assets/peote_font_green.png", 512, 512);
@@ -121,8 +119,6 @@ class Example_01
 		update_time = Timer.stamp();
 		
 		var t:Float = Timer.stamp() - startTime;
-		//trace("t:"+t);
-		
 		
 		for (x in 0...w)
 			peoteView.setElement( { element: 1+last_y*w+x, displaylist:0,
@@ -167,20 +163,5 @@ class Example_01
 		
 	};
 
-	// ------------------------------------------------------------
-	// ----------- Render Loop ------------------------------------
-	public function render(width:Int, height:Int, mouse_x:Int, mouse_y:Int, zoom:Int ):Void
-	{	
-		var t:Float = Timer.stamp();
-		peoteView.render(Timer.stamp() - startTime, width, height, mouse_x, mouse_y, zoom);
-		render_time += Timer.stamp()-t;
-		frames++;
-	}
-	
-	// -- Math-Stuff
-	private inline function random(n:Int):Int
-	{
-		return Math.floor(Math.random() * n);
-	}
-	
+
 }

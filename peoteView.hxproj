@@ -15,14 +15,20 @@
     <movie preferredSDK="Haxe 3.1.3;3.1.3;" />
   </output>
   <!-- Other classes to be compiled into your SWF -->
+  <classpaths>
+    <class path="D:\Programme\coding\haxe\haxe\lib\lime\2,6,1" />
+    <class path="D:\Programme\coding\haxe\haxe\lib\format\3,1,2" />
+    <class path="Source" />
+    <class path="Export\html5\haxe" />
+  </classpaths>
   <!-- Build options -->
   <build>
-    <option directives="lime=2.6.1&#xA;format=3.1.2&#xA;tools=2.6.1&#xA;no-compilation&#xA;lime-native&#xA;windows&#xA;desktop" />
+    <option directives="lime=2.6.1&#xA;format=3.1.2&#xA;tools=2.6.1&#xA;no-compilation&#xA;lime-html5&#xA;html5&#xA;web&#xA;html5&#xA;html" />
     <option flashStrict="False" />
     <option noInlineOnDebug="False" />
     <option mainClass="ApplicationMain" />
     <option enabledebug="False" />
-    <option additional="#--macro keep(&quot;Main&quot;)" />
+    <option additional="" />
   </build>
   <!-- haxelib libraries -->
   <haxelib>

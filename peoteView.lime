@@ -2,7 +2,11 @@
 <project>
 	
 	<meta title="peote_view" package="de.peote.view" version="0.1.5" company="Sylvio Sell - maitag" />
-	<app main="Main" path="Export" file="peoteView" />
+	
+	<!-- choose example to build: -->
+	<!--<app main="Example" path="Export" file="Example" />-->
+	<app main="ExampleMassAnim" path="Export" file="ExampleMassAnim" />
+	<!--<app main="ExampleRandomLetter" path="Export" file="ExampleRandomLetter" />-->
 	
 	<window fps="60" width="800" height="600" vsync="true" antialiasing="4" resizable="true" hardware="true" allow-shaders="true" require-shaders="true" depth-buffer="true" stencil-buffer="false" />
 	<window if="html5" fps="60" width="0" height="0" />
