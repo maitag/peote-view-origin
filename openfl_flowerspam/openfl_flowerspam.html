@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <meta charset="utf-8">
+        <title>peote_view</title>
+
+        <style>
+
+            #lime_canvas {
+                display: block;
+                width: 800px;
+                height: 600px;
+                margin-left: auto;
+                margin-right: auto;
+                margin-top: 2em;
+                position: relative;
+            }
+
+        </style>
+
+    </head>
+
+    <body style="padding: 0; margin: 0; background-color: #FFFFFF;">
+       
+		<script type="text/javascript" src="peoteViewLibHalloWelt.js"></script>
+		<script type="text/javascript" src="peoteTimer.js"></script>
+		
+		<script type="text/javascript">
+			
+			var t;
+			var nr = 0;
+			
+			function starter()
+			{
+				//Peote.view.setShaderSrc(0, de.peote.Shader.fragmentShader_lyap);
+				Peote.view.setShaderSrc(0, 
+					 "precision mediump float;"
+					// ###############################################################################
+					// #    Author:   Sylvio Sell - maitag - Rostock 2013                            #
+					// #    Homepage: http://maitag.de                                               #
+					// #    License: GNU General Public License (GPL), Version 3.0                   #
+					// #                                                                             #
+					// #    look for more about that lyapunov fractalcode with haxe at:              #
+					// #    http://maitag.de/~semmi/haxenme/lyaphaxe-fractalgenerator/               #
+					// #                          (have fun!;)                                       #
+					// ###############################################################################
+					+"varying vec2 vTexCoord;"
+					+"uniform sampler2D uImage;"
+					+"uniform vec2 uMouse, uResolution;"
+					+"void main( void ) {"
+					+"	float a = vTexCoord.x*75.0;"
+					+"	float b = vTexCoord.y*70.0;"
+					+"	float p1 = 1.5+(uMouse.x / uResolution.x*30.0);"
+					+"	float p2 = 1.6+(uMouse.y / uResolution.y*30.0);"
+					+"	float index = 0.0;"
+					+"	float xx = 1.0;"
+					+"	for (int i = 0; i < 2; i++) {"
+					+"		xx = p1 * sin(xx + a) * sin(xx + a) + p2;"
+					+"		xx = p1 * sin(xx + b) * sin(xx + b) + p2;"
+					+"	}"
+					+"	for (int i = 0; i < 5; i++) {"
+					+"		xx = p1 * sin(xx + a) * sin(xx + a) + p2;"
+					+"		index = index + log(abs(2.0 * p1 * sin(xx + a) * cos(xx + a)));"
+					+"		xx = p1 * sin(xx + b) * sin(xx + b) + p2;"
+					+"		index = index + log(abs(2.0 * p1 * sin(xx + b) * cos(xx + b)));"
+					+"	}"
+					+"	index = index / 10.0 ;"
+					+"	if (index > 0.0) {"
+					+"		gl_FragColor = vec4(index*0.95, index*0.15, 0.0, 1.0);"
+					+"	}"
+					+"	else {"
+					+"		gl_FragColor = vec4((0.0-index)*0.75, (0.0-index)*0.53, 0.01, 1.0);"
+					+"	}"
+					+"}"
+				);
+				
+				Peote.view.setShaderSrc(1, de.peote.Shader.fragmentShader_img);
+				
+				Peote.view.setShaderSrc(2, de.peote.Shader.fragmentShader_img,
+					 "precision mediump float;"
+					+"attribute vec3 aVertexPosStart;"
+					+"attribute vec3 aVertexPosEnd;"
+					+"attribute vec2 aTime;"
+					+"attribute vec2 aTexCoord;"
+
+					+"varying vec2 vTexCoord;"
+
+					+"uniform float uTime;"
+					+"uniform float uZoom;"
+					+"uniform vec2 uResolution;"
+					+"uniform vec2 uDelta;"
+
+					+"void main(void) {"
+					+"	vTexCoord = aTexCoord;"
+					+"	float zoom = uZoom;"
+					+"	float width = uResolution.x;"
+					+"	float height = uResolution.y;"
+					+"	float deltaX = floor(uDelta.x) + 20.0*sin(10.0*(uTime-aTime.x)/(aTime.y-aTime.x));"
+					+"	float deltaY = floor(uDelta.y) + 25.0*sin(7.0*(uTime-aTime.x)/(aTime.y-aTime.x));"
+
+					+"	float right = width-deltaX*zoom;"
+					+"	float left = -deltaX*zoom;"
+					+"	float bottom = height-deltaY*zoom;"
+					+"	float top = -deltaY * zoom;"
+
+					+"	float far = 100.0;"
+					+"	float near = -100.0;"
+
+					+"	gl_Position = mat4 ("
+					+"		vec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),"
+					+"		vec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),"
+					+"		vec4(0.0, 0.0, -2.0 / (far - near), 0.0),"
+					+"		vec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1.0)"
+					+"	)"
+					+"	* vec4 (aVertexPosStart + floor( (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0) * zoom)/zoom, 1.0);"
+					//+"	* vec4 (aVertexPosStart + floor( (aVertexPosEnd-aVertexPosStart) * min( 1.0-sin((uTime-aTime.x)/(aTime.y-aTime.x)), 1.0) * zoom)/zoom, 1.0);"
+					+"}"
+				);
+				
+				Peote.view.setImage(1, "peote_tiles.png");
+			
+				
+				loadImageData('openfl.png', onLoadAsciiFont);
+				
+				
+				//window.setInterval(onInterval, 1000);
+				document.getElementById('yt').src = "http://www.youtube.com/embed/gDI6A7E8S-Q?rel=0&autoplay=1&autohide=0";
+				
+			}
+			function onInterval()
+			{
+
+			}
+			
+			
+			function onLoadAsciiFont(img)
+			{
+				var peoteTimer1 = new PeoteTimer();
+				var bg_nr = nr++;
+				Peote.view.setElement( bg_nr, 0     ,0 ,0,  4000, 4000, 0,1);
+				
+				peoteTimer1
+				.add(function(d){ Peote.view.animElement(bg_nr, -1000, 0, 0,  8000, 8000,  Peote.getTime(), Peote.getTime() + d );
+									},	50.0 , 0.0 )
+				.add(function(d){ Peote.view.animElement(bg_nr, -1000, 0, 0,  8000, 8000,  Peote.getTime()+d, Peote.getTime()  );
+									},	50.0 , 0.0 )
+				.add(function(d){ if (nr>10000) nr = bg_nr+1 },	50.0 , 0.0 )
+				.repeat();
+				
+				var peoteTimer2 = new PeoteTimer();
+				peoteTimer2
+				.add(function(d){ animElements(drawLetter(-1, img, 1, 1,  -100, -100, 3, 3, 1), d); },	5.0 , 0.0 )
+				.add(function(d){ animElements(drawLetter(-1, img, 1, 1,  -100, -100, 3, 3, 1), d); },	5.0 , 0.0 )
+				.repeat();
+				
+			}
+			
+			
+			function animElements(elems, duration)
+			{
+				var peoteTimer = new PeoteTimer();
+				peoteTimer.add(function(d){
+					for (var n=0; n < elems.length; n++)
+					{	s =Math.random()*80;
+						Peote.view.animElement(elems[n], -500 + Math.random()*2000, 510+Math.random()*2000, 0, s, s, Peote.getTime(), Peote.getTime() + duration*5 );
+					}
+				}, 0.0, 5.0 );
+				peoteTimer.add(function(d){ deleteElements(elems); }, 0.0, duration*5 ).start();
+				return elems;
+			}
+			
+			function deleteElements(elems)
+			{
+				for (var n=0; n < elems.length; n++) Peote.view.delElement(elems[n]);
+			}
+			
+			
+			function drawLetter(_letter, img, shader_nr, image_nr, x, y, w, h, type)
+			{
+				//console.log("drawLetter",letter_string, img);
+				shader_nr = shader_nr || 0;
+				image_nr = image_nr || 0;
+				x = x||0; y=y||0; w=w||4; h=h||4;
+				type = type || 0;
+				
+				var letter = combineAsciiLetter(_letter, img);
+				
+				var elems = new Array();
+				
+				for (i = 0; i < letter.length; i++) {
+					//console.log(letter[i]);
+					var _x = letter[i][0];
+					var _y = letter[i][1];
+					var rgba = letter[i][2];
+					var tile_nr = Math.round( (rgba[0] + rgba[1] + rgba[2])/3 ) % 27;
+
+					elems.push(nr);
+					if (type == 1)	Peote.view.setElement( nr++, x+_x*w, y+_y*h,  0, w, h, shader_nr, image_nr, tile_nr);
+					else if (type == 2)	Peote.view.setElement( nr++, x+_x*w, y+_y*h,  0, w, h, shader_nr, image_nr, (typeof(_letter) == "string") ? _letter.charCodeAt(0) : _letter);
+					else Peote.view.setElement( nr++, x+_x*w, y+_y*h,  0, w, h, shader_nr, image_nr);
+					
+				}
+				//Peote.view.animElement(y*w +x, x*s, y*s-s+h*s, 0, s, s, t, t + 10 );
+				return elems;
+			}
+			
+			function combineAsciiLetter(_letter, img)
+			{
+				var letter_nr = (typeof(_letter) == "string") ? _letter.charCodeAt(0) : _letter;
+				var teiler = 16;
+                                
+                                var letter_x = letter_nr % 16;
+				var letter_y = Math.floor(letter_nr / 16);
+				
+                                if (letter_nr == -1)
+                        	{
+					teiler = 1;
+					letter_x = 0;
+					letter_y = 0;
+				}	
+                                
+                                
+				var letter = new Array();
+
+				for (var y=0; y < img.height/teiler; y++)
+				{
+					for (var x=0; x < img.width/teiler; x++)
+					{
+						var rgba = getPixel(img, x+letter_x*img.width/teiler, y+letter_y*img.height/teiler);
+						var alpha = rgba[3];
+						if (alpha > 0) letter.push(new Array(x,y,rgba));
+					}
+				}
+				return letter;
+			}
+			
+			function getPixel(img, x, y)
+			{
+				var px = y*4*img.width + 4*x
+				var r = img.data[px  ];
+				var g = img.data[px+1];
+				var b = img.data[px+2];
+				var a = img.data[px+3];
+				return [r,g,b,a];
+			}
+			
+			function loadImageData(url, onload_callback)
+			{
+				var image = new Image;
+				image.onload = function() {
+				
+				  	var tmp_canvas = document.createElement('canvas');
+					var w = image.width;
+					var h = image.height;
+					
+					tmp_canvas.width = w; 
+					tmp_canvas.height = h;
+					var ctx = tmp_canvas.getContext('2d');
+
+					ctx.drawImage( image, 0, 0 , image.width, image.height);
+					var imgdata = ctx.getImageData(0,0,w,h);
+					onload_callback({data:imgdata.data, width:w, height:h});
+				};
+				image.src = url;
+			}
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+		</script>    
+		
+ 		<canvas id="lime_canvas" tabindex="1" width="800" height="600"> </canvas>
+		<iframe id='yt' width="270" height="23" style="position:absolute;bottom:0px;right:0px;border-top-style:solid;border-top-width:2px;border-color:#303030;" frameborder="0"></iframe>       
+		
+	</body>
+
+</html>

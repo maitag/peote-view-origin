@@ -1,32 +1,6 @@
-/*
- *        o-o    o-o  o-o-o  o-o     
- *       o   o  o        o      o    
- *      o-o-o  o-o   o    o    o-o   
- *     o      o     (_)    o      o  
- *    o      o-o    / \     o    o-o 
- * 
- * PEOTE VIEW - haxe 2D OpenGL Render Library
- * Copyright (c) 2014 Sylvio Sell, http://maitag.de
- * 
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-
 (function ($hx_exports) { "use strict";
+$hx_exports.de = $hx_exports.de || {};
+$hx_exports.de.peote = $hx_exports.de.peote || {};
 var $hxClasses = {},$estr = function() { return js.Boot.__string_rec(this,''); };
 function $extend(from, fields) {
 	function Inherit() {} Inherit.prototype = from; var proto = new Inherit();
@@ -38,73 +12,10 @@ var ApplicationMain = function() { };
 $hxClasses["ApplicationMain"] = ApplicationMain;
 ApplicationMain.__name__ = true;
 ApplicationMain.main = function() {
-	var _main_ = Type.createInstance(Main,[]);
+	var _main_ = Type.createInstance(PeoteJS,[]);
 	var _lime = new lime.Lime();
 	var config = { host : _main_, fullscreen : false, resizable : true, borderless : false, antialiasing : 4, stencil_buffer : false, depth_buffer : false, vsync : true, fps : 60, width : 800, height : 600, orientation : "", title : "peote_view"};
 	_lime.init(_main_,config);
-};
-var ExampleShader = $hx_exports.ExampleShader = function() { };
-$hxClasses["ExampleShader"] = ExampleShader;
-ExampleShader.__name__ = true;
-var Example_01 = function(_main) {
-	this.last_y = 0;
-	var _g = this;
-	this.main = _main;
-	this.main.render = $bind(this,this.render);
-	var w = 160;
-	var h = 120;
-	var s = 14;
-	this.peoteView = new de.peote.view.PeoteView(w * h + 1,2);
-	this.peoteView.displaylist.setShaderSrc(0,"" + "precision mediump float;" + "\t// ###############################################################################\r\n\t\t// #    Author:   Sylvio Sell - maitag - Rostock 2013                            #\r\n\t\t// #    Homepage: http://maitag.de                                               #\r\n\t\t// #    License: GNU General Public License (GPL), Version 2.0                   #\r\n\t\t// #                                                                             #\r\n\t\t// #    more images about that lyapunov fractalcode at:                          #\r\n\t\t// #    http://maitag.de/~semmi/                                                 #\r\n\t\t// #                          (have fun!;)                                       #\r\n\t\t// ###############################################################################\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\t//uniform float time;\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main( void ) {\r\n\t\t\r\n\t\t\t// x y pos\r\n\t\t\t//vec2 position =( gl_FragCoord.xy / uResolution.xy *(1.1 + sin(time)) );\r\n\t\t\t//float a = position.x;\r\n\t\t\t//float b = position.y;\r\n\t\t\t//float a = gl_FragCoord.x / uResolution.x;\r\n\t\t\t//float b = gl_FragCoord.y / uResolution.y;\r\n\t\t\tfloat a = vTexCoord.x*2.0; // uResolution.x;\r\n\t\t\tfloat b = vTexCoord.y*2.0; // uResolution.y;\r\n\t\t\t\r\n\t\t\t// PArameter\r\n\t\t\tfloat p1 = 1.7+(uMouse.x / 3.0);\r\n\t\t\tfloat p2 = 1.7+(uMouse.y / 3.0);\r\n\t\t\t//float p1 = 2.4;\r\n\t\t\t//float p2 = 1.7+sin(time);\r\n\t\t\t\r\n\t\t\tfloat index = 0.0;\r\n\t\t\t\r\n\t\t\t//var xx:Float = 1; // STARTWERT\r\n\t\t\tfloat xx = 1.0;\r\n\t\t\t\r\n\t\t\t// pre-iteration ##########################\r\n\t\t\t\r\n\t\t\tfor (int i = 0; i < 2; i++) {\r\n\t\t\t\txx = p1 * sin(xx + a) * sin(xx + a) + p2;\r\n\t\t\t\txx = p1 * sin(xx + b) * sin(xx + b) + p2;\r\n\t\t\t}\r\n\t\t\t\r\n\t\t\t// main-iteration ########################\r\n\t\t\t\r\n\t\t\tfor (int i = 0; i < 5; i++) {\r\n\t\t\t\txx = p1 * sin(xx + a) * sin(xx + a) + p2;\r\n\t\t\t\tindex = index + log(abs(2.0 * p1 * sin(xx + a) * cos(xx + a)));\r\n\t\t\t\t\r\n\t\t\t\txx = p1 * sin(xx + b) * sin(xx + b) + p2;\r\n\t\t\t\tindex = index + log(abs(2.0 * p1 * sin(xx + b) * cos(xx + b)));\r\n\t\t\t}\r\n\t\t\t\r\n\t\t\tindex = index / 10.0;\r\n\t\t\t\r\n\t\t\tif (index > 0.0) {\r\n\t\t\t\tgl_FragColor = vec4(index*2.0, index*1.7, 0.05, 1.0);\r\n\t\t\t}\r\n\t\t\telse {\r\n\t\t\t\tgl_FragColor = vec4((0.0-index)*0.65, (0.0-index)*0.53, (0.0-index)*0.1, 1.0);\r\n\t\t\t}\r\n\t\t}\r\n\t","\tprecision mediump float;\r\n\r\n\t\tattribute vec3 aVertexPosStart;\r\n\t\tattribute vec2 aTime;\r\n\t\tattribute vec3 aVertexPosEnd;\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\t//uniform mat4 uProjectionMatrix;\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t//gl_Position = uProjectionMatrix * vec4 (aVertexPosStart + floor( (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0) ), 1.0);\r\n\t\t\t//gl_Position = uProjectionMatrix * vec4 (aVertexPosStart + (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0), 1.0);\r\n\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tfloat far = 100.0;\r\n\t\t\tfloat near = -100.0;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -2.0 / (far - near), 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (aVertexPosStart + floor( (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0) * zoom)/zoom, 1.0);\r\n\t\t}\r\n\t");
-	this.peoteView.displaylist.setShaderSrc(1,"\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tgl_FragColor = texture2D (uImage, vTexCoord);\r\n\t\t}\r\n\t","\tprecision mediump float;\r\n\r\n\t\tattribute vec3 aVertexPosStart;\r\n\t\tattribute vec2 aTime;\r\n\t\tattribute vec3 aVertexPosEnd;\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\t//uniform mat4 uProjectionMatrix;\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t//gl_Position = uProjectionMatrix * vec4 (aVertexPosStart + floor( (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0) ), 1.0);\r\n\t\t\t//gl_Position = uProjectionMatrix * vec4 (aVertexPosStart + (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0), 1.0);\r\n\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tfloat far = 100.0;\r\n\t\t\tfloat near = -100.0;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -2.0 / (far - near), 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (aVertexPosStart + floor( (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0) * zoom)/zoom, 1.0);\r\n\t\t}\r\n\t");
-	this.peoteView.texturecache.setImage(0,"assets/peote_font_green.png");
-	this.peoteView.texturecache.setImage(1,"assets/peote_tiles.png");
-	var nr = 0;
-	this.startTime = haxe.Timer.stamp();
-	var t = haxe.Timer.stamp() - this.startTime;
-	var switchBGanim = 1;
-	this.last_y = h - 1;
-	this.peoteView.setElement(nr,0,0,-1,3000,3000,0,null,null);
-	this.peoteView.displaylist.animElement(nr,-1500,-1500,-1,11000,11000,t,t + h);
-	var _g1 = 0;
-	while(_g1 < w) {
-		var x = _g1++;
-		var _g11 = 0;
-		while(_g11 < h) {
-			var y = _g11++;
-			nr = 1 + y * w + x;
-			this.peoteView.setElement(nr,x * s,y * s - s,0,s,s,1,Math.floor(Math.random() * 2),Math.floor(Math.random() * 256));
-			this.peoteView.displaylist.animElement(nr,x * s,y * s - s + h * s,0,s,s,t,t + h);
-		}
-	}
-	var timer = new haxe.Timer(1000);
-	timer.run = function() {
-		var t1 = haxe.Timer.stamp() - _g.startTime;
-		var nr1;
-		var _g12 = 0;
-		while(_g12 < w) {
-			var x1 = _g12++;
-			nr1 = 1 + _g.last_y * w + x1;
-			_g.peoteView.displaylist.animElement(nr1,x1 * s,-s,0,s,s,0,0);
-			_g.peoteView.displaylist.animElement(nr1,x1 * s,-s + h * s,0,s,s,t1,t1 + h);
-		}
-		if(_g.last_y == 0) {
-			_g.last_y = h - 1;
-			if(switchBGanim == 1) _g.peoteView.displaylist.animElement(0,0,0,-1,3000,3000,t1,t1 + h); else _g.peoteView.displaylist.animElement(0,-1500,-1500,-1,11000,11000,t1,t1 + h);
-			switchBGanim = -switchBGanim;
-		} else _g.last_y--;
-	};
-};
-$hxClasses["Example_01"] = Example_01;
-Example_01.__name__ = true;
-Example_01.prototype = {
-	render: function() {
-		this.peoteView.render(haxe.Timer.stamp() - this.startTime,this.main.width,this.main.height,this.main.mouse_x,this.main.mouse_y,this.main.zoom);
-	}
-	,random: function(n) {
-		return Math.floor(Math.random() * n);
-	}
-	,__class__: Example_01
 };
 var HxOverrides = function() { };
 $hxClasses["HxOverrides"] = HxOverrides;
@@ -183,16 +94,25 @@ List.prototype = {
 	}
 	,__class__: List
 };
-var Main = function() {
+var IMap = function() { };
+$hxClasses["IMap"] = IMap;
+IMap.__name__ = true;
+Math.__name__ = true;
+var PeoteJS = $hx_exports.Peote = function() {
 	this.zoom = 1;
 	this.mouse_y = 0;
 	this.mouse_x = 0;
 };
-$hxClasses["Main"] = Main;
-Main.__name__ = true;
-Main.prototype = {
+$hxClasses["PeoteJS"] = PeoteJS;
+PeoteJS.__name__ = true;
+PeoteJS.getTime = function() {
+	return Math.floor((haxe.Timer.stamp() - PeoteJS.startTime) * 100) / 100;
+};
+PeoteJS.prototype = {
 	ready: function(lime) {
 		this.lime = lime;
+		haxe.Log.trace("PEOTE JAVASCRIPT LIB",{ fileName : "PeoteJS.hx", lineNumber : 35, className : "PeoteJS", methodName : "ready"});
+		haxe.Log.trace("multitouch_supported:" + Std.string(lime.config.multitouch_supported),{ fileName : "PeoteJS.hx", lineNumber : 36, className : "PeoteJS", methodName : "ready"});
 		window.document.getElementById("lime_canvas").style.marginTop = "0px";
 		this.js_onresize(null);
 		window.addEventListener("resize",$bind(this,this.js_onresize));
@@ -200,7 +120,9 @@ Main.prototype = {
 		window.addEventListener("touchmove",$bind(this,this.js_ontouchmove));
 		window.addEventListener("mousewheel",$bind(this,this.js_onmousewheel));
 		window.addEventListener("DOMMouseScroll",$bind(this,this.js_onmousewheel));
-		new Example_01(this);
+		PeoteJS.view = new de.peote.View(this.width,this.height);
+		PeoteJS.startTime = haxe.Timer.stamp();
+		starter();;
 	}
 	,js_onmousemove: function(e) {
 		this.mouse_x = Std["int"](e.clientX);
@@ -222,12 +144,11 @@ Main.prototype = {
 		var delta = Math.max(-1,Math.min(1,Std["int"](e.wheelDelta) + -Std["int"](e.detail)));
 		if(delta > 0) this.zoom++; else if(this.zoom > 1) this.zoom--;
 	}
-	,__class__: Main
+	,render: function() {
+		PeoteJS.view.render(Math.floor((haxe.Timer.stamp() - PeoteJS.startTime) * 100) / 100,this.width,this.height,this.mouse_x,this.mouse_y,this.zoom);
+	}
+	,__class__: PeoteJS
 };
-var IMap = function() { };
-$hxClasses["IMap"] = IMap;
-IMap.__name__ = true;
-Math.__name__ = true;
 var Reflect = function() { };
 $hxClasses["Reflect"] = Reflect;
 Reflect.__name__ = true;
@@ -300,39 +221,38 @@ Type.createInstance = function(cl,args) {
 };
 var de = {};
 de.peote = {};
-de.peote.view = {};
-de.peote.view.ActiveProgram = function(program,segment_size,buf_start) {
+de.peote.ActiveProgram = function(program,segment_size,buf_start) {
 	this.size = -2;
 	this.program = program;
 	this.buf_start = buf_start * segment_size;
-	this.element_holes = new de.peote.view.Holes(segment_size);
+	this.element_holes = new de.peote.Holes(segment_size);
 };
-$hxClasses["de.peote.view.ActiveProgram"] = de.peote.view.ActiveProgram;
-de.peote.view.ActiveProgram.__name__ = true;
-de.peote.view.ActiveProgram.prototype = {
-	__class__: de.peote.view.ActiveProgram
+$hxClasses["de.peote.ActiveProgram"] = de.peote.ActiveProgram;
+de.peote.ActiveProgram.__name__ = true;
+de.peote.ActiveProgram.prototype = {
+	__class__: de.peote.ActiveProgram
 };
-de.peote.view.Buffer = function(segment_size,max_segments) {
+de.peote.Buffer = function(segment_size,max_segments) {
 	this.segment_size = segment_size;
 	this.activeProgram = new Array();
 	this.buffer = lime.gl.html5.GL.createBuffer();
 	lime.gl.html5.GL.bindBuffer(34962,this.buffer);
-	lime.gl.html5.GL.bufferData(34962,new Float32Array(max_segments * segment_size * de.peote.view.Buffer.VERTEX_COUNT * de.peote.view.Buffer.STRAW),35044);
+	lime.gl.html5.GL.bufferData(34962,new Float32Array(max_segments * segment_size * de.peote.Buffer.VERTEX_COUNT * de.peote.Buffer.STRAW),35044);
 	lime.gl.html5.GL.bindBuffer(34962,null);
-	this.segment_holes = new de.peote.view.Holes(max_segments);
+	this.segment_holes = new de.peote.Holes(max_segments);
 };
-$hxClasses["de.peote.view.Buffer"] = de.peote.view.Buffer;
-de.peote.view.Buffer.__name__ = true;
-de.peote.view.Buffer.prototype = {
+$hxClasses["de.peote.Buffer"] = de.peote.Buffer;
+de.peote.Buffer.__name__ = true;
+de.peote.Buffer.prototype = {
 	delElement: function(e) {
 		lime.gl.html5.GL.bindBuffer(34962,this.buffer);
 		lime.gl.html5.GL.bufferSubData(34962,e.buf_pos * 10 * 4,new Float32Array(60));
 		lime.gl.html5.GL.bindBuffer(34962,null);
-		e.act_program.element_holes.addHole(Math.floor((e.buf_pos - e.act_program.buf_start) / de.peote.view.Buffer.VERTEX_COUNT));
-		e.act_program.start = e.act_program.buf_start + 1 + e.act_program.element_holes.first() * de.peote.view.Buffer.VERTEX_COUNT;
-		e.act_program.size = (e.act_program.element_holes.last() + 1 - e.act_program.element_holes.first()) * de.peote.view.Buffer.VERTEX_COUNT - 2;
+		e.act_program.element_holes.addHole(Math.floor((e.buf_pos - e.act_program.buf_start) / de.peote.Buffer.VERTEX_COUNT));
+		e.act_program.start = e.act_program.buf_start + 1 + e.act_program.element_holes.first() * de.peote.Buffer.VERTEX_COUNT;
+		e.act_program.size = (e.act_program.element_holes.last() + 1 - e.act_program.element_holes.first()) * de.peote.Buffer.VERTEX_COUNT - 2;
 		if(e.act_program.element_holes.is_empty()) {
-			this.segment_holes.addHole(Math.floor(e.act_program.buf_start / this.segment_size / de.peote.view.Buffer.VERTEX_COUNT));
+			this.segment_holes.addHole(Math.floor(e.act_program.buf_start / this.segment_size / de.peote.Buffer.VERTEX_COUNT));
 			HxOverrides.remove(e.act_program.program.activeProgram,e.act_program);
 			HxOverrides.remove(this.activeProgram,e.act_program);
 		}
@@ -342,46 +262,35 @@ de.peote.view.Buffer.prototype = {
 		var buf_pos = 0;
 		var act_program = null;
 		if(slot == program.activeProgram.length) {
-			act_program = new de.peote.view.ActiveProgram(program,this.segment_size,this.segment_holes.getHole() * de.peote.view.Buffer.VERTEX_COUNT);
+			act_program = new de.peote.ActiveProgram(program,this.segment_size,this.segment_holes.getHole() * de.peote.Buffer.VERTEX_COUNT);
 			program.activeProgram.push(act_program);
 			this.activeProgram.push(act_program);
 		} else act_program = program.activeProgram[slot];
 		if(act_program.element_holes.hole.length == 0) return this.addElement(program,x,y,z,w,h,tx,ty,tw,th,image_nr,slot + 1); else {
-			buf_pos = act_program.buf_start + act_program.element_holes.getHole() * de.peote.view.Buffer.VERTEX_COUNT;
-			act_program.start = act_program.buf_start + 1 + act_program.element_holes.first() * de.peote.view.Buffer.VERTEX_COUNT;
-			act_program.size = (act_program.element_holes.last() + 1 - act_program.element_holes.first()) * de.peote.view.Buffer.VERTEX_COUNT - 2;
+			buf_pos = act_program.buf_start + act_program.element_holes.getHole() * de.peote.Buffer.VERTEX_COUNT;
+			act_program.start = act_program.buf_start + 1 + act_program.element_holes.first() * de.peote.Buffer.VERTEX_COUNT;
+			act_program.size = (act_program.element_holes.last() + 1 - act_program.element_holes.first()) * de.peote.Buffer.VERTEX_COUNT - 2;
 		}
 		var xw = x + w;
 		var yh = y + h;
 		var txw = tx + tw;
 		var tyh = ty + th;
 		lime.gl.html5.GL.bindBuffer(34962,this.buffer);
-		lime.gl.html5.GL.bufferSubData(34962,buf_pos * 10 * 4,new Float32Array([xw,yh,z,0,0,xw,yh,z,txw,tyh,xw,yh,z,0,0,xw,yh,z,txw,tyh,x,yh,z,0,0,x,yh,z,tx,tyh,xw,y,z,0,0,xw,y,z,txw,ty,x,y,z,0,0,x,y,z,tx,ty,x,y,z,0,0,x,y,z,tx,ty]));
+		lime.gl.html5.GL.bufferSubData(34962,buf_pos * 10 * 4,new Float32Array([xw,yh,z,xw,yh,z,0,0,txw,tyh,xw,yh,z,xw,yh,z,0,0,txw,tyh,x,yh,z,x,yh,z,0,0,tx,tyh,xw,y,z,xw,y,z,0,0,txw,ty,x,y,z,x,y,z,0,0,tx,ty,x,y,z,x,y,z,0,0,tx,ty]));
 		lime.gl.html5.GL.bindBuffer(34962,null);
-		return new de.peote.view.Element(act_program,buf_pos,image_nr);
+		return new de.peote.Element(act_program,buf_pos,image_nr);
 	}
 	,animElement: function(e,x,y,z,w,h,t1,t2) {
 		var buf_pos = e.buf_pos;
 		var xw = x + w;
 		var yh = y + h;
 		lime.gl.html5.GL.bindBuffer(34962,this.buffer);
-		if(e.anim_switch) {
-			e.anim_switch = false;
-			lime.gl.html5.GL.bufferSubData(34962,buf_pos * 10 * 4 + 12,new Float32Array([t1,t2,xw,yh,z]));
-			lime.gl.html5.GL.bufferSubData(34962,(buf_pos + 1) * 10 * 4 + 12,new Float32Array([t1,t2,xw,yh,z]));
-			lime.gl.html5.GL.bufferSubData(34962,(buf_pos + 2) * 10 * 4 + 12,new Float32Array([t1,t2,x,yh,z]));
-			lime.gl.html5.GL.bufferSubData(34962,(buf_pos + 3) * 10 * 4 + 12,new Float32Array([t1,t2,xw,y,z]));
-			lime.gl.html5.GL.bufferSubData(34962,(buf_pos + 4) * 10 * 4 + 12,new Float32Array([t1,t2,x,y,z]));
-			lime.gl.html5.GL.bufferSubData(34962,(buf_pos + 5) * 10 * 4 + 12,new Float32Array([t1,t2,x,y,z]));
-		} else {
-			e.anim_switch = true;
-			lime.gl.html5.GL.bufferSubData(34962,buf_pos * 10 * 4,new Float32Array([xw,yh,z,t2,t1]));
-			lime.gl.html5.GL.bufferSubData(34962,(buf_pos + 1) * 10 * 4,new Float32Array([xw,yh,z,t2,t1]));
-			lime.gl.html5.GL.bufferSubData(34962,(buf_pos + 2) * 10 * 4,new Float32Array([x,yh,z,t2,t1]));
-			lime.gl.html5.GL.bufferSubData(34962,(buf_pos + 3) * 10 * 4,new Float32Array([xw,y,z,t2,t1]));
-			lime.gl.html5.GL.bufferSubData(34962,(buf_pos + 4) * 10 * 4,new Float32Array([x,y,z,t2,t1]));
-			lime.gl.html5.GL.bufferSubData(34962,(buf_pos + 5) * 10 * 4,new Float32Array([x,y,z,t2,t1]));
-		}
+		lime.gl.html5.GL.bufferSubData(34962,buf_pos * 10 * 4 + 12,new Float32Array([xw,yh,z,t1,t2]));
+		lime.gl.html5.GL.bufferSubData(34962,(buf_pos + 1) * 10 * 4 + 12,new Float32Array([xw,yh,z,t1,t2]));
+		lime.gl.html5.GL.bufferSubData(34962,(buf_pos + 2) * 10 * 4 + 12,new Float32Array([x,yh,z,t1,t2]));
+		lime.gl.html5.GL.bufferSubData(34962,(buf_pos + 3) * 10 * 4 + 12,new Float32Array([xw,y,z,t1,t2]));
+		lime.gl.html5.GL.bufferSubData(34962,(buf_pos + 4) * 10 * 4 + 12,new Float32Array([x,y,z,t1,t2]));
+		lime.gl.html5.GL.bufferSubData(34962,(buf_pos + 5) * 10 * 4 + 12,new Float32Array([x,y,z,t1,t2]));
 		lime.gl.html5.GL.bindBuffer(34962,null);
 	}
 	,setElementTexCoord: function(e,tx,ty,tw,th,image_nr) {
@@ -404,40 +313,44 @@ de.peote.view.Buffer.prototype = {
 		lime.gl.html5.GL.bufferData(34962,new Float32Array(size),35044);
 		lime.gl.html5.GL.bindBuffer(34962,null);
 	}
-	,__class__: de.peote.view.Buffer
+	,__class__: de.peote.Buffer
 };
-de.peote.view.Displaylist = function(max_elements,max_programs) {
+de.peote.Displaylist = function(max_elements,max_programs) {
 	var this1;
 	this1 = new Array(max_elements);
 	this.element = this1;
 	var this2;
 	this2 = new Array(max_programs);
 	this.programsCache = this2;
-	this.defaultProgram = new de.peote.view.Program();
-	this.defaultProgram.compile("\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tgl_FragColor = texture2D (uImage, vTexCoord);\r\n\t\t}\r\n\t","\tprecision mediump float;\r\n\r\n\t\tattribute vec3 aVertexPosStart;\r\n\t\tattribute vec2 aTime;\r\n\t\tattribute vec3 aVertexPosEnd;\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\t//uniform mat4 uProjectionMatrix;\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t//gl_Position = uProjectionMatrix * vec4 (aVertexPosStart + floor( (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0) ), 1.0);\r\n\t\t\t//gl_Position = uProjectionMatrix * vec4 (aVertexPosStart + (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0), 1.0);\r\n\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tfloat far = 100.0;\r\n\t\t\tfloat near = -100.0;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -2.0 / (far - near), 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (aVertexPosStart + floor( (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0) * zoom)/zoom, 1.0);\r\n\t\t}\r\n\t",$bind(this,this.onerror));
-	this.buffer = new de.peote.view.Buffer(1000,400);
+	this.defaultProgram = new de.peote.Program();
+	this.defaultProgram.compile("" + "precision mediump float;" + "\tvarying vec2 vTexCoord;\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tgl_FragColor = texture2D (uImage, vTexCoord);\r\n\t\t}\r\n\t","" + "precision mediump float;" + "\tattribute vec3 aVertexPosStart;\r\n\t\tattribute vec3 aVertexPosEnd;\r\n\t\t\r\n\t\tattribute vec2 aTime;\r\n\t\tattribute vec2 aTexCoord;\r\n\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\t//uniform mat4 uProjectionMatrix;\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\r\n\t\tvoid main(void) {\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t//gl_Position = uProjectionMatrix * vec4 (aVertexPosStart + floor( (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0) ), 1.0);\r\n\t\t\t//gl_Position = uProjectionMatrix * vec4 (aVertexPosStart + (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0), 1.0);\r\n\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tfloat far = 100.0;\r\n\t\t\tfloat near = -100.0;\r\n\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -2.0 / (far - near), 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (aVertexPosStart + floor( (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0) * zoom)/zoom, 1.0);\r\n\t\t}\r\n\t",$bind(this,this.onerror));
+	this.buffer = new de.peote.Buffer(1000,400);
 };
-$hxClasses["de.peote.view.Displaylist"] = de.peote.view.Displaylist;
-de.peote.view.Displaylist.__name__ = true;
-de.peote.view.Displaylist.prototype = {
+$hxClasses["de.peote.Displaylist"] = de.peote.Displaylist;
+de.peote.Displaylist.__name__ = true;
+de.peote.Displaylist.prototype = {
 	onerror: function(msg) {
-		haxe.Log.trace(msg,{ fileName : "Displaylist.hx", lineNumber : 59, className : "de.peote.view.Displaylist", methodName : "onerror"});
+		haxe.Log.trace(msg,{ fileName : "Displaylist.hx", lineNumber : 39, className : "de.peote.Displaylist", methodName : "onerror"});
 	}
 	,setShaderUrl: function(shader_nr,url) {
 		var program = this.programsCache[shader_nr];
 		if(program == null) {
-			program = new de.peote.view.Program(this.defaultProgram);
+			program = new de.peote.Program(this.defaultProgram);
 			this.programsCache[shader_nr] = program;
 		}
 	}
 	,setShaderSrc: function(shader_nr,fragmentShaderSrc,vertexShaderSrc) {
 		if(this.programsCache[shader_nr] == null) {
-			var val = new de.peote.view.Program();
+			var val = new de.peote.Program();
 			this.programsCache[shader_nr] = val;
 		}
 		this.programsCache[shader_nr].compile(fragmentShaderSrc,vertexShaderSrc,$bind(this,this.onerror));
 	}
 	,setElement: function(nr,x,y,z,w,h,shader_nr,tx,ty,tw,th,image_nr,tile_nr) {
+		if(th == null) th = 1;
+		if(tw == null) tw = 1;
+		if(ty == null) ty = 0;
+		if(tx == null) tx = 0;
 		var tile_x = 0.0;
 		var tile_y = 0.0;
 		var tile_scaleX = 1.0;
@@ -450,7 +363,7 @@ de.peote.view.Displaylist.prototype = {
 		}
 		var program = this.programsCache[shader_nr];
 		if(program == null) {
-			program = new de.peote.view.Program(this.defaultProgram);
+			program = new de.peote.Program(this.defaultProgram);
 			this.programsCache[shader_nr] = program;
 		}
 		var val = this.buffer.addElement(program,x,y,z,w,h,tx + tile_x * tw * tile_scaleX,ty + tile_y * th * tile_scaleY,tw * tile_scaleX,th * tile_scaleY,image_nr);
@@ -475,28 +388,27 @@ de.peote.view.Displaylist.prototype = {
 		}
 		this.buffer.setElementTexCoord(this.element[nr],tx + tile_x * tw * tile_scaleX,ty + tile_y * th * tile_scaleY,tw * tile_scaleX,th * tile_scaleY,image_nr);
 	}
-	,__class__: de.peote.view.Displaylist
+	,__class__: de.peote.Displaylist
 };
-de.peote.view.Element = function(a,b,i) {
-	this.anim_switch = true;
+de.peote.Element = function(a,b,i) {
 	this.act_program = a;
 	this.buf_pos = b;
 	this.image_nr = i;
 };
-$hxClasses["de.peote.view.Element"] = de.peote.view.Element;
-de.peote.view.Element.__name__ = true;
-de.peote.view.Element.prototype = {
-	__class__: de.peote.view.Element
+$hxClasses["de.peote.Element"] = de.peote.Element;
+de.peote.Element.__name__ = true;
+de.peote.Element.prototype = {
+	__class__: de.peote.Element
 };
-de.peote.view.Holes = function(size) {
+de.peote.Holes = function(size) {
 	this.size = size - 1;
 	this.hole = new Array();
-	this.hole.push(new de.peote.view.Hole(0));
+	this.hole.push(new de.peote.Hole(0));
 	this.hole[0].end = this.size;
 };
-$hxClasses["de.peote.view.Holes"] = de.peote.view.Holes;
-de.peote.view.Holes.__name__ = true;
-de.peote.view.Holes.prototype = {
+$hxClasses["de.peote.Holes"] = de.peote.Holes;
+de.peote.Holes.__name__ = true;
+de.peote.Holes.prototype = {
 	addHole: function(pos) {
 		var _g1 = 0;
 		var _g = this.hole.length;
@@ -521,12 +433,12 @@ de.peote.view.Holes.prototype = {
 				}
 				return;
 			} else if(pos < this.hole[i].start) {
-				var x = new de.peote.view.Hole(pos);
+				var x = new de.peote.Hole(pos);
 				this.hole.splice(i,0,x);
 				return;
 			}
 		}
-		this.hole.push(new de.peote.view.Hole(pos));
+		this.hole.push(new de.peote.Hole(pos));
 	}
 	,getHole: function() {
 		var mid = Math.floor(this.hole.length / 2);
@@ -553,18 +465,18 @@ de.peote.view.Holes.prototype = {
 		}
 		return it_is;
 	}
-	,__class__: de.peote.view.Holes
+	,__class__: de.peote.Holes
 };
-de.peote.view.Hole = function(start) {
+de.peote.Hole = function(start) {
 	this.start = start;
 	this.end = start;
 };
-$hxClasses["de.peote.view.Hole"] = de.peote.view.Hole;
-de.peote.view.Hole.__name__ = true;
-de.peote.view.Hole.prototype = {
-	__class__: de.peote.view.Hole
+$hxClasses["de.peote.Hole"] = de.peote.Hole;
+de.peote.Hole.__name__ = true;
+de.peote.Hole.prototype = {
+	__class__: de.peote.Hole
 };
-de.peote.view.Image = function(image_url) {
+de.peote.Image = function(image_url) {
 	this.used = 0;
 	this.cache_nr = -2;
 	this.url = image_url;
@@ -572,9 +484,9 @@ de.peote.view.Image = function(image_url) {
 	this.image_nr = new Array();
 	this.tile_nr = new Array();
 };
-$hxClasses["de.peote.view.Image"] = de.peote.view.Image;
-de.peote.view.Image.__name__ = true;
-de.peote.view.Image.prototype = {
+$hxClasses["de.peote.Image"] = de.peote.Image;
+de.peote.Image.__name__ = true;
+de.peote.Image.prototype = {
 	load: function(onload,onerror) {
 		var _g = this;
 		var image;
@@ -602,102 +514,9 @@ de.peote.view.Image.prototype = {
 		};
 		image.src = this.url;
 	}
-	,__class__: de.peote.view.Image
+	,__class__: de.peote.Image
 };
-de.peote.view.PeoteView = function(max_elements,max_programs) {
-	if(max_programs == null) max_programs = 100;
-	if(max_elements == null) max_elements = 100000;
-	haxe.Log.trace("GL.MAX_TEXTURE_IMAGE_UNITS:" + Std.string(lime.gl.html5.GL.getParameter(34930)),{ fileName : "PeoteView.hx", lineNumber : 44, className : "de.peote.view.PeoteView", methodName : "new"});
-	haxe.Log.trace("GL.MAX_VERTEX_TEXTURE_IMAGE_UNITS:" + Std.string(lime.gl.html5.GL.getParameter(35660)),{ fileName : "PeoteView.hx", lineNumber : 45, className : "de.peote.view.PeoteView", methodName : "new"});
-	haxe.Log.trace("GL.MAX_TEXTURE_SIZE:" + Std.string(lime.gl.html5.GL.getParameter(3379)),{ fileName : "PeoteView.hx", lineNumber : 46, className : "de.peote.view.PeoteView", methodName : "new"});
-	haxe.Log.trace("GL.MAX_VERTEX_ATTRIBS:" + Std.string(lime.gl.html5.GL.getParameter(34921)),{ fileName : "PeoteView.hx", lineNumber : 47, className : "de.peote.view.PeoteView", methodName : "new"});
-	haxe.Log.trace("GL.MAX_VERTEX_UNIFORM_VECTORS:" + Std.string(lime.gl.html5.GL.getParameter(36347)),{ fileName : "PeoteView.hx", lineNumber : 48, className : "de.peote.view.PeoteView", methodName : "new"});
-	haxe.Log.trace("GL.MAX_FRAGMENT_UNIFORM_VECTORS:" + Std.string(lime.gl.html5.GL.getParameter(36349)),{ fileName : "PeoteView.hx", lineNumber : 49, className : "de.peote.view.PeoteView", methodName : "new"});
-	this.displaylist = new de.peote.view.Displaylist(max_elements,max_programs);
-	this.texturecache = new de.peote.view.TextureCache(512,512,64,$bind(this,this.onLoadImage));
-};
-$hxClasses["de.peote.view.PeoteView"] = de.peote.view.PeoteView;
-de.peote.view.PeoteView.__name__ = true;
-de.peote.view.PeoteView.prototype = {
-	setShader: function(shader_nr,shaderUrl) {
-		this.displaylist.setShaderSrc(shader_nr,"","");
-	}
-	,setShaderSrc: function(shader_nr,fsSrc,vsSrc) {
-		if(vsSrc == null) vsSrc = "\tprecision mediump float;\r\n\r\n\t\tattribute vec3 aVertexPosStart;\r\n\t\tattribute vec2 aTime;\r\n\t\tattribute vec3 aVertexPosEnd;\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\t//uniform mat4 uProjectionMatrix;\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t//gl_Position = uProjectionMatrix * vec4 (aVertexPosStart + floor( (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0) ), 1.0);\r\n\t\t\t//gl_Position = uProjectionMatrix * vec4 (aVertexPosStart + (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0), 1.0);\r\n\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tfloat far = 100.0;\r\n\t\t\tfloat near = -100.0;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -2.0 / (far - near), 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (aVertexPosStart + floor( (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0) * zoom)/zoom, 1.0);\r\n\t\t}\r\n\t";
-		if(fsSrc == null) fsSrc = "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tgl_FragColor = texture2D (uImage, vTexCoord);\r\n\t\t}\r\n\t";
-		this.displaylist.setShaderSrc(shader_nr,fsSrc,vsSrc);
-	}
-	,setImage: function(image_nr,imageUrl) {
-		this.texturecache.setImage(image_nr,imageUrl);
-	}
-	,setTilesheet: function(tilesheet_nr,image_nr,textCoordArray) {
-	}
-	,setElement: function(nr,x,y,z,w,h,shader_nr,image_nr,tile_nr) {
-		if(tile_nr == null) tile_nr = -1;
-		if(image_nr == null) image_nr = -1;
-		if(image_nr > -1) {
-			var img = this.texturecache.image[image_nr];
-			if(img.cache_nr >= 0) this.displaylist.setElement(nr,x,y,z,w,h,shader_nr,img.tx,img.ty,img.tw,img.th,image_nr,tile_nr); else {
-				this.displaylist.setElement(nr,x,y,z,w,h,shader_nr,0,0,0,0,image_nr,tile_nr);
-				this.texturecache.loadImage(nr,image_nr,tile_nr);
-			}
-		} else this.displaylist.setElement(nr,x,y,z,w,h,shader_nr,0.0,0.0,1.0,1.0,image_nr,tile_nr);
-	}
-	,onLoadImage: function(nr,image_nr,tile_nr,img) {
-		this.displaylist.setElementTexCoord(nr,img.tx,img.ty,img.tw,img.th,image_nr,tile_nr);
-	}
-	,delElement: function(nr) {
-		var e = this.displaylist.element[nr];
-		this.texturecache.delUnusedImage(e.image_nr);
-		this.displaylist.buffer.delElement(e);
-	}
-	,animElement: function(nr,x,y,z,w,h,t1,t2) {
-		this.displaylist.animElement(nr,x,y,z,w,h,t1,t2);
-	}
-	,render: function(time,width,height,mouse_x,mouse_y,zoom) {
-		lime.gl.html5.GL.viewport(0,0,width,height);
-		lime.gl.html5.GL.enable(2929);
-		lime.gl.html5.GL.depthFunc(513);
-		lime.gl.html5.GL.enable(3042);
-		lime.gl.html5.GL.blendFunc(770,771);
-		lime.gl.html5.GL.bindBuffer(34962,this.displaylist.buffer.buffer);
-		lime.gl.html5.GL.enableVertexAttribArray(de.peote.view.Program.aVertexPosStart);
-		lime.gl.html5.GL.enableVertexAttribArray(de.peote.view.Program.aVertexPosEnd);
-		lime.gl.html5.GL.enableVertexAttribArray(de.peote.view.Program.aTime);
-		lime.gl.html5.GL.enableVertexAttribArray(de.peote.view.Program.aTexCoord);
-		lime.gl.html5.GL.vertexAttribPointer(de.peote.view.Program.aVertexPosStart,3,5126,false,40,0);
-		lime.gl.html5.GL.vertexAttribPointer(de.peote.view.Program.aTime,2,5126,false,40,12);
-		lime.gl.html5.GL.vertexAttribPointer(de.peote.view.Program.aVertexPosEnd,3,5126,false,40,20);
-		lime.gl.html5.GL.vertexAttribPointer(de.peote.view.Program.aTexCoord,2,5126,false,40,32);
-		lime.gl.html5.GL.activeTexture(33984);
-		lime.gl.html5.GL.bindTexture(3553,this.texturecache.texture);
-		lime.gl.html5.GL.clearColor(0.0,0.0,0.0,1.0);
-		lime.gl.html5.GL.clear(16640);
-		var _g1 = 0;
-		var _g = this.displaylist.buffer.activeProgram.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			de.peote.view.PeoteView.activeProgram = this.displaylist.buffer.activeProgram[i];
-			lime.gl.html5.GL.useProgram(de.peote.view.PeoteView.activeProgram.program.glProgram);
-			lime.gl.html5.GL.uniform1i(de.peote.view.PeoteView.activeProgram.program.uniforms[2],0);
-			lime.gl.html5.GL.uniform2f(de.peote.view.PeoteView.activeProgram.program.uniforms[3],mouse_x / width * 2 - 1,mouse_y / height * 2 - 1);
-			lime.gl.html5.GL.uniform2f(de.peote.view.PeoteView.activeProgram.program.uniforms[4],width,height);
-			lime.gl.html5.GL.uniform1f(de.peote.view.PeoteView.activeProgram.program.uniforms[5],time);
-			lime.gl.html5.GL.uniform1f(de.peote.view.PeoteView.activeProgram.program.uniforms[6],zoom);
-			lime.gl.html5.GL.uniform2f(de.peote.view.PeoteView.activeProgram.program.uniforms[7],-mouse_x * (zoom - 1) / 4,-mouse_y * (zoom - 1) / 4);
-			lime.gl.html5.GL.drawArrays(5,de.peote.view.PeoteView.activeProgram.start,de.peote.view.PeoteView.activeProgram.size);
-		}
-		lime.gl.html5.GL.disableVertexAttribArray(de.peote.view.Program.aVertexPosStart);
-		lime.gl.html5.GL.disableVertexAttribArray(de.peote.view.Program.aVertexPosEnd);
-		lime.gl.html5.GL.disableVertexAttribArray(de.peote.view.Program.aTime);
-		lime.gl.html5.GL.disableVertexAttribArray(de.peote.view.Program.aTexCoord);
-		lime.gl.html5.GL.bindBuffer(34962,null);
-		lime.gl.html5.GL.bindTexture(3553,null);
-		lime.gl.html5.GL.useProgram(null);
-	}
-	,__class__: de.peote.view.PeoteView
-};
-de.peote.view.Program = function(defaultProgram) {
+de.peote.Program = function(defaultProgram) {
 	this.glProgram = null;
 	this.fragment_shader_url = "";
 	if(defaultProgram != null) {
@@ -706,9 +525,9 @@ de.peote.view.Program = function(defaultProgram) {
 	}
 	this.activeProgram = new Array();
 };
-$hxClasses["de.peote.view.Program"] = de.peote.view.Program;
-de.peote.view.Program.__name__ = true;
-de.peote.view.Program.prototype = {
+$hxClasses["de.peote.Program"] = de.peote.Program;
+de.peote.Program.__name__ = true;
+de.peote.Program.prototype = {
 	compile: function(fragmentShaderSrc,vertexShaderSrc,onerror) {
 		var fs = lime.gl.html5.GL.createShader(35632);
 		lime.gl.html5.GL.shaderSource(fs,fragmentShaderSrc);
@@ -720,15 +539,14 @@ de.peote.view.Program.prototype = {
 			this.glProgram = lime.gl.html5.GL.createProgram();
 			lime.gl.html5.GL.attachShader(this.glProgram,vs);
 			lime.gl.html5.GL.attachShader(this.glProgram,fs);
-			lime.gl.html5.GL.deleteShader(vs);
 			lime.gl.html5.GL.deleteShader(fs);
 			lime.gl.html5.GL.linkProgram(this.glProgram);
 			if(lime.gl.html5.GL.getProgramParameter(this.glProgram,35714) == 0) onerror(lime.gl.html5.GL.getProgramInfoLog(this.glProgram) + "VALIDATE_STATUS: " + lime.gl.html5.GL.getProgramParameter(this.glProgram,35715) + "ERROR: " + lime.gl.html5.GL.getError()); else {
-				if(de.peote.view.Program.aVertexPosStart == -1) {
-					de.peote.view.Program.aVertexPosStart = lime.gl.html5.GL.getAttribLocation(this.glProgram,"aVertexPosStart");
-					de.peote.view.Program.aVertexPosEnd = lime.gl.html5.GL.getAttribLocation(this.glProgram,"aVertexPosEnd");
-					de.peote.view.Program.aTime = lime.gl.html5.GL.getAttribLocation(this.glProgram,"aTime");
-					de.peote.view.Program.aTexCoord = lime.gl.html5.GL.getAttribLocation(this.glProgram,"aTexCoord");
+				if(de.peote.Program.aVertexPosStart == -1) {
+					de.peote.Program.aVertexPosStart = lime.gl.html5.GL.getAttribLocation(this.glProgram,"aVertexPosStart");
+					de.peote.Program.aVertexPosEnd = lime.gl.html5.GL.getAttribLocation(this.glProgram,"aVertexPosEnd");
+					de.peote.Program.aTime = lime.gl.html5.GL.getAttribLocation(this.glProgram,"aTime");
+					de.peote.Program.aTexCoord = lime.gl.html5.GL.getAttribLocation(this.glProgram,"aTexCoord");
 				}
 				var length = lime.gl.html5.GL.getProgramParameter(this.glProgram,35718);
 				var this1;
@@ -778,24 +596,24 @@ de.peote.view.Program.prototype = {
 			}
 		}
 	}
-	,__class__: de.peote.view.Program
+	,__class__: de.peote.Program
 };
-de.peote.view.Shader = function(url) {
+de.peote.Shader = $hx_exports.de.peote.Shader = function(url) {
 	this.programs_nr = -1;
 	this.programsCache_nr = -1;
 	this.src = "";
 	this.url = url;
 };
-$hxClasses["de.peote.view.Shader"] = de.peote.view.Shader;
-de.peote.view.Shader.__name__ = true;
-de.peote.view.Shader.prototype = {
-	__class__: de.peote.view.Shader
+$hxClasses["de.peote.Shader"] = de.peote.Shader;
+de.peote.Shader.__name__ = true;
+de.peote.Shader.prototype = {
+	__class__: de.peote.Shader
 };
-de.peote.view.Texture = function() {
+de.peote.Texture = function() {
 };
-$hxClasses["de.peote.view.Texture"] = de.peote.view.Texture;
-de.peote.view.Texture.__name__ = true;
-de.peote.view.Texture.createEmptyTexture = function(width,height) {
+$hxClasses["de.peote.Texture"] = de.peote.Texture;
+de.peote.Texture.__name__ = true;
+de.peote.Texture.createEmptyTexture = function(width,height) {
 	var texture = lime.gl.html5.GL.createTexture();
 	lime.gl.html5.GL.bindTexture(3553,texture);
 	lime.gl.html5.GL.texImage2D(3553,0,6408,width,height,0,6408,5121,null);
@@ -804,15 +622,15 @@ de.peote.view.Texture.createEmptyTexture = function(width,height) {
 	lime.gl.html5.GL.bindTexture(3553,null);
 	return texture;
 };
-de.peote.view.Texture.createSubTexture = function(t,x,y,w,h,data) {
+de.peote.Texture.createSubTexture = function(t,x,y,w,h,data) {
 	lime.gl.html5.GL.bindTexture(3553,t);
 	lime.gl.html5.GL.texSubImage2D(3553,0,x,y,w,h,6408,5121,data);
 	lime.gl.html5.GL.bindTexture(3553,null);
 };
-de.peote.view.Texture.prototype = {
-	__class__: de.peote.view.Texture
+de.peote.Texture.prototype = {
+	__class__: de.peote.Texture
 };
-de.peote.view.TextureCache = function(img_width,img_height,max_images,onLoad) {
+de.peote.TextureCache = function(img_width,img_height,max_images,onLoad) {
 	this.texture = null;
 	this.onLoad_callback = onLoad;
 	this.segment_width = img_width;
@@ -824,17 +642,17 @@ de.peote.view.TextureCache = function(img_width,img_height,max_images,onLoad) {
 	this.unused_images = new Array();
 	this.max_h_segments = Math.floor(this.max_texture_size / this.segment_width);
 	this.max_v_segments = Math.floor(this.max_texture_size / this.segment_height);
-	this.segment_holes = new de.peote.view.Holes(max_images);
-	this.texture = de.peote.view.Texture.createEmptyTexture(this.max_h_segments * this.segment_width,this.max_v_segments * this.segment_height);
+	this.segment_holes = new de.peote.Holes(max_images);
+	this.texture = de.peote.Texture.createEmptyTexture(this.max_h_segments * this.segment_width,this.max_v_segments * this.segment_height);
 };
-$hxClasses["de.peote.view.TextureCache"] = de.peote.view.TextureCache;
-de.peote.view.TextureCache.__name__ = true;
-de.peote.view.TextureCache.prototype = {
+$hxClasses["de.peote.TextureCache"] = de.peote.TextureCache;
+de.peote.TextureCache.__name__ = true;
+de.peote.TextureCache.prototype = {
 	onerror: function(msg) {
-		haxe.Log.trace(msg,{ fileName : "TextureCache.hx", lineNumber : 77, className : "de.peote.view.TextureCache", methodName : "onerror"});
+		haxe.Log.trace(msg,{ fileName : "TextureCache.hx", lineNumber : 54, className : "de.peote.TextureCache", methodName : "onerror"});
 	}
 	,setImage: function(image_nr,imageUrl) {
-		var val = new de.peote.view.Image(imageUrl);
+		var val = new de.peote.Image(imageUrl);
 		this.image[image_nr] = val;
 	}
 	,getImage: function(image_nr) {
@@ -851,17 +669,17 @@ de.peote.view.TextureCache.prototype = {
 		}
 	}
 	,onImageLoad: function(img,w,h,data) {
-		if(this.segment_holes.hole.length == 0) haxe.Log.trace("TextureCache is FULL",{ fileName : "TextureCache.hx", lineNumber : 108, className : "de.peote.view.TextureCache", methodName : "onImageLoad"});
+		if(this.segment_holes.hole.length == 0) haxe.Log.trace("TextureCache is FULL",{ fileName : "TextureCache.hx", lineNumber : 85, className : "de.peote.TextureCache", methodName : "onImageLoad"});
 		var holePos = this.segment_holes.getHole();
 		img.tx = holePos % this.max_h_segments / this.max_h_segments;
 		img.ty = Math.floor(holePos / this.max_h_segments) / this.max_v_segments;
 		img.tw = w / (this.max_h_segments * this.segment_width);
 		img.th = h / (this.max_v_segments * this.segment_height);
-		de.peote.view.Texture.createSubTexture(this.texture,holePos % this.max_h_segments * this.segment_width,Math.floor(holePos / this.max_h_segments) * this.segment_height,w,h,data);
+		de.peote.Texture.createSubTexture(this.texture,holePos % this.max_h_segments * this.segment_width,Math.floor(holePos / this.max_h_segments) * this.segment_height,w,h,data);
 		while(img.element_nr.length > 0) this.onLoad_callback(img.element_nr.pop(),img.image_nr.pop(),img.tile_nr.pop(),img);
 		img.cache_nr = holePos;
 	}
-	,delUnusedImage: function(image_nr) {
+	,delImage: function(image_nr) {
 		var img = this.image[image_nr];
 		if(img.used-- == 1) {
 			if(this.segment_holes.hole.length == 0) {
@@ -870,7 +688,95 @@ de.peote.view.TextureCache.prototype = {
 			}
 		}
 	}
-	,__class__: de.peote.view.TextureCache
+	,__class__: de.peote.TextureCache
+};
+de.peote.View = function(width,height) {
+	haxe.Log.trace("GL.MAX_TEXTURE_IMAGE_UNITS:" + Std.string(lime.gl.html5.GL.getParameter(34930)),{ fileName : "View.hx", lineNumber : 24, className : "de.peote.View", methodName : "new"});
+	haxe.Log.trace("GL.MAX_VERTEX_TEXTURE_IMAGE_UNITS:" + Std.string(lime.gl.html5.GL.getParameter(35660)),{ fileName : "View.hx", lineNumber : 25, className : "de.peote.View", methodName : "new"});
+	haxe.Log.trace("GL.MAX_TEXTURE_SIZE:" + Std.string(lime.gl.html5.GL.getParameter(3379)),{ fileName : "View.hx", lineNumber : 26, className : "de.peote.View", methodName : "new"});
+	haxe.Log.trace("GL.MAX_VERTEX_ATTRIBS:" + Std.string(lime.gl.html5.GL.getParameter(34921)),{ fileName : "View.hx", lineNumber : 27, className : "de.peote.View", methodName : "new"});
+	haxe.Log.trace("GL.MAX_VERTEX_UNIFORM_VECTORS:" + Std.string(lime.gl.html5.GL.getParameter(36347)),{ fileName : "View.hx", lineNumber : 28, className : "de.peote.View", methodName : "new"});
+	haxe.Log.trace("GL.MAX_FRAGMENT_UNIFORM_VECTORS:" + Std.string(lime.gl.html5.GL.getParameter(36349)),{ fileName : "View.hx", lineNumber : 29, className : "de.peote.View", methodName : "new"});
+	this.displaylist = new de.peote.Displaylist(100000,1000);
+	this.texturecache = new de.peote.TextureCache(512,512,64,$bind(this,this.onLoadImage));
+};
+$hxClasses["de.peote.View"] = de.peote.View;
+de.peote.View.__name__ = true;
+de.peote.View.prototype = {
+	setShader: function(shader_nr,shaderUrl) {
+		this.displaylist.setShaderSrc(shader_nr,"","");
+	}
+	,setShaderSrc: function(shader_nr,fragmentShaderSrc,vertexShaderSrc) {
+		if(vertexShaderSrc == null) vertexShaderSrc = "" + "precision mediump float;" + "\tattribute vec3 aVertexPosStart;\r\n\t\tattribute vec3 aVertexPosEnd;\r\n\t\t\r\n\t\tattribute vec2 aTime;\r\n\t\tattribute vec2 aTexCoord;\r\n\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\t//uniform mat4 uProjectionMatrix;\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\r\n\t\tvoid main(void) {\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t//gl_Position = uProjectionMatrix * vec4 (aVertexPosStart + floor( (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0) ), 1.0);\r\n\t\t\t//gl_Position = uProjectionMatrix * vec4 (aVertexPosStart + (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0), 1.0);\r\n\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tfloat far = 100.0;\r\n\t\t\tfloat near = -100.0;\r\n\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -2.0 / (far - near), 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (aVertexPosStart + floor( (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0) * zoom)/zoom, 1.0);\r\n\t\t}\r\n\t";
+		this.displaylist.setShaderSrc(shader_nr,fragmentShaderSrc,vertexShaderSrc);
+	}
+	,setImage: function(image_nr,imageUrl) {
+		this.texturecache.setImage(image_nr,imageUrl);
+	}
+	,setTilesheet: function(tilesheet_nr,image_nr,textCoordArray) {
+	}
+	,setElement: function(nr,x,y,z,w,h,shader_nr,image_nr,tile_nr) {
+		if(tile_nr == null) tile_nr = -1;
+		if(image_nr == null) image_nr = -1;
+		if(image_nr > -1) {
+			var img = this.texturecache.image[image_nr];
+			if(img.cache_nr >= 0) this.displaylist.setElement(nr,x,y,z,w,h,shader_nr,img.tx,img.ty,img.tw,img.th,image_nr,tile_nr); else {
+				this.displaylist.setElement(nr,x,y,z,w,h,shader_nr,0,0,0,0,image_nr,tile_nr);
+				this.texturecache.loadImage(nr,image_nr,tile_nr);
+			}
+		} else this.displaylist.setElement(nr,x,y,z,w,h,shader_nr,0.0,0.0,1.0,1.0,image_nr,tile_nr);
+	}
+	,onLoadImage: function(nr,image_nr,tile_nr,img) {
+		this.displaylist.setElementTexCoord(nr,img.tx,img.ty,img.tw,img.th,image_nr,tile_nr);
+	}
+	,delElement: function(nr) {
+		var e = this.displaylist.element[nr];
+		this.texturecache.delImage(e.image_nr);
+		this.displaylist.buffer.delElement(e);
+	}
+	,animElement: function(nr,x,y,z,w,h,t1,t2) {
+		this.displaylist.animElement(nr,x,y,z,w,h,t1,t2);
+	}
+	,render: function(time,width,height,mouse_x,mouse_y,zoom) {
+		lime.gl.html5.GL.viewport(0,0,width,height);
+		lime.gl.html5.GL.enable(3042);
+		lime.gl.html5.GL.blendFunc(770,771);
+		lime.gl.html5.GL.bindBuffer(34962,this.displaylist.buffer.buffer);
+		lime.gl.html5.GL.enableVertexAttribArray(de.peote.Program.aVertexPosStart);
+		lime.gl.html5.GL.enableVertexAttribArray(de.peote.Program.aVertexPosEnd);
+		lime.gl.html5.GL.enableVertexAttribArray(de.peote.Program.aTime);
+		lime.gl.html5.GL.enableVertexAttribArray(de.peote.Program.aTexCoord);
+		lime.gl.html5.GL.vertexAttribPointer(de.peote.Program.aVertexPosStart,3,5126,false,40,0);
+		lime.gl.html5.GL.vertexAttribPointer(de.peote.Program.aVertexPosEnd,3,5126,false,40,12);
+		lime.gl.html5.GL.vertexAttribPointer(de.peote.Program.aTime,2,5126,false,40,24);
+		lime.gl.html5.GL.vertexAttribPointer(de.peote.Program.aTexCoord,2,5126,false,40,32);
+		lime.gl.html5.GL.activeTexture(33984);
+		lime.gl.html5.GL.bindTexture(3553,this.texturecache.texture);
+		lime.gl.html5.GL.clearColor(0.0,0.0,0.0,1.0);
+		lime.gl.html5.GL.clear(16640);
+		var _g1 = 0;
+		var _g = this.displaylist.buffer.activeProgram.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			de.peote.View.activeProgram = this.displaylist.buffer.activeProgram[i];
+			lime.gl.html5.GL.useProgram(de.peote.View.activeProgram.program.glProgram);
+			lime.gl.html5.GL.uniform1i(de.peote.View.activeProgram.program.uniforms[2],0);
+			lime.gl.html5.GL.uniform2f(de.peote.View.activeProgram.program.uniforms[3],mouse_x / width * 2 - 1,mouse_y / height * 2 - 1);
+			lime.gl.html5.GL.uniform2f(de.peote.View.activeProgram.program.uniforms[4],width,height);
+			lime.gl.html5.GL.uniform1f(de.peote.View.activeProgram.program.uniforms[5],time);
+			lime.gl.html5.GL.uniform1f(de.peote.View.activeProgram.program.uniforms[6],zoom);
+			lime.gl.html5.GL.uniform2f(de.peote.View.activeProgram.program.uniforms[7],-mouse_x * (zoom - 1) / 4,-mouse_y * (zoom - 1) / 4);
+			lime.gl.html5.GL.drawArrays(5,de.peote.View.activeProgram.start,de.peote.View.activeProgram.size);
+		}
+		lime.gl.html5.GL.disableVertexAttribArray(de.peote.Program.aVertexPosStart);
+		lime.gl.html5.GL.disableVertexAttribArray(de.peote.Program.aVertexPosEnd);
+		lime.gl.html5.GL.disableVertexAttribArray(de.peote.Program.aTime);
+		lime.gl.html5.GL.disableVertexAttribArray(de.peote.Program.aTexCoord);
+		lime.gl.html5.GL.bindBuffer(34962,null);
+		lime.gl.html5.GL.bindTexture(3553,null);
+		lime.gl.html5.GL.useProgram(null);
+	}
+	,__class__: de.peote.View
 };
 var format = {};
 format.png = {};
@@ -3203,15 +3109,180 @@ $hxClasses["lime.AssetData"] = lime.AssetData;
 lime.AssetData.__name__ = true;
 lime.AssetData.initialize = function() {
 	if(!lime.AssetData.initialized) {
-		lime.AssetData.path.set("assets/peote_font.png","assets/peote_font.png");
+		lime.AssetData.path.set("assets/Cheepicus_16x16.png","assets/Cheepicus_16x16.png");
 		var value = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
-		lime.AssetData.type.set("assets/peote_font.png",value);
-		lime.AssetData.path.set("assets/peote_font_green.png","assets/peote_font_green.png");
+		lime.AssetData.type.set("assets/Cheepicus_16x16.png",value);
+		lime.AssetData.path.set("assets/Cheepicus_8x8.png","assets/Cheepicus_8x8.png");
 		var value1 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
-		lime.AssetData.type.set("assets/peote_font_green.png",value1);
-		lime.AssetData.path.set("assets/peote_tiles.png","assets/peote_tiles.png");
+		lime.AssetData.type.set("assets/Cheepicus_8x8.png",value1);
+		lime.AssetData.path.set("assets/DF+Tileset_8x12.png","assets/DF+Tileset_8x12.png");
 		var value2 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
-		lime.AssetData.type.set("assets/peote_tiles.png",value2);
+		lime.AssetData.type.set("assets/DF+Tileset_8x12.png",value2);
+		lime.AssetData.path.set("assets/Nice_curses_12x12.png","assets/Nice_curses_12x12.png");
+		var value3 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/Nice_curses_12x12.png",value3);
+		lime.AssetData.path.set("assets/Phoebus_16x16.png","assets/Phoebus_16x16.png");
+		var value4 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/Phoebus_16x16.png",value4);
+		lime.AssetData.path.set("assets/Phssthpok_32x32.png","assets/Phssthpok_32x32.png");
+		var value5 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/Phssthpok_32x32.png",value5);
+		lime.AssetData.path.set("assets/Shizzle_16x20.png","assets/Shizzle_16x20.png");
+		var value6 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/Shizzle_16x20.png",value6);
+		lime.AssetData.path.set("assets/test/slice_0_0.png","assets/test/slice_0_0.png");
+		var value7 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_0_0.png",value7);
+		lime.AssetData.path.set("assets/test/slice_0_1.png","assets/test/slice_0_1.png");
+		var value8 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_0_1.png",value8);
+		lime.AssetData.path.set("assets/test/slice_0_2.png","assets/test/slice_0_2.png");
+		var value9 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_0_2.png",value9);
+		lime.AssetData.path.set("assets/test/slice_0_3.png","assets/test/slice_0_3.png");
+		var value10 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_0_3.png",value10);
+		lime.AssetData.path.set("assets/test/slice_0_4.png","assets/test/slice_0_4.png");
+		var value11 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_0_4.png",value11);
+		lime.AssetData.path.set("assets/test/slice_0_5.png","assets/test/slice_0_5.png");
+		var value12 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_0_5.png",value12);
+		lime.AssetData.path.set("assets/test/slice_0_6.png","assets/test/slice_0_6.png");
+		var value13 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_0_6.png",value13);
+		lime.AssetData.path.set("assets/test/slice_0_7.png","assets/test/slice_0_7.png");
+		var value14 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_0_7.png",value14);
+		lime.AssetData.path.set("assets/test/slice_1_0.png","assets/test/slice_1_0.png");
+		var value15 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_1_0.png",value15);
+		lime.AssetData.path.set("assets/test/slice_1_1.png","assets/test/slice_1_1.png");
+		var value16 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_1_1.png",value16);
+		lime.AssetData.path.set("assets/test/slice_1_2.png","assets/test/slice_1_2.png");
+		var value17 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_1_2.png",value17);
+		lime.AssetData.path.set("assets/test/slice_1_3.png","assets/test/slice_1_3.png");
+		var value18 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_1_3.png",value18);
+		lime.AssetData.path.set("assets/test/slice_1_4.png","assets/test/slice_1_4.png");
+		var value19 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_1_4.png",value19);
+		lime.AssetData.path.set("assets/test/slice_1_5.png","assets/test/slice_1_5.png");
+		var value20 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_1_5.png",value20);
+		lime.AssetData.path.set("assets/test/slice_1_6.png","assets/test/slice_1_6.png");
+		var value21 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_1_6.png",value21);
+		lime.AssetData.path.set("assets/test/slice_1_7.png","assets/test/slice_1_7.png");
+		var value22 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_1_7.png",value22);
+		lime.AssetData.path.set("assets/test/slice_2_0.png","assets/test/slice_2_0.png");
+		var value23 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_2_0.png",value23);
+		lime.AssetData.path.set("assets/test/slice_2_1.png","assets/test/slice_2_1.png");
+		var value24 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_2_1.png",value24);
+		lime.AssetData.path.set("assets/test/slice_2_2.png","assets/test/slice_2_2.png");
+		var value25 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_2_2.png",value25);
+		lime.AssetData.path.set("assets/test/slice_2_3.png","assets/test/slice_2_3.png");
+		var value26 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_2_3.png",value26);
+		lime.AssetData.path.set("assets/test/slice_2_4.png","assets/test/slice_2_4.png");
+		var value27 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_2_4.png",value27);
+		lime.AssetData.path.set("assets/test/slice_2_5.png","assets/test/slice_2_5.png");
+		var value28 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_2_5.png",value28);
+		lime.AssetData.path.set("assets/test/slice_2_6.png","assets/test/slice_2_6.png");
+		var value29 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_2_6.png",value29);
+		lime.AssetData.path.set("assets/test/slice_2_7.png","assets/test/slice_2_7.png");
+		var value30 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_2_7.png",value30);
+		lime.AssetData.path.set("assets/test/slice_3_0.png","assets/test/slice_3_0.png");
+		var value31 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_3_0.png",value31);
+		lime.AssetData.path.set("assets/test/slice_3_1.png","assets/test/slice_3_1.png");
+		var value32 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_3_1.png",value32);
+		lime.AssetData.path.set("assets/test/slice_3_2.png","assets/test/slice_3_2.png");
+		var value33 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_3_2.png",value33);
+		lime.AssetData.path.set("assets/test/slice_3_3.png","assets/test/slice_3_3.png");
+		var value34 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_3_3.png",value34);
+		lime.AssetData.path.set("assets/test/slice_3_4.png","assets/test/slice_3_4.png");
+		var value35 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_3_4.png",value35);
+		lime.AssetData.path.set("assets/test/slice_3_5.png","assets/test/slice_3_5.png");
+		var value36 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_3_5.png",value36);
+		lime.AssetData.path.set("assets/test/slice_3_6.png","assets/test/slice_3_6.png");
+		var value37 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_3_6.png",value37);
+		lime.AssetData.path.set("assets/test/slice_3_7.png","assets/test/slice_3_7.png");
+		var value38 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_3_7.png",value38);
+		lime.AssetData.path.set("assets/test/slice_4_0.png","assets/test/slice_4_0.png");
+		var value39 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_4_0.png",value39);
+		lime.AssetData.path.set("assets/test/slice_4_1.png","assets/test/slice_4_1.png");
+		var value40 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_4_1.png",value40);
+		lime.AssetData.path.set("assets/test/slice_4_2.png","assets/test/slice_4_2.png");
+		var value41 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_4_2.png",value41);
+		lime.AssetData.path.set("assets/test/slice_4_3.png","assets/test/slice_4_3.png");
+		var value42 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_4_3.png",value42);
+		lime.AssetData.path.set("assets/test/slice_4_4.png","assets/test/slice_4_4.png");
+		var value43 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_4_4.png",value43);
+		lime.AssetData.path.set("assets/test/slice_4_5.png","assets/test/slice_4_5.png");
+		var value44 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_4_5.png",value44);
+		lime.AssetData.path.set("assets/test/slice_4_6.png","assets/test/slice_4_6.png");
+		var value45 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_4_6.png",value45);
+		lime.AssetData.path.set("assets/test/slice_4_7.png","assets/test/slice_4_7.png");
+		var value46 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_4_7.png",value46);
+		lime.AssetData.path.set("assets/test/slice_5_0.png","assets/test/slice_5_0.png");
+		var value47 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_5_0.png",value47);
+		lime.AssetData.path.set("assets/test/slice_5_1.png","assets/test/slice_5_1.png");
+		var value48 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_5_1.png",value48);
+		lime.AssetData.path.set("assets/test/slice_5_2.png","assets/test/slice_5_2.png");
+		var value49 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_5_2.png",value49);
+		lime.AssetData.path.set("assets/test/slice_5_3.png","assets/test/slice_5_3.png");
+		var value50 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_5_3.png",value50);
+		lime.AssetData.path.set("assets/test/slice_5_4.png","assets/test/slice_5_4.png");
+		var value51 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_5_4.png",value51);
+		lime.AssetData.path.set("assets/test/slice_5_5.png","assets/test/slice_5_5.png");
+		var value52 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_5_5.png",value52);
+		lime.AssetData.path.set("assets/test/slice_5_6.png","assets/test/slice_5_6.png");
+		var value53 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_5_6.png",value53);
+		lime.AssetData.path.set("assets/test/slice_5_7.png","assets/test/slice_5_7.png");
+		var value54 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/test/slice_5_7.png",value54);
+		lime.AssetData.path.set("assets/Tigrex3d_16x16.PNG","assets/Tigrex3d_16x16.PNG");
+		var value55 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/Tigrex3d_16x16.PNG",value55);
+		lime.AssetData.path.set("assets/tileset_128x128.png","assets/tileset_128x128.png");
+		var value56 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/tileset_128x128.png",value56);
+		lime.AssetData.path.set("assets/Vidumec_15x15.png","assets/Vidumec_15x15.png");
+		var value57 = Reflect.field(lime.utils.AssetType,"image".toUpperCase());
+		lime.AssetData.type.set("assets/Vidumec_15x15.png",value57);
 		lime.AssetData.initialized = true;
 	}
 };
@@ -6240,21 +6311,20 @@ var Bool = $hxClasses.Bool = Boolean;
 Bool.__ename__ = ["Bool"];
 var Class = $hxClasses.Class = { __name__ : ["Class"]};
 var Enum = { };
-ExampleShader.lyapunov = "" + "precision mediump float;" + "\t// ###############################################################################\r\n\t\t// #    Author:   Sylvio Sell - maitag - Rostock 2013                            #\r\n\t\t// #    Homepage: http://maitag.de                                               #\r\n\t\t// #    License: GNU General Public License (GPL), Version 2.0                   #\r\n\t\t// #                                                                             #\r\n\t\t// #    more images about that lyapunov fractalcode at:                          #\r\n\t\t// #    http://maitag.de/~semmi/                                                 #\r\n\t\t// #                          (have fun!;)                                       #\r\n\t\t// ###############################################################################\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\t//uniform float time;\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main( void ) {\r\n\t\t\r\n\t\t\t// x y pos\r\n\t\t\t//vec2 position =( gl_FragCoord.xy / uResolution.xy *(1.1 + sin(time)) );\r\n\t\t\t//float a = position.x;\r\n\t\t\t//float b = position.y;\r\n\t\t\t//float a = gl_FragCoord.x / uResolution.x;\r\n\t\t\t//float b = gl_FragCoord.y / uResolution.y;\r\n\t\t\tfloat a = vTexCoord.x; // uResolution.x;\r\n\t\t\tfloat b = vTexCoord.y; // uResolution.y;\r\n\t\t\t\r\n\t\t\t// PArameter\r\n\t\t\tfloat p1 = 1.7+(uMouse.x / uResolution.x*5000.0);\r\n\t\t\tfloat p2 = 1.7+(uMouse.y / uResolution.y*5000.0);\r\n\t\t\t//float p1 = 2.4;\r\n\t\t\t//float p2 = 1.7+sin(time);\r\n\t\t\t\r\n\t\t\tfloat index = 0.0;\r\n\t\t\t\r\n\t\t\t//var xx:Float = 1; // STARTWERT\r\n\t\t\tfloat xx = 1.0;\r\n\t\t\t\r\n\t\t\t// pre-iteration ##########################\r\n\t\t\t\r\n\t\t\tfor (int i = 0; i < 10; i++) {\r\n\t\t\t\txx = p1 * sin(xx + a) * sin(xx + a) + p2;\r\n\t\t\t\txx = p1 * sin(xx + b) * sin(xx + b) + p2;\r\n\t\t\t}\r\n\t\t\t\r\n\t\t\t// main-iteration ########################\r\n\t\t\t\r\n\t\t\tfor (int i = 0; i < 20; i++) {\r\n\t\t\t\txx = p1 * sin(xx + a) * sin(xx + a) + p2;\r\n\t\t\t\tindex = index + log(abs(2.0 * p1 * sin(xx + a) * cos(xx + a)));\r\n\t\t\t\t\r\n\t\t\t\txx = p1 * sin(xx + b) * sin(xx + b) + p2;\r\n\t\t\t\tindex = index + log(abs(2.0 * p1 * sin(xx + b) * cos(xx + b)));\r\n\t\t\t}\r\n\t\t\t\r\n\t\t\t//index = index / (_iter*2);\r\n\t\t\tindex = index / (20.0 * 2.0);\r\n\t\t\t\r\n\t\t\t//return (index);\r\n\t\t\t\r\n\t\t\tif (index > 0.0) {\r\n\t\t\t\tgl_FragColor = vec4(index,0.0,0.0,1.0);\r\n\t\t\t}\r\n\t\t\telse {\r\n\t\t\t\tgl_FragColor = vec4(0.0,0.0,0.0-index,1.0);\r\n\t\t\t}\r\n\t\t}\r\n\t";
-ExampleShader.lyapunov_01 = "" + "precision mediump float;" + "\t// ###############################################################################\r\n\t\t// #    Author:   Sylvio Sell - maitag - Rostock 2013                            #\r\n\t\t// #    Homepage: http://maitag.de                                               #\r\n\t\t// #    License: GNU General Public License (GPL), Version 2.0                   #\r\n\t\t// #                                                                             #\r\n\t\t// #    more images about that lyapunov fractalcode at:                          #\r\n\t\t// #    http://maitag.de/~semmi/                                                 #\r\n\t\t// #                          (have fun!;)                                       #\r\n\t\t// ###############################################################################\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\t//uniform float time;\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main( void ) {\r\n\t\t\r\n\t\t\t// x y pos\r\n\t\t\t//vec2 position =( gl_FragCoord.xy / uResolution.xy *(1.1 + sin(time)) );\r\n\t\t\t//float a = position.x;\r\n\t\t\t//float b = position.y;\r\n\t\t\t//float a = gl_FragCoord.x / uResolution.x;\r\n\t\t\t//float b = gl_FragCoord.y / uResolution.y;\r\n\t\t\tfloat a = vTexCoord.x*2.0; // uResolution.x;\r\n\t\t\tfloat b = vTexCoord.y*2.0; // uResolution.y;\r\n\t\t\t\r\n\t\t\t// PArameter\r\n\t\t\tfloat p1 = 1.7+(uMouse.x / 3.0);\r\n\t\t\tfloat p2 = 1.7+(uMouse.y / 3.0);\r\n\t\t\t//float p1 = 2.4;\r\n\t\t\t//float p2 = 1.7+sin(time);\r\n\t\t\t\r\n\t\t\tfloat index = 0.0;\r\n\t\t\t\r\n\t\t\t//var xx:Float = 1; // STARTWERT\r\n\t\t\tfloat xx = 1.0;\r\n\t\t\t\r\n\t\t\t// pre-iteration ##########################\r\n\t\t\t\r\n\t\t\tfor (int i = 0; i < 2; i++) {\r\n\t\t\t\txx = p1 * sin(xx + a) * sin(xx + a) + p2;\r\n\t\t\t\txx = p1 * sin(xx + b) * sin(xx + b) + p2;\r\n\t\t\t}\r\n\t\t\t\r\n\t\t\t// main-iteration ########################\r\n\t\t\t\r\n\t\t\tfor (int i = 0; i < 5; i++) {\r\n\t\t\t\txx = p1 * sin(xx + a) * sin(xx + a) + p2;\r\n\t\t\t\tindex = index + log(abs(2.0 * p1 * sin(xx + a) * cos(xx + a)));\r\n\t\t\t\t\r\n\t\t\t\txx = p1 * sin(xx + b) * sin(xx + b) + p2;\r\n\t\t\t\tindex = index + log(abs(2.0 * p1 * sin(xx + b) * cos(xx + b)));\r\n\t\t\t}\r\n\t\t\t\r\n\t\t\tindex = index / 10.0;\r\n\t\t\t\r\n\t\t\tif (index > 0.0) {\r\n\t\t\t\tgl_FragColor = vec4(index*2.0, index*1.7, 0.05, 1.0);\r\n\t\t\t}\r\n\t\t\telse {\r\n\t\t\t\tgl_FragColor = vec4((0.0-index)*0.65, (0.0-index)*0.53, (0.0-index)*0.1, 1.0);\r\n\t\t\t}\r\n\t\t}\r\n\t";
-de.peote.view.Buffer.VERTEX_COUNT = 6;
-de.peote.view.Buffer.STRAW = 10;
-de.peote.view.Program.aVertexPosStart = -1;
-de.peote.view.Program.uMODELVIEWMATRIX = 0;
-de.peote.view.Program.uPROJECTIONMATRIX = 1;
-de.peote.view.Program.uIMAGE = 2;
-de.peote.view.Program.uMOUSE = 3;
-de.peote.view.Program.uRESOLUTION = 4;
-de.peote.view.Program.uTIME = 5;
-de.peote.view.Program.uZOOM = 6;
-de.peote.view.Program.uDELTA = 7;
-de.peote.view.Shader.default_vertexShaderSrc = "\tprecision mediump float;\r\n\r\n\t\tattribute vec3 aVertexPosStart;\r\n\t\tattribute vec2 aTime;\r\n\t\tattribute vec3 aVertexPosEnd;\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\t//uniform mat4 uProjectionMatrix;\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t//gl_Position = uProjectionMatrix * vec4 (aVertexPosStart + floor( (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0) ), 1.0);\r\n\t\t\t//gl_Position = uProjectionMatrix * vec4 (aVertexPosStart + (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0), 1.0);\r\n\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tfloat far = 100.0;\r\n\t\t\tfloat near = -100.0;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -2.0 / (far - near), 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (aVertexPosStart + floor( (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0) * zoom)/zoom, 1.0);\r\n\t\t}\r\n\t";
-de.peote.view.Shader.default_fragmentShaderSrc = "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tgl_FragColor = texture2D (uImage, vTexCoord);\r\n\t\t}\r\n\t";
+de.peote.Buffer.VERTEX_COUNT = 6;
+de.peote.Buffer.STRAW = 10;
+de.peote.Program.aVertexPosStart = -1;
+de.peote.Program.uMODELVIEWMATRIX = 0;
+de.peote.Program.uPROJECTIONMATRIX = 1;
+de.peote.Program.uIMAGE = 2;
+de.peote.Program.uMOUSE = 3;
+de.peote.Program.uRESOLUTION = 4;
+de.peote.Program.uTIME = 5;
+de.peote.Program.uZOOM = 6;
+de.peote.Program.uDELTA = 7;
+de.peote.Shader.vertexShaderSource = "" + "precision mediump float;" + "\tattribute vec3 aVertexPosStart;\r\n\t\tattribute vec3 aVertexPosEnd;\r\n\t\t\r\n\t\tattribute vec2 aTime;\r\n\t\tattribute vec2 aTexCoord;\r\n\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\t//uniform mat4 uProjectionMatrix;\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\r\n\t\tvoid main(void) {\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t//gl_Position = uProjectionMatrix * vec4 (aVertexPosStart + floor( (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0) ), 1.0);\r\n\t\t\t//gl_Position = uProjectionMatrix * vec4 (aVertexPosStart + (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0), 1.0);\r\n\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tfloat far = 100.0;\r\n\t\t\tfloat near = -100.0;\r\n\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -2.0 / (far - near), 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), -(far + near) / (far - near), 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (aVertexPosStart + floor( (aVertexPosEnd-aVertexPosStart) * min( (uTime-aTime.x)/(aTime.y-aTime.x), 1.0) * zoom)/zoom, 1.0);\r\n\t\t}\r\n\t";
+de.peote.Shader.fragmentShader_img = "" + "precision mediump float;" + "\tvarying vec2 vTexCoord;\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tgl_FragColor = texture2D (uImage, vTexCoord);\r\n\t\t}\r\n\t";
+de.peote.Shader.fragmentShader_lyap = "" + "precision mediump float;" + "\t// ###############################################################################\r\n\t\t// #    Author:   Sylvio Sell - maitag - Rostock 2013                            #\r\n\t\t// #    Homepage: http://maitag.de                                               #\r\n\t\t// #    License: GNU General Public License (GPL), Version 2.0                   #\r\n\t\t// #                                                                             #\r\n\t\t// #    look for more about that lyapunov fractalcode with haxe at:              #\r\n\t\t// #    http://maitag.de/~semmi/haxenme/lyaphaxe-fractalgenerator/               #\r\n\t\t// #                          (have fun!;)                                       #\r\n\t\t// ###############################################################################\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\t//uniform float time;\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main( void ) {\r\n\r\n\t\t\t// x y pos\r\n\t\t\t//vec2 position =( gl_FragCoord.xy / uResolution.xy *(1.1 + sin(time)) );\r\n\t\t\t//float a = position.x;\r\n\t\t\t//float b = position.y;\r\n\t\t\t//float a = gl_FragCoord.x / uResolution.x;\r\n\t\t\t//float b = gl_FragCoord.y / uResolution.y;\r\n\t\t\tfloat a = vTexCoord.x; // uResolution.x;\r\n\t\t\tfloat b = vTexCoord.y; // uResolution.y;\r\n\t\t\t\r\n\t\t\t// PArameter\r\n\t\t\tfloat p1 = 1.7+(uMouse.x / uResolution.x*5000.0);\r\n\t\t\tfloat p2 = 1.7+(uMouse.y / uResolution.y*5000.0);\r\n\t\t\t//float p1 = 2.4;\r\n\t\t\t//float p2 = 1.7+sin(time);\r\n\t\t\t\r\n\t\t\tfloat index = 0.0;\r\n\t\t\t\r\n\t\t\t//var xx:Float = 1; // STARTWERT\r\n\t\t\tfloat xx = 1.0;\r\n\t\t\t\r\n\t\t\t// pre-iteration ##########################\r\n\t\t\t\r\n\t\t\tfor (int i = 0; i < 10; i++) {\r\n\t\t\t\txx = p1 * sin(xx + a) * sin(xx + a) + p2;\r\n\t\t\t\txx = p1 * sin(xx + b) * sin(xx + b) + p2;\r\n\t\t\t}\r\n\t\t\t\r\n\t\t\t// main-iteration ########################\r\n\t\t\t\r\n\t\t\tfor (int i = 0; i < 20; i++) {\r\n\t\t\t\txx = p1 * sin(xx + a) * sin(xx + a) + p2;\r\n\t\t\t\tindex = index + log(abs(2.0 * p1 * sin(xx + a) * cos(xx + a)));\r\n\t\t\t\t\r\n\t\t\t\txx = p1 * sin(xx + b) * sin(xx + b) + p2;\r\n\t\t\t\tindex = index + log(abs(2.0 * p1 * sin(xx + b) * cos(xx + b)));\r\n\t\t\t}\r\n\t\t\t\r\n\t\t\t//index = index / (_iter*2);\r\n\t\t\tindex = index / (20.0 * 2.0);\r\n\t\t\t\r\n\t\t\t//return (index);\r\n\t\t\t\r\n\t\t\tif (index > 0.0) {\r\n\t\t\t\tgl_FragColor = vec4(index,0.0,0.0,1.0);\r\n\t\t\t}\r\n\t\t\telse {\r\n\t\t\t\tgl_FragColor = vec4(0.0,0.0,0.0-index,1.0);\r\n\t\t\t}\r\n\t\t}\r\n\t";
 format.tools._InflateImpl.Window.SIZE = 32768;
 format.tools._InflateImpl.Window.BUFSIZE = 65536;
 format.tools.InflateImpl.LEN_EXTRA_BITS_TBL = [0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0,-1,-1];
