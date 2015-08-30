@@ -4,7 +4,7 @@ This Library is written in [Haxe](http://haxe.org). Uses [OpenFl/Lime](http://ww
 to run on multiple hardware devices.
 
 
-####Build [Examples](http://maitag.github.io/peote-view/examples/example_01.html)
+####Build [Examples](http://maitag.github.io/peote-view/)
 
 `$ lime build peoteView.lime linux  (|android|windows)` - for native OS
 
