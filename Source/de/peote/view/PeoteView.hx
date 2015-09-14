@@ -288,8 +288,8 @@ class PeoteView
 			// max/min values, optimize
 			var sx:Int = (dl.x + xOffset) * zoom;
 			var sy:Int = (dl.y + yOffset) * zoom;
-			var sw:Int = (dl.w != 0) ? dl.w * zoom: width;
-			var sh:Int = (dl.h != 0) ? dl.h * zoom: height;
+			var sw:Int = (dl.w != 0) ? dl.w * zoom: width * zoom;
+			var sh:Int = (dl.h != 0) ? dl.h * zoom: height * zoom;
 			
 			if (sx < 0) sw += sx;
 			sx = Std.int( Math.max(0, Math.min(width, sx)) );
@@ -326,7 +326,8 @@ class PeoteView
 			GL.bindBuffer(GL.ARRAY_BUFFER, dl.elemBuff.glBuff); // nur EIN BUffer zum knechten (pro displaylist)
 			dl.elemBuff.setVertexAttributes(); // VertexAttributes
 			
-			for (i in 0...dl.buffer.activeProgram.length )
+			var len:Int = dl.buffer.activeProgram.length; //hoisted (performance)
+			for (i in 0...len)
 			{
 				ap = dl.buffer.activeProgram[i];
 				GL.useProgram(ap.program.glProgram); // ------ Shader Program

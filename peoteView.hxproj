@@ -17,12 +17,12 @@
   <!-- Other classes to be compiled into your SWF -->
   <!-- Build options -->
   <build>
-    <option directives="lime=2.6.1&#xA;format=3.1.2&#xA;tools=2.6.1&#xA;no-compilation&#xA;lime-html5&#xA;html5&#xA;web&#xA;html5&#xA;html" />
+    <option directives="lime=2.6.1&#xA;format=3.1.2&#xA;tools=2.6.1&#xA;no-compilation&#xA;lime-native&#xA;windows&#xA;desktop" />
     <option flashStrict="False" />
     <option noInlineOnDebug="False" />
     <option mainClass="ApplicationMain" />
     <option enabledebug="False" />
-    <option additional="" />
+    <option additional="#--macro keep(&quot;ExampleMassAnim&quot;)" />
   </build>
   <!-- haxelib libraries -->
   <haxelib>

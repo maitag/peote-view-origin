@@ -46,7 +46,8 @@ class Holes // amount of manysized cheese-holes may grow up (memory-consume-temp
 	public function addHole(pos:Int):Void
 	{
 		// TODO: optimize with haxe sugar
-		for (i in 0...hole.length)
+		var len:Int = hole.length; //hoisted (performance)
+		for (i in 0...len)
 		{	//trace("addHoleLoop i="+i+" start:"+hole[i].start+" end:"+hole[i].end);
 			if ( pos + 1 == hole[i].start)
 			{	//trace("A");

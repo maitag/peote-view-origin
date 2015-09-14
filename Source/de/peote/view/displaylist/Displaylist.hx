@@ -115,7 +115,7 @@ class Displaylist<ELEMENT:{function new():Void;}, BUFFER:{function new(t:Int, b:
 		if (param.y != null) y = param.y;		
 		if (param.w != null) w = param.w;		
 		if (param.h != null) h = param.h;		
-		if (param.zoom != null) h = param.zoom;		
+		if (param.zoom != null) zoom = param.zoom;		
 		if (param.xOffset != null) xOffset = param.xOffset;
 		if (param.yOffset != null) yOffset = param.yOffset;		
 		if (param.r != null) r = param.r;		

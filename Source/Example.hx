@@ -203,10 +203,9 @@ class Example extends Application {
 	// end Event Handler ------------------------------
 	// ------------------------------------------------------------
 	
-	public inline function setOffsets():Void {
+	public function setOffsets():Void {
 		xOffset = Std.int( - width*(zoom-1)/zoom * mouse_x/width);
 		yOffset = Std.int( - height*(zoom-1)/zoom * mouse_y/height);
-
 	}
 
 	
