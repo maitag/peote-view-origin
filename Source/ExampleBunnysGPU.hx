@@ -49,6 +49,7 @@ class ExampleBunnysGPU extends Example
 	var bunny_nr:Int = 0;
 	var max_bunnys:Int = 1000000;
 	var max_spawn:Int = 100;
+	var spawn_time:Int = 1;
 	var pause:Bool = false;
 	
 	var spawn_x:Int;
@@ -80,7 +81,7 @@ class ExampleBunnysGPU extends Example
 		// Displaylist for FPS
 		peoteView.setDisplaylist( { displaylist:1, type:DType.SIMPLE|DType.RGBA,
 			enable:true,
-			max_elements:100, max_programs:1, buffer_segment_size:100, // for low-end devices better max_elements < 100 000
+			max_elements:8, max_programs:1, buffer_segment_size:8, // max 8 chars
 			x:240, y:4, w:1, h:1,
 			renderBackground:true, a:0.8, r:0.3, g:0.2,
 			z:1
@@ -88,7 +89,7 @@ class ExampleBunnysGPU extends Example
 		// Displaylist for tile-ammount
 		peoteView.setDisplaylist( { displaylist:2, type:DType.SIMPLE|DType.RGBA,
 			enable:true,
-			max_elements:100, max_programs:1, buffer_segment_size:100, // for low-end devices better max_elements < 100 000
+			max_elements:13, max_programs:1, buffer_segment_size:13, // max 13 chars
 			x:8, y:4, w:1, h:1,
 			renderBackground:true, a:0.75, r:0.25,
 			z:1
@@ -96,16 +97,16 @@ class ExampleBunnysGPU extends Example
 		// Displaylist for max_spawn
 		peoteView.setDisplaylist( { displaylist:3, type:DType.SIMPLE|DType.RGBA,
 			enable:true,
-			max_elements:100, max_programs:1, buffer_segment_size:100, // for low-end devices better max_elements < 100 000
+			max_elements:33, max_programs:1, buffer_segment_size:33, // max 33 chars
 			x:8, y:34, w:1, h:1,
 			renderBackground:true, a:0.75, r:0.2,
 			z:1
 		});
-		// Displaylist for control info
+		// Displaylist for info-text
 		peoteView.setDisplaylist( { displaylist:4, type:DType.SIMPLE|DType.RGBA,
 			enable:true,
-			max_elements:100, max_programs:1, buffer_segment_size:100, // for low-end devices better max_elements < 100 000
-			x:420, y:4, w:1, h:1,
+			max_elements:120, max_programs:1, buffer_segment_size:120, // max 120 chars
+			x:460, y:0, w:1, h:1,
 			renderBackground:true, a:0.8,r:0.25,
 			z:1
 		});
@@ -119,7 +120,13 @@ class ExampleBunnysGPU extends Example
 		var fps_timer:Timer = new Timer(1000);
 		fps_timer.run = refreshFPS;
 		
-		txtOutput(4, "cursor up/down and space to control spawning,\nmouse-wheel to zoom", 0xbbaa77dd, 14, -6 );
+		txtOutput(4,
+			"up/down:    amount of tiles\n" +
+			"left/right: spawn-time\n" +
+			"space:      stop/resume\n" +
+			"mouse-wheel:zoom in/out",
+			0xbbaa77dd, 14, -6
+		);
 		//trace("START update_time: " + Math.round((Timer.stamp() - update_time) * 100000) / 100000);
 	}
 	
@@ -176,7 +183,7 @@ class ExampleBunnysGPU extends Example
 		
 		txtOutput(2, "tiles:" + bunny_nr);
 		
-		if (!pause) Timer.delay(spawnBunnys, 200);
+		if (!pause) Timer.delay(spawnBunnys, Math.floor(1/spawn_time*1000));
 	}
 	
 	private function refreshFPS():Void
@@ -223,15 +230,23 @@ class ExampleBunnysGPU extends Example
 				max_spawn -= 10;
 				updateMaxSpawn();
 				if (pause) {pause = false; spawnBunnys();}
+			case KeyCode.RIGHT:
+				if (spawn_time<60) spawn_time += 1;
+				updateMaxSpawn();
+				if (pause) {pause = false; spawnBunnys();}
+			case KeyCode.LEFT:
+				if (spawn_time>1) spawn_time -= 1;
+				updateMaxSpawn();
+				if (pause) {pause = false; spawnBunnys();}
 			default:
 		}
 	}
 	
 	public function updateMaxSpawn():Void {
 		if (max_spawn > 0) 
-			txtOutput(3, "spawn " + max_spawn*5 + " tiles per second", 0x55dd22ee);
+			txtOutput(3, "spawn " + max_spawn + " tiles in 1"+((spawn_time==1) ? "" : "/"+spawn_time)+" second", 0x55dd22ee);
 		else if (max_spawn < 0) 
-			txtOutput(3, "kill " + (0 - max_spawn*5) + " tiles per second", 0xff7722ff);
+			txtOutput(3, "kill " + (0 - max_spawn) + " tiles in 1"+((spawn_time==1) ? "" : "/"+spawn_time)+" second", 0xff7722ff);
 		else peoteView.setDisplaylist( { displaylist:3, enable:false } );
 	}
 	
@@ -248,10 +263,12 @@ class ExampleBunnysGPU extends Example
 		var py:Int = 0;
 		var xmax:Int = 0;
 		
-		peoteView.delAllElement( { displaylist:d } );
-		for (i in 0...s.length)
+		for (i in 0...peoteView.getDisplaylist({displaylist:d}).max_elements)
 		{
-			letter = s.charCodeAt(i);
+			if (i < s.length)
+			     letter = s.charCodeAt(i);
+			else letter = 0;
+			
 			if (letter == 10) {
 				px = 0;
 				py += size;
@@ -270,7 +287,7 @@ class ExampleBunnysGPU extends Example
 					rgba:color
 				});
 				px += size+gap;
-				xmax = Math.floor(Math.max(xmax, px)); 
+				if (i < s.length) xmax = Math.floor(Math.max(xmax, px)); 
 			}
 		}
 		

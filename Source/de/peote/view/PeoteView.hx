@@ -190,6 +190,11 @@ class PeoteView
 		}
 	}
 
+	public inline function getDisplaylist(param:DParam):I_Displaylist
+	{
+		return displaylist.get( (param.displaylist != null) ? param.displaylist : elementDefaults.displaylist );
+	}
+	
 	
 	// ------------------------------------------------------------------------------------------------------
 	// -------------------------------- SHADER --------------------------------------------------------------

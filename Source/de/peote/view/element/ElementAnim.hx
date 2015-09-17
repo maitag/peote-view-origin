@@ -65,7 +65,7 @@ class ElementAnim implements I_Element
 		//tile = PeoteView.elementDefaults.tile;	
 	}
 	
-	public inline function set(bufferElement:I_ElementBuffer, param:Param, texturecache:TextureCache):Void
+	public inline function set(elemBuff:I_ElementBuffer, param:Param, texturecache:TextureCache):Void
 	{	
 		
 		// TODO: nur bestimmte buffer-werte aendern
@@ -140,7 +140,7 @@ class ElementAnim implements I_Element
 		}
 		
 		//trace(param.element, param.tx, param.ty, param.tw, param.th);
-		bufferElement.set(this, param);
+		elemBuff.set(this, param);
 		
 		x = param.end.x;
 		y = param.end.y;
@@ -169,9 +169,9 @@ class ElementAnim implements I_Element
 		buf_pos = b;		
 	}
 	
-	public inline function del(bufferElement:I_ElementBuffer, texturecache:TextureCache):Void
+	public inline function del(elemBuff:I_ElementBuffer, texturecache:TextureCache):Void
 	{	
-		bufferElement.del(this);
+		elemBuff.del(this);
 		if (image != -1) texturecache.unUseImage(image);
 	}
 	/*	
