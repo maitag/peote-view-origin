@@ -52,7 +52,7 @@ ApplicationMain.create = function() {
 	ApplicationMain.preloader.load(urls,types);
 };
 ApplicationMain.main = function() {
-	ApplicationMain.config = { build : "268", company : "Sylvio Sell - maitag", file : "ExampleBunnysGPU", fps : 60, name : "peote_view", orientation : "", packageName : "de.peote.view", version : "0.1.5", windows : [{ antialiasing : 4, background : 16777215, borderless : false, depthBuffer : true, display : 0, fullscreen : false, hardware : true, height : 0, parameters : "{}", resizable : true, stencilBuffer : false, title : "peote_view", vsync : true, width : 0, x : null, y : null}]};
+	ApplicationMain.config = { build : "298", company : "Sylvio Sell - maitag", file : "ExampleBunnysGPU", fps : 60, name : "peote_view", orientation : "", packageName : "de.peote.view", version : "0.1.5", windows : [{ antialiasing : 4, background : 16777215, borderless : false, depthBuffer : true, display : 0, fullscreen : false, hardware : true, height : 0, parameters : "{}", resizable : true, stencilBuffer : false, title : "peote_view", vsync : true, width : 0, x : null, y : null}]};
 };
 ApplicationMain.start = function() {
 	var result = ApplicationMain.app.exec();
@@ -1099,6 +1099,7 @@ Example.prototype = $extend(lime.app.Application.prototype,{
 });
 var ExampleBunnysGPU = function() {
 	this.pause = false;
+	this.spawn_time = 1;
 	this.max_spawn = 100;
 	this.max_bunnys = 1000000;
 	this.bunny_nr = 0;
@@ -1119,17 +1120,17 @@ ExampleBunnysGPU.prototype = $extend(Example.prototype,{
 		this.peoteView.texturecache.setImage(0,"assets/peote_tiles.png",512,512);
 		this.peoteView.texturecache.setImage(1,"assets/peote_font_white.png",512,512);
 		this.peoteView.setDisplaylist({ displaylist : 0, type : 9, enable : true, max_elements : this.max_bunnys, max_programs : 1, buffer_segment_size : this.max_bunnys, z : 0});
-		this.peoteView.setDisplaylist({ displaylist : 1, type : 8, enable : true, max_elements : 100, max_programs : 1, buffer_segment_size : 100, x : 240, y : 4, w : 1, h : 1, renderBackground : true, a : 0.8, r : 0.3, g : 0.2, z : 1});
-		this.peoteView.setDisplaylist({ displaylist : 2, type : 8, enable : true, max_elements : 100, max_programs : 1, buffer_segment_size : 100, x : 8, y : 4, w : 1, h : 1, renderBackground : true, a : 0.75, r : 0.25, z : 1});
-		this.peoteView.setDisplaylist({ displaylist : 3, type : 8, enable : true, max_elements : 100, max_programs : 1, buffer_segment_size : 100, x : 8, y : 34, w : 1, h : 1, renderBackground : true, a : 0.75, r : 0.2, z : 1});
-		this.peoteView.setDisplaylist({ displaylist : 4, type : 8, enable : true, max_elements : 100, max_programs : 1, buffer_segment_size : 100, x : 420, y : 4, w : 1, h : 1, renderBackground : true, a : 0.8, r : 0.25, z : 1});
+		this.peoteView.setDisplaylist({ displaylist : 1, type : 8, enable : true, max_elements : 8, max_programs : 1, buffer_segment_size : 8, x : 240, y : 4, w : 1, h : 1, renderBackground : true, a : 0.8, r : 0.3, g : 0.2, z : 1});
+		this.peoteView.setDisplaylist({ displaylist : 2, type : 8, enable : true, max_elements : 13, max_programs : 1, buffer_segment_size : 13, x : 8, y : 4, w : 1, h : 1, renderBackground : true, a : 0.75, r : 0.25, z : 1});
+		this.peoteView.setDisplaylist({ displaylist : 3, type : 8, enable : true, max_elements : 33, max_programs : 1, buffer_segment_size : 33, x : 8, y : 34, w : 1, h : 1, renderBackground : true, a : 0.75, r : 0.2, z : 1});
+		this.peoteView.setDisplaylist({ displaylist : 4, type : 8, enable : true, max_elements : 120, max_programs : 1, buffer_segment_size : 120, x : 460, y : 0, w : 1, h : 1, renderBackground : true, a : 0.8, r : 0.25, z : 1});
 		this.spawn_x = Math.floor(this.width / 2);
 		this.spawn_y = Math.floor(this.height / 2);
 		this.updateMaxSpawn();
 		this.spawnBunnys();
 		var fps_timer = new haxe.Timer(1000);
 		fps_timer.run = $bind(this,this.refreshFPS);
-		this.txtOutput(4,"cursor up/down and space to control spawning,\nmouse-wheel to zoom",-1146456099,14,-6);
+		this.txtOutput(4,"up/down:    amount of tiles\n" + "left/right: spawn-time\n" + "space:      stop/resume\n" + "mouse-wheel:zoom in/out",-1146456099,14,-6);
 	}
 	,spawnBunnys: function() {
 		if(this.max_spawn > 0) {
@@ -1160,7 +1161,7 @@ ExampleBunnysGPU.prototype = $extend(Example.prototype,{
 			}
 		} else this.pause = true;
 		this.txtOutput(2,"tiles:" + this.bunny_nr);
-		if(!this.pause) haxe.Timer.delay($bind(this,this.spawnBunnys),200);
+		if(!this.pause) haxe.Timer.delay($bind(this,this.spawnBunnys),Math.floor(1 / this.spawn_time * 1000));
 	}
 	,refreshFPS: function() {
 		this.txtOutput(1,"fps: " + this.frames);
@@ -1203,11 +1204,27 @@ ExampleBunnysGPU.prototype = $extend(Example.prototype,{
 				this.spawnBunnys();
 			}
 			break;
+		case 1073741903:
+			if(this.spawn_time < 60) this.spawn_time += 1;
+			this.updateMaxSpawn();
+			if(this.pause) {
+				this.pause = false;
+				this.spawnBunnys();
+			}
+			break;
+		case 1073741904:
+			if(this.spawn_time > 1) this.spawn_time -= 1;
+			this.updateMaxSpawn();
+			if(this.pause) {
+				this.pause = false;
+				this.spawnBunnys();
+			}
+			break;
 		default:
 		}
 	}
 	,updateMaxSpawn: function() {
-		if(this.max_spawn > 0) this.txtOutput(3,"spawn " + this.max_spawn * 5 + " tiles per second",1440555758); else if(this.max_spawn < 0) this.txtOutput(3,"kill " + (0 - this.max_spawn * 5) + " tiles per second",-8969473); else this.peoteView.setDisplaylist({ displaylist : 3, enable : false});
+		if(this.max_spawn > 0) this.txtOutput(3,"spawn " + this.max_spawn + " tiles in 1" + (this.spawn_time == 1?"":"/" + this.spawn_time) + " second",1440555758); else if(this.max_spawn < 0) this.txtOutput(3,"kill " + (0 - this.max_spawn) + " tiles in 1" + (this.spawn_time == 1?"":"/" + this.spawn_time) + " second",-8969473); else this.peoteView.setDisplaylist({ displaylist : 3, enable : false});
 	}
 	,onMouseDown: function(window,x,y,button) {
 		this.spawn_x = x | 0;
@@ -1221,19 +1238,18 @@ ExampleBunnysGPU.prototype = $extend(Example.prototype,{
 		var px = 0;
 		var py = 0;
 		var xmax = 0;
-		this.peoteView.delAllElement({ displaylist : d});
 		var _g1 = 0;
-		var _g = s.length;
+		var _g = this.peoteView.getDisplaylist({ displaylist : d}).max_elements;
 		while(_g1 < _g) {
 			var i = _g1++;
-			letter = HxOverrides.cca(s,i);
+			if(i < s.length) letter = HxOverrides.cca(s,i); else letter = 0;
 			if(letter == 10) {
 				px = 0;
 				py += size;
 			} else {
 				this.peoteView.setElement({ element : i, program : 1, displaylist : d, x : 4 + px, y : 3 + py, w : size, h : size, image : 1, tile : letter, rgba : color});
 				px += size + gap;
-				xmax = Math.floor(Math.max(xmax,px));
+				if(i < s.length) xmax = Math.floor(Math.max(xmax,px));
 			}
 		}
 		this.peoteView.setDisplaylist({ displaylist : d, enable : true, w : xmax - gap + 8, h : py + size + 6});
@@ -1644,6 +1660,9 @@ de.peote.view.PeoteView.prototype = {
 			d["delete"]();
 		}
 	}
+	,getDisplaylist: function(param) {
+		return this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist];
+	}
 	,setProgram: function(program_nr,fsUrl,vsUrl) {
 		if(vsUrl == null) vsUrl = "";
 		if(fsUrl == null) fsUrl = "";
@@ -1658,18 +1677,18 @@ de.peote.view.PeoteView.prototype = {
 		this.texturecache.setImage(image_nr,imageUrl,w,h);
 	}
 	,setElement: function(param) {
-		if(param.element != null) this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist].setElement(param); else haxe.Log.trace("ERROR: no element specified",{ fileName : "PeoteView.hx", lineNumber : 225, className : "de.peote.view.PeoteView", methodName : "setElement"});
+		if(param.element != null) this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist].setElement(param); else haxe.Log.trace("ERROR: no element specified",{ fileName : "PeoteView.hx", lineNumber : 230, className : "de.peote.view.PeoteView", methodName : "setElement"});
 	}
 	,getElement: function(param) {
 		var p = { };
-		if(param.element != null) p = this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist].getElement(param.element); else haxe.Log.trace("ERROR: no element specified",{ fileName : "PeoteView.hx", lineNumber : 233, className : "de.peote.view.PeoteView", methodName : "getElement"});
+		if(param.element != null) p = this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist].getElement(param.element); else haxe.Log.trace("ERROR: no element specified",{ fileName : "PeoteView.hx", lineNumber : 238, className : "de.peote.view.PeoteView", methodName : "getElement"});
 		return p;
 	}
 	,hasElement: function(param) {
 		if(param.element == null) return false; else return this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist].hasElement(param.element);
 	}
 	,delElement: function(param) {
-		if(param.element != null) this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist].delElement(param.element); else haxe.Log.trace("ERROR: no element specified",{ fileName : "PeoteView.hx", lineNumber : 246, className : "de.peote.view.PeoteView", methodName : "delElement"});
+		if(param.element != null) this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist].delElement(param.element); else haxe.Log.trace("ERROR: no element specified",{ fileName : "PeoteView.hx", lineNumber : 251, className : "de.peote.view.PeoteView", methodName : "delElement"});
 	}
 	,delAllElement: function(param) {
 		this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist].delAllElement();
@@ -2033,16 +2052,18 @@ de.peote.view.displaylist.Displaylist = function(param,programCache,texturecache
 	this.x = 0;
 	this.next = this;
 	this.prev = this;
+	this.max_elements = 0;
 	this.type = 0;
 	this.texturecache = texturecache;
 	this.programCache = programCache;
 	this.type = param.type;
+	this.max_elements = param.max_elements;
 	if(param.z != null) this.z = param.z; else this.z = 0;
 	var this1;
 	this1 = new Array(param.max_elements);
 	this.element = this1;
-	haxe.Log.trace("max_segments: " + (Math.floor(param.max_elements / param.buffer_segment_size) + param.max_programs),{ fileName : "Displaylist.hx", lineNumber : 94, className : "de.peote.view.displaylist.Displaylist", methodName : "new"});
-	this.buffer = new de.peote.view.Buffer(param.buffer_segment_size,Math.floor(param.max_elements / param.buffer_segment_size) + param.max_programs);
+	haxe.Log.trace("max_segments: " + (Math.floor(this.max_elements / param.buffer_segment_size) + param.max_programs),{ fileName : "Displaylist.hx", lineNumber : 97, className : "de.peote.view.displaylist.Displaylist", methodName : "new"});
+	this.buffer = new de.peote.view.Buffer(param.buffer_segment_size,Math.floor(this.max_elements / param.buffer_segment_size) + param.max_programs);
 	this.elemBuff = js.Boot.__cast(new de.peote.view.displaylist.Displaylist.BUFFER(this.type,this.buffer) , de.peote.view.element.I_ElementBuffer);
 	programCache.addDisplaylist(this.type,this.elemBuff);
 };
@@ -2125,16 +2146,18 @@ de.peote.view.displaylist.Displaylist_de_peote_view_element_ElementAnim_de_peote
 	this.x = 0;
 	this.next = this;
 	this.prev = this;
+	this.max_elements = 0;
 	this.type = 0;
 	this.texturecache = texturecache;
 	this.programCache = programCache;
 	this.type = param.type;
+	this.max_elements = param.max_elements;
 	if(param.z != null) this.z = param.z; else this.z = 0;
 	var this1;
 	this1 = new Array(param.max_elements);
 	this.element = this1;
-	haxe.Log.trace("max_segments: " + (Math.floor(param.max_elements / param.buffer_segment_size) + param.max_programs),{ fileName : "Displaylist.hx", lineNumber : 94, className : "de.peote.view.displaylist.Displaylist", methodName : "new"});
-	this.buffer = new de.peote.view.Buffer(param.buffer_segment_size,Math.floor(param.max_elements / param.buffer_segment_size) + param.max_programs);
+	haxe.Log.trace("max_segments: " + (Math.floor(this.max_elements / param.buffer_segment_size) + param.max_programs),{ fileName : "Displaylist.hx", lineNumber : 97, className : "de.peote.view.displaylist.Displaylist", methodName : "new"});
+	this.buffer = new de.peote.view.Buffer(param.buffer_segment_size,Math.floor(this.max_elements / param.buffer_segment_size) + param.max_programs);
 	this.elemBuff = js.Boot.__cast(new de.peote.view.element.ElementAnimBuffer(this.type,this.buffer) , de.peote.view.element.I_ElementBuffer);
 	programCache.addDisplaylist(this.type,this.elemBuff);
 };
@@ -2217,16 +2240,18 @@ de.peote.view.displaylist.Displaylist_de_peote_view_element_ElementSimple_de_peo
 	this.x = 0;
 	this.next = this;
 	this.prev = this;
+	this.max_elements = 0;
 	this.type = 0;
 	this.texturecache = texturecache;
 	this.programCache = programCache;
 	this.type = param.type;
+	this.max_elements = param.max_elements;
 	if(param.z != null) this.z = param.z; else this.z = 0;
 	var this1;
 	this1 = new Array(param.max_elements);
 	this.element = this1;
-	haxe.Log.trace("max_segments: " + (Math.floor(param.max_elements / param.buffer_segment_size) + param.max_programs),{ fileName : "Displaylist.hx", lineNumber : 94, className : "de.peote.view.displaylist.Displaylist", methodName : "new"});
-	this.buffer = new de.peote.view.Buffer(param.buffer_segment_size,Math.floor(param.max_elements / param.buffer_segment_size) + param.max_programs);
+	haxe.Log.trace("max_segments: " + (Math.floor(this.max_elements / param.buffer_segment_size) + param.max_programs),{ fileName : "Displaylist.hx", lineNumber : 97, className : "de.peote.view.displaylist.Displaylist", methodName : "new"});
+	this.buffer = new de.peote.view.Buffer(param.buffer_segment_size,Math.floor(this.max_elements / param.buffer_segment_size) + param.max_programs);
 	this.elemBuff = js.Boot.__cast(new de.peote.view.element.ElementSimpleBuffer(this.type,this.buffer) , de.peote.view.element.I_ElementBuffer);
 	programCache.addDisplaylist(this.type,this.elemBuff);
 };
@@ -2348,7 +2373,7 @@ $hxClasses["de.peote.view.element.ElementAnim"] = de.peote.view.element.ElementA
 de.peote.view.element.ElementAnim.__name__ = true;
 de.peote.view.element.ElementAnim.__interfaces__ = [de.peote.view.element.I_Element];
 de.peote.view.element.ElementAnim.prototype = {
-	set: function(bufferElement,param,texturecache) {
+	set: function(elemBuff,param,texturecache) {
 		if(param.x == null) param.x = this.x;
 		if(param.y == null) param.y = this.y;
 		if(param.w == null) param.w = this.w;
@@ -2391,7 +2416,7 @@ de.peote.view.element.ElementAnim.prototype = {
 			param.tw = Math.floor(param.tw / 16);
 			param.th = Math.floor(param.th / 16);
 		}
-		bufferElement.set(this,param);
+		elemBuff.set(this,param);
 		this.x = param.end.x;
 		this.y = param.end.y;
 		this.z = param.z;
@@ -2406,8 +2431,8 @@ de.peote.view.element.ElementAnim.prototype = {
 		this.act_program = a;
 		this.buf_pos = b;
 	}
-	,del: function(bufferElement,texturecache) {
-		bufferElement.del(this);
+	,del: function(elemBuff,texturecache) {
+		elemBuff.del(this);
 		if(this.image != -1) texturecache.unUseImage(this.image);
 	}
 	,__class__: de.peote.view.element.ElementAnim
