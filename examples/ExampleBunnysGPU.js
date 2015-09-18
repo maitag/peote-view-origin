@@ -41,6 +41,10 @@ ApplicationMain.create = function() {
 	types.push("IMAGE");
 	urls.push("assets/peote_tiles.png");
 	types.push("IMAGE");
+	urls.push("assets/peote_tiles_bunnys.png");
+	types.push("IMAGE");
+	urls.push("assets/peote_tiles_flowers_alpha.png");
+	types.push("IMAGE");
 	if(ApplicationMain.config.assetsPrefix != null) {
 		var _g1 = 0;
 		var _g = urls.length;
@@ -52,7 +56,7 @@ ApplicationMain.create = function() {
 	ApplicationMain.preloader.load(urls,types);
 };
 ApplicationMain.main = function() {
-	ApplicationMain.config = { build : "298", company : "Sylvio Sell - maitag", file : "ExampleBunnysGPU", fps : 60, name : "peote_view", orientation : "", packageName : "de.peote.view", version : "0.1.5", windows : [{ antialiasing : 4, background : 16777215, borderless : false, depthBuffer : true, display : 0, fullscreen : false, hardware : true, height : 0, parameters : "{}", resizable : true, stencilBuffer : false, title : "peote_view", vsync : true, width : 0, x : null, y : null}]};
+	ApplicationMain.config = { build : "356", company : "Sylvio Sell - maitag", file : "ExampleBunnysGPU", fps : 60, name : "peote_view", orientation : "", packageName : "de.peote.view", version : "0.1.5", windows : [{ antialiasing : 4, background : 16777215, borderless : false, depthBuffer : true, display : 0, fullscreen : false, hardware : true, height : 0, parameters : "{}", resizable : true, stencilBuffer : false, title : "peote_view", vsync : true, width : 0, x : null, y : null}]};
 };
 ApplicationMain.start = function() {
 	var result = ApplicationMain.app.exec();
@@ -170,6 +174,12 @@ var DefaultAssetLibrary = function() {
 	this.path.set(id,id);
 	this.type.set(id,"IMAGE");
 	id = "assets/peote_tiles.png";
+	this.path.set(id,id);
+	this.type.set(id,"IMAGE");
+	id = "assets/peote_tiles_bunnys.png";
+	this.path.set(id,id);
+	this.type.set(id,"IMAGE");
+	id = "assets/peote_tiles_flowers_alpha.png";
 	this.path.set(id,id);
 	this.type.set(id,"IMAGE");
 	var assetsPrefix = null;
@@ -1099,6 +1109,7 @@ Example.prototype = $extend(lime.app.Application.prototype,{
 });
 var ExampleBunnysGPU = function() {
 	this.pause = false;
+	this.tile_size = 8;
 	this.spawn_time = 1;
 	this.max_spawn = 100;
 	this.max_bunnys = 1000000;
@@ -1114,23 +1125,25 @@ ExampleBunnysGPU.__super__ = Example;
 ExampleBunnysGPU.prototype = $extend(Example.prototype,{
 	run: function() {
 		this.startTime = haxe.Timer.stamp();
-		this.peoteView = new de.peote.view.PeoteView(10,10);
+		this.peoteView = new de.peote.view.PeoteView(10,2);
 		this.peoteView.programCache.setShaderSrc(0,"","\tprecision mediump float;\r\n\r\n\t\t// always twice if time dependend\r\n\t\tattribute vec4 aPosition;\r\n\t\tattribute vec2 aTime;\r\n\t\t\r\n\t\tattribute float aZindex;\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = 255.0/aRGBA;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\r\n\t\t\tvec2 VertexPosStart = vec2( aPosition );\r\n\t\t\tvec2 VertexPosEnd   = vec2 (aPosition.z, aPosition.w);\r\n\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tfloat x = VertexPosStart.x + floor( \r\n\t\t\t\t\t\t\t\t(VertexPosEnd.x - VertexPosStart.x)\r\n\t\t\t\t\t\t\t\t* (uTime-aTime.x) / (aTime.y - aTime.x)\r\n\t\t\t\t\t\t\t\t* zoom) / zoom;\r\n\t\t\tfloat swapX = mod(floor(x / width), 2.0);\r\n\r\n\t\t\tfloat y = VertexPosStart.y + floor( \r\n\t\t\t\t\t\t\t\t(VertexPosEnd.y - VertexPosStart.y)\r\n\t\t\t\t\t\t\t\t* (uTime-aTime.x) / (aTime.y - aTime.x)\r\n\t\t\t\t\t\t\t\t* zoom) / zoom;\r\n\t\t\tfloat swapY = mod(floor(y / height), 2.0);\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t* vec4 ( swapX * (width - mod(x, width)) + (1.0 - swapX) * mod(x, width),\r\n\t\t\t\t swapY * (height - mod(y, height)) + (1.0 - swapY) * mod(y, height),\r\n\t\t\t\t aZindex, 1.0 );\r\n\t\t}\r\n\t");
 		this.peoteView.programCache.loadShaderSrc(1,"","");
-		this.peoteView.texturecache.setImage(0,"assets/peote_tiles.png",512,512);
+		this.peoteView.texturecache.setImage(0,"assets/peote_tiles_flowers_alpha.png",512,512);
 		this.peoteView.texturecache.setImage(1,"assets/peote_font_white.png",512,512);
 		this.peoteView.setDisplaylist({ displaylist : 0, type : 9, enable : true, max_elements : this.max_bunnys, max_programs : 1, buffer_segment_size : this.max_bunnys, z : 0});
-		this.peoteView.setDisplaylist({ displaylist : 1, type : 8, enable : true, max_elements : 8, max_programs : 1, buffer_segment_size : 8, x : 240, y : 4, w : 1, h : 1, renderBackground : true, a : 0.8, r : 0.3, g : 0.2, z : 1});
-		this.peoteView.setDisplaylist({ displaylist : 2, type : 8, enable : true, max_elements : 13, max_programs : 1, buffer_segment_size : 13, x : 8, y : 4, w : 1, h : 1, renderBackground : true, a : 0.75, r : 0.25, z : 1});
+		this.peoteView.setDisplaylist({ displaylist : 1, type : 8, enable : true, max_elements : 8, max_programs : 1, buffer_segment_size : 8, x : 310, y : 4, w : 1, h : 1, renderBackground : true, a : 0.8, r : 0.3, g : 0.2, z : 1});
+		this.peoteView.setDisplaylist({ displaylist : 2, type : 8, enable : true, max_elements : 7, max_programs : 1, buffer_segment_size : 7, x : 190, y : 4, w : 1, h : 1, renderBackground : true, a : 0.75, r : 0.25, z : 1});
 		this.peoteView.setDisplaylist({ displaylist : 3, type : 8, enable : true, max_elements : 33, max_programs : 1, buffer_segment_size : 33, x : 8, y : 34, w : 1, h : 1, renderBackground : true, a : 0.75, r : 0.2, z : 1});
-		this.peoteView.setDisplaylist({ displaylist : 4, type : 8, enable : true, max_elements : 120, max_programs : 1, buffer_segment_size : 120, x : 460, y : 0, w : 1, h : 1, renderBackground : true, a : 0.8, r : 0.25, z : 1});
+		this.peoteView.setDisplaylist({ displaylist : 4, type : 8, enable : true, max_elements : 200, max_programs : 1, buffer_segment_size : 200, x : 460, y : 0, w : 1, h : 1, renderBackground : true, a : 0.8, r : 0.25, z : 1});
+		this.peoteView.setDisplaylist({ displaylist : 5, type : 8, enable : true, max_elements : 12, max_programs : 1, buffer_segment_size : 12, x : 8, y : 4, w : 1, h : 1, renderBackground : true, a : 0.75, r : 0.25, z : 1});
 		this.spawn_x = Math.floor(this.width / 2);
 		this.spawn_y = Math.floor(this.height / 2);
 		this.updateMaxSpawn();
 		this.spawnBunnys();
 		var fps_timer = new haxe.Timer(1000);
 		fps_timer.run = $bind(this,this.refreshFPS);
-		this.txtOutput(4,"up/down:    amount of tiles\n" + "left/right: spawn-time\n" + "space:      stop/resume\n" + "mouse-wheel:zoom in/out",-1146456099,14,-6);
+		this.txtOutput(4,"up/down:    amount of tiles\n" + "left/right: spawn-time\n" + "space:      stop/resume\n" + "n/m:        tile size\n" + "1-3:        tilesheed image\n" + "a:          alpha on/off\n" + "mouse-wheel:zoom in/out",-1146456099,14,-6);
+		this.txtOutput(5,this.tile_size + "x" + this.tile_size + "-tiles:");
 	}
 	,spawnBunnys: function() {
 		if(this.max_spawn > 0) {
@@ -1145,7 +1158,7 @@ ExampleBunnysGPU.prototype = $extend(Example.prototype,{
 					this.updateMaxSpawn();
 					break;
 				}
-				this.peoteView.setElement({ element : this.bunny_nr++, program : 0, displaylist : 0, w : 8, h : 8, image : 0, tile : 1 + Math.floor(Math.random() * 31), start : { x : this.spawn_x, y : this.spawn_y, time : t}, end : { x : Math.floor(Math.random() * this.width), y : Math.floor(Math.random() * this.height), time : t + 5 + Math.floor(Math.random() * 10)}});
+				this.peoteView.setElement({ element : this.bunny_nr++, program : 0, displaylist : 0, w : this.tile_size, h : this.tile_size, image : 0, tile : 1 + Math.floor(Math.random() * 31), start : { x : this.spawn_x, y : this.spawn_y, time : t}, end : { x : Math.floor(Math.random() * this.width), y : Math.floor(Math.random() * this.height), time : t + 5 + Math.floor(Math.random() * 10)}});
 			}
 		} else if(this.max_spawn < 0) {
 			var _g2 = this.max_spawn;
@@ -1160,7 +1173,7 @@ ExampleBunnysGPU.prototype = $extend(Example.prototype,{
 				this.peoteView.delElement({ displaylist : 0, element : --this.bunny_nr});
 			}
 		} else this.pause = true;
-		this.txtOutput(2,"tiles:" + this.bunny_nr);
+		this.txtOutput(2,Std.string(this.bunny_nr));
 		if(!this.pause) haxe.Timer.delay($bind(this,this.spawnBunnys),Math.floor(1 / this.spawn_time * 1000));
 	}
 	,refreshFPS: function() {
@@ -1205,7 +1218,7 @@ ExampleBunnysGPU.prototype = $extend(Example.prototype,{
 			}
 			break;
 		case 1073741903:
-			if(this.spawn_time < 60) this.spawn_time += 1;
+			if(this.spawn_time < 60) this.spawn_time++;
 			this.updateMaxSpawn();
 			if(this.pause) {
 				this.pause = false;
@@ -1213,12 +1226,42 @@ ExampleBunnysGPU.prototype = $extend(Example.prototype,{
 			}
 			break;
 		case 1073741904:
-			if(this.spawn_time > 1) this.spawn_time -= 1;
+			if(this.spawn_time > 1) this.spawn_time--;
 			this.updateMaxSpawn();
 			if(this.pause) {
 				this.pause = false;
 				this.spawnBunnys();
 			}
+			break;
+		case 110:
+			if(this.tile_size > 1) {
+				this.tile_size--;
+				this.txtOutput(5,this.tile_size + "x" + this.tile_size + "-tiles:");
+			}
+			break;
+		case 109:
+			if(this.tile_size < 32) {
+				this.tile_size++;
+				this.txtOutput(5,this.tile_size + "x" + this.tile_size + "-tiles:");
+			}
+			break;
+		case 97:
+			if(this.peoteView.getDisplaylist({ displaylist : 0}).blend == 1) {
+				this.peoteView.setDisplaylist({ displaylist : 0, blend : 0});
+				haxe.Log.trace("BLEND MODE 0",{ fileName : "ExampleBunnysGPU.hx", lineNumber : 265, className : "ExampleBunnysGPU", methodName : "onKeyDown"});
+			} else {
+				this.peoteView.setDisplaylist({ displaylist : 0, blend : 1});
+				haxe.Log.trace("BLEND MODE 1",{ fileName : "ExampleBunnysGPU.hx", lineNumber : 266, className : "ExampleBunnysGPU", methodName : "onKeyDown"});
+			}
+			break;
+		case 49:
+			this.peoteView.texturecache.setImage(0,"assets/peote_tiles_flowers_alpha.png",512,512);
+			break;
+		case 50:
+			this.peoteView.texturecache.setImage(0,"assets/peote_tiles_bunnys.png",512,512);
+			break;
+		case 51:
+			this.peoteView.texturecache.setImage(0,"assets/peote_font_white.png",512,512);
 			break;
 		default:
 		}
@@ -1729,8 +1772,10 @@ de.peote.view.PeoteView.prototype = {
 			lime.graphics.opengl.GL.context.scissor(sx,height - sh - sy,sw,sh);
 			lime.graphics.opengl.GL.context.enable(2929);
 			lime.graphics.opengl.GL.context.depthFunc(515);
-			lime.graphics.opengl.GL.context.enable(3042);
-			lime.graphics.opengl.GL.context.blendFunc(770,771);
+			if(this.dl.blend != 0) {
+				lime.graphics.opengl.GL.context.enable(3042);
+				lime.graphics.opengl.GL.context.blendFunc(770,771);
+			} else lime.graphics.opengl.GL.context.disable(3042);
 			lime.graphics.opengl.GL.context.activeTexture(33984);
 			lime.graphics.opengl.GL.context.bindTexture(3553,this.texturecache.texture);
 			if(this.dl != this.startDisplaylist && this.dl.z != this.dl.prev.z) lime.graphics.opengl.GL.context.clear(256);
@@ -1993,7 +2038,7 @@ de.peote.view.ProgramCache.prototype = {
 			while( $it0.hasNext() ) {
 				var type = $it0.next();
 				if((type & 1) != 0) {
-					default_fs = "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE);\r\n\t\t\tif(texel.a < 0.5) discard;\r\n\t\t\tgl_FragColor = texel;\r\n\t\t}\r\n\t";
+					default_fs = "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE);\r\n\t\t\tif(texel.a < 0.5) discard; // TODO (z-order/blend mode!!!)\r\n\t\t\tgl_FragColor = texel;\r\n\t\t}\r\n\t";
 					default_vs = "\tprecision mediump float;\r\n\r\n\t\t// always twice if time dependend\r\n\t\tattribute vec4 aPosition;\r\n\t\tattribute vec2 aTime;\r\n\t\t\r\n\t\tattribute float aZindex;\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = 255.0/aRGBA;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\r\n\t\t\tvec2 VertexPosStart = vec2( aPosition ); //vec2 (aPosition.x, aPosition.y);\r\n\t\t\tvec2 VertexPosEnd   = vec2 (aPosition.z, aPosition.w);\r\n\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (VertexPosStart + floor( \r\n\t\t\t\t\t\t\t\t(VertexPosEnd - VertexPosStart)\r\n\t\t\t\t\t\t\t\t* max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0))\r\n\t\t\t\t\t\t\t\t* zoom) / zoom\r\n\t\t\t\t, aZindex ,1.0);\r\n\t\t}\r\n\t";
 				} else {
 					default_fs = "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t#if_RGBA\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE );\r\n\t\t\tif(texel.a < 0.5) discard;\r\n\t\t\t#if_RGBA\r\n\t\t\tgl_FragColor = texel * vRGBA;\r\n\t\t\t#else_RGBA\r\n\t\t\tgl_FragColor = texel;\r\n\t\t\t#end_RGBA\r\n\t\t}\r\n\t";
@@ -2042,10 +2087,11 @@ de.peote.view.displaylist.Displaylist = function(param,programCache,texturecache
 	this.b = 0.0;
 	this.g = 0.0;
 	this.r = 0.0;
-	this.z = 0;
+	this.blend = 1;
+	this.zoom = 1;
 	this.yOffset = 0;
 	this.xOffset = 0;
-	this.zoom = 1;
+	this.z = 0;
 	this.h = 0;
 	this.w = 0;
 	this.y = 0;
@@ -2062,7 +2108,7 @@ de.peote.view.displaylist.Displaylist = function(param,programCache,texturecache
 	var this1;
 	this1 = new Array(param.max_elements);
 	this.element = this1;
-	haxe.Log.trace("max_segments: " + (Math.floor(this.max_elements / param.buffer_segment_size) + param.max_programs),{ fileName : "Displaylist.hx", lineNumber : 97, className : "de.peote.view.displaylist.Displaylist", methodName : "new"});
+	haxe.Log.trace("max_segments: " + (Math.floor(this.max_elements / param.buffer_segment_size) + param.max_programs),{ fileName : "Displaylist.hx", lineNumber : 99, className : "de.peote.view.displaylist.Displaylist", methodName : "new"});
 	this.buffer = new de.peote.view.Buffer(param.buffer_segment_size,Math.floor(this.max_elements / param.buffer_segment_size) + param.max_programs);
 	this.elemBuff = js.Boot.__cast(new de.peote.view.displaylist.Displaylist.BUFFER(this.type,this.buffer) , de.peote.view.element.I_ElementBuffer);
 	programCache.addDisplaylist(this.type,this.elemBuff);
@@ -2081,9 +2127,10 @@ de.peote.view.displaylist.Displaylist.prototype = {
 		if(param.y != null) this.y = param.y;
 		if(param.w != null) this.w = param.w;
 		if(param.h != null) this.h = param.h;
-		if(param.zoom != null) this.zoom = param.zoom;
 		if(param.xOffset != null) this.xOffset = param.xOffset;
 		if(param.yOffset != null) this.yOffset = param.yOffset;
+		if(param.zoom != null) this.zoom = param.zoom;
+		if(param.blend != null) this.blend = param.blend;
 		if(param.r != null) this.r = param.r;
 		if(param.g != null) this.g = param.g;
 		if(param.b != null) this.b = param.b;
@@ -2136,10 +2183,11 @@ de.peote.view.displaylist.Displaylist_de_peote_view_element_ElementAnim_de_peote
 	this.b = 0.0;
 	this.g = 0.0;
 	this.r = 0.0;
-	this.z = 0;
+	this.blend = 1;
+	this.zoom = 1;
 	this.yOffset = 0;
 	this.xOffset = 0;
-	this.zoom = 1;
+	this.z = 0;
 	this.h = 0;
 	this.w = 0;
 	this.y = 0;
@@ -2156,7 +2204,7 @@ de.peote.view.displaylist.Displaylist_de_peote_view_element_ElementAnim_de_peote
 	var this1;
 	this1 = new Array(param.max_elements);
 	this.element = this1;
-	haxe.Log.trace("max_segments: " + (Math.floor(this.max_elements / param.buffer_segment_size) + param.max_programs),{ fileName : "Displaylist.hx", lineNumber : 97, className : "de.peote.view.displaylist.Displaylist", methodName : "new"});
+	haxe.Log.trace("max_segments: " + (Math.floor(this.max_elements / param.buffer_segment_size) + param.max_programs),{ fileName : "Displaylist.hx", lineNumber : 99, className : "de.peote.view.displaylist.Displaylist", methodName : "new"});
 	this.buffer = new de.peote.view.Buffer(param.buffer_segment_size,Math.floor(this.max_elements / param.buffer_segment_size) + param.max_programs);
 	this.elemBuff = js.Boot.__cast(new de.peote.view.element.ElementAnimBuffer(this.type,this.buffer) , de.peote.view.element.I_ElementBuffer);
 	programCache.addDisplaylist(this.type,this.elemBuff);
@@ -2175,9 +2223,10 @@ de.peote.view.displaylist.Displaylist_de_peote_view_element_ElementAnim_de_peote
 		if(param.y != null) this.y = param.y;
 		if(param.w != null) this.w = param.w;
 		if(param.h != null) this.h = param.h;
-		if(param.zoom != null) this.zoom = param.zoom;
 		if(param.xOffset != null) this.xOffset = param.xOffset;
 		if(param.yOffset != null) this.yOffset = param.yOffset;
+		if(param.zoom != null) this.zoom = param.zoom;
+		if(param.blend != null) this.blend = param.blend;
 		if(param.r != null) this.r = param.r;
 		if(param.g != null) this.g = param.g;
 		if(param.b != null) this.b = param.b;
@@ -2230,10 +2279,11 @@ de.peote.view.displaylist.Displaylist_de_peote_view_element_ElementSimple_de_peo
 	this.b = 0.0;
 	this.g = 0.0;
 	this.r = 0.0;
-	this.z = 0;
+	this.blend = 1;
+	this.zoom = 1;
 	this.yOffset = 0;
 	this.xOffset = 0;
-	this.zoom = 1;
+	this.z = 0;
 	this.h = 0;
 	this.w = 0;
 	this.y = 0;
@@ -2250,7 +2300,7 @@ de.peote.view.displaylist.Displaylist_de_peote_view_element_ElementSimple_de_peo
 	var this1;
 	this1 = new Array(param.max_elements);
 	this.element = this1;
-	haxe.Log.trace("max_segments: " + (Math.floor(this.max_elements / param.buffer_segment_size) + param.max_programs),{ fileName : "Displaylist.hx", lineNumber : 97, className : "de.peote.view.displaylist.Displaylist", methodName : "new"});
+	haxe.Log.trace("max_segments: " + (Math.floor(this.max_elements / param.buffer_segment_size) + param.max_programs),{ fileName : "Displaylist.hx", lineNumber : 99, className : "de.peote.view.displaylist.Displaylist", methodName : "new"});
 	this.buffer = new de.peote.view.Buffer(param.buffer_segment_size,Math.floor(this.max_elements / param.buffer_segment_size) + param.max_programs);
 	this.elemBuff = js.Boot.__cast(new de.peote.view.element.ElementSimpleBuffer(this.type,this.buffer) , de.peote.view.element.I_ElementBuffer);
 	programCache.addDisplaylist(this.type,this.elemBuff);
@@ -2269,9 +2319,10 @@ de.peote.view.displaylist.Displaylist_de_peote_view_element_ElementSimple_de_peo
 		if(param.y != null) this.y = param.y;
 		if(param.w != null) this.w = param.w;
 		if(param.h != null) this.h = param.h;
-		if(param.zoom != null) this.zoom = param.zoom;
 		if(param.xOffset != null) this.xOffset = param.xOffset;
 		if(param.yOffset != null) this.yOffset = param.yOffset;
+		if(param.zoom != null) this.zoom = param.zoom;
+		if(param.blend != null) this.blend = param.blend;
 		if(param.r != null) this.r = param.r;
 		if(param.g != null) this.g = param.g;
 		if(param.b != null) this.b = param.b;
@@ -2550,7 +2601,7 @@ de.peote.view.element.ElementAnimBuffer.prototype = {
 		lime.graphics.opengl.GL.context.bindBuffer(34962,null);
 	}
 	,getDefaultFragmentShaderSrc: function() {
-		return "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE);\r\n\t\t\tif(texel.a < 0.5) discard;\r\n\t\t\tgl_FragColor = texel;\r\n\t\t}\r\n\t";
+		return "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE);\r\n\t\t\tif(texel.a < 0.5) discard; // TODO (z-order/blend mode!!!)\r\n\t\t\tgl_FragColor = texel;\r\n\t\t}\r\n\t";
 	}
 	,getDefaultVertexShaderSrc: function() {
 		return "\tprecision mediump float;\r\n\r\n\t\t// always twice if time dependend\r\n\t\tattribute vec4 aPosition;\r\n\t\tattribute vec2 aTime;\r\n\t\t\r\n\t\tattribute float aZindex;\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = 255.0/aRGBA;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\r\n\t\t\tvec2 VertexPosStart = vec2( aPosition ); //vec2 (aPosition.x, aPosition.y);\r\n\t\t\tvec2 VertexPosEnd   = vec2 (aPosition.z, aPosition.w);\r\n\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (VertexPosStart + floor( \r\n\t\t\t\t\t\t\t\t(VertexPosEnd - VertexPosStart)\r\n\t\t\t\t\t\t\t\t* max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0))\r\n\t\t\t\t\t\t\t\t* zoom) / zoom\r\n\t\t\t\t, aZindex ,1.0);\r\n\t\t}\r\n\t";
@@ -14959,7 +15010,7 @@ de.peote.view.element.ElementAnimBuffer.PARAM_OFFSET = de.peote.view.element.Ele
 de.peote.view.element.ElementAnimBuffer.TEX_OFFSET = de.peote.view.element.ElementAnimBuffer.PARAM_OFFSET + de.peote.view.element.ElementAnimBuffer.PARAM_SIZE;
 de.peote.view.element.ElementAnimBuffer.VERTEX_STRIDE = de.peote.view.element.ElementAnimBuffer.TEX_OFFSET + 4;
 de.peote.view.element.ElementAnimBuffer.defaultVertexShaderSrc = "\tprecision mediump float;\r\n\r\n\t\t// always twice if time dependend\r\n\t\tattribute vec4 aPosition;\r\n\t\tattribute vec2 aTime;\r\n\t\t\r\n\t\tattribute float aZindex;\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = 255.0/aRGBA;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\r\n\t\t\tvec2 VertexPosStart = vec2( aPosition ); //vec2 (aPosition.x, aPosition.y);\r\n\t\t\tvec2 VertexPosEnd   = vec2 (aPosition.z, aPosition.w);\r\n\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (VertexPosStart + floor( \r\n\t\t\t\t\t\t\t\t(VertexPosEnd - VertexPosStart)\r\n\t\t\t\t\t\t\t\t* max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0))\r\n\t\t\t\t\t\t\t\t* zoom) / zoom\r\n\t\t\t\t, aZindex ,1.0);\r\n\t\t}\r\n\t";
-de.peote.view.element.ElementAnimBuffer.defaultFragmentShaderSrc = "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE);\r\n\t\t\tif(texel.a < 0.5) discard;\r\n\t\t\tgl_FragColor = texel;\r\n\t\t}\r\n\t";
+de.peote.view.element.ElementAnimBuffer.defaultFragmentShaderSrc = "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE);\r\n\t\t\tif(texel.a < 0.5) discard; // TODO (z-order/blend mode!!!)\r\n\t\t\tgl_FragColor = texel;\r\n\t\t}\r\n\t";
 de.peote.view.element.ElementSimpleBuffer.VERTEX_COUNT = 6;
 de.peote.view.element.ElementSimpleBuffer.defaultVertexShaderSrc = "\tprecision mediump float;\r\n\r\n\t\t// always twice if time dependend\r\n\t\tattribute vec2 aPosition;\r\n\t\t\r\n\t\t#if_ZINDEX\r\n\t\tattribute float aZindex;\r\n\t\t#end_ZINDEX\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = aRGBA.wzyx;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (aPosition ,\r\n\t\t\t\t#if_ZINDEX\r\n\t\t\t\taZindex\r\n\t\t\t\t#else_ZINDEX\r\n\t\t\t\t0.0\r\n\t\t\t\t#end_ZINDEX\r\n\t\t\t\t, 1.0\r\n\t\t\t\t);\r\n\t\t}\r\n\t";
 de.peote.view.element.ElementSimpleBuffer.defaultFragmentShaderSrc = "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t#if_RGBA\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE );\r\n\t\t\tif(texel.a < 0.5) discard;\r\n\t\t\t#if_RGBA\r\n\t\t\tgl_FragColor = texel * vRGBA;\r\n\t\t\t#else_RGBA\r\n\t\t\tgl_FragColor = texel;\r\n\t\t\t#end_RGBA\r\n\t\t}\r\n\t";
