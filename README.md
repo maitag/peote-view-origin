@@ -6,8 +6,8 @@ To use with javascript look [here](https://github.com/maitag/peoteView.js).
 
 ####Build [Samples](http://maitag.github.io/peote-view/)
 
-edit [peoteView.lime](https://github.com/maitag/peote-view/blob/master/peoteView.lime#L10)  
-build with:  
+uncomment sample in [peoteView.lime](https://github.com/maitag/peote-view/blob/master/peoteView.lime#L10)
+and build with:  
 `lime build peoteView.lime linux` (|android|windows|html5|...)
 
 
