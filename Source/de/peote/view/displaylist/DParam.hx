@@ -12,16 +12,17 @@ typedef DParam =
 	?max_elements:Int, ?max_programs:Int, ?buffer_segment_size:Int,
 	?x:Int,
 	?y:Int,
-	
 	?w:Int,
 	?h:Int,
-	
-	?zoom:Int,
+
+	?z:Int,
 	
 	?xOffset:Int,
 	?yOffset:Int,
 	
-	?z:Int,
+	?zoom:Int,
+	
+	?blend:Int,
 	
 	?r:Float,
 	?g:Float,

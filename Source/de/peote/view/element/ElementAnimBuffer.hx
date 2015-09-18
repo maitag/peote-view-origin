@@ -343,7 +343,7 @@ class ElementAnimBuffer implements I_ElementBuffer
 		void main(void)
 		{
 			vec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE);
-			if(texel.a < 0.5) discard;
+			if(texel.a < 0.5) discard; // TODO (z-order/blend mode!!!)
 			gl_FragColor = texel;
 		}
 	";

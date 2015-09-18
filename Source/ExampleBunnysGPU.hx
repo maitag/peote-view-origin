@@ -50,6 +50,7 @@ class ExampleBunnysGPU extends Example
 	var max_bunnys:Int = 1000000;
 	var max_spawn:Int = 100;
 	var spawn_time:Int = 1;
+	var tile_size:Int = 8;
 	var pause:Bool = false;
 	
 	var spawn_x:Int;
@@ -60,14 +61,14 @@ class ExampleBunnysGPU extends Example
 		// set Time
 		startTime = Timer.stamp();
 
-		peoteView = new PeoteView(10, 10); // max_displaylists, max_programs(for all displaylists -> TODO)
+		peoteView = new PeoteView(10, 2); // max_displaylists, max_programs(for all displaylists -> TODO)
 		
 		// set shaders
 		peoteView.setProgramSrc(0, '', vertexShaderSrc); // modified gpu-animation
 		peoteView.setProgram(1); // default image shader
 		
 		// set images
-		peoteView.setImage(0, "assets/peote_tiles.png", 512, 512);
+		peoteView.setImage(0, "assets/peote_tiles_flowers_alpha.png", 512, 512);
 		peoteView.setImage(1, "assets/peote_font_white.png", 512, 512);
 		
 		// Displaylist for massive tiles
@@ -82,15 +83,15 @@ class ExampleBunnysGPU extends Example
 		peoteView.setDisplaylist( { displaylist:1, type:DType.SIMPLE|DType.RGBA,
 			enable:true,
 			max_elements:8, max_programs:1, buffer_segment_size:8, // max 8 chars
-			x:240, y:4, w:1, h:1,
+			x:310, y:4, w:1, h:1,
 			renderBackground:true, a:0.8, r:0.3, g:0.2,
 			z:1
 		});
 		// Displaylist for tile-ammount
 		peoteView.setDisplaylist( { displaylist:2, type:DType.SIMPLE|DType.RGBA,
 			enable:true,
-			max_elements:13, max_programs:1, buffer_segment_size:13, // max 13 chars
-			x:8, y:4, w:1, h:1,
+			max_elements:7, max_programs:1, buffer_segment_size:7, // max 7 chars
+			x:190, y:4, w:1, h:1,
 			renderBackground:true, a:0.75, r:0.25,
 			z:1
 		});
@@ -105,9 +106,17 @@ class ExampleBunnysGPU extends Example
 		// Displaylist for info-text
 		peoteView.setDisplaylist( { displaylist:4, type:DType.SIMPLE|DType.RGBA,
 			enable:true,
-			max_elements:120, max_programs:1, buffer_segment_size:120, // max 120 chars
+			max_elements:200, max_programs:1, buffer_segment_size:200, // max 200 chars
 			x:460, y:0, w:1, h:1,
 			renderBackground:true, a:0.8,r:0.25,
+			z:1
+		});
+		// Displaylist for tile-size
+		peoteView.setDisplaylist( { displaylist:5, type:DType.SIMPLE|DType.RGBA,
+			enable:true,
+			max_elements:12, max_programs:1, buffer_segment_size:12, // max 12 chars
+			x:8, y:4, w:1, h:1,
+			renderBackground:true, a:0.75, r:0.25,
 			z:1
 		});
 		
@@ -124,9 +133,15 @@ class ExampleBunnysGPU extends Example
 			"up/down:    amount of tiles\n" +
 			"left/right: spawn-time\n" +
 			"space:      stop/resume\n" +
+			"n/m:        tile size\n" +
+			"1-3:        tilesheed image\n" +
+			"a:          alpha on/off\n" +
 			"mouse-wheel:zoom in/out",
 			0xbbaa77dd, 14, -6
 		);
+		
+		txtOutput(5, tile_size+"x" + tile_size+"-tiles:");
+		
 		//trace("START update_time: " + Math.round((Timer.stamp() - update_time) * 100000) / 100000);
 	}
 	
@@ -148,8 +163,8 @@ class ExampleBunnysGPU extends Example
 					element: bunny_nr++,
 					program:0,
 					displaylist:0,
-					w: 8,
-					h: 8,
+					w: tile_size,
+					h: tile_size,
 					image:0,
 					tile:1 + random(31),
 					//rgba: random(256) << 24 | random(256) << 16 | random(256) << 8 | 128+random(128), // not implemented yet for gpu animed tiles
@@ -181,7 +196,7 @@ class ExampleBunnysGPU extends Example
 		}
 		else pause = true;
 		
-		txtOutput(2, "tiles:" + bunny_nr);
+		txtOutput(2, Std.string(bunny_nr));
 		
 		if (!pause) Timer.delay(spawnBunnys, Math.floor(1/spawn_time*1000));
 	}
@@ -229,15 +244,30 @@ class ExampleBunnysGPU extends Example
 			case KeyCode.DOWN:
 				max_spawn -= 10;
 				updateMaxSpawn();
-				if (pause) {pause = false; spawnBunnys();}
+				if (pause) { pause = false; spawnBunnys(); }
+				
 			case KeyCode.RIGHT:
-				if (spawn_time<60) spawn_time += 1;
+				if (spawn_time<60) spawn_time++;
 				updateMaxSpawn();
 				if (pause) {pause = false; spawnBunnys();}
 			case KeyCode.LEFT:
-				if (spawn_time>1) spawn_time -= 1;
+				if (spawn_time>1) spawn_time--;
 				updateMaxSpawn();
-				if (pause) {pause = false; spawnBunnys();}
+				if (pause) { pause = false; spawnBunnys(); }
+				
+			case KeyCode.N:
+				if (tile_size > 1) {tile_size--; txtOutput(5, tile_size+"x" + tile_size+"-tiles:"); }
+			case KeyCode.M:
+				if (tile_size<32) { tile_size++; txtOutput(5, tile_size+"x" + tile_size+"-tiles:"); }
+				
+			case KeyCode.A:
+				if ( peoteView.getDisplaylist( { displaylist:0 } ).blend == 1)
+				     {peoteView.setDisplaylist( { displaylist:0, blend:0 } ); trace("BLEND MODE 0");}
+				else {peoteView.setDisplaylist( { displaylist:0, blend:1 } ); trace("BLEND MODE 1");}
+				
+			case KeyCode.NUMBER_1: peoteView.setImage(0, "assets/peote_tiles_flowers_alpha.png", 512, 512);
+			case KeyCode.NUMBER_2: peoteView.setImage(0, "assets/peote_tiles_bunnys.png", 512, 512);
+			case KeyCode.NUMBER_3: peoteView.setImage(0, "assets/peote_font_white.png", 512, 512);
 			default:
 		}
 	}

@@ -129,7 +129,8 @@ class Shader
 	";
 	*/
 	
-	// TODO: TextureCache.max_texture_size auch per Template dynamisch ersetzen!!!
+	// TODO: is inside elementTYPEbuffer.hx NOW!
+	/*
 	public static inline var default_vertexShaderSrc:String =
 	"	precision mediump float;
 
@@ -201,5 +202,5 @@ class Shader
 			gl_FragColor = texel;
 		}
 	";
-
+	*/
 }

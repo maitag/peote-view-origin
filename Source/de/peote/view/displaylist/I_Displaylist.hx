@@ -20,12 +20,14 @@ interface I_Displaylist
 	public var w:Int; // width
 	public var h:Int; // height
 	
-	public var zoom:Int; // zoom level
+	public var z:Int; // z order
 
 	public var xOffset:Int; // x Offset for all Elements
 	public var yOffset:Int; // y Offset for all Elements
 
-	public var z:Int; // z order
+	public var zoom:Int; // zoom level
+
+	public var blend:Int; // blend mode
 
 	public var r:Float; // red bg
 	public var g:Float; // green bg

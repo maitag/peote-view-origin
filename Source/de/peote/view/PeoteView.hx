@@ -309,13 +309,19 @@ class PeoteView
 			
 			GL.scissor(sx, height-sh-sy, sw, sh);
 			
-			GL.enable(GL.DEPTH_TEST); GL.depthFunc(GL.LEQUAL); //GL.depthFunc(GL.LESS);
+			// TODO TODO -> depends on blend (and hardware diff webgl/cpp)
+			//if (dl.blend == 0) {
+				GL.enable(GL.DEPTH_TEST); GL.depthFunc(GL.LEQUAL); //GL.depthFunc(GL.LESS);
+			//} else {GL.disable(GL.DEPTH_TEST);}
 			// TODO: alpha (+ filter?) je nach dl
 			
 			//GL.enable(GL.TEXTURE_2D);
 			
-			// alpha blend
-			GL.enable(GL.BLEND); GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
+			// alpha blend -> TODO
+			if (dl.blend != 0) {
+				GL.enable(GL.BLEND); GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
+			} else {GL.disable(GL.BLEND);}
+			
 			
 			// Texture
 			GL.activeTexture (GL.TEXTURE0);
