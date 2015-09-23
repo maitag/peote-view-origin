@@ -29,6 +29,7 @@
 package de.peote.view.element;
 
 import de.peote.view.ProgramCache;
+import de.peote.view.displaylist.DType;
 
 import lime.graphics.opengl.GL;
 import lime.graphics.opengl.GLBuffer;
@@ -46,17 +47,40 @@ class ElementAnimBuffer implements I_ElementBuffer
 		
 	var emptyBuffFull:BufferData;
 	var buffFull:BufferData;
-	
+	/*
 	var buffTex_0:BufferData;
 	var buffTex_1:BufferData;
 	var buffTex_2:BufferData;
 	var buffTex_3:BufferData;
-	
+	*/
 	var type:Int;
+	
+	var ZINDEX_OFFSET:Int;
+	var RGBA_OFFSET:Int;
+	var TIME_OFFSET:Int;
+	var TEX_OFFSET:Int;
+	var VERTEX_STRIDE:Int;
+
+	var fill_bytes:Bool = false;
 	
 	public function new(t:Int, b:Buffer)
 	{	
 		type = t;
+		
+		
+		var offset = 8;
+		if (type & DType.ZINDEX != 0) { ZINDEX_OFFSET = offset; offset += 4;  } 
+		if (type & DType.RGBA != 0)   { RGBA_OFFSET   = offset; offset += 8;  } 
+		TIME_OFFSET   = offset; offset += 8;
+		TEX_OFFSET    = offset; offset += 4;
+		VERTEX_STRIDE = offset;
+		if (VERTEX_STRIDE % 8 != 0) {
+			//trace("VERTEX_STRIDE not dividable by 8 "+VERTEX_STRIDE);
+			VERTEX_STRIDE += 4;			 //VERTEX_STRIDE % 8;
+			fill_bytes = true;
+		}
+		//trace("VERTEX_STRIDE "+VERTEX_STRIDE);
+		
 		var full = new BufferData(b.max_segments * b.segment_size * VERTEX_COUNT * VERTEX_STRIDE);
 
 		// create new opengl buffer 
@@ -80,7 +104,7 @@ class ElementAnimBuffer implements I_ElementBuffer
 	{
 		GL.deleteBuffer(glBuff);
 	}
-		
+	/*	
 	public static var ANIM_PARAM_SIZE  :Int = 8; // aPosition,       4, GL.SHORT
 	public static var PARAM_SIZE       :Int = 4; // aZindex,         1, GL.FLOAT
 	
@@ -89,57 +113,55 @@ class ElementAnimBuffer implements I_ElementBuffer
 	public static var TEX_OFFSET       :Int = PARAM_OFFSET + PARAM_SIZE;
 	
 	public static var VERTEX_STRIDE :Int = TEX_OFFSET + 4; // + aTexCoord,       2, GL.SHORT
-	
+	*/
 	public inline function disableVertexAttributes():Void
 	{
 		GL.disableVertexAttribArray (attr.get(Program.aPOSITION));
+		if (type & DType.ZINDEX != 0) GL.disableVertexAttribArray (attr.get(Program.aZINDEX));
+		if (type & DType.RGBA != 0) {
+			GL.disableVertexAttribArray (attr.get(Program.aRGBA));
+			GL.disableVertexAttribArray (attr.get(Program.aRGBA_END));
+		}
 		GL.disableVertexAttribArray (attr.get(Program.aTIME));
-		GL.disableVertexAttribArray (attr.get(Program.aZINDEX));
 		GL.disableVertexAttribArray (attr.get(Program.aTEXTCOORD));
 	}
 	public inline function setVertexAttributes():Void
 	{		
 		// vertexAttribPointers
 		GL.enableVertexAttribArray (attr.get(Program.aPOSITION));
+		if (type & DType.ZINDEX != 0) GL.enableVertexAttribArray (attr.get(Program.aZINDEX));
+		if (type & DType.RGBA   != 0) {
+			GL.enableVertexAttribArray (attr.get(Program.aRGBA));
+			GL.enableVertexAttribArray (attr.get(Program.aRGBA_END));
+		}
 		GL.enableVertexAttribArray (attr.get(Program.aTIME));
-		GL.enableVertexAttribArray (attr.get(Program.aZINDEX));
 		GL.enableVertexAttribArray (attr.get(Program.aTEXTCOORD));
 		
-		GL.vertexAttribPointer (attr.get(Program.aPOSITION), 4, GL.SHORT, false, VERTEX_STRIDE, 0   );
-		//GL.vertexAttribPointer (Program.aRGBA,    2, GL.UNSIGNED_SHORT,false, VERTEX_STRIDE, +4  );
-		//GL.vertexAttribPointer (Program.aScale,   2, GL.SHORT        , false, VERTEX_STRIDE, +8  );
-		//GL.vertexAttribPointer (Program.aRotation,2, GL.SHORT        , false, VERTEX_STRIDE, +12 );
-		//kein TREE: GL.vertexAttribPointer (Program.aTile,      2, GL.UNSIGNED_SHORT,false, VERTEX_STRIDE, +16  );
+		GL.vertexAttribPointer (attr.get(Program.aPOSITION), 4, GL.SHORT, false, VERTEX_STRIDE, 0 );
+		if (type & DType.ZINDEX != 0) GL.vertexAttribPointer (attr.get(Program.aZINDEX), 1, GL.FLOAT, false, VERTEX_STRIDE, ZINDEX_OFFSET );
+		if (type & DType.RGBA != 0) {
+			GL.vertexAttribPointer (attr.get(Program.aRGBA),    4, GL.UNSIGNED_BYTE,  true, VERTEX_STRIDE, RGBA_OFFSET );
+			GL.vertexAttribPointer (attr.get(Program.aRGBA_END),4, GL.UNSIGNED_BYTE,  true, VERTEX_STRIDE, RGBA_OFFSET + 4 );
+		}
+		//if (type & DType.ROTATION != 0) GL.vertexAttribPointer (attr.get(Program.aROTATION),  2, GL.SHORT, false, VERTEX_STRIDE, +12 );
+		//if (type & DType.PIVOT != 0)    GL.vertexAttribPointer (attr.get(Program.aPIVOT),     2, GL.SHORT, false, VERTEX_STRIDE, +16  );
+		//if (type & DType.TILE != 0)     GL.vertexAttribPointer (Program.aTile,   2, GL.UNSIGNED_SHORT,false, VERTEX_STRIDE, +16  );
+		//if (type & DType.PARAM_A != 0)  GL.vertexAttribPointer (attr.get(Program.aPARAM_A),   2, GL.SHORT, false, VERTEX_STRIDE, PARAM_OFFSET+4 );
 		
 		GL.vertexAttribPointer (attr.get(Program.aTIME),     2, GL.FLOAT, false, VERTEX_STRIDE, TIME_OFFSET );
 		
-		// GL.vertexAttribPointer (Program.aPivot,       2, GL.SHORT, false, VERTEX_STRIDE, TREE_PARAM_OFFSET+8);
-		GL.vertexAttribPointer (attr.get(Program.aZINDEX),   1, GL.FLOAT, false, VERTEX_STRIDE, PARAM_OFFSET);
-		// GL.vertexAttribPointer (Program.aParam,       2, GL.SHORT, false, VERTEX_STRIDE, PARAM_OFFSET+4 );
-		GL.vertexAttribPointer (attr.get(Program.aTEXTCOORD),2, GL.SHORT, false, VERTEX_STRIDE, TEX_OFFSET );// TODO: evtl. optimize mit medium_float
+		GL.vertexAttribPointer (attr.get(Program.aTEXTCOORD),2, GL.SHORT, false, VERTEX_STRIDE, TEX_OFFSET );// better medium_float?
 		// damit stride hinhaut einfach VERTEX_STRIDE erhoehen wenn noetig
 	}
 
-	public inline function bufferDataFull( x_start:Int,   y_start:Int,
-	                                       x_end:Int,     y_end:Int,
-	                                       t_start:Float, t_end:Float,
-										   z:Int,
-	                                       tx:Int,        ty:Int ):Void
-	{
-		buffFull.write_2_Short( x_start, y_start ); // VERTEX_POSITION_START
-		buffFull.write_2_Short( x_end,   y_end   ); // VERTEX_POSITION_END
-		buffFull.write_2_Float( t_start, t_end   ); // TIME START, END
-		buffFull.write_1_Float( z );                // Z INDEX
-		buffFull.write_2_Short( tx, ty );           // TEXT COORD 
-	}
-
+	/*
 	public inline function bufferDataTex( b:BufferData, tx:Int, ty:Int ):Void
 	{
 		b.setByteOffset( 0 );
 		b.write_2_Short( tx, ty );               // TEXT COORD 
 		b.setByteOffset( 0 );
 	}
-	
+	*/
 	public inline function del(e:I_Element):Void
 	{
 		GL.bindBuffer (GL.ARRAY_BUFFER, glBuff);
@@ -164,11 +186,13 @@ class ElementAnimBuffer implements I_ElementBuffer
 		var xw2:Int = x2 + param.end.w;
 		var yh2:Int = y2 + param.end.h;
 		
+		var rgba1:Int = param.start.rgba;
+		var rgba2:Int = param.end.rgba;
+		
 		var t1:Float = param.start.time;
 		var t2:Float = param.end.time;
 
 		// static
-		
 		var z:Int = param.z;
 
 		var tx:Int = param.tx;
@@ -178,48 +202,87 @@ class ElementAnimBuffer implements I_ElementBuffer
 		
 		
 		buffFull.setByteOffset( 0 );
-		bufferDataFull(
-			xw1,  yh1, // VERTEX_START 
-			xw2,  yh2, // VERTEX_END
-			t1,   t2,  // TIME         
-			z,
-			txw, tyh   // TEXT COORD   
-		);
-		bufferDataFull(
-			xw1,  yh1, // VERTEX_START
-			xw2,  yh2, // VERTEX_END
-			t1,   t2,  // TIME         
-			z,
-			txw, tyh   // TEXT COORD  
-		);
-		bufferDataFull(
-			x1,  yh1,  // VERTEX_START 
-			x2,  yh2,  // VERTEX_END
-			t1,   t2,  // TIME         
-			z,
-			tx, tyh    // TEXT COORD   
-		);              
-		bufferDataFull( 
-			xw1,  y1,  // VERTEX_START 
-			xw2,  y2,  // VERTEX_END
-			t1,   t2,  // TIME         
-			z,
-			txw, ty    // TEXT COORD   
-		);              
-		bufferDataFull( 
-			x1,  y1,   // VERTEX_START 
-			x2,  y2,   // VERTEX_END
-			t1,  t2,   // TIME         
-			z,
-			tx, ty     // TEXT COORD   
-		);              
-		bufferDataFull( 
-			x1,  y1,   // VERTEX_START 
-			x2,  y2,   // VERTEX_END
-			t1,  t2,   // TIME         
-			z,
-			tx, ty     // TEXT COORD   
-		);
+		
+		
+		buffFull.write_2_Short( xw1, yh1 );	// VERTEX_POSITION_START
+		buffFull.write_2_Short( xw2, yh2 );	// VERTEX_POSITION_END
+		if (type & DType.ZINDEX != 0)
+			buffFull.write_1_Float( z ); 	// Z INDEX
+		if (type & DType.RGBA   != 0) {
+			buffFull.write_1_UInt( rgba1 ); // RGBA START
+			buffFull.write_1_UInt( rgba2 ); // RGBA END
+		}
+		buffFull.write_2_Float( t1, t2   ); // TIME
+		buffFull.write_2_Short( txw, tyh );	// TEXT COORD 
+		
+		if (fill_bytes) buffFull.write_1_Float( 0.0 ); // DUMMY
+		
+		buffFull.write_2_Short( xw1, yh1 );	// VERTEX_POSITION_START
+		buffFull.write_2_Short( xw2, yh2 );	// VERTEX_POSITION_END
+		if (type & DType.ZINDEX != 0)
+			buffFull.write_1_Float( z );	// Z INDEX
+		if (type & DType.RGBA   != 0) {
+			buffFull.write_1_UInt( rgba1 ); // RGBA START
+			buffFull.write_1_UInt( rgba2 ); // RGBA END
+		}
+		buffFull.write_2_Float( t1, t2   ); // TIME
+		buffFull.write_2_Short( txw, tyh );	// TEXT COORD 
+		
+		if (fill_bytes) buffFull.write_1_Float( 0.0 ); // DUMMY
+		
+		buffFull.write_2_Short( x1, yh1 );	// VERTEX_POSITION_START
+		buffFull.write_2_Short( x2, yh2 );	// VERTEX_POSITION_END
+		if (type & DType.ZINDEX != 0)
+			buffFull.write_1_Float( z );	// Z INDEX
+		if (type & DType.RGBA   != 0) {
+			buffFull.write_1_UInt( rgba1 ); // RGBA START
+			buffFull.write_1_UInt( rgba2 ); // RGBA END
+		}
+		buffFull.write_2_Float( t1, t2   ); // TIME
+		buffFull.write_2_Short( tx, tyh );	// TEXT COORD 
+		
+		if (fill_bytes) buffFull.write_1_Float( 0.0 ); // DUMMY
+		
+		buffFull.write_2_Short( xw1, y1 );	// VERTEX_POSITION_START
+		buffFull.write_2_Short( xw2, y2 );	// VERTEX_POSITION_END
+		if (type & DType.ZINDEX != 0)
+			buffFull.write_1_Float( z );	// Z INDEX
+		if (type & DType.RGBA   != 0) {
+			buffFull.write_1_UInt( rgba1 ); // RGBA START
+			buffFull.write_1_UInt( rgba2 ); // RGBA END
+		}
+		buffFull.write_2_Float( t1, t2   ); // TIME
+		buffFull.write_2_Short( txw, ty );	// TEXT COORD 
+		
+		if (fill_bytes) buffFull.write_1_Float( 0.0 ); // DUMMY
+		
+		buffFull.write_2_Short( x1, y1 );	// VERTEX_POSITION_START
+		buffFull.write_2_Short( x2, y2 );	// VERTEX_POSITION_END
+		if (type & DType.ZINDEX != 0)
+			buffFull.write_1_Float( z );	// Z INDEX
+		if (type & DType.RGBA   != 0) {
+			buffFull.write_1_UInt( rgba1 ); // RGBA START
+			buffFull.write_1_UInt( rgba2 ); // RGBA END
+		}
+		buffFull.write_2_Float( t1, t2   ); // TIME
+		buffFull.write_2_Short( tx, ty );	// TEXT COORD 
+		
+		if (fill_bytes) buffFull.write_1_Float( 0.0 ); // DUMMY
+		
+		buffFull.write_2_Short( x1, y1 );	// VERTEX_POSITION_START
+		buffFull.write_2_Short( x2, y2 );	// VERTEX_POSITION_END
+		if (type & DType.ZINDEX != 0)
+			buffFull.write_1_Float( z );	// Z INDEX
+		if (type & DType.RGBA   != 0) {
+			buffFull.write_1_UInt( rgba1 ); // RGBA START
+			buffFull.write_1_UInt( rgba2 ); // RGBA END
+		}
+		buffFull.write_2_Float( t1, t2   ); // TIME
+		buffFull.write_2_Short( tx, ty );	// TEXT COORD
+		
+		//if (fill_bytes) buffFull.write_1_Float( 0.0 ); // DUMMY
+
+		
 		buffFull.setByteOffset( 0 );
 		
 		GL.bindBuffer (GL.ARRAY_BUFFER, glBuff);
@@ -279,18 +342,22 @@ class ElementAnimBuffer implements I_ElementBuffer
 	public static inline var defaultVertexShaderSrc:String =
 	"	precision mediump float;
 
-		// always twice if time dependend
 		attribute vec4 aPosition;
-		attribute vec2 aTime;
 		
+		#if_ZINDEX
 		attribute float aZindex;
-		attribute vec2 aTexCoord;
+		#end_ZINDEX
 		
 		#if_RGBA
 		attribute vec4 aRGBA;
+		attribute vec4 aRGBA_END;
 		varying vec4 vRGBA;
 		#end_RGBA
-
+		
+		attribute vec2 aTime;
+		
+		attribute vec2 aTexCoord;
+		
 		varying vec2 vTexCoord;
 		
 		uniform float uTime;
@@ -300,7 +367,7 @@ class ElementAnimBuffer implements I_ElementBuffer
 		
 		void main(void) {
 			#if_RGBA
-			vRGBA = 255.0/aRGBA;
+			vRGBA = aRGBA.wzyx + (aRGBA_END.wzyx - aRGBA.wzyx) * max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0));	
 			#end_RGBA
 			
 			vTexCoord = aTexCoord;
@@ -328,14 +395,23 @@ class ElementAnimBuffer implements I_ElementBuffer
 			* vec4 (VertexPosStart + floor( 
 								(VertexPosEnd - VertexPosStart)
 								* max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0))
-								* zoom) / zoom
-				, aZindex ,1.0);
+								* zoom) / zoom,
+				#if_ZINDEX
+				aZindex
+				#else_ZINDEX
+				0.0
+				#end_ZINDEX
+				, 1.0
+				);
 		}
 	";
 	
 	public static inline var defaultFragmentShaderSrc:String =
 	"	precision mediump float;
 		varying vec2 vTexCoord;
+		#if_RGBA
+		varying vec4 vRGBA;
+		#end_RGBA
 		uniform sampler2D uImage;
 		
 		uniform vec2 uMouse, uResolution;
@@ -344,7 +420,11 @@ class ElementAnimBuffer implements I_ElementBuffer
 		{
 			vec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE);
 			if(texel.a < 0.5) discard; // TODO (z-order/blend mode!!!)
+			#if_RGBA
+			gl_FragColor = texel * vRGBA;
+			#else_RGBA
 			gl_FragColor = texel;
+			#end_RGBA
 		}
 	";
 }

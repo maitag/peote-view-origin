@@ -14,15 +14,12 @@ typedef Param =
 	?end:ParamAnim,
 	
 	?x:Int, ?y:Int, ?w:Int, ?h:Int,
-	?sx: Float, ?sy: Float,
 	?time:Float,
 	
 	?tx:Int, ?ty:Int, ?tw:Int, ?th:Int,
 	?z:Int, ?program:Int, ?image:Int, ?tile:Int,
 	
-	//?parent:Int,
-	
-	?rgba:UInt,
+	?rgba:Int, // UInt doesnt work in cpp
 	
 	?img:Image
 }
@@ -30,7 +27,7 @@ typedef Param =
 typedef ParamAnim =
 {
 	?x:Int, ?y:Int, ?w:Int, ?h:Int,
-	?sx: Float, ?sy: Float,
+	?rgba:Int, // UInt doesnt work in cpp
 	?time:Float,
 	?tile:Int,
 }

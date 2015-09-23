@@ -45,6 +45,7 @@ class ElementAnim implements I_Element
 	public var y:Int;
 	public var w:Int;
 	public var h:Int;
+	public var rgba:Int;
 	public var time:Float = 0.0;
 	
 	// not animated
@@ -61,6 +62,7 @@ class ElementAnim implements I_Element
 		w = PeoteView.elementDefaults.w;	
 		h = PeoteView.elementDefaults.h;	
 		z = PeoteView.elementDefaults.z;	
+		rgba = PeoteView.elementDefaults.rgba;	
 		//image = PeoteView.elementDefaults.image;	
 		//tile = PeoteView.elementDefaults.tile;	
 	}
@@ -81,6 +83,7 @@ class ElementAnim implements I_Element
 		if (param.y == null) param.y = y;
 		if (param.w == null) param.w = w;
 		if (param.h == null) param.h = h;
+		if (param.rgba == null) param.rgba = rgba;
 		if (param.time == null) param.time = time;
 		
 		if (param.start == null) param.start = {};
@@ -89,6 +92,7 @@ class ElementAnim implements I_Element
 		if (param.start.y == null) param.start.y = param.y;
 		if (param.start.w == null) param.start.w = param.w;
 		if (param.start.h == null) param.start.h = param.h;
+		if (param.start.rgba == null) param.start.rgba = param.rgba;
 		if (param.start.time == null) param.start.time = param.time;
 			
 		if (param.end == null) param.end = {};
@@ -97,6 +101,7 @@ class ElementAnim implements I_Element
 		if (param.end.y == null) param.end.y = param.y;
 		if (param.end.w == null) param.end.w = param.w;
 		if (param.end.h == null) param.end.h = param.h;
+		if (param.end.rgba == null) param.end.rgba = param.rgba;
 		if (param.end.time == null) param.end.time = param.time;
 			
 		
@@ -144,10 +149,12 @@ class ElementAnim implements I_Element
 		
 		x = param.end.x;
 		y = param.end.y;
-		z = param.z;
 		w = param.end.w;
 		h = param.end.h;
+		rgba = param.end.rgba;
 		time = param.end.time;
+
+		z = param.z;
 	}
 	
 	public inline function get():Param
@@ -158,6 +165,7 @@ class ElementAnim implements I_Element
 			z: z,
 			w: w,
 			h: h,
+			rgba: rgba,
 			tile:tile,
 			image:image
 		};

@@ -74,12 +74,12 @@ class ElementSimple implements I_Element
 		if (param.sx2 != null) param.w2 = Math.round(param.w2 * param.sx2);
 		if (param.sy2 != null) param.h2 = Math.round(param.h2 * param.sy2);
 		*/
-		if (param.x == null) param.x = x;
-		if (param.y == null) param.y = y;
-		if (param.w == null) param.w = w;
-		if (param.h == null) param.h = h;
+		if (param.x == null) param.x = x; else x = param.x;
+		if (param.y == null) param.y = y; else y = param.y;
+		if (param.w == null) param.w = w; else w = param.w;
+		if (param.h == null) param.h = h; else h = param.h;
 		
-		if (param.z == null) param.z = z;
+		if (param.z == null) param.z = z; else z = param.z;
 		
 		// IMAGE
 		if (param.image == null && PeoteView.elementDefaults.image != null ) param.image = PeoteView.elementDefaults.image;

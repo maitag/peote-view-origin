@@ -45,7 +45,8 @@ class Program
 	public static inline var aTEXTCOORD:Int = 1;
 	public static inline var aZINDEX:Int    = 2;
 	public static inline var aRGBA:Int      = 3;
-	public static inline var aTIME:Int      = 4;
+	public static inline var aRGBA_END:Int  = 4;
+	public static inline var aTIME:Int      = 5;
 	
 	public static inline var uMODELVIEWMATRIX:Int = 0;
 	public static inline var uPROJECTIONMATRIX:Int = 1;
@@ -121,8 +122,8 @@ class Program
 		
 		// reformat to debug
 		var r:EReg = new EReg(";", "g");
-		trace("VERTEXSHADER:\n",r.replace(vertexShaderSrc, ";\n"));
-		trace("FRAGMENTSHADER:\n",r.replace(fragmentShaderSrc, ";\n"));
+		trace("VERTEXSHADER:\n"+r.replace(vertexShaderSrc, ";\n"));
+		trace("FRAGMENTSHADER:\n"+r.replace(fragmentShaderSrc, ";\n"));
 		
 		// -----------------------------------------------------------------------
 		
@@ -173,6 +174,7 @@ class Program
 								case "aTexCoord":	elemBuff.attr.set(aTEXTCOORD, GL.getAttribLocation(glProgram, name) );
 								case "aZindex":		elemBuff.attr.set(aZINDEX,    GL.getAttribLocation(glProgram, name) );
 								case "aRGBA":		elemBuff.attr.set(aRGBA,      GL.getAttribLocation(glProgram, name) );
+								case "aRGBA_END":	elemBuff.attr.set(aRGBA_END,  GL.getAttribLocation(glProgram, name) );
 								case "aTime":		elemBuff.attr.set(aTIME,      GL.getAttribLocation(glProgram, name) );
 							}
 						}

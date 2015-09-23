@@ -47,12 +47,12 @@ class ElementSimpleBuffer implements I_ElementBuffer
 		
 	var emptyBuffFull:BufferData;
 	var buffFull:BufferData;
-	
+	/*
 	var buffTex_0:BufferData;
 	var buffTex_1:BufferData;
 	var buffTex_2:BufferData;
 	var buffTex_3:BufferData;
-	
+	*/
 	var type:Int;
 	
 	var ZINDEX_OFFSET:Int;
@@ -64,11 +64,11 @@ class ElementSimpleBuffer implements I_ElementBuffer
 	{	
 		type = t;
 		
-		var offset = 0;
-		if (type & DType.ZINDEX != 0) { ZINDEX_OFFSET = offset+=4;  } 
-		if (type & DType.RGBA != 0)   { RGBA_OFFSET   = offset+=4;  } 
-		TEX_OFFSET    = offset+=4;
-		VERTEX_STRIDE = offset+=4;
+		var offset = 4;
+		if (type & DType.ZINDEX != 0) { ZINDEX_OFFSET = offset; offset += 4;  } 
+		if (type & DType.RGBA != 0)   { RGBA_OFFSET   = offset; offset += 4;  } 
+		TEX_OFFSET    = offset; offset += 4;
+		VERTEX_STRIDE = offset;
 		
 		
 		var full = new BufferData(b.max_segments * b.segment_size * VERTEX_COUNT * VERTEX_STRIDE);
@@ -149,6 +149,9 @@ class ElementSimpleBuffer implements I_ElementBuffer
 		var xw:Int = x + param.w;
 		var yh:Int = y + param.h;
 		
+		var z:Int = param.z;
+		var rgba:Int = param.rgba;
+		
 		var tx:Int = param.tx;
 		var ty:Int = param.ty;
 		var txw:Int = tx + param.tw;
@@ -157,33 +160,33 @@ class ElementSimpleBuffer implements I_ElementBuffer
 		buffFull.setByteOffset( 0 );
 		
 		buffFull.write_2_Short( xw, yh );                          // VERTEX_POSITION_START
-		if (type & DType.ZINDEX != 0) buffFull.write_1_Float( param.z ); // Z INDEX
-		if (type & DType.RGBA   != 0) buffFull.write_1_UInt( param.rgba ); // RGBA
+		if (type & DType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
+		if (type & DType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
 		buffFull.write_2_Short( txw, tyh );                        // TEXT COORD 
 		
 		buffFull.write_2_Short( xw, yh );                          // VERTEX_POSITION_START
-		if (type & DType.ZINDEX != 0) buffFull.write_1_Float( param.z ); // Z INDEX
-		if (type & DType.RGBA   != 0) buffFull.write_1_UInt( param.rgba ); // RGBA
+		if (type & DType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
+		if (type & DType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
 		buffFull.write_2_Short( txw, tyh );                        // TEXT COORD 
 		
 		buffFull.write_2_Short( x, yh );                           // VERTEX_POSITION_START
-		if (type & DType.ZINDEX != 0) buffFull.write_1_Float( param.z ); // Z INDEX
-		if (type & DType.RGBA   != 0) buffFull.write_1_UInt( param.rgba ); // RGBA
+		if (type & DType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
+		if (type & DType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
 		buffFull.write_2_Short( tx, tyh );                         // TEXT COORD 
 		
 		buffFull.write_2_Short( xw, y );                           // VERTEX_POSITION_START
-		if (type & DType.ZINDEX != 0) buffFull.write_1_Float( param.z ); // Z INDEX
-		if (type & DType.RGBA   != 0) buffFull.write_1_UInt( param.rgba ); // RGBA
+		if (type & DType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
+		if (type & DType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
 		buffFull.write_2_Short( txw, ty );                         // TEXT COORD 
 		
 		buffFull.write_2_Short( x, y );                            // VERTEX_POSITION_START
-		if (type & DType.ZINDEX != 0) buffFull.write_1_Float( param.z ); // Z INDEX
-		if (type & DType.RGBA   != 0) buffFull.write_1_UInt( param.rgba ); // RGBA
+		if (type & DType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
+		if (type & DType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
 		buffFull.write_2_Short( tx, ty );                          // TEXT COORD 
 		
 		buffFull.write_2_Short( x, y );                            // VERTEX_POSITION_START
-		if (type & DType.ZINDEX != 0) buffFull.write_1_Float( param.z ); // Z INDEX
-		if (type & DType.RGBA   != 0) buffFull.write_1_UInt( param.rgba ); // RGBA
+		if (type & DType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
+		if (type & DType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
 		buffFull.write_2_Short( tx, ty );                          // TEXT COORD 
 		
 		buffFull.setByteOffset( 0 );
@@ -245,19 +248,19 @@ class ElementSimpleBuffer implements I_ElementBuffer
 	public static inline var defaultVertexShaderSrc:String =
 	"	precision mediump float;
 
-		// always twice if time dependend
 		attribute vec2 aPosition;
 		
 		#if_ZINDEX
 		attribute float aZindex;
 		#end_ZINDEX
-		attribute vec2 aTexCoord;
 		
 		#if_RGBA
 		attribute vec4 aRGBA;
 		varying vec4 vRGBA;
 		#end_RGBA
 
+		attribute vec2 aTexCoord;
+		
 		varying vec2 vTexCoord;
 		
 		uniform float uTime;

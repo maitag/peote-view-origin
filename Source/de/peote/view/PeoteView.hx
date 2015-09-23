@@ -55,7 +55,8 @@ class PeoteView
 			y:0,
 			w:100,
 			h:100,
-			z:0
+			z:0,
+			rgba:0x55555555
 		};
 
 	var displaylist:Vector<I_Displaylist>;

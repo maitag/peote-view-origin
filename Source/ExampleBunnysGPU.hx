@@ -72,7 +72,7 @@ class ExampleBunnysGPU extends Example
 		peoteView.setImage(1, "assets/peote_font_white.png", 512, 512);
 		
 		// Displaylist for massive tiles
-		peoteView.setDisplaylist( { displaylist:0, type:DType.ANIM|DType.RGBA,
+		peoteView.setDisplaylist( { displaylist:0, type:DType.ANIM|DType.RGBA, //|DType.ZINDEX
 			enable:true,
 			max_elements:max_bunnys, max_programs:1, buffer_segment_size:max_bunnys, // for low-end devices better max_elements < 100 000
 			//w:1920, h:1280,
@@ -167,15 +167,17 @@ class ExampleBunnysGPU extends Example
 					h: tile_size,
 					image:0,
 					tile:1 + random(31),
-					//rgba: random(256) << 24 | random(256) << 16 | random(256) << 8 | 128+random(128), // not implemented yet for gpu animed tiles
+					//rgba: random(256) << 24 | random(256) << 16 | random(256) << 8 | 128+random(128),
 					start: {
 						x: spawn_x,
 						y: spawn_y,
+						rgba: random(256) << 24 | random(256) << 16 | random(256) << 8 | 128+random(128),
 						time:t
 					},
 					end: {
 						x: random(width),
 						y: random(height),
+						rgba: random(256) << 24 | random(256) << 16 | random(256) << 8 | 128+random(128),
 						time: t+5+random(10)
 					}
 				});
@@ -328,18 +330,21 @@ class ExampleBunnysGPU extends Example
 	public static inline var vertexShaderSrc:String =
 	"	precision mediump float;
 
-		// always twice if time dependend
 		attribute vec4 aPosition;
-		attribute vec2 aTime;
 		
+		#if_ZINDEX
 		attribute float aZindex;
-		attribute vec2 aTexCoord;
+		#end_ZINDEX
 		
 		#if_RGBA
 		attribute vec4 aRGBA;
+		attribute vec4 aRGBA_END;
 		varying vec4 vRGBA;
 		#end_RGBA
 
+		attribute vec2 aTime;
+		attribute vec2 aTexCoord;
+		
 		varying vec2 vTexCoord;
 		
 		uniform float uTime;
@@ -349,7 +354,7 @@ class ExampleBunnysGPU extends Example
 		
 		void main(void) {
 			#if_RGBA
-			vRGBA = 255.0/aRGBA;
+			vRGBA = aRGBA.wzyx + (aRGBA_END.wzyx - aRGBA.wzyx) * max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0));	
 			#end_RGBA
 			
 			vTexCoord = aTexCoord;
@@ -388,7 +393,13 @@ class ExampleBunnysGPU extends Example
 			)
 		* vec4 ( swapX * (width - mod(x, width)) + (1.0 - swapX) * mod(x, width),
 				 swapY * (height - mod(y, height)) + (1.0 - swapY) * mod(y, height),
-				 aZindex, 1.0 );
+				#if_ZINDEX
+				aZindex
+				#else_ZINDEX
+				0.0
+				#end_ZINDEX
+				, 1.0
+				);
 		}
 	";
 
