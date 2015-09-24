@@ -56,7 +56,7 @@ ApplicationMain.create = function() {
 	ApplicationMain.preloader.load(urls,types);
 };
 ApplicationMain.main = function() {
-	ApplicationMain.config = { build : "356", company : "Sylvio Sell - maitag", file : "ExampleBunnysGPU", fps : 60, name : "peote_view", orientation : "", packageName : "de.peote.view", version : "0.1.5", windows : [{ antialiasing : 4, background : 16777215, borderless : false, depthBuffer : true, display : 0, fullscreen : false, hardware : true, height : 0, parameters : "{}", resizable : true, stencilBuffer : false, title : "peote_view", vsync : true, width : 0, x : null, y : null}]};
+	ApplicationMain.config = { build : "639", company : "Sylvio Sell - maitag", file : "ExampleBunnysGPU", fps : 60, name : "peote_view", orientation : "", packageName : "de.peote.view", version : "0.1.5", windows : [{ antialiasing : 4, background : 16777215, borderless : false, depthBuffer : true, display : 0, fullscreen : false, hardware : true, height : 0, parameters : "{}", resizable : true, stencilBuffer : false, title : "peote_view", vsync : true, width : 0, x : null, y : null}]};
 };
 ApplicationMain.start = function() {
 	var result = ApplicationMain.app.exec();
@@ -1126,11 +1126,11 @@ ExampleBunnysGPU.prototype = $extend(Example.prototype,{
 	run: function() {
 		this.startTime = haxe.Timer.stamp();
 		this.peoteView = new de.peote.view.PeoteView(10,2);
-		this.peoteView.programCache.setShaderSrc(0,"","\tprecision mediump float;\r\n\r\n\t\t// always twice if time dependend\r\n\t\tattribute vec4 aPosition;\r\n\t\tattribute vec2 aTime;\r\n\t\t\r\n\t\tattribute float aZindex;\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = 255.0/aRGBA;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\r\n\t\t\tvec2 VertexPosStart = vec2( aPosition );\r\n\t\t\tvec2 VertexPosEnd   = vec2 (aPosition.z, aPosition.w);\r\n\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tfloat x = VertexPosStart.x + floor( \r\n\t\t\t\t\t\t\t\t(VertexPosEnd.x - VertexPosStart.x)\r\n\t\t\t\t\t\t\t\t* (uTime-aTime.x) / (aTime.y - aTime.x)\r\n\t\t\t\t\t\t\t\t* zoom) / zoom;\r\n\t\t\tfloat swapX = mod(floor(x / width), 2.0);\r\n\r\n\t\t\tfloat y = VertexPosStart.y + floor( \r\n\t\t\t\t\t\t\t\t(VertexPosEnd.y - VertexPosStart.y)\r\n\t\t\t\t\t\t\t\t* (uTime-aTime.x) / (aTime.y - aTime.x)\r\n\t\t\t\t\t\t\t\t* zoom) / zoom;\r\n\t\t\tfloat swapY = mod(floor(y / height), 2.0);\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t* vec4 ( swapX * (width - mod(x, width)) + (1.0 - swapX) * mod(x, width),\r\n\t\t\t\t swapY * (height - mod(y, height)) + (1.0 - swapY) * mod(y, height),\r\n\t\t\t\t aZindex, 1.0 );\r\n\t\t}\r\n\t");
+		this.peoteView.programCache.setShaderSrc(0,"","\tprecision mediump float;\r\n\r\n\t\tattribute vec4 aPosition;\r\n\t\t\r\n\t\t#if_ZINDEX\r\n\t\tattribute float aZindex;\r\n\t\t#end_ZINDEX\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tattribute vec4 aRGBA_END;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\t#if_ROTATION\r\n\t\tattribute vec2 aRotation;\r\n\t\tattribute vec4 aPivot;\r\n\t\t#end_ROTATION\r\n\t\t\r\n\t\tattribute vec2 aTime;\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = aRGBA.wzyx + (aRGBA_END.wzyx - aRGBA.wzyx) * max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0));\t\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\r\n\t\t\tvec2 VertexPosStart = vec2( aPosition );\r\n\t\t\tvec2 VertexPosEnd   = vec2 (aPosition.z, aPosition.w);\r\n\t\t\t\r\n\t\t\t#if_ROTATION\r\n\t\t\tfloat alpha = aRotation.x + (aRotation.y - aRotation.x)\t* (uTime-aTime.x) / (aTime.y - aTime.x);\r\n\t\t\t\t\t\t\t\t\r\n\t\t\tVertexPosStart = (VertexPosStart - vec2(aPivot))\r\n\t\t\t\t\t\t\t* mat2 (\r\n\t\t\t\t\t\t\t\tvec2(cos(alpha), -sin(alpha)),\r\n\t\t\t\t\t\t\t\tvec2(sin(alpha),  cos(alpha))\r\n\t\t\t\t\t\t\t) + vec2(aPivot);\r\n\t\t\t\r\n\t\t\tVertexPosEnd = (VertexPosEnd -  vec2(aPivot.z, aPivot.w))\r\n\t\t\t\t\t\t\t* mat2 (\r\n\t\t\t\t\t\t\t\tvec2(cos(alpha), -sin(alpha)),\r\n\t\t\t\t\t\t\t\tvec2(sin(alpha),  cos(alpha))\r\n\t\t\t\t\t\t\t) + vec2(aPivot.z, aPivot.w);\r\n\t\t\t#end_ROTATION\r\n\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tfloat x = VertexPosStart.x + floor( \r\n\t\t\t\t\t\t\t\t(VertexPosEnd.x - VertexPosStart.x)\r\n\t\t\t\t\t\t\t\t* (uTime-aTime.x) / (aTime.y - aTime.x)\r\n\t\t\t\t\t\t\t\t* zoom) / zoom;\r\n\t\t\tfloat swapX = mod(floor(x / width), 2.0);\r\n\r\n\t\t\tfloat y = VertexPosStart.y + floor( \r\n\t\t\t\t\t\t\t\t(VertexPosEnd.y - VertexPosStart.y)\r\n\t\t\t\t\t\t\t\t* (uTime-aTime.x) / (aTime.y - aTime.x)\r\n\t\t\t\t\t\t\t\t* zoom) / zoom;\r\n\t\t\tfloat swapY = mod(floor(y / height), 2.0);\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t* vec4 ( swapX * (width - mod(x, width)) + (1.0 - swapX) * mod(x, width),\r\n\t\t\t\t swapY * (height - mod(y, height)) + (1.0 - swapY) * mod(y, height),\r\n\t\t\t\t#if_ZINDEX\r\n\t\t\t\taZindex\r\n\t\t\t\t#else_ZINDEX\r\n\t\t\t\t0.0\r\n\t\t\t\t#end_ZINDEX\r\n\t\t\t\t, 1.0\r\n\t\t\t\t);\r\n\t\t}\r\n\t");
 		this.peoteView.programCache.loadShaderSrc(1,"","");
 		this.peoteView.texturecache.setImage(0,"assets/peote_tiles_flowers_alpha.png",512,512);
 		this.peoteView.texturecache.setImage(1,"assets/peote_font_white.png",512,512);
-		this.peoteView.setDisplaylist({ displaylist : 0, type : 9, enable : true, max_elements : this.max_bunnys, max_programs : 1, buffer_segment_size : this.max_bunnys, z : 0});
+		this.peoteView.setDisplaylist({ displaylist : 0, type : 25, enable : true, max_elements : this.max_bunnys, max_programs : 1, buffer_segment_size : this.max_bunnys, z : 0});
 		this.peoteView.setDisplaylist({ displaylist : 1, type : 8, enable : true, max_elements : 8, max_programs : 1, buffer_segment_size : 8, x : 310, y : 4, w : 1, h : 1, renderBackground : true, a : 0.8, r : 0.3, g : 0.2, z : 1});
 		this.peoteView.setDisplaylist({ displaylist : 2, type : 8, enable : true, max_elements : 7, max_programs : 1, buffer_segment_size : 7, x : 190, y : 4, w : 1, h : 1, renderBackground : true, a : 0.75, r : 0.25, z : 1});
 		this.peoteView.setDisplaylist({ displaylist : 3, type : 8, enable : true, max_elements : 33, max_programs : 1, buffer_segment_size : 33, x : 8, y : 34, w : 1, h : 1, renderBackground : true, a : 0.75, r : 0.2, z : 1});
@@ -1158,7 +1158,7 @@ ExampleBunnysGPU.prototype = $extend(Example.prototype,{
 					this.updateMaxSpawn();
 					break;
 				}
-				this.peoteView.setElement({ element : this.bunny_nr++, program : 0, displaylist : 0, w : this.tile_size, h : this.tile_size, image : 0, tile : 1 + Math.floor(Math.random() * 31), start : { x : this.spawn_x, y : this.spawn_y, time : t}, end : { x : Math.floor(Math.random() * this.width), y : Math.floor(Math.random() * this.height), time : t + 5 + Math.floor(Math.random() * 10)}});
+				this.peoteView.setElement({ element : this.bunny_nr++, program : 0, displaylist : 0, w : this.tile_size, h : this.tile_size, pivotX : Math.floor(this.tile_size / 2), pivotY : Math.floor(this.tile_size / 2), image : 0, tile : 1 + Math.floor(Math.random() * 31), start : { x : this.spawn_x, y : this.spawn_y, rgba : Math.floor(Math.random() * 256) << 24 | Math.floor(Math.random() * 256) << 16 | Math.floor(Math.random() * 256) << 8 | 128 + Math.floor(Math.random() * 128), rotation : Math.floor(Math.random() * 1280), time : t}, end : { x : Math.floor(Math.random() * this.width), y : Math.floor(Math.random() * this.height), rgba : Math.floor(Math.random() * 256) << 24 | Math.floor(Math.random() * 256) << 16 | Math.floor(Math.random() * 256) << 8 | 128 + Math.floor(Math.random() * 128), rotation : Math.floor(Math.random() * 1280), time : t + 5 + Math.floor(Math.random() * 10)}});
 			}
 		} else if(this.max_spawn < 0) {
 			var _g2 = this.max_spawn;
@@ -1248,10 +1248,10 @@ ExampleBunnysGPU.prototype = $extend(Example.prototype,{
 		case 97:
 			if(this.peoteView.getDisplaylist({ displaylist : 0}).blend == 1) {
 				this.peoteView.setDisplaylist({ displaylist : 0, blend : 0});
-				haxe.Log.trace("BLEND MODE 0",{ fileName : "ExampleBunnysGPU.hx", lineNumber : 265, className : "ExampleBunnysGPU", methodName : "onKeyDown"});
+				haxe.Log.trace("BLEND MODE 0",{ fileName : "ExampleBunnysGPU.hx", lineNumber : 271, className : "ExampleBunnysGPU", methodName : "onKeyDown"});
 			} else {
 				this.peoteView.setDisplaylist({ displaylist : 0, blend : 1});
-				haxe.Log.trace("BLEND MODE 1",{ fileName : "ExampleBunnysGPU.hx", lineNumber : 266, className : "ExampleBunnysGPU", methodName : "onKeyDown"});
+				haxe.Log.trace("BLEND MODE 1",{ fileName : "ExampleBunnysGPU.hx", lineNumber : 272, className : "ExampleBunnysGPU", methodName : "onKeyDown"});
 			}
 			break;
 		case 49:
@@ -1720,18 +1720,18 @@ de.peote.view.PeoteView.prototype = {
 		this.texturecache.setImage(image_nr,imageUrl,w,h);
 	}
 	,setElement: function(param) {
-		if(param.element != null) this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist].setElement(param); else haxe.Log.trace("ERROR: no element specified",{ fileName : "PeoteView.hx", lineNumber : 230, className : "de.peote.view.PeoteView", methodName : "setElement"});
+		if(param.element != null) this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist].setElement(param); else haxe.Log.trace("ERROR: no element specified",{ fileName : "PeoteView.hx", lineNumber : 236, className : "de.peote.view.PeoteView", methodName : "setElement"});
 	}
 	,getElement: function(param) {
 		var p = { };
-		if(param.element != null) p = this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist].getElement(param.element); else haxe.Log.trace("ERROR: no element specified",{ fileName : "PeoteView.hx", lineNumber : 238, className : "de.peote.view.PeoteView", methodName : "getElement"});
+		if(param.element != null) p = this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist].getElement(param.element); else haxe.Log.trace("ERROR: no element specified",{ fileName : "PeoteView.hx", lineNumber : 244, className : "de.peote.view.PeoteView", methodName : "getElement"});
 		return p;
 	}
 	,hasElement: function(param) {
 		if(param.element == null) return false; else return this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist].hasElement(param.element);
 	}
 	,delElement: function(param) {
-		if(param.element != null) this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist].delElement(param.element); else haxe.Log.trace("ERROR: no element specified",{ fileName : "PeoteView.hx", lineNumber : 251, className : "de.peote.view.PeoteView", methodName : "delElement"});
+		if(param.element != null) this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist].delElement(param.element); else haxe.Log.trace("ERROR: no element specified",{ fileName : "PeoteView.hx", lineNumber : 257, className : "de.peote.view.PeoteView", methodName : "delElement"});
 	}
 	,delAllElement: function(param) {
 		this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist].delAllElement();
@@ -1866,6 +1866,13 @@ de.peote.view.Program.prototype = {
 			s = de.peote.view.Program.rRGBAstart.replace(s,"#end_RGBA$1");
 			s = de.peote.view.Program.rRGBAend.replace(s,"");
 		}
+		if((type & 16) != 0) {
+			s = de.peote.view.Program.rROTATIONstart.replace(s,"#end_ROTATION");
+			s = de.peote.view.Program.rROTATIONend.replace(s,"$1");
+		} else {
+			s = de.peote.view.Program.rROTATIONstart.replace(s,"#end_ROTATION$1");
+			s = de.peote.view.Program.rROTATIONend.replace(s,"");
+		}
 		s = de.peote.view.Program.rMAX_TEXTURE_SIZE.replace(s,de.peote.view.texture.TextureCache.max_texture_size + ".0");
 		return s;
 	}
@@ -1873,8 +1880,8 @@ de.peote.view.Program.prototype = {
 		fragmentShaderSrc = this.parseType(type,fragmentShaderSrc);
 		vertexShaderSrc = this.parseType(type,vertexShaderSrc);
 		var r = new EReg(";","g");
-		haxe.Log.trace("VERTEXSHADER:\n",{ fileName : "Program.hx", lineNumber : 124, className : "de.peote.view.Program", methodName : "compile", customParams : [r.replace(vertexShaderSrc,";\n")]});
-		haxe.Log.trace("FRAGMENTSHADER:\n",{ fileName : "Program.hx", lineNumber : 125, className : "de.peote.view.Program", methodName : "compile", customParams : [r.replace(fragmentShaderSrc,";\n")]});
+		haxe.Log.trace("VERTEXSHADER:\n" + r.replace(vertexShaderSrc,";\n"),{ fileName : "Program.hx", lineNumber : 136, className : "de.peote.view.Program", methodName : "compile"});
+		haxe.Log.trace("FRAGMENTSHADER:\n" + r.replace(fragmentShaderSrc,";\n"),{ fileName : "Program.hx", lineNumber : 137, className : "de.peote.view.Program", methodName : "compile"});
 		var fs = lime.graphics.opengl.GL.context.createShader(35632);
 		lime.graphics.opengl.GL.context.shaderSource(fs,fragmentShaderSrc);
 		lime.graphics.opengl.GL.context.compileShader(fs);
@@ -1892,7 +1899,7 @@ de.peote.view.Program.prototype = {
 				var name;
 				if(elemBuff != null) {
 					if(elemBuff.attr == null) {
-						haxe.Log.trace("ANZAHL " + lime.graphics.opengl.GL.context.getProgramParameter(this.glProgram,35721),{ fileName : "Program.hx", lineNumber : 164, className : "de.peote.view.Program", methodName : "compile"});
+						haxe.Log.trace("ANZAHL " + lime.graphics.opengl.GL.context.getProgramParameter(this.glProgram,35721),{ fileName : "Program.hx", lineNumber : 176, className : "de.peote.view.Program", methodName : "compile"});
 						var length = lime.graphics.opengl.GL.context.getProgramParameter(this.glProgram,35721);
 						var this1;
 						this1 = new Array(length);
@@ -1902,7 +1909,7 @@ de.peote.view.Program.prototype = {
 						while(_g1 < _g) {
 							var i = _g1++;
 							name = lime.graphics.opengl.GL.context.getActiveAttrib(this.glProgram,i).name;
-							haxe.Log.trace(name + ":" + lime.graphics.opengl.GL.context.getAttribLocation(this.glProgram,name),{ fileName : "Program.hx", lineNumber : 169, className : "de.peote.view.Program", methodName : "compile"});
+							haxe.Log.trace(name + ":" + lime.graphics.opengl.GL.context.getAttribLocation(this.glProgram,name),{ fileName : "Program.hx", lineNumber : 181, className : "de.peote.view.Program", methodName : "compile"});
 							switch(name) {
 							case "aPosition":
 								var val = lime.graphics.opengl.GL.context.getAttribLocation(this.glProgram,name);
@@ -1920,9 +1927,21 @@ de.peote.view.Program.prototype = {
 								var val3 = lime.graphics.opengl.GL.context.getAttribLocation(this.glProgram,name);
 								elemBuff.attr[3] = val3;
 								break;
-							case "aTime":
+							case "aRGBA_END":
 								var val4 = lime.graphics.opengl.GL.context.getAttribLocation(this.glProgram,name);
 								elemBuff.attr[4] = val4;
+								break;
+							case "aRotation":
+								var val5 = lime.graphics.opengl.GL.context.getAttribLocation(this.glProgram,name);
+								elemBuff.attr[5] = val5;
+								break;
+							case "aPivot":
+								var val6 = lime.graphics.opengl.GL.context.getAttribLocation(this.glProgram,name);
+								elemBuff.attr[6] = val6;
+								break;
+							case "aTime":
+								var val7 = lime.graphics.opengl.GL.context.getAttribLocation(this.glProgram,name);
+								elemBuff.attr[7] = val7;
 								break;
 							}
 						}
@@ -1939,36 +1958,36 @@ de.peote.view.Program.prototype = {
 					name = lime.graphics.opengl.GL.context.getActiveUniform(this.glProgram,i1).name;
 					switch(name) {
 					case "uModelViewMatrix":
-						var val5 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
-						this.uniforms[0] = val5;
+						var val8 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
+						this.uniforms[0] = val8;
 						break;
 					case "uProjectionMatrix":
-						var val6 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
-						this.uniforms[1] = val6;
+						var val9 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
+						this.uniforms[1] = val9;
 						break;
 					case "uImage":
-						var val7 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
-						this.uniforms[2] = val7;
+						var val10 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
+						this.uniforms[2] = val10;
 						break;
 					case "uMouse":
-						var val8 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
-						this.uniforms[3] = val8;
+						var val11 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
+						this.uniforms[3] = val11;
 						break;
 					case "uResolution":
-						var val9 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
-						this.uniforms[4] = val9;
+						var val12 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
+						this.uniforms[4] = val12;
 						break;
 					case "uTime":
-						var val10 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
-						this.uniforms[5] = val10;
+						var val13 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
+						this.uniforms[5] = val13;
 						break;
 					case "uZoom":
-						var val11 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
-						this.uniforms[6] = val11;
+						var val14 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
+						this.uniforms[6] = val14;
 						break;
 					case "uDelta":
-						var val12 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
-						this.uniforms[7] = val12;
+						var val15 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
+						this.uniforms[7] = val15;
 						break;
 					}
 				}
@@ -2038,11 +2057,11 @@ de.peote.view.ProgramCache.prototype = {
 			while( $it0.hasNext() ) {
 				var type = $it0.next();
 				if((type & 1) != 0) {
-					default_fs = "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE);\r\n\t\t\tif(texel.a < 0.5) discard; // TODO (z-order/blend mode!!!)\r\n\t\t\tgl_FragColor = texel;\r\n\t\t}\r\n\t";
-					default_vs = "\tprecision mediump float;\r\n\r\n\t\t// always twice if time dependend\r\n\t\tattribute vec4 aPosition;\r\n\t\tattribute vec2 aTime;\r\n\t\t\r\n\t\tattribute float aZindex;\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = 255.0/aRGBA;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\r\n\t\t\tvec2 VertexPosStart = vec2( aPosition ); //vec2 (aPosition.x, aPosition.y);\r\n\t\t\tvec2 VertexPosEnd   = vec2 (aPosition.z, aPosition.w);\r\n\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (VertexPosStart + floor( \r\n\t\t\t\t\t\t\t\t(VertexPosEnd - VertexPosStart)\r\n\t\t\t\t\t\t\t\t* max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0))\r\n\t\t\t\t\t\t\t\t* zoom) / zoom\r\n\t\t\t\t, aZindex ,1.0);\r\n\t\t}\r\n\t";
+					default_fs = "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t#if_RGBA\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE);\r\n\t\t\tif(texel.a < 0.5) discard; // TODO (z-order/blend mode!!!)\r\n\t\t\t#if_RGBA\r\n\t\t\tgl_FragColor = texel * vRGBA;\r\n\t\t\t#else_RGBA\r\n\t\t\tgl_FragColor = texel;\r\n\t\t\t#end_RGBA\r\n\t\t}\r\n\t";
+					default_vs = "\tprecision mediump float;\r\n\r\n\t\tattribute vec4 aPosition;\r\n\t\t\r\n\t\t#if_ZINDEX\r\n\t\tattribute float aZindex;\r\n\t\t#end_ZINDEX\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tattribute vec4 aRGBA_END;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\t\t\r\n\t\t#if_ROTATION\r\n\t\tattribute vec2 aRotation;\r\n\t\tattribute vec4 aPivot;\r\n\t\t#end_ROTATION\r\n\t\t\r\n\t\tattribute vec2 aTime;\r\n\t\t\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = aRGBA.wzyx + (aRGBA_END.wzyx - aRGBA.wzyx) * max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0));\t\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\r\n\t\t\tvec2 VertexPosStart = vec2 ( aPosition ); //vec2 (aPosition.x, aPosition.y);\r\n\t\t\tvec2 VertexPosEnd   = vec2 ( aPosition.z, aPosition.w);\r\n\t\t\t\r\n\t\t\t#if_ROTATION\r\n\t\t\tfloat alpha = aRotation.x + (aRotation.y - aRotation.x)\t* max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0));\r\n\t\t\t\t\t\t\t\t\r\n\t\t\tVertexPosStart = (VertexPosStart - vec2(aPivot))\r\n\t\t\t\t\t\t\t* mat2 (\r\n\t\t\t\t\t\t\t\tvec2(cos(alpha), -sin(alpha)),\r\n\t\t\t\t\t\t\t\tvec2(sin(alpha),  cos(alpha))\r\n\t\t\t\t\t\t\t) + vec2(aPivot);\r\n\t\t\t\r\n\t\t\tVertexPosEnd = (VertexPosEnd -  vec2(aPivot.z, aPivot.w))\r\n\t\t\t\t\t\t\t* mat2 (\r\n\t\t\t\t\t\t\t\tvec2(cos(alpha), -sin(alpha)),\r\n\t\t\t\t\t\t\t\tvec2(sin(alpha),  cos(alpha))\r\n\t\t\t\t\t\t\t) + vec2(aPivot.z, aPivot.w);\r\n\t\t\t#end_ROTATION\r\n\t\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4( VertexPosStart + floor( \r\n\t\t\t\t\t\t\t\t(VertexPosEnd - VertexPosStart)\r\n\t\t\t\t\t\t\t\t* max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0))\r\n\t\t\t\t\t\t\t\t* zoom) / zoom ,\r\n\t\t\t\t#if_ZINDEX\r\n\t\t\t\taZindex\r\n\t\t\t\t#else_ZINDEX\r\n\t\t\t\t0.0\r\n\t\t\t\t#end_ZINDEX\r\n\t\t\t\t, 1.0\r\n\t\t\t)\r\n\t\t\t// rotate displaylist\r\n\t\t\t/** mat4 (\r\n\t\t\t\tvec4(cos(winkel), -sin(winkel), 0.0, 0.0),\r\n\t\t\t\tvec4(sin(winkel),  cos(winkel), 0.0, 0.0),\r\n\t\t\t\tvec4(        0.0,          1.0, 0.0, 0.0),\r\n\t\t\t\tvec4(        0.0,          0.0, 0.0, 1.0)\r\n\t\t\t)*/\r\n\t\t\t;\r\n\t\t}\r\n\t";
 				} else {
 					default_fs = "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t#if_RGBA\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE );\r\n\t\t\tif(texel.a < 0.5) discard;\r\n\t\t\t#if_RGBA\r\n\t\t\tgl_FragColor = texel * vRGBA;\r\n\t\t\t#else_RGBA\r\n\t\t\tgl_FragColor = texel;\r\n\t\t\t#end_RGBA\r\n\t\t}\r\n\t";
-					default_vs = "\tprecision mediump float;\r\n\r\n\t\t// always twice if time dependend\r\n\t\tattribute vec2 aPosition;\r\n\t\t\r\n\t\t#if_ZINDEX\r\n\t\tattribute float aZindex;\r\n\t\t#end_ZINDEX\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = aRGBA.wzyx;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (aPosition ,\r\n\t\t\t\t#if_ZINDEX\r\n\t\t\t\taZindex\r\n\t\t\t\t#else_ZINDEX\r\n\t\t\t\t0.0\r\n\t\t\t\t#end_ZINDEX\r\n\t\t\t\t, 1.0\r\n\t\t\t\t);\r\n\t\t}\r\n\t";
+					default_vs = "\tprecision mediump float;\r\n\r\n\t\tattribute vec2 aPosition;\r\n\t\t\r\n\t\t#if_ZINDEX\r\n\t\tattribute float aZindex;\r\n\t\t#end_ZINDEX\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = aRGBA.wzyx;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (aPosition ,\r\n\t\t\t\t#if_ZINDEX\r\n\t\t\t\taZindex\r\n\t\t\t\t#else_ZINDEX\r\n\t\t\t\t0.0\r\n\t\t\t\t#end_ZINDEX\r\n\t\t\t\t, 1.0\r\n\t\t\t\t);\r\n\t\t}\r\n\t";
 				}
 				haxe.Log.trace("setShaderSrc:" + type,{ fileName : "ProgramCache.hx", lineNumber : 129, className : "de.peote.view.ProgramCache", methodName : "setShaderSrc"});
 				if(fs == "") pmap.get(type).compile(null,type,default_fs,vs,$bind(this,this.onerror)); else if(vs == "") pmap.get(type).compile(null,type,fs,default_vs,$bind(this,this.onerror));
@@ -2419,6 +2438,10 @@ de.peote.view.element.ElementAnim = function() {
 	this.w = de.peote.view.PeoteView.elementDefaults.w;
 	this.h = de.peote.view.PeoteView.elementDefaults.h;
 	this.z = de.peote.view.PeoteView.elementDefaults.z;
+	this.rgba = de.peote.view.PeoteView.elementDefaults.rgba;
+	this.rotation = de.peote.view.PeoteView.elementDefaults.rotation;
+	this.pivotX = de.peote.view.PeoteView.elementDefaults.pivotX;
+	this.pivotY = de.peote.view.PeoteView.elementDefaults.pivotY;
 };
 $hxClasses["de.peote.view.element.ElementAnim"] = de.peote.view.element.ElementAnim;
 de.peote.view.element.ElementAnim.__name__ = true;
@@ -2429,18 +2452,30 @@ de.peote.view.element.ElementAnim.prototype = {
 		if(param.y == null) param.y = this.y;
 		if(param.w == null) param.w = this.w;
 		if(param.h == null) param.h = this.h;
+		if(param.rgba == null) param.rgba = this.rgba;
+		if(param.rotation == null) param.rotation = this.rotation;
+		if(param.pivotX == null) param.pivotX = this.pivotX;
+		if(param.pivotY == null) param.pivotY = this.pivotY;
 		if(param.time == null) param.time = this.time;
 		if(param.start == null) param.start = { };
 		if(param.start.x == null) param.start.x = param.x;
 		if(param.start.y == null) param.start.y = param.y;
 		if(param.start.w == null) param.start.w = param.w;
 		if(param.start.h == null) param.start.h = param.h;
+		if(param.start.rgba == null) param.start.rgba = param.rgba;
+		if(param.start.rotation == null) param.start.rotation = param.rotation;
+		if(param.start.pivotX == null) param.start.pivotX = param.pivotX;
+		if(param.start.pivotY == null) param.start.pivotY = param.pivotY;
 		if(param.start.time == null) param.start.time = param.time;
 		if(param.end == null) param.end = { };
 		if(param.end.x == null) param.end.x = param.x;
 		if(param.end.y == null) param.end.y = param.y;
 		if(param.end.w == null) param.end.w = param.w;
 		if(param.end.h == null) param.end.h = param.h;
+		if(param.end.rgba == null) param.end.rgba = param.rgba;
+		if(param.end.rotation == null) param.end.rotation = param.rotation;
+		if(param.end.pivotX == null) param.end.pivotX = param.pivotX;
+		if(param.end.pivotY == null) param.end.pivotY = param.pivotY;
 		if(param.end.time == null) param.end.time = param.time;
 		if(param.z == null) param.z = this.z;
 		if(param.image == null && de.peote.view.PeoteView.elementDefaults.image != null) param.image = de.peote.view.PeoteView.elementDefaults.image;
@@ -2470,13 +2505,17 @@ de.peote.view.element.ElementAnim.prototype = {
 		elemBuff.set(this,param);
 		this.x = param.end.x;
 		this.y = param.end.y;
-		this.z = param.z;
 		this.w = param.end.w;
 		this.h = param.end.h;
+		this.rgba = param.end.rgba;
+		this.rotation = param.end.rotation;
+		this.pivotX = param.end.pivotX;
+		this.pivotY = param.end.pivotY;
 		this.time = param.end.time;
+		this.z = param.z;
 	}
 	,get: function() {
-		return { x : this.x, y : this.y, z : this.z, w : this.w, h : this.h, tile : this.tile, image : this.image};
+		return { x : this.x, y : this.y, z : this.z, w : this.w, h : this.h, rgba : this.rgba, tile : this.tile, image : this.image};
 	}
 	,bufferUpdate: function(a,b) {
 		this.act_program = a;
@@ -2495,15 +2534,42 @@ de.peote.view.element.I_ElementBuffer.prototype = {
 	__class__: de.peote.view.element.I_ElementBuffer
 };
 de.peote.view.element.ElementAnimBuffer = function(t,b) {
+	this.fill_bytes = false;
 	this.attr = null;
 	this.type = t;
-	var full = new de.peote.view.element.BufferData(b.max_segments * b.segment_size * de.peote.view.element.ElementAnimBuffer.VERTEX_COUNT * de.peote.view.element.ElementAnimBuffer.VERTEX_STRIDE);
+	var offset = 8;
+	if((this.type & 4) != 0) {
+		this.ZINDEX_OFFSET = offset;
+		offset += 4;
+	}
+	if((this.type & 8) != 0) {
+		this.RGBA_OFFSET = offset;
+		offset += 4;
+		this.RGBA_END_OFFSET = offset;
+		offset += 4;
+	}
+	if((this.type & 16) != 0) {
+		this.ROTATION_OFFSET = offset;
+		offset += 8;
+		this.PIVOT_OFFSET = offset;
+		offset += 8;
+	}
+	this.TIME_OFFSET = offset;
+	offset += 8;
+	this.TEX_OFFSET = offset;
+	offset += 4;
+	this.VERTEX_STRIDE = offset;
+	if(this.VERTEX_STRIDE % 8 != 0) {
+		this.VERTEX_STRIDE += 4;
+		this.fill_bytes = true;
+	}
+	var full = new de.peote.view.element.BufferData(b.max_segments * b.segment_size * de.peote.view.element.ElementAnimBuffer.VERTEX_COUNT * this.VERTEX_STRIDE);
 	this.glBuff = lime.graphics.opengl.GL.context.createBuffer();
 	lime.graphics.opengl.GL.context.bindBuffer(34962,this.glBuff);
 	lime.graphics.opengl.GL.context.bufferData(34962,full.dataView,35044);
 	lime.graphics.opengl.GL.context.bindBuffer(34962,null);
-	this.buffFull = new de.peote.view.element.BufferData(de.peote.view.element.ElementAnimBuffer.VERTEX_COUNT * de.peote.view.element.ElementAnimBuffer.VERTEX_STRIDE);
-	this.emptyBuffFull = new de.peote.view.element.BufferData(de.peote.view.element.ElementAnimBuffer.VERTEX_COUNT * de.peote.view.element.ElementAnimBuffer.VERTEX_STRIDE);
+	this.buffFull = new de.peote.view.element.BufferData(de.peote.view.element.ElementAnimBuffer.VERTEX_COUNT * this.VERTEX_STRIDE);
+	this.emptyBuffFull = new de.peote.view.element.BufferData(de.peote.view.element.ElementAnimBuffer.VERTEX_COUNT * this.VERTEX_STRIDE);
 };
 $hxClasses["de.peote.view.element.ElementAnimBuffer"] = de.peote.view.element.ElementAnimBuffer;
 de.peote.view.element.ElementAnimBuffer.__name__ = true;
@@ -2514,37 +2580,47 @@ de.peote.view.element.ElementAnimBuffer.prototype = {
 	}
 	,disableVertexAttributes: function() {
 		lime.graphics.opengl.GL.context.disableVertexAttribArray(this.attr[0]);
-		lime.graphics.opengl.GL.context.disableVertexAttribArray(this.attr[4]);
-		lime.graphics.opengl.GL.context.disableVertexAttribArray(this.attr[2]);
+		if((this.type & 4) != 0) lime.graphics.opengl.GL.context.disableVertexAttribArray(this.attr[2]);
+		if((this.type & 8) != 0) {
+			lime.graphics.opengl.GL.context.disableVertexAttribArray(this.attr[3]);
+			lime.graphics.opengl.GL.context.disableVertexAttribArray(this.attr[4]);
+		}
+		if((this.type & 16) != 0) {
+			lime.graphics.opengl.GL.context.disableVertexAttribArray(this.attr[5]);
+			lime.graphics.opengl.GL.context.disableVertexAttribArray(this.attr[6]);
+		}
+		lime.graphics.opengl.GL.context.disableVertexAttribArray(this.attr[7]);
 		lime.graphics.opengl.GL.context.disableVertexAttribArray(this.attr[1]);
 	}
 	,setVertexAttributes: function() {
 		lime.graphics.opengl.GL.context.enableVertexAttribArray(this.attr[0]);
-		lime.graphics.opengl.GL.context.enableVertexAttribArray(this.attr[4]);
-		lime.graphics.opengl.GL.context.enableVertexAttribArray(this.attr[2]);
+		if((this.type & 4) != 0) lime.graphics.opengl.GL.context.enableVertexAttribArray(this.attr[2]);
+		if((this.type & 8) != 0) {
+			lime.graphics.opengl.GL.context.enableVertexAttribArray(this.attr[3]);
+			lime.graphics.opengl.GL.context.enableVertexAttribArray(this.attr[4]);
+		}
+		if((this.type & 16) != 0) {
+			lime.graphics.opengl.GL.context.enableVertexAttribArray(this.attr[5]);
+			lime.graphics.opengl.GL.context.enableVertexAttribArray(this.attr[6]);
+		}
+		lime.graphics.opengl.GL.context.enableVertexAttribArray(this.attr[7]);
 		lime.graphics.opengl.GL.context.enableVertexAttribArray(this.attr[1]);
-		lime.graphics.opengl.GL.context.vertexAttribPointer(this.attr[0],4,5122,false,de.peote.view.element.ElementAnimBuffer.VERTEX_STRIDE,0);
-		lime.graphics.opengl.GL.context.vertexAttribPointer(this.attr[4],2,5126,false,de.peote.view.element.ElementAnimBuffer.VERTEX_STRIDE,de.peote.view.element.ElementAnimBuffer.TIME_OFFSET);
-		lime.graphics.opengl.GL.context.vertexAttribPointer(this.attr[2],1,5126,false,de.peote.view.element.ElementAnimBuffer.VERTEX_STRIDE,de.peote.view.element.ElementAnimBuffer.PARAM_OFFSET);
-		lime.graphics.opengl.GL.context.vertexAttribPointer(this.attr[1],2,5122,false,de.peote.view.element.ElementAnimBuffer.VERTEX_STRIDE,de.peote.view.element.ElementAnimBuffer.TEX_OFFSET);
-	}
-	,bufferDataFull: function(x_start,y_start,x_end,y_end,t_start,t_end,z,tx,ty) {
-		this.buffFull.write_2_Short(x_start,y_start);
-		this.buffFull.write_2_Short(x_end,y_end);
-		this.buffFull.write_2_Float(t_start,t_end);
-		this.buffFull.write_1_Float(z);
-		this.buffFull.write_2_Short(tx,ty);
-	}
-	,bufferDataTex: function(b,tx,ty) {
-		b.byteOffset = 0;
-		b.dataView.setInt16(b.byteOffset,tx,true);
-		b.dataView.setInt16(b.byteOffset + 2,ty,true);
-		b.byteOffset += 4;
-		b.byteOffset = 0;
+		lime.graphics.opengl.GL.context.vertexAttribPointer(this.attr[0],4,5122,false,this.VERTEX_STRIDE,0);
+		if((this.type & 4) != 0) lime.graphics.opengl.GL.context.vertexAttribPointer(this.attr[2],1,5126,false,this.VERTEX_STRIDE,this.ZINDEX_OFFSET);
+		if((this.type & 8) != 0) {
+			lime.graphics.opengl.GL.context.vertexAttribPointer(this.attr[3],4,5121,true,this.VERTEX_STRIDE,this.RGBA_OFFSET);
+			lime.graphics.opengl.GL.context.vertexAttribPointer(this.attr[4],4,5121,true,this.VERTEX_STRIDE,this.RGBA_END_OFFSET);
+		}
+		if((this.type & 16) != 0) {
+			lime.graphics.opengl.GL.context.vertexAttribPointer(this.attr[5],2,5126,false,this.VERTEX_STRIDE,this.ROTATION_OFFSET);
+			lime.graphics.opengl.GL.context.vertexAttribPointer(this.attr[6],4,5122,false,this.VERTEX_STRIDE,this.PIVOT_OFFSET);
+		}
+		lime.graphics.opengl.GL.context.vertexAttribPointer(this.attr[7],2,5126,false,this.VERTEX_STRIDE,this.TIME_OFFSET);
+		lime.graphics.opengl.GL.context.vertexAttribPointer(this.attr[1],2,5122,false,this.VERTEX_STRIDE,this.TEX_OFFSET);
 	}
 	,del: function(e) {
 		lime.graphics.opengl.GL.context.bindBuffer(34962,this.glBuff);
-		lime.graphics.opengl.GL.context.bufferSubData(34962,e.buf_pos * de.peote.view.element.ElementAnimBuffer.VERTEX_STRIDE,this.emptyBuffFull.dataView);
+		lime.graphics.opengl.GL.context.bufferSubData(34962,e.buf_pos * this.VERTEX_STRIDE,this.emptyBuffFull.dataView);
 		lime.graphics.opengl.GL.context.bindBuffer(34962,null);
 	}
 	,set: function(e,param) {
@@ -2557,6 +2633,8 @@ de.peote.view.element.ElementAnimBuffer.prototype = {
 		var yh1 = y1 + param.start.h;
 		var xw2 = x2 + param.end.w;
 		var yh2 = y2 + param.end.h;
+		var rgba1 = param.start.rgba;
+		var rgba2 = param.end.rgba;
 		var t1 = param.start.time;
 		var t2 = param.end.time;
 		var z = param.z;
@@ -2564,47 +2642,112 @@ de.peote.view.element.ElementAnimBuffer.prototype = {
 		var ty = param.ty;
 		var txw = tx + param.tw;
 		var tyh = ty + param.th;
+		var rotation1 = param.start.rotation / 180 * Math.PI;
+		var rotation2 = param.end.rotation / 180 * Math.PI;
+		var pivot_x1 = x1 + param.start.pivotX;
+		var pivot_y1 = y1 + param.start.pivotY;
+		var pivot_x2 = x2 + param.end.pivotX;
+		var pivot_y2 = y2 + param.end.pivotY;
 		this.buffFull.byteOffset = 0;
 		this.buffFull.write_2_Short(xw1,yh1);
 		this.buffFull.write_2_Short(xw2,yh2);
+		if((this.type & 4) != 0) this.buffFull.write_1_Float(z);
+		if((this.type & 8) != 0) {
+			this.buffFull.write_1_UInt(rgba1);
+			this.buffFull.write_1_UInt(rgba2);
+		}
+		if((this.type & 16) != 0) {
+			this.buffFull.write_2_Float(rotation1,rotation2);
+			this.buffFull.write_2_Short(pivot_x1,pivot_y1);
+			this.buffFull.write_2_Short(pivot_x2,pivot_y2);
+		}
 		this.buffFull.write_2_Float(t1,t2);
-		this.buffFull.write_1_Float(z);
 		this.buffFull.write_2_Short(txw,tyh);
+		if(this.fill_bytes) this.buffFull.write_1_Float(0.0);
 		this.buffFull.write_2_Short(xw1,yh1);
 		this.buffFull.write_2_Short(xw2,yh2);
+		if((this.type & 4) != 0) this.buffFull.write_1_Float(z);
+		if((this.type & 8) != 0) {
+			this.buffFull.write_1_UInt(rgba1);
+			this.buffFull.write_1_UInt(rgba2);
+		}
+		if((this.type & 16) != 0) {
+			this.buffFull.write_2_Float(rotation1,rotation2);
+			this.buffFull.write_2_Short(pivot_x1,pivot_y1);
+			this.buffFull.write_2_Short(pivot_x2,pivot_y2);
+		}
 		this.buffFull.write_2_Float(t1,t2);
-		this.buffFull.write_1_Float(z);
 		this.buffFull.write_2_Short(txw,tyh);
+		if(this.fill_bytes) this.buffFull.write_1_Float(0.0);
 		this.buffFull.write_2_Short(x1,yh1);
 		this.buffFull.write_2_Short(x2,yh2);
+		if((this.type & 4) != 0) this.buffFull.write_1_Float(z);
+		if((this.type & 8) != 0) {
+			this.buffFull.write_1_UInt(rgba1);
+			this.buffFull.write_1_UInt(rgba2);
+		}
+		if((this.type & 16) != 0) {
+			this.buffFull.write_2_Float(rotation1,rotation2);
+			this.buffFull.write_2_Short(pivot_x1,pivot_y1);
+			this.buffFull.write_2_Short(pivot_x2,pivot_y2);
+		}
 		this.buffFull.write_2_Float(t1,t2);
-		this.buffFull.write_1_Float(z);
 		this.buffFull.write_2_Short(tx,tyh);
+		if(this.fill_bytes) this.buffFull.write_1_Float(0.0);
 		this.buffFull.write_2_Short(xw1,y1);
 		this.buffFull.write_2_Short(xw2,y2);
+		if((this.type & 4) != 0) this.buffFull.write_1_Float(z);
+		if((this.type & 8) != 0) {
+			this.buffFull.write_1_UInt(rgba1);
+			this.buffFull.write_1_UInt(rgba2);
+		}
+		if((this.type & 16) != 0) {
+			this.buffFull.write_2_Float(rotation1,rotation2);
+			this.buffFull.write_2_Short(pivot_x1,pivot_y1);
+			this.buffFull.write_2_Short(pivot_x2,pivot_y2);
+		}
 		this.buffFull.write_2_Float(t1,t2);
-		this.buffFull.write_1_Float(z);
 		this.buffFull.write_2_Short(txw,ty);
+		if(this.fill_bytes) this.buffFull.write_1_Float(0.0);
 		this.buffFull.write_2_Short(x1,y1);
 		this.buffFull.write_2_Short(x2,y2);
+		if((this.type & 4) != 0) this.buffFull.write_1_Float(z);
+		if((this.type & 8) != 0) {
+			this.buffFull.write_1_UInt(rgba1);
+			this.buffFull.write_1_UInt(rgba2);
+		}
+		if((this.type & 16) != 0) {
+			this.buffFull.write_2_Float(rotation1,rotation2);
+			this.buffFull.write_2_Short(pivot_x1,pivot_y1);
+			this.buffFull.write_2_Short(pivot_x2,pivot_y2);
+		}
 		this.buffFull.write_2_Float(t1,t2);
-		this.buffFull.write_1_Float(z);
 		this.buffFull.write_2_Short(tx,ty);
+		if(this.fill_bytes) this.buffFull.write_1_Float(0.0);
 		this.buffFull.write_2_Short(x1,y1);
 		this.buffFull.write_2_Short(x2,y2);
+		if((this.type & 4) != 0) this.buffFull.write_1_Float(z);
+		if((this.type & 8) != 0) {
+			this.buffFull.write_1_UInt(rgba1);
+			this.buffFull.write_1_UInt(rgba2);
+		}
+		if((this.type & 16) != 0) {
+			this.buffFull.write_2_Float(rotation1,rotation2);
+			this.buffFull.write_2_Short(pivot_x1,pivot_y1);
+			this.buffFull.write_2_Short(pivot_x2,pivot_y2);
+		}
 		this.buffFull.write_2_Float(t1,t2);
-		this.buffFull.write_1_Float(z);
 		this.buffFull.write_2_Short(tx,ty);
 		this.buffFull.byteOffset = 0;
 		lime.graphics.opengl.GL.context.bindBuffer(34962,this.glBuff);
-		lime.graphics.opengl.GL.context.bufferSubData(34962,buf_pos * de.peote.view.element.ElementAnimBuffer.VERTEX_STRIDE,this.buffFull.dataView);
+		lime.graphics.opengl.GL.context.bufferSubData(34962,buf_pos * this.VERTEX_STRIDE,this.buffFull.dataView);
 		lime.graphics.opengl.GL.context.bindBuffer(34962,null);
 	}
 	,getDefaultFragmentShaderSrc: function() {
-		return "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE);\r\n\t\t\tif(texel.a < 0.5) discard; // TODO (z-order/blend mode!!!)\r\n\t\t\tgl_FragColor = texel;\r\n\t\t}\r\n\t";
+		return "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t#if_RGBA\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE);\r\n\t\t\tif(texel.a < 0.5) discard; // TODO (z-order/blend mode!!!)\r\n\t\t\t#if_RGBA\r\n\t\t\tgl_FragColor = texel * vRGBA;\r\n\t\t\t#else_RGBA\r\n\t\t\tgl_FragColor = texel;\r\n\t\t\t#end_RGBA\r\n\t\t}\r\n\t";
 	}
 	,getDefaultVertexShaderSrc: function() {
-		return "\tprecision mediump float;\r\n\r\n\t\t// always twice if time dependend\r\n\t\tattribute vec4 aPosition;\r\n\t\tattribute vec2 aTime;\r\n\t\t\r\n\t\tattribute float aZindex;\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = 255.0/aRGBA;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\r\n\t\t\tvec2 VertexPosStart = vec2( aPosition ); //vec2 (aPosition.x, aPosition.y);\r\n\t\t\tvec2 VertexPosEnd   = vec2 (aPosition.z, aPosition.w);\r\n\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (VertexPosStart + floor( \r\n\t\t\t\t\t\t\t\t(VertexPosEnd - VertexPosStart)\r\n\t\t\t\t\t\t\t\t* max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0))\r\n\t\t\t\t\t\t\t\t* zoom) / zoom\r\n\t\t\t\t, aZindex ,1.0);\r\n\t\t}\r\n\t";
+		return "\tprecision mediump float;\r\n\r\n\t\tattribute vec4 aPosition;\r\n\t\t\r\n\t\t#if_ZINDEX\r\n\t\tattribute float aZindex;\r\n\t\t#end_ZINDEX\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tattribute vec4 aRGBA_END;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\t\t\r\n\t\t#if_ROTATION\r\n\t\tattribute vec2 aRotation;\r\n\t\tattribute vec4 aPivot;\r\n\t\t#end_ROTATION\r\n\t\t\r\n\t\tattribute vec2 aTime;\r\n\t\t\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = aRGBA.wzyx + (aRGBA_END.wzyx - aRGBA.wzyx) * max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0));\t\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\r\n\t\t\tvec2 VertexPosStart = vec2 ( aPosition ); //vec2 (aPosition.x, aPosition.y);\r\n\t\t\tvec2 VertexPosEnd   = vec2 ( aPosition.z, aPosition.w);\r\n\t\t\t\r\n\t\t\t#if_ROTATION\r\n\t\t\tfloat alpha = aRotation.x + (aRotation.y - aRotation.x)\t* max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0));\r\n\t\t\t\t\t\t\t\t\r\n\t\t\tVertexPosStart = (VertexPosStart - vec2(aPivot))\r\n\t\t\t\t\t\t\t* mat2 (\r\n\t\t\t\t\t\t\t\tvec2(cos(alpha), -sin(alpha)),\r\n\t\t\t\t\t\t\t\tvec2(sin(alpha),  cos(alpha))\r\n\t\t\t\t\t\t\t) + vec2(aPivot);\r\n\t\t\t\r\n\t\t\tVertexPosEnd = (VertexPosEnd -  vec2(aPivot.z, aPivot.w))\r\n\t\t\t\t\t\t\t* mat2 (\r\n\t\t\t\t\t\t\t\tvec2(cos(alpha), -sin(alpha)),\r\n\t\t\t\t\t\t\t\tvec2(sin(alpha),  cos(alpha))\r\n\t\t\t\t\t\t\t) + vec2(aPivot.z, aPivot.w);\r\n\t\t\t#end_ROTATION\r\n\t\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4( VertexPosStart + floor( \r\n\t\t\t\t\t\t\t\t(VertexPosEnd - VertexPosStart)\r\n\t\t\t\t\t\t\t\t* max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0))\r\n\t\t\t\t\t\t\t\t* zoom) / zoom ,\r\n\t\t\t\t#if_ZINDEX\r\n\t\t\t\taZindex\r\n\t\t\t\t#else_ZINDEX\r\n\t\t\t\t0.0\r\n\t\t\t\t#end_ZINDEX\r\n\t\t\t\t, 1.0\r\n\t\t\t)\r\n\t\t\t// rotate displaylist\r\n\t\t\t/** mat4 (\r\n\t\t\t\tvec4(cos(winkel), -sin(winkel), 0.0, 0.0),\r\n\t\t\t\tvec4(sin(winkel),  cos(winkel), 0.0, 0.0),\r\n\t\t\t\tvec4(        0.0,          1.0, 0.0, 0.0),\r\n\t\t\t\tvec4(        0.0,          0.0, 0.0, 1.0)\r\n\t\t\t)*/\r\n\t\t\t;\r\n\t\t}\r\n\t";
 	}
 	,__class__: de.peote.view.element.ElementAnimBuffer
 };
@@ -2622,11 +2765,11 @@ de.peote.view.element.ElementSimple.__name__ = true;
 de.peote.view.element.ElementSimple.__interfaces__ = [de.peote.view.element.I_Element];
 de.peote.view.element.ElementSimple.prototype = {
 	set: function(elemBuff,param,texturecache) {
-		if(param.x == null) param.x = this.x;
-		if(param.y == null) param.y = this.y;
-		if(param.w == null) param.w = this.w;
-		if(param.h == null) param.h = this.h;
-		if(param.z == null) param.z = this.z;
+		if(param.x == null) param.x = this.x; else this.x = param.x;
+		if(param.y == null) param.y = this.y; else this.y = param.y;
+		if(param.w == null) param.w = this.w; else this.w = param.w;
+		if(param.h == null) param.h = this.h; else this.h = param.h;
+		if(param.z == null) param.z = this.z; else this.z = param.z;
 		if(param.image == null && de.peote.view.PeoteView.elementDefaults.image != null) param.image = de.peote.view.PeoteView.elementDefaults.image;
 		if(param.image != null && param.image != this.image) {
 			if(this.image != -1) texturecache.unUseImage(this.image);
@@ -2669,11 +2812,18 @@ de.peote.view.element.ElementSimple.prototype = {
 de.peote.view.element.ElementSimpleBuffer = function(t,b) {
 	this.attr = null;
 	this.type = t;
-	var offset = 0;
-	if((this.type & 4) != 0) this.ZINDEX_OFFSET = offset += 4;
-	if((this.type & 8) != 0) this.RGBA_OFFSET = offset += 4;
-	this.TEX_OFFSET = offset += 4;
-	this.VERTEX_STRIDE = offset += 4;
+	var offset = 4;
+	if((this.type & 4) != 0) {
+		this.ZINDEX_OFFSET = offset;
+		offset += 4;
+	}
+	if((this.type & 8) != 0) {
+		this.RGBA_OFFSET = offset;
+		offset += 4;
+	}
+	this.TEX_OFFSET = offset;
+	offset += 4;
+	this.VERTEX_STRIDE = offset;
 	var full = new de.peote.view.element.BufferData(b.max_segments * b.segment_size * de.peote.view.element.ElementSimpleBuffer.VERTEX_COUNT * this.VERTEX_STRIDE);
 	this.glBuff = lime.graphics.opengl.GL.context.createBuffer();
 	lime.graphics.opengl.GL.context.bindBuffer(34962,this.glBuff);
@@ -2716,34 +2866,36 @@ de.peote.view.element.ElementSimpleBuffer.prototype = {
 		var y = param.y;
 		var xw = x + param.w;
 		var yh = y + param.h;
+		var z = param.z;
+		var rgba = param.rgba;
 		var tx = param.tx;
 		var ty = param.ty;
 		var txw = tx + param.tw;
 		var tyh = ty + param.th;
 		this.buffFull.byteOffset = 0;
 		this.buffFull.write_2_Short(xw,yh);
-		if((this.type & 4) != 0) this.buffFull.write_1_Float(param.z);
-		if((this.type & 8) != 0) this.buffFull.write_1_UInt(param.rgba);
+		if((this.type & 4) != 0) this.buffFull.write_1_Float(z);
+		if((this.type & 8) != 0) this.buffFull.write_1_UInt(rgba);
 		this.buffFull.write_2_Short(txw,tyh);
 		this.buffFull.write_2_Short(xw,yh);
-		if((this.type & 4) != 0) this.buffFull.write_1_Float(param.z);
-		if((this.type & 8) != 0) this.buffFull.write_1_UInt(param.rgba);
+		if((this.type & 4) != 0) this.buffFull.write_1_Float(z);
+		if((this.type & 8) != 0) this.buffFull.write_1_UInt(rgba);
 		this.buffFull.write_2_Short(txw,tyh);
 		this.buffFull.write_2_Short(x,yh);
-		if((this.type & 4) != 0) this.buffFull.write_1_Float(param.z);
-		if((this.type & 8) != 0) this.buffFull.write_1_UInt(param.rgba);
+		if((this.type & 4) != 0) this.buffFull.write_1_Float(z);
+		if((this.type & 8) != 0) this.buffFull.write_1_UInt(rgba);
 		this.buffFull.write_2_Short(tx,tyh);
 		this.buffFull.write_2_Short(xw,y);
-		if((this.type & 4) != 0) this.buffFull.write_1_Float(param.z);
-		if((this.type & 8) != 0) this.buffFull.write_1_UInt(param.rgba);
+		if((this.type & 4) != 0) this.buffFull.write_1_Float(z);
+		if((this.type & 8) != 0) this.buffFull.write_1_UInt(rgba);
 		this.buffFull.write_2_Short(txw,ty);
 		this.buffFull.write_2_Short(x,y);
-		if((this.type & 4) != 0) this.buffFull.write_1_Float(param.z);
-		if((this.type & 8) != 0) this.buffFull.write_1_UInt(param.rgba);
+		if((this.type & 4) != 0) this.buffFull.write_1_Float(z);
+		if((this.type & 8) != 0) this.buffFull.write_1_UInt(rgba);
 		this.buffFull.write_2_Short(tx,ty);
 		this.buffFull.write_2_Short(x,y);
-		if((this.type & 4) != 0) this.buffFull.write_1_Float(param.z);
-		if((this.type & 8) != 0) this.buffFull.write_1_UInt(param.rgba);
+		if((this.type & 4) != 0) this.buffFull.write_1_Float(z);
+		if((this.type & 8) != 0) this.buffFull.write_1_UInt(rgba);
 		this.buffFull.write_2_Short(tx,ty);
 		this.buffFull.byteOffset = 0;
 		lime.graphics.opengl.GL.context.bindBuffer(34962,this.glBuff);
@@ -2754,7 +2906,7 @@ de.peote.view.element.ElementSimpleBuffer.prototype = {
 		return "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t#if_RGBA\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE );\r\n\t\t\tif(texel.a < 0.5) discard;\r\n\t\t\t#if_RGBA\r\n\t\t\tgl_FragColor = texel * vRGBA;\r\n\t\t\t#else_RGBA\r\n\t\t\tgl_FragColor = texel;\r\n\t\t\t#end_RGBA\r\n\t\t}\r\n\t";
 	}
 	,getDefaultVertexShaderSrc: function() {
-		return "\tprecision mediump float;\r\n\r\n\t\t// always twice if time dependend\r\n\t\tattribute vec2 aPosition;\r\n\t\t\r\n\t\t#if_ZINDEX\r\n\t\tattribute float aZindex;\r\n\t\t#end_ZINDEX\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = aRGBA.wzyx;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (aPosition ,\r\n\t\t\t\t#if_ZINDEX\r\n\t\t\t\taZindex\r\n\t\t\t\t#else_ZINDEX\r\n\t\t\t\t0.0\r\n\t\t\t\t#end_ZINDEX\r\n\t\t\t\t, 1.0\r\n\t\t\t\t);\r\n\t\t}\r\n\t";
+		return "\tprecision mediump float;\r\n\r\n\t\tattribute vec2 aPosition;\r\n\t\t\r\n\t\t#if_ZINDEX\r\n\t\tattribute float aZindex;\r\n\t\t#end_ZINDEX\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = aRGBA.wzyx;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (aPosition ,\r\n\t\t\t\t#if_ZINDEX\r\n\t\t\t\taZindex\r\n\t\t\t\t#else_ZINDEX\r\n\t\t\t\t0.0\r\n\t\t\t\t#end_ZINDEX\r\n\t\t\t\t, 1.0\r\n\t\t\t\t);\r\n\t\t}\r\n\t";
 	}
 	,__class__: de.peote.view.element.ElementSimpleBuffer
 };
@@ -14971,14 +15123,17 @@ while(_g11 < _g2) {
 }
 lime.system.CFFI.available = false;
 lime.system.CFFI.enabled = false;
-ExampleBunnysGPU.vertexShaderSrc = "\tprecision mediump float;\r\n\r\n\t\t// always twice if time dependend\r\n\t\tattribute vec4 aPosition;\r\n\t\tattribute vec2 aTime;\r\n\t\t\r\n\t\tattribute float aZindex;\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = 255.0/aRGBA;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\r\n\t\t\tvec2 VertexPosStart = vec2( aPosition );\r\n\t\t\tvec2 VertexPosEnd   = vec2 (aPosition.z, aPosition.w);\r\n\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tfloat x = VertexPosStart.x + floor( \r\n\t\t\t\t\t\t\t\t(VertexPosEnd.x - VertexPosStart.x)\r\n\t\t\t\t\t\t\t\t* (uTime-aTime.x) / (aTime.y - aTime.x)\r\n\t\t\t\t\t\t\t\t* zoom) / zoom;\r\n\t\t\tfloat swapX = mod(floor(x / width), 2.0);\r\n\r\n\t\t\tfloat y = VertexPosStart.y + floor( \r\n\t\t\t\t\t\t\t\t(VertexPosEnd.y - VertexPosStart.y)\r\n\t\t\t\t\t\t\t\t* (uTime-aTime.x) / (aTime.y - aTime.x)\r\n\t\t\t\t\t\t\t\t* zoom) / zoom;\r\n\t\t\tfloat swapY = mod(floor(y / height), 2.0);\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t* vec4 ( swapX * (width - mod(x, width)) + (1.0 - swapX) * mod(x, width),\r\n\t\t\t\t swapY * (height - mod(y, height)) + (1.0 - swapY) * mod(y, height),\r\n\t\t\t\t aZindex, 1.0 );\r\n\t\t}\r\n\t";
+ExampleBunnysGPU.vertexShaderSrc = "\tprecision mediump float;\r\n\r\n\t\tattribute vec4 aPosition;\r\n\t\t\r\n\t\t#if_ZINDEX\r\n\t\tattribute float aZindex;\r\n\t\t#end_ZINDEX\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tattribute vec4 aRGBA_END;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\t#if_ROTATION\r\n\t\tattribute vec2 aRotation;\r\n\t\tattribute vec4 aPivot;\r\n\t\t#end_ROTATION\r\n\t\t\r\n\t\tattribute vec2 aTime;\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = aRGBA.wzyx + (aRGBA_END.wzyx - aRGBA.wzyx) * max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0));\t\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\r\n\t\t\tvec2 VertexPosStart = vec2( aPosition );\r\n\t\t\tvec2 VertexPosEnd   = vec2 (aPosition.z, aPosition.w);\r\n\t\t\t\r\n\t\t\t#if_ROTATION\r\n\t\t\tfloat alpha = aRotation.x + (aRotation.y - aRotation.x)\t* (uTime-aTime.x) / (aTime.y - aTime.x);\r\n\t\t\t\t\t\t\t\t\r\n\t\t\tVertexPosStart = (VertexPosStart - vec2(aPivot))\r\n\t\t\t\t\t\t\t* mat2 (\r\n\t\t\t\t\t\t\t\tvec2(cos(alpha), -sin(alpha)),\r\n\t\t\t\t\t\t\t\tvec2(sin(alpha),  cos(alpha))\r\n\t\t\t\t\t\t\t) + vec2(aPivot);\r\n\t\t\t\r\n\t\t\tVertexPosEnd = (VertexPosEnd -  vec2(aPivot.z, aPivot.w))\r\n\t\t\t\t\t\t\t* mat2 (\r\n\t\t\t\t\t\t\t\tvec2(cos(alpha), -sin(alpha)),\r\n\t\t\t\t\t\t\t\tvec2(sin(alpha),  cos(alpha))\r\n\t\t\t\t\t\t\t) + vec2(aPivot.z, aPivot.w);\r\n\t\t\t#end_ROTATION\r\n\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tfloat x = VertexPosStart.x + floor( \r\n\t\t\t\t\t\t\t\t(VertexPosEnd.x - VertexPosStart.x)\r\n\t\t\t\t\t\t\t\t* (uTime-aTime.x) / (aTime.y - aTime.x)\r\n\t\t\t\t\t\t\t\t* zoom) / zoom;\r\n\t\t\tfloat swapX = mod(floor(x / width), 2.0);\r\n\r\n\t\t\tfloat y = VertexPosStart.y + floor( \r\n\t\t\t\t\t\t\t\t(VertexPosEnd.y - VertexPosStart.y)\r\n\t\t\t\t\t\t\t\t* (uTime-aTime.x) / (aTime.y - aTime.x)\r\n\t\t\t\t\t\t\t\t* zoom) / zoom;\r\n\t\t\tfloat swapY = mod(floor(y / height), 2.0);\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t* vec4 ( swapX * (width - mod(x, width)) + (1.0 - swapX) * mod(x, width),\r\n\t\t\t\t swapY * (height - mod(y, height)) + (1.0 - swapY) * mod(y, height),\r\n\t\t\t\t#if_ZINDEX\r\n\t\t\t\taZindex\r\n\t\t\t\t#else_ZINDEX\r\n\t\t\t\t0.0\r\n\t\t\t\t#end_ZINDEX\r\n\t\t\t\t, 1.0\r\n\t\t\t\t);\r\n\t\t}\r\n\t";
 de.peote.view.Buffer.VERTEX_COUNT = 6;
-de.peote.view.PeoteView.elementDefaults = { displaylist : 0, program : null, image : null, tile : null, x : 0, y : 0, w : 100, h : 100, z : 0};
+de.peote.view.PeoteView.elementDefaults = { displaylist : 0, program : null, image : null, tile : null, x : 0, y : 0, w : 100, h : 100, z : 0, rgba : 1431655765, rotation : 0, pivotX : 0, pivotY : 0};
 de.peote.view.Program.aPOSITION = 0;
 de.peote.view.Program.aTEXTCOORD = 1;
 de.peote.view.Program.aZINDEX = 2;
 de.peote.view.Program.aRGBA = 3;
-de.peote.view.Program.aTIME = 4;
+de.peote.view.Program.aRGBA_END = 4;
+de.peote.view.Program.aRotation = 5;
+de.peote.view.Program.aPivot = 6;
+de.peote.view.Program.aTIME = 7;
 de.peote.view.Program.uMODELVIEWMATRIX = 0;
 de.peote.view.Program.uPROJECTIONMATRIX = 1;
 de.peote.view.Program.uIMAGE = 2;
@@ -14994,6 +15149,8 @@ de.peote.view.Program.rZINDEXstart = new EReg("#else_ZINDEX(.*?)#end_ZINDEX","ig
 de.peote.view.Program.rZINDEXend = new EReg("#if_ZINDEX(.*?)#end_ZINDEX","ig");
 de.peote.view.Program.rRGBAstart = new EReg("#else_RGBA(.*?)#end_RGBA","ig");
 de.peote.view.Program.rRGBAend = new EReg("#if_RGBA(.*?)#end_RGBA","ig");
+de.peote.view.Program.rROTATIONstart = new EReg("#else_ROTATION(.*?)#end_ROTATION","ig");
+de.peote.view.Program.rROTATIONend = new EReg("#if_ROTATION(.*?)#end_ROTATION","ig");
 de.peote.view.Program.rMAX_TEXTURE_SIZE = new EReg("#MAX_TEXTURE_SIZE","g");
 de.peote.view.displaylist.DType.SIMPLE = 0;
 de.peote.view.displaylist.DType.ANIM = 1;
@@ -15003,16 +15160,10 @@ de.peote.view.displaylist.DType.ROTATION = 16;
 de.peote.view.displaylist.DType.SCALE = 32;
 de.peote.view.displaylist.DType.TILE = 64;
 de.peote.view.element.ElementAnimBuffer.VERTEX_COUNT = 6;
-de.peote.view.element.ElementAnimBuffer.ANIM_PARAM_SIZE = 8;
-de.peote.view.element.ElementAnimBuffer.PARAM_SIZE = 4;
-de.peote.view.element.ElementAnimBuffer.TIME_OFFSET = de.peote.view.element.ElementAnimBuffer.ANIM_PARAM_SIZE;
-de.peote.view.element.ElementAnimBuffer.PARAM_OFFSET = de.peote.view.element.ElementAnimBuffer.TIME_OFFSET + 8;
-de.peote.view.element.ElementAnimBuffer.TEX_OFFSET = de.peote.view.element.ElementAnimBuffer.PARAM_OFFSET + de.peote.view.element.ElementAnimBuffer.PARAM_SIZE;
-de.peote.view.element.ElementAnimBuffer.VERTEX_STRIDE = de.peote.view.element.ElementAnimBuffer.TEX_OFFSET + 4;
-de.peote.view.element.ElementAnimBuffer.defaultVertexShaderSrc = "\tprecision mediump float;\r\n\r\n\t\t// always twice if time dependend\r\n\t\tattribute vec4 aPosition;\r\n\t\tattribute vec2 aTime;\r\n\t\t\r\n\t\tattribute float aZindex;\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = 255.0/aRGBA;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\r\n\t\t\tvec2 VertexPosStart = vec2( aPosition ); //vec2 (aPosition.x, aPosition.y);\r\n\t\t\tvec2 VertexPosEnd   = vec2 (aPosition.z, aPosition.w);\r\n\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (VertexPosStart + floor( \r\n\t\t\t\t\t\t\t\t(VertexPosEnd - VertexPosStart)\r\n\t\t\t\t\t\t\t\t* max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0))\r\n\t\t\t\t\t\t\t\t* zoom) / zoom\r\n\t\t\t\t, aZindex ,1.0);\r\n\t\t}\r\n\t";
-de.peote.view.element.ElementAnimBuffer.defaultFragmentShaderSrc = "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE);\r\n\t\t\tif(texel.a < 0.5) discard; // TODO (z-order/blend mode!!!)\r\n\t\t\tgl_FragColor = texel;\r\n\t\t}\r\n\t";
+de.peote.view.element.ElementAnimBuffer.defaultVertexShaderSrc = "\tprecision mediump float;\r\n\r\n\t\tattribute vec4 aPosition;\r\n\t\t\r\n\t\t#if_ZINDEX\r\n\t\tattribute float aZindex;\r\n\t\t#end_ZINDEX\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tattribute vec4 aRGBA_END;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\t\t\r\n\t\t#if_ROTATION\r\n\t\tattribute vec2 aRotation;\r\n\t\tattribute vec4 aPivot;\r\n\t\t#end_ROTATION\r\n\t\t\r\n\t\tattribute vec2 aTime;\r\n\t\t\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = aRGBA.wzyx + (aRGBA_END.wzyx - aRGBA.wzyx) * max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0));\t\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\r\n\t\t\tvec2 VertexPosStart = vec2 ( aPosition ); //vec2 (aPosition.x, aPosition.y);\r\n\t\t\tvec2 VertexPosEnd   = vec2 ( aPosition.z, aPosition.w);\r\n\t\t\t\r\n\t\t\t#if_ROTATION\r\n\t\t\tfloat alpha = aRotation.x + (aRotation.y - aRotation.x)\t* max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0));\r\n\t\t\t\t\t\t\t\t\r\n\t\t\tVertexPosStart = (VertexPosStart - vec2(aPivot))\r\n\t\t\t\t\t\t\t* mat2 (\r\n\t\t\t\t\t\t\t\tvec2(cos(alpha), -sin(alpha)),\r\n\t\t\t\t\t\t\t\tvec2(sin(alpha),  cos(alpha))\r\n\t\t\t\t\t\t\t) + vec2(aPivot);\r\n\t\t\t\r\n\t\t\tVertexPosEnd = (VertexPosEnd -  vec2(aPivot.z, aPivot.w))\r\n\t\t\t\t\t\t\t* mat2 (\r\n\t\t\t\t\t\t\t\tvec2(cos(alpha), -sin(alpha)),\r\n\t\t\t\t\t\t\t\tvec2(sin(alpha),  cos(alpha))\r\n\t\t\t\t\t\t\t) + vec2(aPivot.z, aPivot.w);\r\n\t\t\t#end_ROTATION\r\n\t\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4( VertexPosStart + floor( \r\n\t\t\t\t\t\t\t\t(VertexPosEnd - VertexPosStart)\r\n\t\t\t\t\t\t\t\t* max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0))\r\n\t\t\t\t\t\t\t\t* zoom) / zoom ,\r\n\t\t\t\t#if_ZINDEX\r\n\t\t\t\taZindex\r\n\t\t\t\t#else_ZINDEX\r\n\t\t\t\t0.0\r\n\t\t\t\t#end_ZINDEX\r\n\t\t\t\t, 1.0\r\n\t\t\t)\r\n\t\t\t// rotate displaylist\r\n\t\t\t/** mat4 (\r\n\t\t\t\tvec4(cos(winkel), -sin(winkel), 0.0, 0.0),\r\n\t\t\t\tvec4(sin(winkel),  cos(winkel), 0.0, 0.0),\r\n\t\t\t\tvec4(        0.0,          1.0, 0.0, 0.0),\r\n\t\t\t\tvec4(        0.0,          0.0, 0.0, 1.0)\r\n\t\t\t)*/\r\n\t\t\t;\r\n\t\t}\r\n\t";
+de.peote.view.element.ElementAnimBuffer.defaultFragmentShaderSrc = "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t#if_RGBA\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE);\r\n\t\t\tif(texel.a < 0.5) discard; // TODO (z-order/blend mode!!!)\r\n\t\t\t#if_RGBA\r\n\t\t\tgl_FragColor = texel * vRGBA;\r\n\t\t\t#else_RGBA\r\n\t\t\tgl_FragColor = texel;\r\n\t\t\t#end_RGBA\r\n\t\t}\r\n\t";
 de.peote.view.element.ElementSimpleBuffer.VERTEX_COUNT = 6;
-de.peote.view.element.ElementSimpleBuffer.defaultVertexShaderSrc = "\tprecision mediump float;\r\n\r\n\t\t// always twice if time dependend\r\n\t\tattribute vec2 aPosition;\r\n\t\t\r\n\t\t#if_ZINDEX\r\n\t\tattribute float aZindex;\r\n\t\t#end_ZINDEX\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = aRGBA.wzyx;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (aPosition ,\r\n\t\t\t\t#if_ZINDEX\r\n\t\t\t\taZindex\r\n\t\t\t\t#else_ZINDEX\r\n\t\t\t\t0.0\r\n\t\t\t\t#end_ZINDEX\r\n\t\t\t\t, 1.0\r\n\t\t\t\t);\r\n\t\t}\r\n\t";
+de.peote.view.element.ElementSimpleBuffer.defaultVertexShaderSrc = "\tprecision mediump float;\r\n\r\n\t\tattribute vec2 aPosition;\r\n\t\t\r\n\t\t#if_ZINDEX\r\n\t\tattribute float aZindex;\r\n\t\t#end_ZINDEX\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = aRGBA.wzyx;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (aPosition ,\r\n\t\t\t\t#if_ZINDEX\r\n\t\t\t\taZindex\r\n\t\t\t\t#else_ZINDEX\r\n\t\t\t\t0.0\r\n\t\t\t\t#end_ZINDEX\r\n\t\t\t\t, 1.0\r\n\t\t\t\t);\r\n\t\t}\r\n\t";
 de.peote.view.element.ElementSimpleBuffer.defaultFragmentShaderSrc = "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t#if_RGBA\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE );\r\n\t\t\tif(texel.a < 0.5) discard;\r\n\t\t\t#if_RGBA\r\n\t\t\tgl_FragColor = texel * vRGBA;\r\n\t\t\t#else_RGBA\r\n\t\t\tgl_FragColor = texel;\r\n\t\t\t#end_RGBA\r\n\t\t}\r\n\t";
 format.tools._InflateImpl.Window.SIZE = 32768;
 format.tools._InflateImpl.Window.BUFSIZE = 65536;
