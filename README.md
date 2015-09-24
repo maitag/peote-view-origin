@@ -13,12 +13,14 @@ To use with javascript look [here](https://github.com/maitag/peoteView.js).
 ####Why this lib ?
 
 - handle imagedata and procedural shadercode equal
+- better sync over network (simple index-numbers, no object-stringification)
 - simple API to scroll and zoom into massive gfx-2d-tiles
 - much render-time for animation done by gpu (more time for game-logic on cpu)
 - power of haxe-lime multiplatform code generation
 
 ####Todo
 
-- color replacement in images
-- animated tiles
+- tilesheet-animations
 - more simple samples, api improvement, usability tests ...
+- opengl "picking" ( hit-tests/mouse-INPUT-handling )
+- optimized timer-events
