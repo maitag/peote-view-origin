@@ -46,7 +46,9 @@ class Program
 	public static inline var aZINDEX:Int    = 2;
 	public static inline var aRGBA:Int      = 3;
 	public static inline var aRGBA_END:Int  = 4;
-	public static inline var aTIME:Int      = 5;
+	public static inline var aRotation:Int  = 5;
+	public static inline var aPivot:Int     = 6;
+	public static inline var aTIME:Int      = 7;
 	
 	public static inline var uMODELVIEWMATRIX:Int = 0;
 	public static inline var uPROJECTIONMATRIX:Int = 1;
@@ -67,6 +69,9 @@ class Program
 	
 	public static var rRGBAstart:   EReg = new EReg("#else_RGBA(.*?)#end_RGBA","ig");
 	public static var rRGBAend:     EReg = new EReg("#if_RGBA(.*?)#end_RGBA","ig");
+	
+	public static var rROTATIONstart:   EReg = new EReg("#else_ROTATION(.*?)#end_ROTATION","ig");
+	public static var rROTATIONend:     EReg = new EReg("#if_ROTATION(.*?)#end_ROTATION","ig");
 	
 	
 	public static var rMAX_TEXTURE_SIZE:EReg = new EReg("#MAX_TEXTURE_SIZE","g");
@@ -105,6 +110,12 @@ class Program
 			s = rRGBAstart.replace(s, "#end_RGBA"); s = rRGBAend.replace(s, "$1");
 		} else {
 			s = rRGBAstart.replace(s, "#end_RGBA$1"); s = rRGBAend.replace(s, "");
+		}
+		
+		if (type & DType.ROTATION != 0) {
+			s = rROTATIONstart.replace(s, "#end_ROTATION"); s = rROTATIONend.replace(s, "$1");
+		} else {
+			s = rROTATIONstart.replace(s, "#end_ROTATION$1"); s = rROTATIONend.replace(s, "");
 		}
 		
 		// replace template variables
@@ -175,6 +186,8 @@ class Program
 								case "aZindex":		elemBuff.attr.set(aZINDEX,    GL.getAttribLocation(glProgram, name) );
 								case "aRGBA":		elemBuff.attr.set(aRGBA,      GL.getAttribLocation(glProgram, name) );
 								case "aRGBA_END":	elemBuff.attr.set(aRGBA_END,  GL.getAttribLocation(glProgram, name) );
+								case "aRotation":	elemBuff.attr.set(aRotation,  GL.getAttribLocation(glProgram, name) );
+								case "aPivot":		elemBuff.attr.set(aPivot,     GL.getAttribLocation(glProgram, name) );
 								case "aTime":		elemBuff.attr.set(aTIME,      GL.getAttribLocation(glProgram, name) );
 							}
 						}

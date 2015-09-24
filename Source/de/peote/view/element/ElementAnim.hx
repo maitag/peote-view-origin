@@ -46,6 +46,9 @@ class ElementAnim implements I_Element
 	public var w:Int;
 	public var h:Int;
 	public var rgba:Int;
+	public var rotation:Float;
+	public var pivotX:Int;
+	public var pivotY:Int;
 	public var time:Float = 0.0;
 	
 	// not animated
@@ -61,8 +64,11 @@ class ElementAnim implements I_Element
 		y = PeoteView.elementDefaults.y;	
 		w = PeoteView.elementDefaults.w;	
 		h = PeoteView.elementDefaults.h;	
-		z = PeoteView.elementDefaults.z;	
-		rgba = PeoteView.elementDefaults.rgba;	
+		z = PeoteView.elementDefaults.z;
+		rgba = PeoteView.elementDefaults.rgba;
+		rotation = PeoteView.elementDefaults.rotation;
+		pivotX = PeoteView.elementDefaults.pivotX;
+		pivotY = PeoteView.elementDefaults.pivotY;
 		//image = PeoteView.elementDefaults.image;	
 		//tile = PeoteView.elementDefaults.tile;	
 	}
@@ -84,6 +90,9 @@ class ElementAnim implements I_Element
 		if (param.w == null) param.w = w;
 		if (param.h == null) param.h = h;
 		if (param.rgba == null) param.rgba = rgba;
+		if (param.rotation == null) param.rotation = rotation;
+		if (param.pivotX == null) param.pivotX = pivotX;
+		if (param.pivotY == null) param.pivotY = pivotY;
 		if (param.time == null) param.time = time;
 		
 		if (param.start == null) param.start = {};
@@ -93,6 +102,9 @@ class ElementAnim implements I_Element
 		if (param.start.w == null) param.start.w = param.w;
 		if (param.start.h == null) param.start.h = param.h;
 		if (param.start.rgba == null) param.start.rgba = param.rgba;
+		if (param.start.rotation == null) param.start.rotation = param.rotation;
+		if (param.start.pivotX == null) param.start.pivotX = param.pivotX;
+		if (param.start.pivotY == null) param.start.pivotY = param.pivotY;
 		if (param.start.time == null) param.start.time = param.time;
 			
 		if (param.end == null) param.end = {};
@@ -102,6 +114,9 @@ class ElementAnim implements I_Element
 		if (param.end.w == null) param.end.w = param.w;
 		if (param.end.h == null) param.end.h = param.h;
 		if (param.end.rgba == null) param.end.rgba = param.rgba;
+		if (param.end.rotation == null) param.end.rotation = param.rotation;
+		if (param.end.pivotX == null) param.end.pivotX = param.pivotX;
+		if (param.end.pivotY == null) param.end.pivotY = param.pivotY;
 		if (param.end.time == null) param.end.time = param.time;
 			
 		
@@ -152,6 +167,9 @@ class ElementAnim implements I_Element
 		w = param.end.w;
 		h = param.end.h;
 		rgba = param.end.rgba;
+		rotation = param.end.rotation;
+		pivotX = param.end.pivotX;
+		pivotY = param.end.pivotY;
 		time = param.end.time;
 
 		z = param.z;

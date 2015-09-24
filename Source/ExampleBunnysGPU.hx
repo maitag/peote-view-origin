@@ -72,7 +72,7 @@ class ExampleBunnysGPU extends Example
 		peoteView.setImage(1, "assets/peote_font_white.png", 512, 512);
 		
 		// Displaylist for massive tiles
-		peoteView.setDisplaylist( { displaylist:0, type:DType.ANIM|DType.RGBA, //|DType.ZINDEX
+		peoteView.setDisplaylist( { displaylist:0, type:DType.ANIM|DType.RGBA|DType.ROTATION, //|DType.ZINDEX
 			enable:true,
 			max_elements:max_bunnys, max_programs:1, buffer_segment_size:max_bunnys, // for low-end devices better max_elements < 100 000
 			//w:1920, h:1280,
@@ -165,19 +165,23 @@ class ExampleBunnysGPU extends Example
 					displaylist:0,
 					w: tile_size,
 					h: tile_size,
+					pivotX: Math.floor(tile_size/2),
+					pivotY: Math.floor(tile_size/2),
 					image:0,
 					tile:1 + random(31),
 					//rgba: random(256) << 24 | random(256) << 16 | random(256) << 8 | 128+random(128),
 					start: {
 						x: spawn_x,
 						y: spawn_y,
-						rgba: random(256) << 24 | random(256) << 16 | random(256) << 8 | 128+random(128),
+						rgba: random(256) << 24 | random(256) << 16 | random(256) << 8 | 128 + random(128),
+						rotation: random(1280),
 						time:t
 					},
 					end: {
 						x: random(width),
 						y: random(height),
-						rgba: random(256) << 24 | random(256) << 16 | random(256) << 8 | 128+random(128),
+						rgba: random(256) << 24 | random(256) << 16 | random(256) << 8 | 128 + random(128),
+						rotation: random(1280),
 						time: t+5+random(10)
 					}
 				});
@@ -342,6 +346,11 @@ class ExampleBunnysGPU extends Example
 		varying vec4 vRGBA;
 		#end_RGBA
 
+		#if_ROTATION
+		attribute vec2 aRotation;
+		attribute vec4 aPivot;
+		#end_ROTATION
+		
 		attribute vec2 aTime;
 		attribute vec2 aTexCoord;
 		
@@ -361,6 +370,22 @@ class ExampleBunnysGPU extends Example
 			
 			vec2 VertexPosStart = vec2( aPosition );
 			vec2 VertexPosEnd   = vec2 (aPosition.z, aPosition.w);
+			
+			#if_ROTATION
+			float alpha = aRotation.x + (aRotation.y - aRotation.x)	* (uTime-aTime.x) / (aTime.y - aTime.x);
+								
+			VertexPosStart = (VertexPosStart - vec2(aPivot))
+							* mat2 (
+								vec2(cos(alpha), -sin(alpha)),
+								vec2(sin(alpha),  cos(alpha))
+							) + vec2(aPivot);
+			
+			VertexPosEnd = (VertexPosEnd -  vec2(aPivot.z, aPivot.w))
+							* mat2 (
+								vec2(cos(alpha), -sin(alpha)),
+								vec2(sin(alpha),  cos(alpha))
+							) + vec2(aPivot.z, aPivot.w);
+			#end_ROTATION
 			
 			float zoom = uZoom;
 			float width = uResolution.x;

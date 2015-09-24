@@ -20,6 +20,10 @@ typedef Param =
 	?z:Int, ?program:Int, ?image:Int, ?tile:Int,
 	
 	?rgba:Int, // UInt doesnt work in cpp
+
+	?rotation:Float,
+	?pivotX:Int,
+	?pivotY:Int,
 	
 	?img:Image
 }
@@ -27,7 +31,13 @@ typedef Param =
 typedef ParamAnim =
 {
 	?x:Int, ?y:Int, ?w:Int, ?h:Int,
+
 	?rgba:Int, // UInt doesnt work in cpp
+
+	?rotation:Float,
+	?pivotX:Int,
+	?pivotY:Int,
+
 	?time:Float,
 	?tile:Int,
 }

@@ -19,7 +19,6 @@ To use with javascript look [here](https://github.com/maitag/peoteView.js).
 
 ####Todo
 
-- rotation
 - color replacement in images
 - animated tiles
 - more simple samples, api improvement, usability tests ...
