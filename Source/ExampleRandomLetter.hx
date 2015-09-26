@@ -58,7 +58,7 @@ class ExampleRandomLetter extends Example
 		// ---------------- DISPLAYLISTS -----------------------
 		
 		peoteView.setDisplaylist( { displaylist:0, type:DType.RGBA,
-			max_elements:w*h+1, max_programs:10, buffer_segment_size:w*h+1,
+			elements:w*h, programs:1, segments:1,
 			w:1920, h:1280,
 			z:0,
 			enable:true

@@ -91,7 +91,7 @@ class Example extends Application {
 		// ---------------- DISPLAYLISTS -----------------------
 		// -----------------------------------------------------
 		peoteView.setDisplaylist( { displaylist:0, type:DType.RGBA,
-			max_elements:100, max_programs:10, buffer_segment_size:1000, // for low-end devices better max_elements < 100 000
+			elements:100, programs:10, segments:10,
 			x:150, y:50,
 			w:1000, h:1000,
 			z:0,
@@ -99,7 +99,7 @@ class Example extends Application {
 		});
 		
 		peoteView.setDisplaylist( { displaylist:1, type:DType.ANIM,
-			max_elements:1000, max_programs:10, buffer_segment_size:1000, // for low-end devices better max_elements < 100 000
+			elements:1000, programs:10, segments:10,
 			x:100, y:70,
 			w:350, h:150,
 			z:1,

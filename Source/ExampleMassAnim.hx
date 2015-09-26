@@ -66,11 +66,18 @@ class ExampleMassAnim extends Example
 		peoteView.setImage(1, "assets/peote_tiles.png", 512, 512);
 		
 		// new Displaylist
-		peoteView.setDisplaylist( { displaylist:0, type:DType.ANIM,
+		peoteView.setDisplaylist( { displaylist:0, type:DType.SIMPLE,
 			enable:true,
-			max_elements:w * h + 1, max_programs:2, buffer_segment_size:1000, // for low-end devices better max_elements < 100 000
+			elements:1, programs:1, segments:1,
 			w:1920, h:1280,
 			z:0
+		});
+		// new Displaylist
+		peoteView.setDisplaylist( { displaylist:1, type:DType.ANIM,
+			enable:true,
+			elements:w * h, programs:1, segments:1,
+			w:1920, h:1280,
+			z:1
 		});
 		
 		// fractal BG
@@ -91,7 +98,7 @@ class ExampleMassAnim extends Example
 		//var x,y:Int;
 		for (x in 0...w)
 			for (y in 0...h)
-				peoteView.setElement( { element:1 + y*w +x, displaylist:0,
+				peoteView.setElement( { element:1 + y*w +x, displaylist:1,
 					start: {
 						x: x*s, y: y*s-s,
 						w:s, h:s,
@@ -121,7 +128,7 @@ class ExampleMassAnim extends Example
 		var t:Float = Timer.stamp() - startTime;
 		
 		for (x in 0...w)
-			peoteView.setElement( { element: 1+last_y*w+x, displaylist:0,
+			peoteView.setElement( { element: 1+last_y*w+x, displaylist:1,
 				start: {
 					y: -s,
 					time:t

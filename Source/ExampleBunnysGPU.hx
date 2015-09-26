@@ -74,7 +74,7 @@ class ExampleBunnysGPU extends Example
 		// Displaylist for massive tiles
 		peoteView.setDisplaylist( { displaylist:0, type:DType.ANIM|DType.RGBA|DType.ROTATION, //|DType.ZINDEX
 			enable:true,
-			max_elements:max_bunnys, max_programs:1, buffer_segment_size:max_bunnys, // for low-end devices better max_elements < 100 000
+			elements:max_bunnys,
 			//w:1920, h:1280,
 			z:0
 		});
@@ -82,7 +82,7 @@ class ExampleBunnysGPU extends Example
 		// Displaylist for FPS
 		peoteView.setDisplaylist( { displaylist:1, type:DType.SIMPLE|DType.RGBA,
 			enable:true,
-			max_elements:8, max_programs:1, buffer_segment_size:8, // max 8 chars
+			elements:8,
 			x:310, y:4, w:1, h:1,
 			renderBackground:true, a:0.8, r:0.3, g:0.2,
 			z:1
@@ -90,7 +90,7 @@ class ExampleBunnysGPU extends Example
 		// Displaylist for tile-ammount
 		peoteView.setDisplaylist( { displaylist:2, type:DType.SIMPLE|DType.RGBA,
 			enable:true,
-			max_elements:7, max_programs:1, buffer_segment_size:7, // max 7 chars
+			elements:7,
 			x:190, y:4, w:1, h:1,
 			renderBackground:true, a:0.75, r:0.25,
 			z:1
@@ -98,7 +98,7 @@ class ExampleBunnysGPU extends Example
 		// Displaylist for max_spawn
 		peoteView.setDisplaylist( { displaylist:3, type:DType.SIMPLE|DType.RGBA,
 			enable:true,
-			max_elements:33, max_programs:1, buffer_segment_size:33, // max 33 chars
+			elements:33,
 			x:8, y:34, w:1, h:1,
 			renderBackground:true, a:0.75, r:0.2,
 			z:1
@@ -106,7 +106,7 @@ class ExampleBunnysGPU extends Example
 		// Displaylist for info-text
 		peoteView.setDisplaylist( { displaylist:4, type:DType.SIMPLE|DType.RGBA,
 			enable:true,
-			max_elements:200, max_programs:1, buffer_segment_size:200, // max 200 chars
+			elements:200,
 			x:460, y:0, w:1, h:1,
 			renderBackground:true, a:0.8,r:0.25,
 			z:1
@@ -114,7 +114,7 @@ class ExampleBunnysGPU extends Example
 		// Displaylist for tile-size
 		peoteView.setDisplaylist( { displaylist:5, type:DType.SIMPLE|DType.RGBA,
 			enable:true,
-			max_elements:12, max_programs:1, buffer_segment_size:12, // max 12 chars
+			elements:12,
 			x:8, y:4, w:1, h:1,
 			renderBackground:true, a:0.75, r:0.25,
 			z:1
@@ -299,7 +299,7 @@ class ExampleBunnysGPU extends Example
 		var py:Int = 0;
 		var xmax:Int = 0;
 		
-		for (i in 0...peoteView.getDisplaylist({displaylist:d}).max_elements)
+		for (i in 0...peoteView.getDisplaylist({displaylist:d}).elements)
 		{
 			if (i < s.length)
 			     letter = s.charCodeAt(i);

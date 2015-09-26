@@ -9,7 +9,7 @@ typedef DParam =
 	?displaylist:Int,
 	?type:Int,
 	?enable:Bool,
-	?max_elements:Int, ?max_programs:Int, ?buffer_segment_size:Int,
+	?elements:Int, ?programs:Int, ?segments:Int,
 	?x:Int,
 	?y:Int,
 	?w:Int,

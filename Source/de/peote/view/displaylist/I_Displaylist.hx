@@ -10,7 +10,9 @@ import de.peote.view.Param;
 interface I_Displaylist 
 {
 	public var type:Int;
-	public var max_elements:Int;
+	public var elements:Int;
+	public var programs:Int;
+	public var segments:Int;
 	
 	public var prev:I_Displaylist; // pref displaylist (in order)
 	public var next:I_Displaylist; // next displaylist (in order)

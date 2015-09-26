@@ -20,7 +20,7 @@ To use with javascript look [here](https://github.com/maitag/peoteView.js).
 
 ####Todo
 
-- tilesheet-animations
+- tilesheet frame by frame animation
 - more simple samples, api improvement, usability tests ...
 - opengl "picking" ( hit-tests/mouse-INPUT-handling )
 - optimized timer-events

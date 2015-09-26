@@ -45,7 +45,9 @@ class Displaylist<ELEMENT:{function new():Void;}, BUFFER:{function new(t:Int, b:
 {
 	public var type:Int = 0;
 	
-	public var max_elements:Int = 0;
+	public var elements:Int; //max number of elements
+	public var programs:Int; //max number of different programs
+	public var segments:Int; //max number of buffer segments (minimum is  max programs)
 	
 	// double linked circular list
 	public var prev:I_Displaylist = this; // pref displaylist (in order)
@@ -91,14 +93,16 @@ class Displaylist<ELEMENT:{function new():Void;}, BUFFER:{function new(t:Int, b:
 		this.texturecache = texturecache;
 		this.programCache = programCache;
 		this.type = param.type;
-		this.max_elements = param.max_elements;
+		
+		this.elements = (param.elements != null) ? param.elements : 1;
+		this.programs = (param.programs!= null) ? param.programs : 1;
+		this.segments = Math.floor(Math.max( (param.segments != null) ? param.segments : 1, programs ));
 		
 		z = (param.z != null) ? param.z : 0;
 		
-		element = new Vector<I_Element>(param.max_elements);
-		trace("max_segments: "+(Math.floor( max_elements / param.buffer_segment_size ) + param.max_programs));
-
-		buffer = new Buffer(param.buffer_segment_size, Math.floor( max_elements/param.buffer_segment_size ) + param.max_programs ); // TODO
+		element = new Vector<I_Element>(elements);
+		
+		buffer = new Buffer( Math.floor(elements/segments), segments );
 		
 		elemBuff = cast( new BUFFER(type, buffer), I_ElementBuffer);
 		
