@@ -41,6 +41,10 @@ ApplicationMain.create = function() {
 	types.push("IMAGE");
 	urls.push("assets/peote_tiles.png");
 	types.push("IMAGE");
+	urls.push("assets/peote_tiles_bunnys.png");
+	types.push("IMAGE");
+	urls.push("assets/peote_tiles_flowers_alpha.png");
+	types.push("IMAGE");
 	if(ApplicationMain.config.assetsPrefix != null) {
 		var _g1 = 0;
 		var _g = urls.length;
@@ -52,13 +56,14 @@ ApplicationMain.create = function() {
 	ApplicationMain.preloader.load(urls,types);
 };
 ApplicationMain.main = function() {
-	ApplicationMain.config = { build : "459", company : "Sylvio Sell - maitag", file : "ExampleMassAnim", fps : 60, name : "peote_view", orientation : "", packageName : "de.peote.view", version : "0.1.5", windows : [{ antialiasing : 4, background : 16777215, borderless : false, depthBuffer : true, display : 0, fullscreen : false, hardware : true, height : 0, parameters : "{}", resizable : true, stencilBuffer : false, title : "peote_view", vsync : true, width : 0, x : null, y : null}]};
+	ApplicationMain.config = { build : "659", company : "Sylvio Sell - maitag", file : "ExampleMassAnim", fps : 60, name : "peote_view", orientation : "", packageName : "de.peote.view", version : "0.1.5", windows : [{ antialiasing : 4, background : 16777215, borderless : false, depthBuffer : true, display : 0, fullscreen : false, hardware : true, height : 0, parameters : "{}", resizable : true, stencilBuffer : false, title : "peote_view", vsync : true, width : 0, x : null, y : null}]};
 };
 ApplicationMain.start = function() {
 	var result = ApplicationMain.app.exec();
 };
 var lime = {};
 lime.AssetLibrary = function() {
+	this.onChange = new lime.app.Event_Void_Void();
 };
 $hxClasses["lime.AssetLibrary"] = lime.AssetLibrary;
 lime.AssetLibrary.__name__ = true;
@@ -91,26 +96,42 @@ lime.AssetLibrary.prototype = {
 	,list: function(type) {
 		return null;
 	}
-	,load: function(handler) {
-		handler(this);
+	,load: function() {
+		var _g = this;
+		return new lime.app.Future(function() {
+			return _g;
+		});
 	}
-	,loadAudioBuffer: function(id,handler) {
-		handler(this.getAudioBuffer(id));
+	,loadAudioBuffer: function(id) {
+		var _g = this;
+		return new lime.app.Future(function() {
+			return _g.getAudioBuffer(id);
+		});
 	}
-	,loadBytes: function(id,handler) {
-		handler(this.getBytes(id));
+	,loadBytes: function(id) {
+		var _g = this;
+		return new lime.app.Future(function() {
+			return _g.getBytes(id);
+		});
 	}
-	,loadFont: function(id,handler) {
-		handler(this.getFont(id));
+	,loadFont: function(id) {
+		var _g = this;
+		return new lime.app.Future(function() {
+			return _g.getFont(id);
+		});
 	}
-	,loadImage: function(id,handler) {
-		handler(this.getImage(id));
+	,loadImage: function(id) {
+		var _g = this;
+		return new lime.app.Future(function() {
+			return _g.getImage(id);
+		});
 	}
-	,loadText: function(id,handler) {
-		var callback = function(bytes) {
-			if(bytes == null) handler(null); else handler(bytes.readUTFBytes(bytes.length));
-		};
-		this.loadBytes(id,callback);
+	,loadText: function(id) {
+		return this.loadBytes(id).then(function(bytes) {
+			return new lime.app.Future(function() {
+				if(bytes == null) return null; else return bytes.readUTFBytes(bytes.length);
+			});
+		});
 	}
 	,unload: function() {
 	}
@@ -155,7 +176,14 @@ var DefaultAssetLibrary = function() {
 	id = "assets/peote_tiles.png";
 	this.path.set(id,id);
 	this.type.set(id,"IMAGE");
-	var assetsPrefix = ApplicationMain.config.assetsPrefix;
+	id = "assets/peote_tiles_bunnys.png";
+	this.path.set(id,id);
+	this.type.set(id,"IMAGE");
+	id = "assets/peote_tiles_flowers_alpha.png";
+	this.path.set(id,id);
+	this.type.set(id,"IMAGE");
+	var assetsPrefix = null;
+	if(ApplicationMain.config != null && Object.prototype.hasOwnProperty.call(ApplicationMain.config,"assetsPrefix")) assetsPrefix = ApplicationMain.config.assetsPrefix;
 	if(assetsPrefix != null) {
 		var $it0 = this.path.keys();
 		while( $it0.hasNext() ) {
@@ -169,18 +197,7 @@ $hxClasses["DefaultAssetLibrary"] = DefaultAssetLibrary;
 DefaultAssetLibrary.__name__ = true;
 DefaultAssetLibrary.__super__ = lime.AssetLibrary;
 DefaultAssetLibrary.prototype = $extend(lime.AssetLibrary.prototype,{
-	createThreadPool: function() {
-		var _g = this;
-		this.threadPool = new lime.system.ThreadPool(0,2);
-		this.threadPool.doWork.add(function(id,data) {
-			data.result = data.getMethod(id);
-			_g.threadPool.sendComplete(data.handler,data);
-		});
-		this.threadPool.onComplete.add(function(id1,data1) {
-			data1.handler(data1.result);
-		});
-	}
-	,exists: function(id,type) {
+	exists: function(id,type) {
 		var requestedType;
 		if(type != null) requestedType = js.Boot.__cast(type , String); else requestedType = null;
 		var assetType = this.type.get(id);
@@ -252,36 +269,60 @@ DefaultAssetLibrary.prototype = $extend(lime.AssetLibrary.prototype,{
 		}
 		return items;
 	}
-	,loadAudioBuffer: function(id,handler) {
-		handler(this.getAudioBuffer(id));
+	,loadAudioBuffer: function(id) {
+		var _g = this;
+		var promise = new lime.app.Promise();
+		promise.completeWith(new lime.app.Future(function() {
+			return _g.getAudioBuffer(id);
+		}));
+		return promise.future;
 	}
-	,loadBytes: function(id,handler) {
+	,loadBytes: function(id) {
+		var promise = new lime.app.Promise();
 		if(this.path.exists(id)) {
 			var loader = new lime.net.URLLoader();
 			loader.set_dataFormat(lime.net.URLLoaderDataFormat.BINARY);
 			loader.onComplete.add(function(_) {
-				handler(loader.data);
+				promise.complete(loader.data);
+			});
+			loader.onProgress.add(function(_1,loaded,total) {
+				if(total == 0) promise.progress(0); else promise.progress(loaded / total);
+			});
+			loader.onIOError.add(function(_2,e) {
+				promise.error(e);
 			});
 			loader.load(new lime.net.URLRequest(this.path.get(id)));
-		} else handler(this.getBytes(id));
+		} else promise.complete(this.getBytes(id));
+		return promise.future;
 	}
-	,loadImage: function(id,handler) {
+	,loadImage: function(id) {
+		var promise = new lime.app.Promise();
 		if(this.path.exists(id)) {
 			var image = new Image();
 			image.onload = function(_) {
-				handler(lime.graphics.Image.fromImageElement(image));
+				promise.complete(lime.graphics.Image.fromImageElement(image));
 			};
+			image.onerror = $bind(promise,promise.error);
 			image.src = this.path.get(id);
-		} else handler(this.getImage(id));
+		} else promise.complete(this.getImage(id));
+		return promise.future;
 	}
-	,loadText: function(id,handler) {
+	,loadText: function(id) {
+		var promise = new lime.app.Promise();
 		if(this.path.exists(id)) {
 			var loader = new lime.net.URLLoader();
 			loader.onComplete.add(function(_) {
-				handler(loader.data);
+				promise.complete(loader.data);
+			});
+			loader.onProgress.add(function(_1,loaded,total) {
+				if(total == 0) promise.progress(0); else promise.progress(loaded / total);
+			});
+			loader.onIOError.add(function(_2,msg) {
+				promise.error(msg);
 			});
 			loader.load(new lime.net.URLRequest(this.path.get(id)));
-		} else handler(this.getText(id));
+		} else promise.complete(this.getText(id));
+		return promise.future;
 	}
 	,__class__: DefaultAssetLibrary
 });
@@ -311,7 +352,7 @@ lime.app.IModule.prototype = {
 	__class__: lime.app.IModule
 };
 lime.app.Module = function() {
-	this.onExit = new lime.app.Event();
+	this.onExit = new lime.app.Event_Int_Void();
 };
 $hxClasses["lime.app.Module"] = lime.app.Module;
 lime.app.Module.__name__ = true;
@@ -394,7 +435,7 @@ lime.app.Module.prototype = {
 	,__class__: lime.app.Module
 };
 lime.app.Application = function() {
-	this.onUpdate = new lime.app.Event();
+	this.onUpdate = new lime.app.Event_Int_Void();
 	lime.app.Module.call(this);
 	if(lime.app.Application.current == null) lime.app.Application.current = this;
 	this.modules = new Array();
@@ -581,13 +622,7 @@ lime.app.Application.prototype = $extend(lime.app.Module.prototype,{
 		window.create(this);
 		this.windows.push(window);
 		this.windowByID.set(window.id,window);
-		var listeners = window.onCreate.listeners;
-		var repeat = window.onCreate.repeat;
-		var i = 0;
-		while(i < listeners.length) {
-			listeners[i]();
-			if(!repeat[i]) window.onCreate.remove(listeners[i]); else i++;
-		}
+		window.onCreate.dispatch();
 	}
 	,exec: function() {
 		lime.app.Application.current = this;
@@ -1024,8 +1059,8 @@ Example.prototype = $extend(lime.app.Application.prototype,{
 		this.peoteView.programCache.loadShaderSrc(0,"assets/lyapunov_01.frag","");
 		this.peoteView.texturecache.setImage(0,"assets/peote_font_white.png",512,512);
 		this.peoteView.texturecache.setImage(1,"assets/peote_tiles.png",512,512);
-		this.peoteView.setDisplaylist({ displaylist : 0, type : 8, max_elements : 100, max_programs : 10, buffer_segment_size : 1000, x : 150, y : 50, w : 1000, h : 1000, z : 0, enable : true});
-		this.peoteView.setDisplaylist({ displaylist : 1, type : 1, max_elements : 1000, max_programs : 10, buffer_segment_size : 1000, x : 100, y : 70, w : 350, h : 150, z : 1, renderBackground : true, r : 0.1, g : 0.5, b : 0.8, a : 0.8, enable : true});
+		this.peoteView.setDisplaylist({ displaylist : 0, type : 8, elements : 100, programs : 10, segments : 10, x : 150, y : 50, w : 1000, h : 1000, z : 0, enable : true});
+		this.peoteView.setDisplaylist({ displaylist : 1, type : 1, elements : 1000, programs : 10, segments : 10, x : 100, y : 70, w : 350, h : 150, z : 1, renderBackground : true, r : 0.1, g : 0.5, b : 0.8, a : 0.8, enable : true});
 		this.peoteView.setElementDefaults({ displaylist : 0, z : 1, image : 1, tile : 2});
 		this.peoteView.setElement({ element : 0, x : -50000, y : -50000, w : 100000, h : 100000, tw : 10000000, th : 10000000, program : 0});
 		this.peoteView.setElement({ element : 1, image : 0, tile : 65, x : 211, y : 0, w : 222, h : 222, rgba : Math.floor(Math.random() * 256) << 24 | Math.floor(Math.random() * 256) << 16 | Math.floor(Math.random() * 256) << 8 | Math.floor(Math.random() * 256)});
@@ -1045,26 +1080,26 @@ Example.prototype = $extend(lime.app.Application.prototype,{
 	,onMouseMove: function(window,x,y) {
 		this.mouse_x = x | 0;
 		this.mouse_y = y | 0;
-		this.xOffset = -this.width * (this.zoom - 1) / this.zoom * this.mouse_x / this.width | 0;
-		this.yOffset = -this.height * (this.zoom - 1) / this.zoom * this.mouse_y / this.height | 0;
+		this.setOffsets();
 	}
 	,onTouchMove: function(touch) {
-		haxe.Log.trace("onTouchMove: " + touch.x + "," + touch.y,{ fileName : "Example.hx", lineNumber : 174, className : "Example", methodName : "onTouchMove"});
+		haxe.Log.trace("onTouchMove: " + touch.x + "," + touch.y,{ fileName : "Example.hx", lineNumber : 176, className : "Example", methodName : "onTouchMove"});
 		this.mouse_x = touch.x | 0;
 		this.mouse_y = touch.y | 0;
+		this.setOffsets();
 	}
 	,onMouseDown: function(window,x,y,button) {
-		haxe.Log.trace("onMouseDown: x=" + x + " y=" + y,{ fileName : "Example.hx", lineNumber : 180, className : "Example", methodName : "onMouseDown"});
+		haxe.Log.trace("onMouseDown: x=" + x + " y=" + y,{ fileName : "Example.hx", lineNumber : 184, className : "Example", methodName : "onMouseDown"});
 		if(button == 0) this.zoom++; else if(button == 1 && this.zoom > 1) this.zoom--;
+		this.setOffsets();
 	}
 	,onMouseUp: function(window,x,y,button) {
-		haxe.Log.trace("onmouseup: " + button + " x=" + x + " y=" + y,{ fileName : "Example.hx", lineNumber : 186, className : "Example", methodName : "onMouseUp"});
+		haxe.Log.trace("onmouseup: " + button + " x=" + x + " y=" + y,{ fileName : "Example.hx", lineNumber : 192, className : "Example", methodName : "onMouseUp"});
 	}
 	,onMouseWheel: function(window,deltaX,deltaY) {
-		haxe.Log.trace("onmousewheel: " + deltaX + "," + deltaY,{ fileName : "Example.hx", lineNumber : 190, className : "Example", methodName : "onMouseWheel"});
+		haxe.Log.trace("onmousewheel: " + deltaX + "," + deltaY,{ fileName : "Example.hx", lineNumber : 197, className : "Example", methodName : "onMouseWheel"});
 		if(deltaY > 0) this.zoom++; else if(this.zoom > 1) this.zoom--;
-		this.xOffset = -this.width * (this.zoom - 1) / this.zoom * this.mouse_x / this.width | 0;
-		this.yOffset = -this.height * (this.zoom - 1) / this.zoom * this.mouse_y / this.height | 0;
+		this.setOffsets();
 	}
 	,setOffsets: function() {
 		this.xOffset = -this.width * (this.zoom - 1) / this.zoom * this.mouse_x / this.width | 0;
@@ -1096,7 +1131,8 @@ ExampleMassAnim.prototype = $extend(Example.prototype,{
 		this.peoteView.programCache.loadShaderSrc(1,"","");
 		this.peoteView.texturecache.setImage(0,"assets/peote_font_green.png",512,512);
 		this.peoteView.texturecache.setImage(1,"assets/peote_tiles.png",512,512);
-		this.peoteView.setDisplaylist({ displaylist : 0, type : 1, enable : true, max_elements : this.w * this.h + 1, max_programs : 2, buffer_segment_size : 1000, w : 1920, h : 1280, z : 0});
+		this.peoteView.setDisplaylist({ displaylist : 0, type : 0, enable : true, elements : 1, programs : 1, segments : 1, w : 1920, h : 1280, z : 0});
+		this.peoteView.setDisplaylist({ displaylist : 1, type : 1, enable : true, elements : this.w * this.h, programs : 1, segments : 1, w : 1920, h : 1280, z : 1});
 		this.peoteView.setElement({ element : 0, displaylist : 0, time : t, x : 0, y : 0, w : 3000, h : 3000, z : -2, program : 0, tw : 1000, th : 1000, end : { x : -1500, y : -1500, w : 11000, h : 11000, time : t + this.h / this.speed}});
 		this.update_time = haxe.Timer.stamp();
 		var _g1 = 0;
@@ -1107,12 +1143,12 @@ ExampleMassAnim.prototype = $extend(Example.prototype,{
 			var _g2 = this.h;
 			while(_g3 < _g2) {
 				var y = _g3++;
-				this.peoteView.setElement({ element : 1 + y * this.w + x, displaylist : 0, start : { x : x * this.s, y : y * this.s - this.s, w : this.s, h : this.s, time : t}, end : { x : x * this.s, y : y * this.s - this.s + this.h * this.s, w : this.s, h : this.s, time : t + this.h / this.speed}, z : -1, program : 1, image : Math.floor(Math.random() * 2), tile : 1 + Math.floor(Math.random() * 255)});
+				this.peoteView.setElement({ element : 1 + y * this.w + x, displaylist : 1, start : { x : x * this.s, y : y * this.s - this.s, w : this.s, h : this.s, time : t}, end : { x : x * this.s, y : y * this.s - this.s + this.h * this.s, w : this.s, h : this.s, time : t + this.h / this.speed}, z : -1, program : 1, image : Math.floor(Math.random() * 2), tile : 1 + Math.floor(Math.random() * 255)});
 			}
 		}
 		var timer = new haxe.Timer(Math.floor(1000 / this.speed));
 		timer.run = $bind(this,this.moveTilesUp);
-		haxe.Log.trace("START update_time: " + Math.round((haxe.Timer.stamp() - this.update_time) * 100000) / 100000,{ fileName : "ExampleMassAnim.hx", lineNumber : 113, className : "ExampleMassAnim", methodName : "run"});
+		haxe.Log.trace("START update_time: " + Math.round((haxe.Timer.stamp() - this.update_time) * 100000) / 100000,{ fileName : "ExampleMassAnim.hx", lineNumber : 120, className : "ExampleMassAnim", methodName : "run"});
 	}
 	,moveTilesUp: function() {
 		this.update_time = haxe.Timer.stamp();
@@ -1121,14 +1157,14 @@ ExampleMassAnim.prototype = $extend(Example.prototype,{
 		var _g = this.w;
 		while(_g1 < _g) {
 			var x = _g1++;
-			this.peoteView.setElement({ element : 1 + this.last_y * this.w + x, displaylist : 0, start : { y : -this.s, time : t}, end : { y : -this.s + this.h * this.s, time : t + this.h / this.speed}});
+			this.peoteView.setElement({ element : 1 + this.last_y * this.w + x, displaylist : 1, start : { y : -this.s, time : t}, end : { y : -this.s + this.h * this.s, time : t + this.h / this.speed}});
 		}
 		if(this.last_y == 0) {
 			this.last_y = this.h - 1;
 			if(this.switchBGanim == 1) this.peoteView.setElement({ element : 0, displaylist : 0, end : { x : 0, y : 0, w : 3000, h : 3000, time : t + this.h / this.speed}, tw : 1000, th : 1000}); else this.peoteView.setElement({ element : 0, displaylist : 0, end : { x : -1500, y : -1500, w : 11000, h : 11000, time : t + this.h / this.speed}, tw : 1000, th : 1000});
 			this.switchBGanim = -this.switchBGanim;
 		} else this.last_y--;
-		haxe.Log.trace("FPS: " + this.frames + " - render time: " + Math.round(this.render_time / this.frames * 100000) / 100000 + " - update_time: " + Math.round((haxe.Timer.stamp() - this.update_time) * 100000) / 100000,{ fileName : "ExampleMassAnim.hx", lineNumber : 161, className : "ExampleMassAnim", methodName : "moveTilesUp"});
+		haxe.Log.trace("FPS: " + this.frames + " - render time: " + Math.round(this.render_time / this.frames * 100000) / 100000 + " - update_time: " + Math.round((haxe.Timer.stamp() - this.update_time) * 100000) / 100000,{ fileName : "ExampleMassAnim.hx", lineNumber : 168, className : "ExampleMassAnim", methodName : "moveTilesUp"});
 		this.frames = 0;
 		this.render_time = 0;
 	}
@@ -1342,10 +1378,10 @@ $hxClasses["de.peote.tools.Holes"] = de.peote.tools.Holes;
 de.peote.tools.Holes.__name__ = true;
 de.peote.tools.Holes.prototype = {
 	addHole: function(pos) {
-		var _g1 = 0;
-		var _g = this.hole.length;
-		while(_g1 < _g) {
-			var i = _g1++;
+		var len = this.hole.length;
+		var _g = 0;
+		while(_g < len) {
+			var i = _g++;
 			if(pos + 1 == this.hole[i].start) {
 				this.hole[i].start--;
 				if(i > 0) {
@@ -1538,6 +1574,9 @@ de.peote.view.PeoteView.prototype = {
 			d["delete"]();
 		}
 	}
+	,getDisplaylist: function(param) {
+		return this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist];
+	}
 	,setProgram: function(program_nr,fsUrl,vsUrl) {
 		if(vsUrl == null) vsUrl = "";
 		if(fsUrl == null) fsUrl = "";
@@ -1552,18 +1591,18 @@ de.peote.view.PeoteView.prototype = {
 		this.texturecache.setImage(image_nr,imageUrl,w,h);
 	}
 	,setElement: function(param) {
-		if(param.element != null) this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist].setElement(param); else haxe.Log.trace("ERROR: no element specified",{ fileName : "PeoteView.hx", lineNumber : 225, className : "de.peote.view.PeoteView", methodName : "setElement"});
+		if(param.element != null) this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist].setElement(param); else haxe.Log.trace("ERROR: no element specified",{ fileName : "PeoteView.hx", lineNumber : 236, className : "de.peote.view.PeoteView", methodName : "setElement"});
 	}
 	,getElement: function(param) {
 		var p = { };
-		if(param.element != null) p = this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist].getElement(param.element); else haxe.Log.trace("ERROR: no element specified",{ fileName : "PeoteView.hx", lineNumber : 233, className : "de.peote.view.PeoteView", methodName : "getElement"});
+		if(param.element != null) p = this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist].getElement(param.element); else haxe.Log.trace("ERROR: no element specified",{ fileName : "PeoteView.hx", lineNumber : 244, className : "de.peote.view.PeoteView", methodName : "getElement"});
 		return p;
 	}
 	,hasElement: function(param) {
 		if(param.element == null) return false; else return this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist].hasElement(param.element);
 	}
 	,delElement: function(param) {
-		if(param.element != null) this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist].delElement(param.element); else haxe.Log.trace("ERROR: no element specified",{ fileName : "PeoteView.hx", lineNumber : 246, className : "de.peote.view.PeoteView", methodName : "delElement"});
+		if(param.element != null) this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist].delElement(param.element); else haxe.Log.trace("ERROR: no element specified",{ fileName : "PeoteView.hx", lineNumber : 257, className : "de.peote.view.PeoteView", methodName : "delElement"});
 	}
 	,delAllElement: function(param) {
 		this.displaylist[param.displaylist != null?param.displaylist:de.peote.view.PeoteView.elementDefaults.displaylist].delAllElement();
@@ -1592,9 +1631,9 @@ de.peote.view.PeoteView.prototype = {
 			var sx = (this.dl.x + xOffset) * zoom;
 			var sy = (this.dl.y + yOffset) * zoom;
 			var sw;
-			if(this.dl.w != 0) sw = this.dl.w * zoom; else sw = width;
+			if(this.dl.w != 0) sw = this.dl.w * zoom; else sw = width * zoom;
 			var sh;
-			if(this.dl.h != 0) sh = this.dl.h * zoom; else sh = height;
+			if(this.dl.h != 0) sh = this.dl.h * zoom; else sh = height * zoom;
 			if(sx < 0) sw += sx;
 			sx = Std["int"](Math.max(0,Math.min(width,sx)));
 			sw = Std["int"](Math.max(0,Math.min(width - sx,sw)));
@@ -1604,8 +1643,10 @@ de.peote.view.PeoteView.prototype = {
 			lime.graphics.opengl.GL.context.scissor(sx,height - sh - sy,sw,sh);
 			lime.graphics.opengl.GL.context.enable(2929);
 			lime.graphics.opengl.GL.context.depthFunc(515);
-			lime.graphics.opengl.GL.context.enable(3042);
-			lime.graphics.opengl.GL.context.blendFunc(770,771);
+			if(this.dl.blend != 0) {
+				lime.graphics.opengl.GL.context.enable(3042);
+				lime.graphics.opengl.GL.context.blendFunc(770,771);
+			} else lime.graphics.opengl.GL.context.disable(3042);
 			lime.graphics.opengl.GL.context.activeTexture(33984);
 			lime.graphics.opengl.GL.context.bindTexture(3553,this.texturecache.texture);
 			if(this.dl != this.startDisplaylist && this.dl.z != this.dl.prev.z) lime.graphics.opengl.GL.context.clear(256);
@@ -1620,10 +1661,10 @@ de.peote.view.PeoteView.prototype = {
 			}
 			lime.graphics.opengl.GL.context.bindBuffer(34962,this.dl.elemBuff.glBuff);
 			this.dl.elemBuff.setVertexAttributes();
-			var _g1 = 0;
-			var _g = this.dl.buffer.activeProgram.length;
-			while(_g1 < _g) {
-				var i = _g1++;
+			var len = this.dl.buffer.activeProgram.length;
+			var _g = 0;
+			while(_g < len) {
+				var i = _g++;
 				this.ap = this.dl.buffer.activeProgram[i];
 				lime.graphics.opengl.GL.context.useProgram(this.ap.program.glProgram);
 				lime.graphics.opengl.GL.context.uniform1i(this.ap.program.uniforms[2],0);
@@ -1696,6 +1737,13 @@ de.peote.view.Program.prototype = {
 			s = de.peote.view.Program.rRGBAstart.replace(s,"#end_RGBA$1");
 			s = de.peote.view.Program.rRGBAend.replace(s,"");
 		}
+		if((type & 16) != 0) {
+			s = de.peote.view.Program.rROTATIONstart.replace(s,"#end_ROTATION");
+			s = de.peote.view.Program.rROTATIONend.replace(s,"$1");
+		} else {
+			s = de.peote.view.Program.rROTATIONstart.replace(s,"#end_ROTATION$1");
+			s = de.peote.view.Program.rROTATIONend.replace(s,"");
+		}
 		s = de.peote.view.Program.rMAX_TEXTURE_SIZE.replace(s,de.peote.view.texture.TextureCache.max_texture_size + ".0");
 		return s;
 	}
@@ -1703,8 +1751,8 @@ de.peote.view.Program.prototype = {
 		fragmentShaderSrc = this.parseType(type,fragmentShaderSrc);
 		vertexShaderSrc = this.parseType(type,vertexShaderSrc);
 		var r = new EReg(";","g");
-		haxe.Log.trace("VERTEXSHADER:\n",{ fileName : "Program.hx", lineNumber : 124, className : "de.peote.view.Program", methodName : "compile", customParams : [r.replace(vertexShaderSrc,";\n")]});
-		haxe.Log.trace("FRAGMENTSHADER:\n",{ fileName : "Program.hx", lineNumber : 125, className : "de.peote.view.Program", methodName : "compile", customParams : [r.replace(fragmentShaderSrc,";\n")]});
+		haxe.Log.trace("VERTEXSHADER:\n" + r.replace(vertexShaderSrc,";\n"),{ fileName : "Program.hx", lineNumber : 136, className : "de.peote.view.Program", methodName : "compile"});
+		haxe.Log.trace("FRAGMENTSHADER:\n" + r.replace(fragmentShaderSrc,";\n"),{ fileName : "Program.hx", lineNumber : 137, className : "de.peote.view.Program", methodName : "compile"});
 		var fs = lime.graphics.opengl.GL.context.createShader(35632);
 		lime.graphics.opengl.GL.context.shaderSource(fs,fragmentShaderSrc);
 		lime.graphics.opengl.GL.context.compileShader(fs);
@@ -1722,7 +1770,7 @@ de.peote.view.Program.prototype = {
 				var name;
 				if(elemBuff != null) {
 					if(elemBuff.attr == null) {
-						haxe.Log.trace("ANZAHL " + lime.graphics.opengl.GL.context.getProgramParameter(this.glProgram,35721),{ fileName : "Program.hx", lineNumber : 164, className : "de.peote.view.Program", methodName : "compile"});
+						haxe.Log.trace("ANZAHL " + lime.graphics.opengl.GL.context.getProgramParameter(this.glProgram,35721),{ fileName : "Program.hx", lineNumber : 176, className : "de.peote.view.Program", methodName : "compile"});
 						var length = lime.graphics.opengl.GL.context.getProgramParameter(this.glProgram,35721);
 						var this1;
 						this1 = new Array(length);
@@ -1732,7 +1780,7 @@ de.peote.view.Program.prototype = {
 						while(_g1 < _g) {
 							var i = _g1++;
 							name = lime.graphics.opengl.GL.context.getActiveAttrib(this.glProgram,i).name;
-							haxe.Log.trace(name + ":" + lime.graphics.opengl.GL.context.getAttribLocation(this.glProgram,name),{ fileName : "Program.hx", lineNumber : 169, className : "de.peote.view.Program", methodName : "compile"});
+							haxe.Log.trace(name + ":" + lime.graphics.opengl.GL.context.getAttribLocation(this.glProgram,name),{ fileName : "Program.hx", lineNumber : 181, className : "de.peote.view.Program", methodName : "compile"});
 							switch(name) {
 							case "aPosition":
 								var val = lime.graphics.opengl.GL.context.getAttribLocation(this.glProgram,name);
@@ -1750,9 +1798,21 @@ de.peote.view.Program.prototype = {
 								var val3 = lime.graphics.opengl.GL.context.getAttribLocation(this.glProgram,name);
 								elemBuff.attr[3] = val3;
 								break;
-							case "aTime":
+							case "aRGBA_END":
 								var val4 = lime.graphics.opengl.GL.context.getAttribLocation(this.glProgram,name);
 								elemBuff.attr[4] = val4;
+								break;
+							case "aRotation":
+								var val5 = lime.graphics.opengl.GL.context.getAttribLocation(this.glProgram,name);
+								elemBuff.attr[5] = val5;
+								break;
+							case "aPivot":
+								var val6 = lime.graphics.opengl.GL.context.getAttribLocation(this.glProgram,name);
+								elemBuff.attr[6] = val6;
+								break;
+							case "aTime":
+								var val7 = lime.graphics.opengl.GL.context.getAttribLocation(this.glProgram,name);
+								elemBuff.attr[7] = val7;
 								break;
 							}
 						}
@@ -1769,36 +1829,36 @@ de.peote.view.Program.prototype = {
 					name = lime.graphics.opengl.GL.context.getActiveUniform(this.glProgram,i1).name;
 					switch(name) {
 					case "uModelViewMatrix":
-						var val5 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
-						this.uniforms[0] = val5;
+						var val8 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
+						this.uniforms[0] = val8;
 						break;
 					case "uProjectionMatrix":
-						var val6 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
-						this.uniforms[1] = val6;
+						var val9 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
+						this.uniforms[1] = val9;
 						break;
 					case "uImage":
-						var val7 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
-						this.uniforms[2] = val7;
+						var val10 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
+						this.uniforms[2] = val10;
 						break;
 					case "uMouse":
-						var val8 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
-						this.uniforms[3] = val8;
+						var val11 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
+						this.uniforms[3] = val11;
 						break;
 					case "uResolution":
-						var val9 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
-						this.uniforms[4] = val9;
+						var val12 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
+						this.uniforms[4] = val12;
 						break;
 					case "uTime":
-						var val10 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
-						this.uniforms[5] = val10;
+						var val13 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
+						this.uniforms[5] = val13;
 						break;
 					case "uZoom":
-						var val11 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
-						this.uniforms[6] = val11;
+						var val14 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
+						this.uniforms[6] = val14;
 						break;
 					case "uDelta":
-						var val12 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
-						this.uniforms[7] = val12;
+						var val15 = lime.graphics.opengl.GL.context.getUniformLocation(this.glProgram,name);
+						this.uniforms[7] = val15;
 						break;
 					}
 				}
@@ -1868,11 +1928,11 @@ de.peote.view.ProgramCache.prototype = {
 			while( $it0.hasNext() ) {
 				var type = $it0.next();
 				if((type & 1) != 0) {
-					default_fs = "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE);\r\n\t\t\tif(texel.a < 0.5) discard;\r\n\t\t\tgl_FragColor = texel;\r\n\t\t}\r\n\t";
-					default_vs = "\tprecision mediump float;\r\n\r\n\t\t// always twice if time dependend\r\n\t\tattribute vec4 aPosition;\r\n\t\tattribute vec2 aTime;\r\n\t\t\r\n\t\tattribute float aZindex;\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = 255.0/aRGBA;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\r\n\t\t\tvec2 VertexPosStart = vec2( aPosition ); //vec2 (aPosition.x, aPosition.y);\r\n\t\t\tvec2 VertexPosEnd   = vec2 (aPosition.z, aPosition.w);\r\n\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (VertexPosStart + floor( \r\n\t\t\t\t\t\t\t\t(VertexPosEnd - VertexPosStart)\r\n\t\t\t\t\t\t\t\t* max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0))\r\n\t\t\t\t\t\t\t\t* zoom) / zoom\r\n\t\t\t\t, aZindex ,1.0);\r\n\t\t}\r\n\t";
+					default_fs = "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t#if_RGBA\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE);\r\n\t\t\tif(texel.a < 0.5) discard; // TODO (z-order/blend mode!!!)\r\n\t\t\t#if_RGBA\r\n\t\t\tgl_FragColor = texel * vRGBA;\r\n\t\t\t#else_RGBA\r\n\t\t\tgl_FragColor = texel;\r\n\t\t\t#end_RGBA\r\n\t\t}\r\n\t";
+					default_vs = "\tprecision mediump float;\r\n\r\n\t\tattribute vec4 aPosition;\r\n\t\t\r\n\t\t#if_ZINDEX\r\n\t\tattribute float aZindex;\r\n\t\t#end_ZINDEX\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tattribute vec4 aRGBA_END;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\t\t\r\n\t\t#if_ROTATION\r\n\t\tattribute vec2 aRotation;\r\n\t\tattribute vec4 aPivot;\r\n\t\t#end_ROTATION\r\n\t\t\r\n\t\tattribute vec2 aTime;\r\n\t\t\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = aRGBA.wzyx + (aRGBA_END.wzyx - aRGBA.wzyx) * max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0));\t\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\r\n\t\t\tvec2 VertexPosStart = vec2 ( aPosition ); //vec2 (aPosition.x, aPosition.y);\r\n\t\t\tvec2 VertexPosEnd   = vec2 ( aPosition.z, aPosition.w);\r\n\t\t\t\r\n\t\t\t#if_ROTATION\r\n\t\t\tfloat alpha = aRotation.x + (aRotation.y - aRotation.x)\t* max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0));\r\n\t\t\t\t\t\t\t\t\r\n\t\t\tVertexPosStart = (VertexPosStart - vec2(aPivot))\r\n\t\t\t\t\t\t\t* mat2 (\r\n\t\t\t\t\t\t\t\tvec2(cos(alpha), -sin(alpha)),\r\n\t\t\t\t\t\t\t\tvec2(sin(alpha),  cos(alpha))\r\n\t\t\t\t\t\t\t) + vec2(aPivot);\r\n\t\t\t\r\n\t\t\tVertexPosEnd = (VertexPosEnd -  vec2(aPivot.z, aPivot.w))\r\n\t\t\t\t\t\t\t* mat2 (\r\n\t\t\t\t\t\t\t\tvec2(cos(alpha), -sin(alpha)),\r\n\t\t\t\t\t\t\t\tvec2(sin(alpha),  cos(alpha))\r\n\t\t\t\t\t\t\t) + vec2(aPivot.z, aPivot.w);\r\n\t\t\t#end_ROTATION\r\n\t\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4( VertexPosStart + floor( \r\n\t\t\t\t\t\t\t\t(VertexPosEnd - VertexPosStart)\r\n\t\t\t\t\t\t\t\t* max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0))\r\n\t\t\t\t\t\t\t\t* zoom) / zoom ,\r\n\t\t\t\t#if_ZINDEX\r\n\t\t\t\taZindex\r\n\t\t\t\t#else_ZINDEX\r\n\t\t\t\t0.0\r\n\t\t\t\t#end_ZINDEX\r\n\t\t\t\t, 1.0\r\n\t\t\t)\r\n\t\t\t// rotate displaylist\r\n\t\t\t/** mat4 (\r\n\t\t\t\tvec4(cos(winkel), -sin(winkel), 0.0, 0.0),\r\n\t\t\t\tvec4(sin(winkel),  cos(winkel), 0.0, 0.0),\r\n\t\t\t\tvec4(        0.0,          1.0, 0.0, 0.0),\r\n\t\t\t\tvec4(        0.0,          0.0, 0.0, 1.0)\r\n\t\t\t)*/\r\n\t\t\t;\r\n\t\t}\r\n\t";
 				} else {
 					default_fs = "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t#if_RGBA\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE );\r\n\t\t\tif(texel.a < 0.5) discard;\r\n\t\t\t#if_RGBA\r\n\t\t\tgl_FragColor = texel * vRGBA;\r\n\t\t\t#else_RGBA\r\n\t\t\tgl_FragColor = texel;\r\n\t\t\t#end_RGBA\r\n\t\t}\r\n\t";
-					default_vs = "\tprecision mediump float;\r\n\r\n\t\t// always twice if time dependend\r\n\t\tattribute vec2 aPosition;\r\n\t\t\r\n\t\t#if_ZINDEX\r\n\t\tattribute float aZindex;\r\n\t\t#end_ZINDEX\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = aRGBA.wzyx;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (aPosition ,\r\n\t\t\t\t#if_ZINDEX\r\n\t\t\t\taZindex\r\n\t\t\t\t#else_ZINDEX\r\n\t\t\t\t0.0\r\n\t\t\t\t#end_ZINDEX\r\n\t\t\t\t, 1.0\r\n\t\t\t\t);\r\n\t\t}\r\n\t";
+					default_vs = "\tprecision mediump float;\r\n\r\n\t\tattribute vec2 aPosition;\r\n\t\t\r\n\t\t#if_ZINDEX\r\n\t\tattribute float aZindex;\r\n\t\t#end_ZINDEX\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = aRGBA.wzyx;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (aPosition ,\r\n\t\t\t\t#if_ZINDEX\r\n\t\t\t\taZindex\r\n\t\t\t\t#else_ZINDEX\r\n\t\t\t\t0.0\r\n\t\t\t\t#end_ZINDEX\r\n\t\t\t\t, 1.0\r\n\t\t\t\t);\r\n\t\t}\r\n\t";
 				}
 				haxe.Log.trace("setShaderSrc:" + type,{ fileName : "ProgramCache.hx", lineNumber : 129, className : "de.peote.view.ProgramCache", methodName : "setShaderSrc"});
 				if(fs == "") pmap.get(type).compile(null,type,default_fs,vs,$bind(this,this.onerror)); else if(vs == "") pmap.get(type).compile(null,type,fs,default_vs,$bind(this,this.onerror));
@@ -1917,10 +1977,11 @@ de.peote.view.displaylist.Displaylist = function(param,programCache,texturecache
 	this.b = 0.0;
 	this.g = 0.0;
 	this.r = 0.0;
-	this.z = 0;
+	this.blend = 1;
+	this.zoom = 1;
 	this.yOffset = 0;
 	this.xOffset = 0;
-	this.zoom = 1;
+	this.z = 0;
 	this.h = 0;
 	this.w = 0;
 	this.y = 0;
@@ -1931,12 +1992,14 @@ de.peote.view.displaylist.Displaylist = function(param,programCache,texturecache
 	this.texturecache = texturecache;
 	this.programCache = programCache;
 	this.type = param.type;
+	if(param.elements != null) this.elements = param.elements; else this.elements = 1;
+	if(param.programs != null) this.programs = param.programs; else this.programs = 1;
+	this.segments = Math.floor(Math.max(param.segments != null?param.segments:1,this.programs));
 	if(param.z != null) this.z = param.z; else this.z = 0;
 	var this1;
-	this1 = new Array(param.max_elements);
+	this1 = new Array(this.elements);
 	this.element = this1;
-	haxe.Log.trace("max_segments: " + (Math.floor(param.max_elements / param.buffer_segment_size) + param.max_programs),{ fileName : "Displaylist.hx", lineNumber : 94, className : "de.peote.view.displaylist.Displaylist", methodName : "new"});
-	this.buffer = new de.peote.view.Buffer(param.buffer_segment_size,Math.floor(param.max_elements / param.buffer_segment_size) + param.max_programs);
+	this.buffer = new de.peote.view.Buffer(Math.floor(this.elements / this.segments),this.segments);
 	this.elemBuff = js.Boot.__cast(new de.peote.view.displaylist.Displaylist.BUFFER(this.type,this.buffer) , de.peote.view.element.I_ElementBuffer);
 	programCache.addDisplaylist(this.type,this.elemBuff);
 };
@@ -1954,9 +2017,10 @@ de.peote.view.displaylist.Displaylist.prototype = {
 		if(param.y != null) this.y = param.y;
 		if(param.w != null) this.w = param.w;
 		if(param.h != null) this.h = param.h;
-		if(param.zoom != null) this.h = param.zoom;
 		if(param.xOffset != null) this.xOffset = param.xOffset;
 		if(param.yOffset != null) this.yOffset = param.yOffset;
+		if(param.zoom != null) this.zoom = param.zoom;
+		if(param.blend != null) this.blend = param.blend;
 		if(param.r != null) this.r = param.r;
 		if(param.g != null) this.g = param.g;
 		if(param.b != null) this.b = param.b;
@@ -2009,10 +2073,11 @@ de.peote.view.displaylist.Displaylist_de_peote_view_element_ElementAnim_de_peote
 	this.b = 0.0;
 	this.g = 0.0;
 	this.r = 0.0;
-	this.z = 0;
+	this.blend = 1;
+	this.zoom = 1;
 	this.yOffset = 0;
 	this.xOffset = 0;
-	this.zoom = 1;
+	this.z = 0;
 	this.h = 0;
 	this.w = 0;
 	this.y = 0;
@@ -2023,12 +2088,14 @@ de.peote.view.displaylist.Displaylist_de_peote_view_element_ElementAnim_de_peote
 	this.texturecache = texturecache;
 	this.programCache = programCache;
 	this.type = param.type;
+	if(param.elements != null) this.elements = param.elements; else this.elements = 1;
+	if(param.programs != null) this.programs = param.programs; else this.programs = 1;
+	this.segments = Math.floor(Math.max(param.segments != null?param.segments:1,this.programs));
 	if(param.z != null) this.z = param.z; else this.z = 0;
 	var this1;
-	this1 = new Array(param.max_elements);
+	this1 = new Array(this.elements);
 	this.element = this1;
-	haxe.Log.trace("max_segments: " + (Math.floor(param.max_elements / param.buffer_segment_size) + param.max_programs),{ fileName : "Displaylist.hx", lineNumber : 94, className : "de.peote.view.displaylist.Displaylist", methodName : "new"});
-	this.buffer = new de.peote.view.Buffer(param.buffer_segment_size,Math.floor(param.max_elements / param.buffer_segment_size) + param.max_programs);
+	this.buffer = new de.peote.view.Buffer(Math.floor(this.elements / this.segments),this.segments);
 	this.elemBuff = js.Boot.__cast(new de.peote.view.element.ElementAnimBuffer(this.type,this.buffer) , de.peote.view.element.I_ElementBuffer);
 	programCache.addDisplaylist(this.type,this.elemBuff);
 };
@@ -2046,9 +2113,10 @@ de.peote.view.displaylist.Displaylist_de_peote_view_element_ElementAnim_de_peote
 		if(param.y != null) this.y = param.y;
 		if(param.w != null) this.w = param.w;
 		if(param.h != null) this.h = param.h;
-		if(param.zoom != null) this.h = param.zoom;
 		if(param.xOffset != null) this.xOffset = param.xOffset;
 		if(param.yOffset != null) this.yOffset = param.yOffset;
+		if(param.zoom != null) this.zoom = param.zoom;
+		if(param.blend != null) this.blend = param.blend;
 		if(param.r != null) this.r = param.r;
 		if(param.g != null) this.g = param.g;
 		if(param.b != null) this.b = param.b;
@@ -2101,10 +2169,11 @@ de.peote.view.displaylist.Displaylist_de_peote_view_element_ElementSimple_de_peo
 	this.b = 0.0;
 	this.g = 0.0;
 	this.r = 0.0;
-	this.z = 0;
+	this.blend = 1;
+	this.zoom = 1;
 	this.yOffset = 0;
 	this.xOffset = 0;
-	this.zoom = 1;
+	this.z = 0;
 	this.h = 0;
 	this.w = 0;
 	this.y = 0;
@@ -2115,12 +2184,14 @@ de.peote.view.displaylist.Displaylist_de_peote_view_element_ElementSimple_de_peo
 	this.texturecache = texturecache;
 	this.programCache = programCache;
 	this.type = param.type;
+	if(param.elements != null) this.elements = param.elements; else this.elements = 1;
+	if(param.programs != null) this.programs = param.programs; else this.programs = 1;
+	this.segments = Math.floor(Math.max(param.segments != null?param.segments:1,this.programs));
 	if(param.z != null) this.z = param.z; else this.z = 0;
 	var this1;
-	this1 = new Array(param.max_elements);
+	this1 = new Array(this.elements);
 	this.element = this1;
-	haxe.Log.trace("max_segments: " + (Math.floor(param.max_elements / param.buffer_segment_size) + param.max_programs),{ fileName : "Displaylist.hx", lineNumber : 94, className : "de.peote.view.displaylist.Displaylist", methodName : "new"});
-	this.buffer = new de.peote.view.Buffer(param.buffer_segment_size,Math.floor(param.max_elements / param.buffer_segment_size) + param.max_programs);
+	this.buffer = new de.peote.view.Buffer(Math.floor(this.elements / this.segments),this.segments);
 	this.elemBuff = js.Boot.__cast(new de.peote.view.element.ElementSimpleBuffer(this.type,this.buffer) , de.peote.view.element.I_ElementBuffer);
 	programCache.addDisplaylist(this.type,this.elemBuff);
 };
@@ -2138,9 +2209,10 @@ de.peote.view.displaylist.Displaylist_de_peote_view_element_ElementSimple_de_peo
 		if(param.y != null) this.y = param.y;
 		if(param.w != null) this.w = param.w;
 		if(param.h != null) this.h = param.h;
-		if(param.zoom != null) this.h = param.zoom;
 		if(param.xOffset != null) this.xOffset = param.xOffset;
 		if(param.yOffset != null) this.yOffset = param.yOffset;
+		if(param.zoom != null) this.zoom = param.zoom;
+		if(param.blend != null) this.blend = param.blend;
 		if(param.r != null) this.r = param.r;
 		if(param.g != null) this.g = param.g;
 		if(param.b != null) this.b = param.b;
@@ -2237,28 +2309,44 @@ de.peote.view.element.ElementAnim = function() {
 	this.w = de.peote.view.PeoteView.elementDefaults.w;
 	this.h = de.peote.view.PeoteView.elementDefaults.h;
 	this.z = de.peote.view.PeoteView.elementDefaults.z;
+	this.rgba = de.peote.view.PeoteView.elementDefaults.rgba;
+	this.rotation = de.peote.view.PeoteView.elementDefaults.rotation;
+	this.pivotX = de.peote.view.PeoteView.elementDefaults.pivotX;
+	this.pivotY = de.peote.view.PeoteView.elementDefaults.pivotY;
 };
 $hxClasses["de.peote.view.element.ElementAnim"] = de.peote.view.element.ElementAnim;
 de.peote.view.element.ElementAnim.__name__ = true;
 de.peote.view.element.ElementAnim.__interfaces__ = [de.peote.view.element.I_Element];
 de.peote.view.element.ElementAnim.prototype = {
-	set: function(bufferElement,param,texturecache) {
+	set: function(elemBuff,param,texturecache) {
 		if(param.x == null) param.x = this.x;
 		if(param.y == null) param.y = this.y;
 		if(param.w == null) param.w = this.w;
 		if(param.h == null) param.h = this.h;
+		if(param.rgba == null) param.rgba = this.rgba;
+		if(param.rotation == null) param.rotation = this.rotation;
+		if(param.pivotX == null) param.pivotX = this.pivotX;
+		if(param.pivotY == null) param.pivotY = this.pivotY;
 		if(param.time == null) param.time = this.time;
 		if(param.start == null) param.start = { };
 		if(param.start.x == null) param.start.x = param.x;
 		if(param.start.y == null) param.start.y = param.y;
 		if(param.start.w == null) param.start.w = param.w;
 		if(param.start.h == null) param.start.h = param.h;
+		if(param.start.rgba == null) param.start.rgba = param.rgba;
+		if(param.start.rotation == null) param.start.rotation = param.rotation;
+		if(param.start.pivotX == null) param.start.pivotX = param.pivotX;
+		if(param.start.pivotY == null) param.start.pivotY = param.pivotY;
 		if(param.start.time == null) param.start.time = param.time;
 		if(param.end == null) param.end = { };
 		if(param.end.x == null) param.end.x = param.x;
 		if(param.end.y == null) param.end.y = param.y;
 		if(param.end.w == null) param.end.w = param.w;
 		if(param.end.h == null) param.end.h = param.h;
+		if(param.end.rgba == null) param.end.rgba = param.rgba;
+		if(param.end.rotation == null) param.end.rotation = param.rotation;
+		if(param.end.pivotX == null) param.end.pivotX = param.pivotX;
+		if(param.end.pivotY == null) param.end.pivotY = param.pivotY;
 		if(param.end.time == null) param.end.time = param.time;
 		if(param.z == null) param.z = this.z;
 		if(param.image == null && de.peote.view.PeoteView.elementDefaults.image != null) param.image = de.peote.view.PeoteView.elementDefaults.image;
@@ -2285,23 +2373,27 @@ de.peote.view.element.ElementAnim.prototype = {
 			param.tw = Math.floor(param.tw / 16);
 			param.th = Math.floor(param.th / 16);
 		}
-		bufferElement.set(this,param);
+		elemBuff.set(this,param);
 		this.x = param.end.x;
 		this.y = param.end.y;
-		this.z = param.z;
 		this.w = param.end.w;
 		this.h = param.end.h;
+		this.rgba = param.end.rgba;
+		this.rotation = param.end.rotation;
+		this.pivotX = param.end.pivotX;
+		this.pivotY = param.end.pivotY;
 		this.time = param.end.time;
+		this.z = param.z;
 	}
 	,get: function() {
-		return { x : this.x, y : this.y, z : this.z, w : this.w, h : this.h, tile : this.tile, image : this.image};
+		return { x : this.x, y : this.y, z : this.z, w : this.w, h : this.h, rgba : this.rgba, tile : this.tile, image : this.image};
 	}
 	,bufferUpdate: function(a,b) {
 		this.act_program = a;
 		this.buf_pos = b;
 	}
-	,del: function(bufferElement,texturecache) {
-		bufferElement.del(this);
+	,del: function(elemBuff,texturecache) {
+		elemBuff.del(this);
 		if(this.image != -1) texturecache.unUseImage(this.image);
 	}
 	,__class__: de.peote.view.element.ElementAnim
@@ -2313,15 +2405,42 @@ de.peote.view.element.I_ElementBuffer.prototype = {
 	__class__: de.peote.view.element.I_ElementBuffer
 };
 de.peote.view.element.ElementAnimBuffer = function(t,b) {
+	this.fill_bytes = false;
 	this.attr = null;
 	this.type = t;
-	var full = new de.peote.view.element.BufferData(b.max_segments * b.segment_size * de.peote.view.element.ElementAnimBuffer.VERTEX_COUNT * de.peote.view.element.ElementAnimBuffer.VERTEX_STRIDE);
+	var offset = 8;
+	if((this.type & 4) != 0) {
+		this.ZINDEX_OFFSET = offset;
+		offset += 4;
+	}
+	if((this.type & 8) != 0) {
+		this.RGBA_OFFSET = offset;
+		offset += 4;
+		this.RGBA_END_OFFSET = offset;
+		offset += 4;
+	}
+	if((this.type & 16) != 0) {
+		this.ROTATION_OFFSET = offset;
+		offset += 8;
+		this.PIVOT_OFFSET = offset;
+		offset += 8;
+	}
+	this.TIME_OFFSET = offset;
+	offset += 8;
+	this.TEX_OFFSET = offset;
+	offset += 4;
+	this.VERTEX_STRIDE = offset;
+	if(this.VERTEX_STRIDE % 8 != 0) {
+		this.VERTEX_STRIDE += 4;
+		this.fill_bytes = true;
+	}
+	var full = new de.peote.view.element.BufferData(b.max_segments * b.segment_size * de.peote.view.element.ElementAnimBuffer.VERTEX_COUNT * this.VERTEX_STRIDE);
 	this.glBuff = lime.graphics.opengl.GL.context.createBuffer();
 	lime.graphics.opengl.GL.context.bindBuffer(34962,this.glBuff);
 	lime.graphics.opengl.GL.context.bufferData(34962,full.dataView,35044);
 	lime.graphics.opengl.GL.context.bindBuffer(34962,null);
-	this.buffFull = new de.peote.view.element.BufferData(de.peote.view.element.ElementAnimBuffer.VERTEX_COUNT * de.peote.view.element.ElementAnimBuffer.VERTEX_STRIDE);
-	this.emptyBuffFull = new de.peote.view.element.BufferData(de.peote.view.element.ElementAnimBuffer.VERTEX_COUNT * de.peote.view.element.ElementAnimBuffer.VERTEX_STRIDE);
+	this.buffFull = new de.peote.view.element.BufferData(de.peote.view.element.ElementAnimBuffer.VERTEX_COUNT * this.VERTEX_STRIDE);
+	this.emptyBuffFull = new de.peote.view.element.BufferData(de.peote.view.element.ElementAnimBuffer.VERTEX_COUNT * this.VERTEX_STRIDE);
 };
 $hxClasses["de.peote.view.element.ElementAnimBuffer"] = de.peote.view.element.ElementAnimBuffer;
 de.peote.view.element.ElementAnimBuffer.__name__ = true;
@@ -2332,37 +2451,47 @@ de.peote.view.element.ElementAnimBuffer.prototype = {
 	}
 	,disableVertexAttributes: function() {
 		lime.graphics.opengl.GL.context.disableVertexAttribArray(this.attr[0]);
-		lime.graphics.opengl.GL.context.disableVertexAttribArray(this.attr[4]);
-		lime.graphics.opengl.GL.context.disableVertexAttribArray(this.attr[2]);
+		if((this.type & 4) != 0) lime.graphics.opengl.GL.context.disableVertexAttribArray(this.attr[2]);
+		if((this.type & 8) != 0) {
+			lime.graphics.opengl.GL.context.disableVertexAttribArray(this.attr[3]);
+			lime.graphics.opengl.GL.context.disableVertexAttribArray(this.attr[4]);
+		}
+		if((this.type & 16) != 0) {
+			lime.graphics.opengl.GL.context.disableVertexAttribArray(this.attr[5]);
+			lime.graphics.opengl.GL.context.disableVertexAttribArray(this.attr[6]);
+		}
+		lime.graphics.opengl.GL.context.disableVertexAttribArray(this.attr[7]);
 		lime.graphics.opengl.GL.context.disableVertexAttribArray(this.attr[1]);
 	}
 	,setVertexAttributes: function() {
 		lime.graphics.opengl.GL.context.enableVertexAttribArray(this.attr[0]);
-		lime.graphics.opengl.GL.context.enableVertexAttribArray(this.attr[4]);
-		lime.graphics.opengl.GL.context.enableVertexAttribArray(this.attr[2]);
+		if((this.type & 4) != 0) lime.graphics.opengl.GL.context.enableVertexAttribArray(this.attr[2]);
+		if((this.type & 8) != 0) {
+			lime.graphics.opengl.GL.context.enableVertexAttribArray(this.attr[3]);
+			lime.graphics.opengl.GL.context.enableVertexAttribArray(this.attr[4]);
+		}
+		if((this.type & 16) != 0) {
+			lime.graphics.opengl.GL.context.enableVertexAttribArray(this.attr[5]);
+			lime.graphics.opengl.GL.context.enableVertexAttribArray(this.attr[6]);
+		}
+		lime.graphics.opengl.GL.context.enableVertexAttribArray(this.attr[7]);
 		lime.graphics.opengl.GL.context.enableVertexAttribArray(this.attr[1]);
-		lime.graphics.opengl.GL.context.vertexAttribPointer(this.attr[0],4,5122,false,de.peote.view.element.ElementAnimBuffer.VERTEX_STRIDE,0);
-		lime.graphics.opengl.GL.context.vertexAttribPointer(this.attr[4],2,5126,false,de.peote.view.element.ElementAnimBuffer.VERTEX_STRIDE,de.peote.view.element.ElementAnimBuffer.TIME_OFFSET);
-		lime.graphics.opengl.GL.context.vertexAttribPointer(this.attr[2],1,5126,false,de.peote.view.element.ElementAnimBuffer.VERTEX_STRIDE,de.peote.view.element.ElementAnimBuffer.PARAM_OFFSET);
-		lime.graphics.opengl.GL.context.vertexAttribPointer(this.attr[1],2,5122,false,de.peote.view.element.ElementAnimBuffer.VERTEX_STRIDE,de.peote.view.element.ElementAnimBuffer.TEX_OFFSET);
-	}
-	,bufferDataFull: function(x_start,y_start,x_end,y_end,t_start,t_end,z,tx,ty) {
-		this.buffFull.write_2_Short(x_start,y_start);
-		this.buffFull.write_2_Short(x_end,y_end);
-		this.buffFull.write_2_Float(t_start,t_end);
-		this.buffFull.write_1_Float(z);
-		this.buffFull.write_2_Short(tx,ty);
-	}
-	,bufferDataTex: function(b,tx,ty) {
-		b.byteOffset = 0;
-		b.dataView.setInt16(b.byteOffset,tx,true);
-		b.dataView.setInt16(b.byteOffset + 2,ty,true);
-		b.byteOffset += 4;
-		b.byteOffset = 0;
+		lime.graphics.opengl.GL.context.vertexAttribPointer(this.attr[0],4,5122,false,this.VERTEX_STRIDE,0);
+		if((this.type & 4) != 0) lime.graphics.opengl.GL.context.vertexAttribPointer(this.attr[2],1,5126,false,this.VERTEX_STRIDE,this.ZINDEX_OFFSET);
+		if((this.type & 8) != 0) {
+			lime.graphics.opengl.GL.context.vertexAttribPointer(this.attr[3],4,5121,true,this.VERTEX_STRIDE,this.RGBA_OFFSET);
+			lime.graphics.opengl.GL.context.vertexAttribPointer(this.attr[4],4,5121,true,this.VERTEX_STRIDE,this.RGBA_END_OFFSET);
+		}
+		if((this.type & 16) != 0) {
+			lime.graphics.opengl.GL.context.vertexAttribPointer(this.attr[5],2,5126,false,this.VERTEX_STRIDE,this.ROTATION_OFFSET);
+			lime.graphics.opengl.GL.context.vertexAttribPointer(this.attr[6],4,5122,false,this.VERTEX_STRIDE,this.PIVOT_OFFSET);
+		}
+		lime.graphics.opengl.GL.context.vertexAttribPointer(this.attr[7],2,5126,false,this.VERTEX_STRIDE,this.TIME_OFFSET);
+		lime.graphics.opengl.GL.context.vertexAttribPointer(this.attr[1],2,5122,false,this.VERTEX_STRIDE,this.TEX_OFFSET);
 	}
 	,del: function(e) {
 		lime.graphics.opengl.GL.context.bindBuffer(34962,this.glBuff);
-		lime.graphics.opengl.GL.context.bufferSubData(34962,e.buf_pos * de.peote.view.element.ElementAnimBuffer.VERTEX_STRIDE,this.emptyBuffFull.dataView);
+		lime.graphics.opengl.GL.context.bufferSubData(34962,e.buf_pos * this.VERTEX_STRIDE,this.emptyBuffFull.dataView);
 		lime.graphics.opengl.GL.context.bindBuffer(34962,null);
 	}
 	,set: function(e,param) {
@@ -2375,6 +2504,8 @@ de.peote.view.element.ElementAnimBuffer.prototype = {
 		var yh1 = y1 + param.start.h;
 		var xw2 = x2 + param.end.w;
 		var yh2 = y2 + param.end.h;
+		var rgba1 = param.start.rgba;
+		var rgba2 = param.end.rgba;
 		var t1 = param.start.time;
 		var t2 = param.end.time;
 		var z = param.z;
@@ -2382,47 +2513,112 @@ de.peote.view.element.ElementAnimBuffer.prototype = {
 		var ty = param.ty;
 		var txw = tx + param.tw;
 		var tyh = ty + param.th;
+		var rotation1 = param.start.rotation / 180 * Math.PI;
+		var rotation2 = param.end.rotation / 180 * Math.PI;
+		var pivot_x1 = x1 + param.start.pivotX;
+		var pivot_y1 = y1 + param.start.pivotY;
+		var pivot_x2 = x2 + param.end.pivotX;
+		var pivot_y2 = y2 + param.end.pivotY;
 		this.buffFull.byteOffset = 0;
 		this.buffFull.write_2_Short(xw1,yh1);
 		this.buffFull.write_2_Short(xw2,yh2);
+		if((this.type & 4) != 0) this.buffFull.write_1_Float(z);
+		if((this.type & 8) != 0) {
+			this.buffFull.write_1_UInt(rgba1);
+			this.buffFull.write_1_UInt(rgba2);
+		}
+		if((this.type & 16) != 0) {
+			this.buffFull.write_2_Float(rotation1,rotation2);
+			this.buffFull.write_2_Short(pivot_x1,pivot_y1);
+			this.buffFull.write_2_Short(pivot_x2,pivot_y2);
+		}
 		this.buffFull.write_2_Float(t1,t2);
-		this.buffFull.write_1_Float(z);
 		this.buffFull.write_2_Short(txw,tyh);
+		if(this.fill_bytes) this.buffFull.write_1_Float(0.0);
 		this.buffFull.write_2_Short(xw1,yh1);
 		this.buffFull.write_2_Short(xw2,yh2);
+		if((this.type & 4) != 0) this.buffFull.write_1_Float(z);
+		if((this.type & 8) != 0) {
+			this.buffFull.write_1_UInt(rgba1);
+			this.buffFull.write_1_UInt(rgba2);
+		}
+		if((this.type & 16) != 0) {
+			this.buffFull.write_2_Float(rotation1,rotation2);
+			this.buffFull.write_2_Short(pivot_x1,pivot_y1);
+			this.buffFull.write_2_Short(pivot_x2,pivot_y2);
+		}
 		this.buffFull.write_2_Float(t1,t2);
-		this.buffFull.write_1_Float(z);
 		this.buffFull.write_2_Short(txw,tyh);
+		if(this.fill_bytes) this.buffFull.write_1_Float(0.0);
 		this.buffFull.write_2_Short(x1,yh1);
 		this.buffFull.write_2_Short(x2,yh2);
+		if((this.type & 4) != 0) this.buffFull.write_1_Float(z);
+		if((this.type & 8) != 0) {
+			this.buffFull.write_1_UInt(rgba1);
+			this.buffFull.write_1_UInt(rgba2);
+		}
+		if((this.type & 16) != 0) {
+			this.buffFull.write_2_Float(rotation1,rotation2);
+			this.buffFull.write_2_Short(pivot_x1,pivot_y1);
+			this.buffFull.write_2_Short(pivot_x2,pivot_y2);
+		}
 		this.buffFull.write_2_Float(t1,t2);
-		this.buffFull.write_1_Float(z);
 		this.buffFull.write_2_Short(tx,tyh);
+		if(this.fill_bytes) this.buffFull.write_1_Float(0.0);
 		this.buffFull.write_2_Short(xw1,y1);
 		this.buffFull.write_2_Short(xw2,y2);
+		if((this.type & 4) != 0) this.buffFull.write_1_Float(z);
+		if((this.type & 8) != 0) {
+			this.buffFull.write_1_UInt(rgba1);
+			this.buffFull.write_1_UInt(rgba2);
+		}
+		if((this.type & 16) != 0) {
+			this.buffFull.write_2_Float(rotation1,rotation2);
+			this.buffFull.write_2_Short(pivot_x1,pivot_y1);
+			this.buffFull.write_2_Short(pivot_x2,pivot_y2);
+		}
 		this.buffFull.write_2_Float(t1,t2);
-		this.buffFull.write_1_Float(z);
 		this.buffFull.write_2_Short(txw,ty);
+		if(this.fill_bytes) this.buffFull.write_1_Float(0.0);
 		this.buffFull.write_2_Short(x1,y1);
 		this.buffFull.write_2_Short(x2,y2);
+		if((this.type & 4) != 0) this.buffFull.write_1_Float(z);
+		if((this.type & 8) != 0) {
+			this.buffFull.write_1_UInt(rgba1);
+			this.buffFull.write_1_UInt(rgba2);
+		}
+		if((this.type & 16) != 0) {
+			this.buffFull.write_2_Float(rotation1,rotation2);
+			this.buffFull.write_2_Short(pivot_x1,pivot_y1);
+			this.buffFull.write_2_Short(pivot_x2,pivot_y2);
+		}
 		this.buffFull.write_2_Float(t1,t2);
-		this.buffFull.write_1_Float(z);
 		this.buffFull.write_2_Short(tx,ty);
+		if(this.fill_bytes) this.buffFull.write_1_Float(0.0);
 		this.buffFull.write_2_Short(x1,y1);
 		this.buffFull.write_2_Short(x2,y2);
+		if((this.type & 4) != 0) this.buffFull.write_1_Float(z);
+		if((this.type & 8) != 0) {
+			this.buffFull.write_1_UInt(rgba1);
+			this.buffFull.write_1_UInt(rgba2);
+		}
+		if((this.type & 16) != 0) {
+			this.buffFull.write_2_Float(rotation1,rotation2);
+			this.buffFull.write_2_Short(pivot_x1,pivot_y1);
+			this.buffFull.write_2_Short(pivot_x2,pivot_y2);
+		}
 		this.buffFull.write_2_Float(t1,t2);
-		this.buffFull.write_1_Float(z);
 		this.buffFull.write_2_Short(tx,ty);
 		this.buffFull.byteOffset = 0;
 		lime.graphics.opengl.GL.context.bindBuffer(34962,this.glBuff);
-		lime.graphics.opengl.GL.context.bufferSubData(34962,buf_pos * de.peote.view.element.ElementAnimBuffer.VERTEX_STRIDE,this.buffFull.dataView);
+		lime.graphics.opengl.GL.context.bufferSubData(34962,buf_pos * this.VERTEX_STRIDE,this.buffFull.dataView);
 		lime.graphics.opengl.GL.context.bindBuffer(34962,null);
 	}
 	,getDefaultFragmentShaderSrc: function() {
-		return "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE);\r\n\t\t\tif(texel.a < 0.5) discard;\r\n\t\t\tgl_FragColor = texel;\r\n\t\t}\r\n\t";
+		return "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t#if_RGBA\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE);\r\n\t\t\tif(texel.a < 0.5) discard; // TODO (z-order/blend mode!!!)\r\n\t\t\t#if_RGBA\r\n\t\t\tgl_FragColor = texel * vRGBA;\r\n\t\t\t#else_RGBA\r\n\t\t\tgl_FragColor = texel;\r\n\t\t\t#end_RGBA\r\n\t\t}\r\n\t";
 	}
 	,getDefaultVertexShaderSrc: function() {
-		return "\tprecision mediump float;\r\n\r\n\t\t// always twice if time dependend\r\n\t\tattribute vec4 aPosition;\r\n\t\tattribute vec2 aTime;\r\n\t\t\r\n\t\tattribute float aZindex;\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = 255.0/aRGBA;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\r\n\t\t\tvec2 VertexPosStart = vec2( aPosition ); //vec2 (aPosition.x, aPosition.y);\r\n\t\t\tvec2 VertexPosEnd   = vec2 (aPosition.z, aPosition.w);\r\n\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (VertexPosStart + floor( \r\n\t\t\t\t\t\t\t\t(VertexPosEnd - VertexPosStart)\r\n\t\t\t\t\t\t\t\t* max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0))\r\n\t\t\t\t\t\t\t\t* zoom) / zoom\r\n\t\t\t\t, aZindex ,1.0);\r\n\t\t}\r\n\t";
+		return "\tprecision mediump float;\r\n\r\n\t\tattribute vec4 aPosition;\r\n\t\t\r\n\t\t#if_ZINDEX\r\n\t\tattribute float aZindex;\r\n\t\t#end_ZINDEX\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tattribute vec4 aRGBA_END;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\t\t\r\n\t\t#if_ROTATION\r\n\t\tattribute vec2 aRotation;\r\n\t\tattribute vec4 aPivot;\r\n\t\t#end_ROTATION\r\n\t\t\r\n\t\tattribute vec2 aTime;\r\n\t\t\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = aRGBA.wzyx + (aRGBA_END.wzyx - aRGBA.wzyx) * max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0));\t\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\r\n\t\t\tvec2 VertexPosStart = vec2 ( aPosition ); //vec2 (aPosition.x, aPosition.y);\r\n\t\t\tvec2 VertexPosEnd   = vec2 ( aPosition.z, aPosition.w);\r\n\t\t\t\r\n\t\t\t#if_ROTATION\r\n\t\t\tfloat alpha = aRotation.x + (aRotation.y - aRotation.x)\t* max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0));\r\n\t\t\t\t\t\t\t\t\r\n\t\t\tVertexPosStart = (VertexPosStart - vec2(aPivot))\r\n\t\t\t\t\t\t\t* mat2 (\r\n\t\t\t\t\t\t\t\tvec2(cos(alpha), -sin(alpha)),\r\n\t\t\t\t\t\t\t\tvec2(sin(alpha),  cos(alpha))\r\n\t\t\t\t\t\t\t) + vec2(aPivot);\r\n\t\t\t\r\n\t\t\tVertexPosEnd = (VertexPosEnd -  vec2(aPivot.z, aPivot.w))\r\n\t\t\t\t\t\t\t* mat2 (\r\n\t\t\t\t\t\t\t\tvec2(cos(alpha), -sin(alpha)),\r\n\t\t\t\t\t\t\t\tvec2(sin(alpha),  cos(alpha))\r\n\t\t\t\t\t\t\t) + vec2(aPivot.z, aPivot.w);\r\n\t\t\t#end_ROTATION\r\n\t\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4( VertexPosStart + floor( \r\n\t\t\t\t\t\t\t\t(VertexPosEnd - VertexPosStart)\r\n\t\t\t\t\t\t\t\t* max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0))\r\n\t\t\t\t\t\t\t\t* zoom) / zoom ,\r\n\t\t\t\t#if_ZINDEX\r\n\t\t\t\taZindex\r\n\t\t\t\t#else_ZINDEX\r\n\t\t\t\t0.0\r\n\t\t\t\t#end_ZINDEX\r\n\t\t\t\t, 1.0\r\n\t\t\t)\r\n\t\t\t// rotate displaylist\r\n\t\t\t/** mat4 (\r\n\t\t\t\tvec4(cos(winkel), -sin(winkel), 0.0, 0.0),\r\n\t\t\t\tvec4(sin(winkel),  cos(winkel), 0.0, 0.0),\r\n\t\t\t\tvec4(        0.0,          1.0, 0.0, 0.0),\r\n\t\t\t\tvec4(        0.0,          0.0, 0.0, 1.0)\r\n\t\t\t)*/\r\n\t\t\t;\r\n\t\t}\r\n\t";
 	}
 	,__class__: de.peote.view.element.ElementAnimBuffer
 };
@@ -2440,11 +2636,11 @@ de.peote.view.element.ElementSimple.__name__ = true;
 de.peote.view.element.ElementSimple.__interfaces__ = [de.peote.view.element.I_Element];
 de.peote.view.element.ElementSimple.prototype = {
 	set: function(elemBuff,param,texturecache) {
-		if(param.x == null) param.x = this.x;
-		if(param.y == null) param.y = this.y;
-		if(param.w == null) param.w = this.w;
-		if(param.h == null) param.h = this.h;
-		if(param.z == null) param.z = this.z;
+		if(param.x == null) param.x = this.x; else this.x = param.x;
+		if(param.y == null) param.y = this.y; else this.y = param.y;
+		if(param.w == null) param.w = this.w; else this.w = param.w;
+		if(param.h == null) param.h = this.h; else this.h = param.h;
+		if(param.z == null) param.z = this.z; else this.z = param.z;
 		if(param.image == null && de.peote.view.PeoteView.elementDefaults.image != null) param.image = de.peote.view.PeoteView.elementDefaults.image;
 		if(param.image != null && param.image != this.image) {
 			if(this.image != -1) texturecache.unUseImage(this.image);
@@ -2487,11 +2683,18 @@ de.peote.view.element.ElementSimple.prototype = {
 de.peote.view.element.ElementSimpleBuffer = function(t,b) {
 	this.attr = null;
 	this.type = t;
-	var offset = 0;
-	if((this.type & 4) != 0) this.ZINDEX_OFFSET = offset += 4;
-	if((this.type & 8) != 0) this.RGBA_OFFSET = offset += 4;
-	this.TEX_OFFSET = offset += 4;
-	this.VERTEX_STRIDE = offset += 4;
+	var offset = 4;
+	if((this.type & 4) != 0) {
+		this.ZINDEX_OFFSET = offset;
+		offset += 4;
+	}
+	if((this.type & 8) != 0) {
+		this.RGBA_OFFSET = offset;
+		offset += 4;
+	}
+	this.TEX_OFFSET = offset;
+	offset += 4;
+	this.VERTEX_STRIDE = offset;
 	var full = new de.peote.view.element.BufferData(b.max_segments * b.segment_size * de.peote.view.element.ElementSimpleBuffer.VERTEX_COUNT * this.VERTEX_STRIDE);
 	this.glBuff = lime.graphics.opengl.GL.context.createBuffer();
 	lime.graphics.opengl.GL.context.bindBuffer(34962,this.glBuff);
@@ -2534,34 +2737,36 @@ de.peote.view.element.ElementSimpleBuffer.prototype = {
 		var y = param.y;
 		var xw = x + param.w;
 		var yh = y + param.h;
+		var z = param.z;
+		var rgba = param.rgba;
 		var tx = param.tx;
 		var ty = param.ty;
 		var txw = tx + param.tw;
 		var tyh = ty + param.th;
 		this.buffFull.byteOffset = 0;
 		this.buffFull.write_2_Short(xw,yh);
-		if((this.type & 4) != 0) this.buffFull.write_1_Float(param.z);
-		if((this.type & 8) != 0) this.buffFull.write_1_UInt(param.rgba);
+		if((this.type & 4) != 0) this.buffFull.write_1_Float(z);
+		if((this.type & 8) != 0) this.buffFull.write_1_UInt(rgba);
 		this.buffFull.write_2_Short(txw,tyh);
 		this.buffFull.write_2_Short(xw,yh);
-		if((this.type & 4) != 0) this.buffFull.write_1_Float(param.z);
-		if((this.type & 8) != 0) this.buffFull.write_1_UInt(param.rgba);
+		if((this.type & 4) != 0) this.buffFull.write_1_Float(z);
+		if((this.type & 8) != 0) this.buffFull.write_1_UInt(rgba);
 		this.buffFull.write_2_Short(txw,tyh);
 		this.buffFull.write_2_Short(x,yh);
-		if((this.type & 4) != 0) this.buffFull.write_1_Float(param.z);
-		if((this.type & 8) != 0) this.buffFull.write_1_UInt(param.rgba);
+		if((this.type & 4) != 0) this.buffFull.write_1_Float(z);
+		if((this.type & 8) != 0) this.buffFull.write_1_UInt(rgba);
 		this.buffFull.write_2_Short(tx,tyh);
 		this.buffFull.write_2_Short(xw,y);
-		if((this.type & 4) != 0) this.buffFull.write_1_Float(param.z);
-		if((this.type & 8) != 0) this.buffFull.write_1_UInt(param.rgba);
+		if((this.type & 4) != 0) this.buffFull.write_1_Float(z);
+		if((this.type & 8) != 0) this.buffFull.write_1_UInt(rgba);
 		this.buffFull.write_2_Short(txw,ty);
 		this.buffFull.write_2_Short(x,y);
-		if((this.type & 4) != 0) this.buffFull.write_1_Float(param.z);
-		if((this.type & 8) != 0) this.buffFull.write_1_UInt(param.rgba);
+		if((this.type & 4) != 0) this.buffFull.write_1_Float(z);
+		if((this.type & 8) != 0) this.buffFull.write_1_UInt(rgba);
 		this.buffFull.write_2_Short(tx,ty);
 		this.buffFull.write_2_Short(x,y);
-		if((this.type & 4) != 0) this.buffFull.write_1_Float(param.z);
-		if((this.type & 8) != 0) this.buffFull.write_1_UInt(param.rgba);
+		if((this.type & 4) != 0) this.buffFull.write_1_Float(z);
+		if((this.type & 8) != 0) this.buffFull.write_1_UInt(rgba);
 		this.buffFull.write_2_Short(tx,ty);
 		this.buffFull.byteOffset = 0;
 		lime.graphics.opengl.GL.context.bindBuffer(34962,this.glBuff);
@@ -2572,7 +2777,7 @@ de.peote.view.element.ElementSimpleBuffer.prototype = {
 		return "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t#if_RGBA\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE );\r\n\t\t\tif(texel.a < 0.5) discard;\r\n\t\t\t#if_RGBA\r\n\t\t\tgl_FragColor = texel * vRGBA;\r\n\t\t\t#else_RGBA\r\n\t\t\tgl_FragColor = texel;\r\n\t\t\t#end_RGBA\r\n\t\t}\r\n\t";
 	}
 	,getDefaultVertexShaderSrc: function() {
-		return "\tprecision mediump float;\r\n\r\n\t\t// always twice if time dependend\r\n\t\tattribute vec2 aPosition;\r\n\t\t\r\n\t\t#if_ZINDEX\r\n\t\tattribute float aZindex;\r\n\t\t#end_ZINDEX\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = aRGBA.wzyx;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (aPosition ,\r\n\t\t\t\t#if_ZINDEX\r\n\t\t\t\taZindex\r\n\t\t\t\t#else_ZINDEX\r\n\t\t\t\t0.0\r\n\t\t\t\t#end_ZINDEX\r\n\t\t\t\t, 1.0\r\n\t\t\t\t);\r\n\t\t}\r\n\t";
+		return "\tprecision mediump float;\r\n\r\n\t\tattribute vec2 aPosition;\r\n\t\t\r\n\t\t#if_ZINDEX\r\n\t\tattribute float aZindex;\r\n\t\t#end_ZINDEX\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = aRGBA.wzyx;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (aPosition ,\r\n\t\t\t\t#if_ZINDEX\r\n\t\t\t\taZindex\r\n\t\t\t\t#else_ZINDEX\r\n\t\t\t\t0.0\r\n\t\t\t\t#end_ZINDEX\r\n\t\t\t\t, 1.0\r\n\t\t\t\t);\r\n\t\t}\r\n\t";
 	}
 	,__class__: de.peote.view.element.ElementSimpleBuffer
 };
@@ -2998,7 +3203,7 @@ format.png.Tools.extractGrey = function(d) {
 	}
 	return grey;
 };
-format.png.Tools.extract32 = function(d,bytes) {
+format.png.Tools.extract32 = function(d,bytes,flipY) {
 	var h = format.png.Tools.getHeader(d);
 	var bgra;
 	if(bytes == null) bgra = haxe.io.Bytes.alloc(h.width * h.height * 4); else bgra = bytes;
@@ -3025,6 +3230,13 @@ format.png.Tools.extract32 = function(d,bytes) {
 	data = format.tools.Inflate.run(data);
 	var r = 0;
 	var w = 0;
+	var lineDelta = 0;
+	if(flipY) {
+		lineDelta = -h.width * 8;
+		w = (h.height - 1) * (h.width * 4);
+	}
+	var flipY1;
+	if(flipY) flipY1 = -1; else flipY1 = 1;
 	{
 		var _g = h.color;
 		switch(_g[1]) {
@@ -3060,289 +3272,111 @@ format.png.Tools.extract32 = function(d,bytes) {
 			var width = h.width;
 			var stride = Math.ceil(width * h.colbits / 8) + 1;
 			if(data.length < h.height * stride) throw "Not enough data";
-			var vr;
-			var vg;
-			var vb;
-			var va = 255;
-			if(h.colbits == 8) {
-				var _g2 = 0;
-				var _g1 = h.height;
-				while(_g2 < _g1) {
-					var y = _g2++;
-					var f = data.get(r++);
-					switch(f) {
-					case 0:
-						var _g11 = 0;
-						while(_g11 < width) {
-							var x = _g11++;
-							var c1 = data.get(r++);
-							vr = pal.b[c1 * 3];
-							vg = pal.b[c1 * 3 + 1];
-							vb = pal.b[c1 * 3 + 2];
-							if(alpha != null) va = alpha.b[c1];
-							bgra.set(w++,vb);
-							bgra.set(w++,vg);
-							bgra.set(w++,vr);
-							bgra.set(w++,va);
-						}
-						break;
-					case 1:
-						var cr = 0;
-						var cg = 0;
-						var cb = 0;
-						var ca = 0;
-						var _g12 = 0;
-						while(_g12 < width) {
-							var x1 = _g12++;
-							var c2 = data.get(r++);
-							vr = pal.b[c2 * 3];
-							vg = pal.b[c2 * 3 + 1];
-							vb = pal.b[c2 * 3 + 2];
-							if(alpha != null) va = alpha.b[c2];
-							cb += vb;
-							bgra.set(w++,cb);
-							cg += vg;
-							bgra.set(w++,cg);
-							cr += vr;
-							bgra.set(w++,cr);
-							ca += va;
-							bgra.set(w++,ca);
-							bgra.set(w++,va);
-						}
-						break;
-					case 2:
-						var stride1;
-						if(y == 0) stride1 = 0; else stride1 = width * 4;
-						var _g13 = 0;
-						while(_g13 < width) {
-							var x2 = _g13++;
-							var c3 = data.get(r++);
-							vr = pal.b[c3 * 3];
-							vg = pal.b[c3 * 3 + 1];
-							vb = pal.b[c3 * 3 + 2];
-							if(alpha != null) va = alpha.b[c3];
-							bgra.b[w] = vb + bgra.b[w - stride1] & 255;
-							w++;
-							bgra.b[w] = vg + bgra.b[w - stride1] & 255;
-							w++;
-							bgra.b[w] = vr + bgra.b[w - stride1] & 255;
-							w++;
-							bgra.b[w] = va + bgra.b[w - stride1] & 255;
-							w++;
-						}
-						break;
-					case 3:
-						var cr1 = 0;
-						var cg1 = 0;
-						var cb1 = 0;
-						var ca1 = 0;
-						var stride2;
-						if(y == 0) stride2 = 0; else stride2 = width * 4;
-						var _g14 = 0;
-						while(_g14 < width) {
-							var x3 = _g14++;
-							var c4 = data.get(r++);
-							vr = pal.b[c4 * 3];
-							vg = pal.b[c4 * 3 + 1];
-							vb = pal.b[c4 * 3 + 2];
-							if(alpha != null) va = alpha.b[c4];
-							cb1 = vb + (cb1 + bgra.b[w - stride2] >> 1) & 255;
-							bgra.set(w++,cb1);
-							cg1 = vg + (cg1 + bgra.b[w - stride2] >> 1) & 255;
-							bgra.set(w++,cg1);
-							cr1 = vr + (cr1 + bgra.b[w - stride2] >> 1) & 255;
-							bgra.set(w++,cr1);
-							cr1 = va + (ca1 + bgra.b[w - stride2] >> 1) & 255;
-							bgra.set(w++,ca1);
-						}
-						break;
-					case 4:
-						var stride3 = width * 4;
-						var cr2 = 0;
-						var cg2 = 0;
-						var cb2 = 0;
-						var ca2 = 0;
-						var _g15 = 0;
-						while(_g15 < width) {
-							var x4 = _g15++;
-							var c5 = data.get(r++);
-							vr = pal.b[c5 * 3];
-							vg = pal.b[c5 * 3 + 1];
-							vb = pal.b[c5 * 3 + 2];
-							if(alpha != null) va = alpha.b[c5];
-							cb2 = format.png.Tools.filter(bgra,x4,y,stride3,cb2,w,null) + vb & 255;
-							bgra.set(w++,cb2);
-							cg2 = format.png.Tools.filter(bgra,x4,y,stride3,cg2,w,null) + vg & 255;
-							bgra.set(w++,cg2);
-							cr2 = format.png.Tools.filter(bgra,x4,y,stride3,cr2,w,null) + vr & 255;
-							bgra.set(w++,cr2);
-							ca2 = format.png.Tools.filter(bgra,x4,y,stride3,ca2,w,null) + va & 255;
-							bgra.set(w++,ca2);
-						}
-						break;
-					default:
-						throw "Invalid filter " + f;
+			var rline = h.width * h.colbits >> 3;
+			var _g2 = 0;
+			var _g1 = h.height;
+			while(_g2 < _g1) {
+				var y = _g2++;
+				var f = data.get(r++);
+				if(f == 0) {
+					r += rline;
+					continue;
+				}
+				switch(f) {
+				case 1:
+					var c1 = 0;
+					var _g3 = 0;
+					while(_g3 < width) {
+						var x = _g3++;
+						var v = data.b[r];
+						c1 += v;
+						data.set(r++,c1 & 255);
 					}
+					break;
+				case 2:
+					var stride1;
+					if(y == 0) stride1 = 0; else stride1 = rline + 1;
+					var _g31 = 0;
+					while(_g31 < width) {
+						var x1 = _g31++;
+						var v1 = data.b[r];
+						data.b[r] = v1 + data.b[r - stride1] & 255;
+						r++;
+					}
+					break;
+				case 3:
+					var c2 = 0;
+					var stride2;
+					if(y == 0) stride2 = 0; else stride2 = rline + 1;
+					var _g32 = 0;
+					while(_g32 < width) {
+						var x2 = _g32++;
+						var v2 = data.b[r];
+						c2 = v2 + (c2 + data.b[r - stride2] >> 1) & 255;
+						data.set(r++,c2);
+					}
+					break;
+				case 4:
+					var stride3 = rline + 1;
+					var c3 = 0;
+					var _g33 = 0;
+					while(_g33 < width) {
+						var x3 = _g33++;
+						var v3 = data.b[r];
+						c3 = format.png.Tools.filter(data,x3,y,stride3,c3,r,1) + v3 & 255;
+						data.set(r++,c3);
+					}
+					break;
+				default:
+					throw "Invalid filter " + f;
+				}
+			}
+			var r1 = 0;
+			if(h.colbits == 8) {
+				var _g21 = 0;
+				var _g11 = h.height;
+				while(_g21 < _g11) {
+					var y1 = _g21++;
+					r1++;
+					var _g4 = 0;
+					var _g34 = h.width;
+					while(_g4 < _g34) {
+						var x4 = _g4++;
+						var c4 = data.get(r1++);
+						bgra.set(w++,pal.b[c4 * 3 + 2]);
+						bgra.set(w++,pal.b[c4 * 3 + 1]);
+						bgra.set(w++,pal.b[c4 * 3]);
+						bgra.set(w++,alpha != null?alpha.b[c4]:255);
+					}
+					w += lineDelta;
 				}
 			} else if(h.colbits < 8) {
 				var req = h.colbits;
 				var mask = (1 << req) - 1;
-				var _g21 = 0;
-				var _g16 = h.height;
-				while(_g21 < _g16) {
-					var y1 = _g21++;
-					var f1 = data.get(r++);
+				var _g22 = 0;
+				var _g12 = h.height;
+				while(_g22 < _g12) {
+					var y2 = _g22++;
+					r1++;
 					var bits = 0;
 					var nbits = 0;
-					var v;
-					switch(f1) {
-					case 0:
-						var _g17 = 0;
-						while(_g17 < width) {
-							var x5 = _g17++;
-							var c6;
-							if(nbits < req) {
-								bits = bits << 8 | data.get(r++);
-								nbits += 8;
-							}
-							v = bits >>> nbits - req & mask;
-							nbits -= req;
-							c6 = v;
-							vr = pal.b[c6 * 3];
-							vg = pal.b[c6 * 3 + 1];
-							vb = pal.b[c6 * 3 + 2];
-							if(alpha != null) va = alpha.b[c6];
-							bgra.set(w++,vb);
-							bgra.set(w++,vg);
-							bgra.set(w++,vr);
-							bgra.set(w++,va);
+					var v4;
+					var _g41 = 0;
+					var _g35 = h.width;
+					while(_g41 < _g35) {
+						var x5 = _g41++;
+						if(nbits < req) {
+							bits = bits << 8 | data.get(r1++);
+							nbits += 8;
 						}
-						break;
-					case 1:
-						var cr3 = 0;
-						var cg3 = 0;
-						var cb3 = 0;
-						var ca3 = 0;
-						var _g18 = 0;
-						while(_g18 < width) {
-							var x6 = _g18++;
-							var c7;
-							if(nbits < req) {
-								bits = bits << 8 | data.get(r++);
-								nbits += 8;
-							}
-							v = bits >>> nbits - req & mask;
-							nbits -= req;
-							c7 = v;
-							vr = pal.b[c7 * 3];
-							vg = pal.b[c7 * 3 + 1];
-							vb = pal.b[c7 * 3 + 2];
-							if(alpha != null) va = alpha.b[c7];
-							cb3 += vb;
-							bgra.set(w++,cb3);
-							cg3 += vg;
-							bgra.set(w++,cg3);
-							cr3 += vr;
-							bgra.set(w++,cr3);
-							ca3 += va;
-							bgra.set(w++,ca3);
-							bgra.set(w++,va);
-						}
-						break;
-					case 2:
-						var stride4;
-						if(y1 == 0) stride4 = 0; else stride4 = width * 4;
-						var _g19 = 0;
-						while(_g19 < width) {
-							var x7 = _g19++;
-							var c8;
-							if(nbits < req) {
-								bits = bits << 8 | data.get(r++);
-								nbits += 8;
-							}
-							v = bits >>> nbits - req & mask;
-							nbits -= req;
-							c8 = v;
-							vr = pal.b[c8 * 3];
-							vg = pal.b[c8 * 3 + 1];
-							vb = pal.b[c8 * 3 + 2];
-							if(alpha != null) va = alpha.b[c8];
-							bgra.b[w] = vb + bgra.b[w - stride4] & 255;
-							w++;
-							bgra.b[w] = vg + bgra.b[w - stride4] & 255;
-							w++;
-							bgra.b[w] = vr + bgra.b[w - stride4] & 255;
-							w++;
-							bgra.b[w] = va + bgra.b[w - stride4] & 255;
-							w++;
-						}
-						break;
-					case 3:
-						var cr4 = 0;
-						var cg4 = 0;
-						var cb4 = 0;
-						var ca4 = 0;
-						var stride5;
-						if(y1 == 0) stride5 = 0; else stride5 = width * 4;
-						var _g110 = 0;
-						while(_g110 < width) {
-							var x8 = _g110++;
-							var c9;
-							if(nbits < req) {
-								bits = bits << 8 | data.get(r++);
-								nbits += 8;
-							}
-							v = bits >>> nbits - req & mask;
-							nbits -= req;
-							c9 = v;
-							vr = pal.b[c9 * 3];
-							vg = pal.b[c9 * 3 + 1];
-							vb = pal.b[c9 * 3 + 2];
-							if(alpha != null) va = alpha.b[c9];
-							cb4 = vb + (cb4 + bgra.b[w - stride5] >> 1) & 255;
-							bgra.set(w++,cb4);
-							cg4 = vg + (cg4 + bgra.b[w - stride5] >> 1) & 255;
-							bgra.set(w++,cg4);
-							cr4 = vr + (cr4 + bgra.b[w - stride5] >> 1) & 255;
-							bgra.set(w++,cr4);
-							cr4 = va + (ca4 + bgra.b[w - stride5] >> 1) & 255;
-							bgra.set(w++,ca4);
-						}
-						break;
-					case 4:
-						var stride6 = width * 4;
-						var cr5 = 0;
-						var cg5 = 0;
-						var cb5 = 0;
-						var ca5 = 0;
-						var _g111 = 0;
-						while(_g111 < width) {
-							var x9 = _g111++;
-							var c10;
-							if(nbits < req) {
-								bits = bits << 8 | data.get(r++);
-								nbits += 8;
-							}
-							v = bits >>> nbits - req & mask;
-							nbits -= req;
-							c10 = v;
-							vr = pal.b[c10 * 3];
-							vg = pal.b[c10 * 3 + 1];
-							vb = pal.b[c10 * 3 + 2];
-							if(alpha != null) va = alpha.b[c10];
-							cb5 = format.png.Tools.filter(bgra,x9,y1,stride6,cb5,w,null) + vb & 255;
-							bgra.set(w++,cb5);
-							cg5 = format.png.Tools.filter(bgra,x9,y1,stride6,cg5,w,null) + vg & 255;
-							bgra.set(w++,cg5);
-							cr5 = format.png.Tools.filter(bgra,x9,y1,stride6,cr5,w,null) + vr & 255;
-							bgra.set(w++,cr5);
-							ca5 = format.png.Tools.filter(bgra,x9,y1,stride6,ca5,w,null) + va & 255;
-							bgra.set(w++,ca5);
-						}
-						break;
-					default:
-						throw "Invalid filter " + f1;
+						var c5 = bits >>> nbits - req & mask;
+						nbits -= req;
+						bgra.set(w++,pal.b[c5 * 3 + 2]);
+						bgra.set(w++,pal.b[c5 * 3 + 1]);
+						bgra.set(w++,pal.b[c5 * 3]);
+						bgra.set(w++,alpha != null?alpha.b[c5]:255);
 					}
+					w += lineDelta;
 				}
 			} else throw h.colbits + " indexed bits per pixel not supported";
 			break;
@@ -3350,56 +3384,56 @@ format.png.Tools.extract32 = function(d,bytes) {
 			var alpha1 = _g[2];
 			if(h.colbits != 8) throw "Unsupported color mode";
 			var width1 = h.width;
-			var stride7;
-			stride7 = (alpha1?2:1) * width1 + 1;
-			if(data.length < h.height * stride7) throw "Not enough data";
-			var _g22 = 0;
-			var _g112 = h.height;
-			while(_g22 < _g112) {
-				var y2 = _g22++;
-				var f2 = data.get(r++);
-				switch(f2) {
+			var stride4;
+			stride4 = (alpha1?2:1) * width1 + 1;
+			if(data.length < h.height * stride4) throw "Not enough data";
+			var _g23 = 0;
+			var _g13 = h.height;
+			while(_g23 < _g13) {
+				var y3 = _g23++;
+				var f1 = data.get(r++);
+				switch(f1) {
 				case 0:
 					if(alpha1) {
-						var _g3 = 0;
-						while(_g3 < width1) {
-							var x10 = _g3++;
-							var v1 = data.get(r++);
-							bgra.set(w++,v1);
-							bgra.set(w++,v1);
-							bgra.set(w++,v1);
+						var _g36 = 0;
+						while(_g36 < width1) {
+							var x6 = _g36++;
+							var v5 = data.get(r++);
+							bgra.set(w++,v5);
+							bgra.set(w++,v5);
+							bgra.set(w++,v5);
 							bgra.set(w++,data.get(r++));
 						}
 					} else {
-						var _g31 = 0;
-						while(_g31 < width1) {
-							var x11 = _g31++;
-							var v2 = data.get(r++);
-							bgra.set(w++,v2);
-							bgra.set(w++,v2);
-							bgra.set(w++,v2);
+						var _g37 = 0;
+						while(_g37 < width1) {
+							var x7 = _g37++;
+							var v6 = data.get(r++);
+							bgra.set(w++,v6);
+							bgra.set(w++,v6);
+							bgra.set(w++,v6);
 							bgra.set(w++,255);
 						}
 					}
 					break;
 				case 1:
 					var cv = 0;
-					var ca6 = 0;
+					var ca = 0;
 					if(alpha1) {
-						var _g32 = 0;
-						while(_g32 < width1) {
-							var x12 = _g32++;
+						var _g38 = 0;
+						while(_g38 < width1) {
+							var x8 = _g38++;
 							cv += data.get(r++);
 							bgra.set(w++,cv);
 							bgra.set(w++,cv);
 							bgra.set(w++,cv);
-							ca6 += data.get(r++);
-							bgra.set(w++,ca6);
+							ca += data.get(r++);
+							bgra.set(w++,ca);
 						}
 					} else {
-						var _g33 = 0;
-						while(_g33 < width1) {
-							var x13 = _g33++;
+						var _g39 = 0;
+						while(_g39 < width1) {
+							var x9 = _g39++;
 							cv += data.get(r++);
 							bgra.set(w++,cv);
 							bgra.set(w++,cv);
@@ -3409,51 +3443,51 @@ format.png.Tools.extract32 = function(d,bytes) {
 					}
 					break;
 				case 2:
-					var stride8;
-					if(y2 == 0) stride8 = 0; else stride8 = width1 * 4;
+					var stride5;
+					if(y3 == 0) stride5 = 0; else stride5 = width1 * 4 * flipY1;
 					if(alpha1) {
-						var _g34 = 0;
-						while(_g34 < width1) {
-							var x14 = _g34++;
-							var v3 = data.get(r++) + bgra.b[w - stride8];
-							bgra.set(w++,v3);
-							bgra.set(w++,v3);
-							bgra.set(w++,v3);
-							bgra.set(w++,data.get(r++) + bgra.b[w - stride8]);
+						var _g310 = 0;
+						while(_g310 < width1) {
+							var x10 = _g310++;
+							var v7 = data.get(r++) + bgra.b[w - stride5];
+							bgra.set(w++,v7);
+							bgra.set(w++,v7);
+							bgra.set(w++,v7);
+							bgra.set(w++,data.get(r++) + bgra.b[w - stride5]);
 						}
 					} else {
-						var _g35 = 0;
-						while(_g35 < width1) {
-							var x15 = _g35++;
-							var v4 = data.get(r++) + bgra.b[w - stride8];
-							bgra.set(w++,v4);
-							bgra.set(w++,v4);
-							bgra.set(w++,v4);
+						var _g311 = 0;
+						while(_g311 < width1) {
+							var x11 = _g311++;
+							var v8 = data.get(r++) + bgra.b[w - stride5];
+							bgra.set(w++,v8);
+							bgra.set(w++,v8);
+							bgra.set(w++,v8);
 							bgra.set(w++,255);
 						}
 					}
 					break;
 				case 3:
 					var cv1 = 0;
-					var ca7 = 0;
-					var stride9;
-					if(y2 == 0) stride9 = 0; else stride9 = width1 * 4;
+					var ca1 = 0;
+					var stride6;
+					if(y3 == 0) stride6 = 0; else stride6 = width1 * 4 * flipY1;
 					if(alpha1) {
-						var _g36 = 0;
-						while(_g36 < width1) {
-							var x16 = _g36++;
-							cv1 = data.get(r++) + (cv1 + bgra.b[w - stride9] >> 1) & 255;
+						var _g312 = 0;
+						while(_g312 < width1) {
+							var x12 = _g312++;
+							cv1 = data.get(r++) + (cv1 + bgra.b[w - stride6] >> 1) & 255;
 							bgra.set(w++,cv1);
 							bgra.set(w++,cv1);
 							bgra.set(w++,cv1);
-							ca7 = data.get(r++) + (ca7 + bgra.b[w - stride9] >> 1) & 255;
-							bgra.set(w++,ca7);
+							ca1 = data.get(r++) + (ca1 + bgra.b[w - stride6] >> 1) & 255;
+							bgra.set(w++,ca1);
 						}
 					} else {
-						var _g37 = 0;
-						while(_g37 < width1) {
-							var x17 = _g37++;
-							cv1 = data.get(r++) + (cv1 + bgra.b[w - stride9] >> 1) & 255;
+						var _g313 = 0;
+						while(_g313 < width1) {
+							var x13 = _g313++;
+							cv1 = data.get(r++) + (cv1 + bgra.b[w - stride6] >> 1) & 255;
 							bgra.set(w++,cv1);
 							bgra.set(w++,cv1);
 							bgra.set(w++,cv1);
@@ -3462,25 +3496,25 @@ format.png.Tools.extract32 = function(d,bytes) {
 					}
 					break;
 				case 4:
-					var stride10 = width1 * 4;
+					var stride7 = width1 * 4 * flipY1;
 					var cv2 = 0;
-					var ca8 = 0;
+					var ca2 = 0;
 					if(alpha1) {
-						var _g38 = 0;
-						while(_g38 < width1) {
-							var x18 = _g38++;
-							cv2 = format.png.Tools.filter(bgra,x18,y2,stride10,cv2,w,null) + data.get(r++) & 255;
+						var _g314 = 0;
+						while(_g314 < width1) {
+							var x14 = _g314++;
+							cv2 = format.png.Tools.filter(bgra,x14,y3,stride7,cv2,w,null) + data.get(r++) & 255;
 							bgra.set(w++,cv2);
 							bgra.set(w++,cv2);
 							bgra.set(w++,cv2);
-							ca8 = format.png.Tools.filter(bgra,x18,y2,stride10,ca8,w,null) + data.get(r++) & 255;
-							bgra.set(w++,ca8);
+							ca2 = format.png.Tools.filter(bgra,x14,y3,stride7,ca2,w,null) + data.get(r++) & 255;
+							bgra.set(w++,ca2);
 						}
 					} else {
-						var _g39 = 0;
-						while(_g39 < width1) {
-							var x19 = _g39++;
-							cv2 = format.png.Tools.filter(bgra,x19,y2,stride10,cv2,w,null) + data.get(r++) & 255;
+						var _g315 = 0;
+						while(_g315 < width1) {
+							var x15 = _g315++;
+							cv2 = format.png.Tools.filter(bgra,x15,y3,stride7,cv2,w,null) + data.get(r++) & 255;
 							bgra.set(w++,cv2);
 							bgra.set(w++,cv2);
 							bgra.set(w++,cv2);
@@ -3489,28 +3523,29 @@ format.png.Tools.extract32 = function(d,bytes) {
 					}
 					break;
 				default:
-					throw "Invalid filter " + f2;
+					throw "Invalid filter " + f1;
 				}
+				w += lineDelta;
 			}
 			break;
 		case 1:
 			var alpha3 = _g[2];
 			if(h.colbits != 8) throw "Unsupported color mode";
 			var width2 = h.width;
-			var stride11;
-			stride11 = (alpha3?4:3) * width2 + 1;
-			if(data.length < h.height * stride11) throw "Not enough data";
-			var _g23 = 0;
-			var _g113 = h.height;
-			while(_g23 < _g113) {
-				var y3 = _g23++;
-				var f3 = data.get(r++);
-				switch(f3) {
+			var stride8;
+			stride8 = (alpha3?4:3) * width2 + 1;
+			if(data.length < h.height * stride8) throw "Not enough data";
+			var _g24 = 0;
+			var _g14 = h.height;
+			while(_g24 < _g14) {
+				var y4 = _g24++;
+				var f2 = data.get(r++);
+				switch(f2) {
 				case 0:
 					if(alpha3) {
-						var _g310 = 0;
-						while(_g310 < width2) {
-							var x20 = _g310++;
+						var _g316 = 0;
+						while(_g316 < width2) {
+							var x16 = _g316++;
 							bgra.set(w++,data.b[r + 2]);
 							bgra.set(w++,data.b[r + 1]);
 							bgra.set(w++,data.b[r]);
@@ -3518,9 +3553,9 @@ format.png.Tools.extract32 = function(d,bytes) {
 							r += 4;
 						}
 					} else {
-						var _g311 = 0;
-						while(_g311 < width2) {
-							var x21 = _g311++;
+						var _g317 = 0;
+						while(_g317 < width2) {
+							var x17 = _g317++;
 							bgra.set(w++,data.b[r + 2]);
 							bgra.set(w++,data.b[r + 1]);
 							bgra.set(w++,data.b[r]);
@@ -3530,65 +3565,65 @@ format.png.Tools.extract32 = function(d,bytes) {
 					}
 					break;
 				case 1:
-					var cr6 = 0;
-					var cg6 = 0;
-					var cb6 = 0;
-					var ca9 = 0;
+					var cr = 0;
+					var cg = 0;
+					var cb = 0;
+					var ca3 = 0;
 					if(alpha3) {
-						var _g312 = 0;
-						while(_g312 < width2) {
-							var x22 = _g312++;
-							cb6 += data.b[r + 2];
-							bgra.set(w++,cb6);
-							cg6 += data.b[r + 1];
-							bgra.set(w++,cg6);
-							cr6 += data.b[r];
-							bgra.set(w++,cr6);
-							ca9 += data.b[r + 3];
-							bgra.set(w++,ca9);
+						var _g318 = 0;
+						while(_g318 < width2) {
+							var x18 = _g318++;
+							cb += data.b[r + 2];
+							bgra.set(w++,cb);
+							cg += data.b[r + 1];
+							bgra.set(w++,cg);
+							cr += data.b[r];
+							bgra.set(w++,cr);
+							ca3 += data.b[r + 3];
+							bgra.set(w++,ca3);
 							r += 4;
 						}
 					} else {
-						var _g313 = 0;
-						while(_g313 < width2) {
-							var x23 = _g313++;
-							cb6 += data.b[r + 2];
-							bgra.set(w++,cb6);
-							cg6 += data.b[r + 1];
-							bgra.set(w++,cg6);
-							cr6 += data.b[r];
-							bgra.set(w++,cr6);
+						var _g319 = 0;
+						while(_g319 < width2) {
+							var x19 = _g319++;
+							cb += data.b[r + 2];
+							bgra.set(w++,cb);
+							cg += data.b[r + 1];
+							bgra.set(w++,cg);
+							cr += data.b[r];
+							bgra.set(w++,cr);
 							bgra.set(w++,255);
 							r += 3;
 						}
 					}
 					break;
 				case 2:
-					var stride12;
-					if(y3 == 0) stride12 = 0; else stride12 = width2 * 4;
+					var stride9;
+					if(y4 == 0) stride9 = 0; else stride9 = width2 * 4 * flipY1;
 					if(alpha3) {
-						var _g314 = 0;
-						while(_g314 < width2) {
-							var x24 = _g314++;
-							bgra.b[w] = data.b[r + 2] + bgra.b[w - stride12] & 255;
+						var _g320 = 0;
+						while(_g320 < width2) {
+							var x20 = _g320++;
+							bgra.b[w] = data.b[r + 2] + bgra.b[w - stride9] & 255;
 							w++;
-							bgra.b[w] = data.b[r + 1] + bgra.b[w - stride12] & 255;
+							bgra.b[w] = data.b[r + 1] + bgra.b[w - stride9] & 255;
 							w++;
-							bgra.b[w] = data.b[r] + bgra.b[w - stride12] & 255;
+							bgra.b[w] = data.b[r] + bgra.b[w - stride9] & 255;
 							w++;
-							bgra.b[w] = data.b[r + 3] + bgra.b[w - stride12] & 255;
+							bgra.b[w] = data.b[r + 3] + bgra.b[w - stride9] & 255;
 							w++;
 							r += 4;
 						}
 					} else {
-						var _g315 = 0;
-						while(_g315 < width2) {
-							var x25 = _g315++;
-							bgra.b[w] = data.b[r + 2] + bgra.b[w - stride12] & 255;
+						var _g321 = 0;
+						while(_g321 < width2) {
+							var x21 = _g321++;
+							bgra.b[w] = data.b[r + 2] + bgra.b[w - stride9] & 255;
 							w++;
-							bgra.b[w] = data.b[r + 1] + bgra.b[w - stride12] & 255;
+							bgra.b[w] = data.b[r + 1] + bgra.b[w - stride9] & 255;
 							w++;
-							bgra.b[w] = data.b[r] + bgra.b[w - stride12] & 255;
+							bgra.b[w] = data.b[r] + bgra.b[w - stride9] & 255;
 							w++;
 							bgra.set(w++,255);
 							r += 3;
@@ -3596,79 +3631,80 @@ format.png.Tools.extract32 = function(d,bytes) {
 					}
 					break;
 				case 3:
-					var cr7 = 0;
-					var cg7 = 0;
-					var cb7 = 0;
-					var ca10 = 0;
-					var stride13;
-					if(y3 == 0) stride13 = 0; else stride13 = width2 * 4;
+					var cr1 = 0;
+					var cg1 = 0;
+					var cb1 = 0;
+					var ca4 = 0;
+					var stride10;
+					if(y4 == 0) stride10 = 0; else stride10 = width2 * 4 * flipY1;
 					if(alpha3) {
-						var _g316 = 0;
-						while(_g316 < width2) {
-							var x26 = _g316++;
-							cb7 = data.b[r + 2] + (cb7 + bgra.b[w - stride13] >> 1) & 255;
-							bgra.set(w++,cb7);
-							cg7 = data.b[r + 1] + (cg7 + bgra.b[w - stride13] >> 1) & 255;
-							bgra.set(w++,cg7);
-							cr7 = data.b[r] + (cr7 + bgra.b[w - stride13] >> 1) & 255;
-							bgra.set(w++,cr7);
-							ca10 = data.b[r + 3] + (ca10 + bgra.b[w - stride13] >> 1) & 255;
-							bgra.set(w++,ca10);
+						var _g322 = 0;
+						while(_g322 < width2) {
+							var x22 = _g322++;
+							cb1 = data.b[r + 2] + (cb1 + bgra.b[w - stride10] >> 1) & 255;
+							bgra.set(w++,cb1);
+							cg1 = data.b[r + 1] + (cg1 + bgra.b[w - stride10] >> 1) & 255;
+							bgra.set(w++,cg1);
+							cr1 = data.b[r] + (cr1 + bgra.b[w - stride10] >> 1) & 255;
+							bgra.set(w++,cr1);
+							ca4 = data.b[r + 3] + (ca4 + bgra.b[w - stride10] >> 1) & 255;
+							bgra.set(w++,ca4);
 							r += 4;
 						}
 					} else {
-						var _g317 = 0;
-						while(_g317 < width2) {
-							var x27 = _g317++;
-							cb7 = data.b[r + 2] + (cb7 + bgra.b[w - stride13] >> 1) & 255;
-							bgra.set(w++,cb7);
-							cg7 = data.b[r + 1] + (cg7 + bgra.b[w - stride13] >> 1) & 255;
-							bgra.set(w++,cg7);
-							cr7 = data.b[r] + (cr7 + bgra.b[w - stride13] >> 1) & 255;
-							bgra.set(w++,cr7);
+						var _g323 = 0;
+						while(_g323 < width2) {
+							var x23 = _g323++;
+							cb1 = data.b[r + 2] + (cb1 + bgra.b[w - stride10] >> 1) & 255;
+							bgra.set(w++,cb1);
+							cg1 = data.b[r + 1] + (cg1 + bgra.b[w - stride10] >> 1) & 255;
+							bgra.set(w++,cg1);
+							cr1 = data.b[r] + (cr1 + bgra.b[w - stride10] >> 1) & 255;
+							bgra.set(w++,cr1);
 							bgra.set(w++,255);
 							r += 3;
 						}
 					}
 					break;
 				case 4:
-					var stride14 = width2 * 4;
-					var cr8 = 0;
-					var cg8 = 0;
-					var cb8 = 0;
-					var ca11 = 0;
+					var stride11 = width2 * 4 * flipY1;
+					var cr2 = 0;
+					var cg2 = 0;
+					var cb2 = 0;
+					var ca5 = 0;
 					if(alpha3) {
-						var _g318 = 0;
-						while(_g318 < width2) {
-							var x28 = _g318++;
-							cb8 = format.png.Tools.filter(bgra,x28,y3,stride14,cb8,w,null) + data.b[r + 2] & 255;
-							bgra.set(w++,cb8);
-							cg8 = format.png.Tools.filter(bgra,x28,y3,stride14,cg8,w,null) + data.b[r + 1] & 255;
-							bgra.set(w++,cg8);
-							cr8 = format.png.Tools.filter(bgra,x28,y3,stride14,cr8,w,null) + data.b[r] & 255;
-							bgra.set(w++,cr8);
-							ca11 = format.png.Tools.filter(bgra,x28,y3,stride14,ca11,w,null) + data.b[r + 3] & 255;
-							bgra.set(w++,ca11);
+						var _g324 = 0;
+						while(_g324 < width2) {
+							var x24 = _g324++;
+							cb2 = format.png.Tools.filter(bgra,x24,y4,stride11,cb2,w,null) + data.b[r + 2] & 255;
+							bgra.set(w++,cb2);
+							cg2 = format.png.Tools.filter(bgra,x24,y4,stride11,cg2,w,null) + data.b[r + 1] & 255;
+							bgra.set(w++,cg2);
+							cr2 = format.png.Tools.filter(bgra,x24,y4,stride11,cr2,w,null) + data.b[r] & 255;
+							bgra.set(w++,cr2);
+							ca5 = format.png.Tools.filter(bgra,x24,y4,stride11,ca5,w,null) + data.b[r + 3] & 255;
+							bgra.set(w++,ca5);
 							r += 4;
 						}
 					} else {
-						var _g319 = 0;
-						while(_g319 < width2) {
-							var x29 = _g319++;
-							cb8 = format.png.Tools.filter(bgra,x29,y3,stride14,cb8,w,null) + data.b[r + 2] & 255;
-							bgra.set(w++,cb8);
-							cg8 = format.png.Tools.filter(bgra,x29,y3,stride14,cg8,w,null) + data.b[r + 1] & 255;
-							bgra.set(w++,cg8);
-							cr8 = format.png.Tools.filter(bgra,x29,y3,stride14,cr8,w,null) + data.b[r] & 255;
-							bgra.set(w++,cr8);
+						var _g325 = 0;
+						while(_g325 < width2) {
+							var x25 = _g325++;
+							cb2 = format.png.Tools.filter(bgra,x25,y4,stride11,cb2,w,null) + data.b[r + 2] & 255;
+							bgra.set(w++,cb2);
+							cg2 = format.png.Tools.filter(bgra,x25,y4,stride11,cg2,w,null) + data.b[r + 1] & 255;
+							bgra.set(w++,cg2);
+							cr2 = format.png.Tools.filter(bgra,x25,y4,stride11,cr2,w,null) + data.b[r] & 255;
+							bgra.set(w++,cr2);
 							bgra.set(w++,255);
 							r += 3;
 						}
 					}
 					break;
 				default:
-					throw "Invalid filter " + f3;
+					throw "Invalid filter " + f2;
 				}
+				w += lineDelta;
 			}
 			break;
 		}
@@ -5056,6 +5092,12 @@ js.Browser.createXMLHttpRequest = function() {
 	if(typeof ActiveXObject != "undefined") return new ActiveXObject("Microsoft.XMLHTTP");
 	throw "Unable to create XMLHttpRequest object.";
 };
+js.Lib = function() { };
+$hxClasses["js.Lib"] = js.Lib;
+js.Lib.__name__ = true;
+js.Lib.alert = function(v) {
+	alert(js.Boot.__string_rec(v,""));
+};
 js.html = {};
 js.html._CanvasElement = {};
 js.html._CanvasElement.CanvasUtil = function() { };
@@ -5106,6 +5148,61 @@ lime.AssetCache.prototype = {
 	}
 	,__class__: lime.AssetCache
 };
+lime.app.Event_Void_Void = function() {
+	this.listeners = new Array();
+	this.priorities = new Array();
+	this.repeat = new Array();
+};
+$hxClasses["lime.app.Event_Void_Void"] = lime.app.Event_Void_Void;
+lime.app.Event_Void_Void.__name__ = true;
+lime.app.Event_Void_Void.prototype = {
+	add: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		var _g1 = 0;
+		var _g = this.priorities.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(priority > this.priorities[i]) {
+				this.listeners.splice(i,0,listener);
+				this.priorities.splice(i,0,priority);
+				this.repeat.splice(i,0,!once);
+				return;
+			}
+		}
+		this.listeners.push(listener);
+		this.priorities.push(priority);
+		this.repeat.push(!once);
+	}
+	,has: function(listener) {
+		var _g = 0;
+		var _g1 = this.listeners;
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			if(Reflect.compareMethods(l,listener)) return true;
+		}
+		return false;
+	}
+	,remove: function(listener) {
+		var i = this.listeners.length;
+		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
+			this.listeners.splice(i,1);
+			this.priorities.splice(i,1);
+			this.repeat.splice(i,1);
+		}
+	}
+	,dispatch: function() {
+		var listeners = this.listeners;
+		var repeat = this.repeat;
+		var i = 0;
+		while(i < listeners.length) {
+			listeners[i]();
+			if(!repeat[i]) this.remove(listeners[i]); else i++;
+		}
+	}
+	,__class__: lime.app.Event_Void_Void
+};
 lime.Assets = function() { };
 $hxClasses["lime.Assets"] = lime.Assets;
 lime.Assets.__name__ = true;
@@ -5138,9 +5235,9 @@ lime.Assets.getAudioBuffer = function(id,useCache) {
 				var audio1 = library.getAudioBuffer(symbolName);
 				if(useCache && lime.Assets.cache.enabled) lime.Assets.cache.audio.set(id,audio1);
 				return audio1;
-			} else haxe.Log.trace("[Assets] Audio asset \"" + id + "\" exists, but only asynchronously",{ fileName : "Assets.hx", lineNumber : 115, className : "lime.Assets", methodName : "getAudioBuffer"});
-		} else haxe.Log.trace("[Assets] There is no audio asset with an ID of \"" + id + "\"",{ fileName : "Assets.hx", lineNumber : 121, className : "lime.Assets", methodName : "getAudioBuffer"});
-	} else haxe.Log.trace("[Assets] There is no asset library named \"" + libraryName + "\"",{ fileName : "Assets.hx", lineNumber : 127, className : "lime.Assets", methodName : "getAudioBuffer"});
+			} else haxe.Log.trace("[Assets] Audio asset \"" + id + "\" exists, but only asynchronously",{ fileName : "Assets.hx", lineNumber : 121, className : "lime.Assets", methodName : "getAudioBuffer"});
+		} else haxe.Log.trace("[Assets] There is no audio asset with an ID of \"" + id + "\"",{ fileName : "Assets.hx", lineNumber : 127, className : "lime.Assets", methodName : "getAudioBuffer"});
+	} else haxe.Log.trace("[Assets] There is no asset library named \"" + libraryName + "\"",{ fileName : "Assets.hx", lineNumber : 133, className : "lime.Assets", methodName : "getAudioBuffer"});
 	return null;
 };
 lime.Assets.getBytes = function(id) {
@@ -5152,9 +5249,9 @@ lime.Assets.getBytes = function(id) {
 	var library = lime.Assets.getLibrary(libraryName);
 	if(library != null) {
 		if(library.exists(symbolName,"BINARY")) {
-			if(library.isLocal(symbolName,"BINARY")) return library.getBytes(symbolName); else haxe.Log.trace("[Assets] String or ByteArray asset \"" + id + "\" exists, but only asynchronously",{ fileName : "Assets.hx", lineNumber : 164, className : "lime.Assets", methodName : "getBytes"});
-		} else haxe.Log.trace("[Assets] There is no String or ByteArray asset with an ID of \"" + id + "\"",{ fileName : "Assets.hx", lineNumber : 170, className : "lime.Assets", methodName : "getBytes"});
-	} else haxe.Log.trace("[Assets] There is no asset library named \"" + libraryName + "\"",{ fileName : "Assets.hx", lineNumber : 176, className : "lime.Assets", methodName : "getBytes"});
+			if(library.isLocal(symbolName,"BINARY")) return library.getBytes(symbolName); else haxe.Log.trace("[Assets] String or ByteArray asset \"" + id + "\" exists, but only asynchronously",{ fileName : "Assets.hx", lineNumber : 170, className : "lime.Assets", methodName : "getBytes"});
+		} else haxe.Log.trace("[Assets] There is no String or ByteArray asset with an ID of \"" + id + "\"",{ fileName : "Assets.hx", lineNumber : 176, className : "lime.Assets", methodName : "getBytes"});
+	} else haxe.Log.trace("[Assets] There is no asset library named \"" + libraryName + "\"",{ fileName : "Assets.hx", lineNumber : 182, className : "lime.Assets", methodName : "getBytes"});
 	return null;
 };
 lime.Assets.getFont = function(id,useCache) {
@@ -5172,9 +5269,9 @@ lime.Assets.getFont = function(id,useCache) {
 				var font = library.getFont(symbolName);
 				if(useCache && lime.Assets.cache.enabled) lime.Assets.cache.font.set(id,font);
 				return font;
-			} else haxe.Log.trace("[Assets] Font asset \"" + id + "\" exists, but only asynchronously",{ fileName : "Assets.hx", lineNumber : 227, className : "lime.Assets", methodName : "getFont"});
-		} else haxe.Log.trace("[Assets] There is no Font asset with an ID of \"" + id + "\"",{ fileName : "Assets.hx", lineNumber : 233, className : "lime.Assets", methodName : "getFont"});
-	} else haxe.Log.trace("[Assets] There is no asset library named \"" + libraryName + "\"",{ fileName : "Assets.hx", lineNumber : 239, className : "lime.Assets", methodName : "getFont"});
+			} else haxe.Log.trace("[Assets] Font asset \"" + id + "\" exists, but only asynchronously",{ fileName : "Assets.hx", lineNumber : 233, className : "lime.Assets", methodName : "getFont"});
+		} else haxe.Log.trace("[Assets] There is no Font asset with an ID of \"" + id + "\"",{ fileName : "Assets.hx", lineNumber : 239, className : "lime.Assets", methodName : "getFont"});
+	} else haxe.Log.trace("[Assets] There is no asset library named \"" + libraryName + "\"",{ fileName : "Assets.hx", lineNumber : 245, className : "lime.Assets", methodName : "getFont"});
 	return null;
 };
 lime.Assets.getImage = function(id,useCache) {
@@ -5195,9 +5292,9 @@ lime.Assets.getImage = function(id,useCache) {
 				var image1 = library.getImage(symbolName);
 				if(useCache && lime.Assets.cache.enabled) lime.Assets.cache.image.set(id,image1);
 				return image1;
-			} else haxe.Log.trace("[Assets] Image asset \"" + id + "\" exists, but only asynchronously",{ fileName : "Assets.hx", lineNumber : 297, className : "lime.Assets", methodName : "getImage"});
-		} else haxe.Log.trace("[Assets] There is no Image asset with an ID of \"" + id + "\"",{ fileName : "Assets.hx", lineNumber : 303, className : "lime.Assets", methodName : "getImage"});
-	} else haxe.Log.trace("[Assets] There is no asset library named \"" + libraryName + "\"",{ fileName : "Assets.hx", lineNumber : 309, className : "lime.Assets", methodName : "getImage"});
+			} else haxe.Log.trace("[Assets] Image asset \"" + id + "\" exists, but only asynchronously",{ fileName : "Assets.hx", lineNumber : 303, className : "lime.Assets", methodName : "getImage"});
+		} else haxe.Log.trace("[Assets] There is no Image asset with an ID of \"" + id + "\"",{ fileName : "Assets.hx", lineNumber : 309, className : "lime.Assets", methodName : "getImage"});
+	} else haxe.Log.trace("[Assets] There is no asset library named \"" + libraryName + "\"",{ fileName : "Assets.hx", lineNumber : 315, className : "lime.Assets", methodName : "getImage"});
 	return null;
 };
 lime.Assets.getLibrary = function(name) {
@@ -5212,8 +5309,8 @@ lime.Assets.getPath = function(id) {
 	symbolName = HxOverrides.substr(id,pos,null);
 	var library = lime.Assets.getLibrary(libraryName);
 	if(library != null) {
-		if(library.exists(symbolName,null)) return library.getPath(symbolName); else haxe.Log.trace("[Assets] There is no asset with an ID of \"" + id + "\"",{ fileName : "Assets.hx", lineNumber : 426, className : "lime.Assets", methodName : "getPath"});
-	} else haxe.Log.trace("[Assets] There is no asset library named \"" + libraryName + "\"",{ fileName : "Assets.hx", lineNumber : 432, className : "lime.Assets", methodName : "getPath"});
+		if(library.exists(symbolName,null)) return library.getPath(symbolName); else haxe.Log.trace("[Assets] There is no asset with an ID of \"" + id + "\"",{ fileName : "Assets.hx", lineNumber : 363, className : "lime.Assets", methodName : "getPath"});
+	} else haxe.Log.trace("[Assets] There is no asset library named \"" + libraryName + "\"",{ fileName : "Assets.hx", lineNumber : 369, className : "lime.Assets", methodName : "getPath"});
 	return null;
 };
 lime.Assets.getText = function(id) {
@@ -5225,9 +5322,9 @@ lime.Assets.getText = function(id) {
 	var library = lime.Assets.getLibrary(libraryName);
 	if(library != null) {
 		if(library.exists(symbolName,"TEXT")) {
-			if(library.isLocal(symbolName,"TEXT")) return library.getText(symbolName); else haxe.Log.trace("[Assets] String asset \"" + id + "\" exists, but only asynchronously",{ fileName : "Assets.hx", lineNumber : 469, className : "lime.Assets", methodName : "getText"});
-		} else haxe.Log.trace("[Assets] There is no String asset with an ID of \"" + id + "\"",{ fileName : "Assets.hx", lineNumber : 475, className : "lime.Assets", methodName : "getText"});
-	} else haxe.Log.trace("[Assets] There is no asset library named \"" + libraryName + "\"",{ fileName : "Assets.hx", lineNumber : 481, className : "lime.Assets", methodName : "getText"});
+			if(library.isLocal(symbolName,"TEXT")) return library.getText(symbolName); else haxe.Log.trace("[Assets] String asset \"" + id + "\" exists, but only asynchronously",{ fileName : "Assets.hx", lineNumber : 406, className : "lime.Assets", methodName : "getText"});
+		} else haxe.Log.trace("[Assets] There is no String asset with an ID of \"" + id + "\"",{ fileName : "Assets.hx", lineNumber : 412, className : "lime.Assets", methodName : "getText"});
+	} else haxe.Log.trace("[Assets] There is no asset library named \"" + libraryName + "\"",{ fileName : "Assets.hx", lineNumber : 418, className : "lime.Assets", methodName : "getText"});
 	return null;
 };
 lime.Assets.initialize = function() {
@@ -5260,7 +5357,6 @@ lime.Assets.isLocal = function(id,type,useCache) {
 };
 lime.Assets.isValidAudio = function(buffer) {
 	return buffer != null;
-	return true;
 };
 lime.Assets.isValidImage = function(buffer) {
 	return true;
@@ -5276,14 +5372,15 @@ lime.Assets.list = function(type) {
 	}
 	return items;
 };
-lime.Assets.loadAudioBuffer = function(id,handler,useCache) {
+lime.Assets.loadAudioBuffer = function(id,useCache) {
 	if(useCache == null) useCache = true;
 	lime.Assets.initialize();
+	var promise = new lime.app.Promise();
 	if(useCache && lime.Assets.cache.enabled && lime.Assets.cache.audio.exists(id)) {
 		var audio = lime.Assets.cache.audio.get(id);
 		if(lime.Assets.isValidAudio(audio)) {
-			handler(audio);
-			return;
+			promise.complete(audio);
+			return promise.future;
 		}
 	}
 	var libraryName = id.substring(0,id.indexOf(":"));
@@ -5293,39 +5390,50 @@ lime.Assets.loadAudioBuffer = function(id,handler,useCache) {
 	var library = lime.Assets.getLibrary(libraryName);
 	if(library != null) {
 		if(library.exists(symbolName,"SOUND")) {
-			if(useCache && lime.Assets.cache.enabled) library.loadAudioBuffer(symbolName,function(audio1) {
-				var value = audio1;
-				lime.Assets.cache.audio.set(id,value);
-				handler(audio1);
-			}); else library.loadAudioBuffer(symbolName,handler);
-			return;
-		} else haxe.Log.trace("[Assets] There is no audio asset with an ID of \"" + id + "\"",{ fileName : "Assets.hx", lineNumber : 666, className : "lime.Assets", methodName : "loadAudioBuffer"});
-	} else haxe.Log.trace("[Assets] There is no asset library named \"" + libraryName + "\"",{ fileName : "Assets.hx", lineNumber : 672, className : "lime.Assets", methodName : "loadAudioBuffer"});
-	handler(null);
+			var future = library.loadAudioBuffer(symbolName);
+			if(useCache && lime.Assets.cache.enabled) future.onComplete(function(audio1) {
+				lime.Assets.cache.audio.set(id,audio1);
+			});
+			promise.completeWith(future);
+		} else promise.error("[Assets] There is no audio asset with an ID of \"" + id + "\"");
+	} else promise.error("[Assets] There is no asset library named \"" + libraryName + "\"");
+	return promise.future;
 };
-lime.Assets.loadBytes = function(id,handler) {
+lime.Assets.loadBytes = function(id) {
 	lime.Assets.initialize();
+	var promise = new lime.app.Promise();
 	var libraryName = id.substring(0,id.indexOf(":"));
 	var symbolName;
 	var pos = id.indexOf(":") + 1;
 	symbolName = HxOverrides.substr(id,pos,null);
 	var library = lime.Assets.getLibrary(libraryName);
 	if(library != null) {
-		if(library.exists(symbolName,"BINARY")) {
-			library.loadBytes(symbolName,handler);
-			return;
-		} else haxe.Log.trace("[Assets] There is no String or ByteArray asset with an ID of \"" + id + "\"",{ fileName : "Assets.hx", lineNumber : 702, className : "lime.Assets", methodName : "loadBytes"});
-	} else haxe.Log.trace("[Assets] There is no asset library named \"" + libraryName + "\"",{ fileName : "Assets.hx", lineNumber : 708, className : "lime.Assets", methodName : "loadBytes"});
-	handler(null);
+		if(library.exists(symbolName,"BINARY")) promise.completeWith(library.loadBytes(symbolName)); else promise.error("[Assets] There is no String or ByteArray asset with an ID of \"" + id + "\"");
+	} else promise.error("[Assets] There is no asset library named \"" + libraryName + "\"");
+	return promise.future;
 };
-lime.Assets.loadImage = function(id,handler,useCache) {
+lime.Assets.loadFont = function(id) {
+	lime.Assets.initialize();
+	var promise = new lime.app.Promise();
+	var libraryName = id.substring(0,id.indexOf(":"));
+	var symbolName;
+	var pos = id.indexOf(":") + 1;
+	symbolName = HxOverrides.substr(id,pos,null);
+	var library = lime.Assets.getLibrary(libraryName);
+	if(library != null) {
+		if(library.exists(symbolName,"FONT")) promise.completeWith(library.loadFont(symbolName)); else promise.error("[Assets] There is no Font asset with an ID of \"" + id + "\"");
+	} else promise.error("[Assets] There is no asset library named \"" + libraryName + "\"");
+	return promise.future;
+};
+lime.Assets.loadImage = function(id,useCache) {
 	if(useCache == null) useCache = true;
 	lime.Assets.initialize();
+	var promise = new lime.app.Promise();
 	if(useCache && lime.Assets.cache.enabled && lime.Assets.cache.image.exists(id)) {
 		var image = lime.Assets.cache.image.get(id);
 		if(lime.Assets.isValidImage(image)) {
-			handler(image);
-			return;
+			promise.complete(image);
+			return promise.future;
 		}
 	}
 	var libraryName = id.substring(0,id.indexOf(":"));
@@ -5335,46 +5443,46 @@ lime.Assets.loadImage = function(id,handler,useCache) {
 	var library = lime.Assets.getLibrary(libraryName);
 	if(library != null) {
 		if(library.exists(symbolName,"IMAGE")) {
-			if(useCache && lime.Assets.cache.enabled) library.loadImage(symbolName,function(image1) {
+			var future = library.loadImage(symbolName);
+			if(useCache && lime.Assets.cache.enabled) future.onComplete(function(image1) {
 				lime.Assets.cache.image.set(id,image1);
-				handler(image1);
-			}); else library.loadImage(symbolName,handler);
-			return;
-		} else haxe.Log.trace("[Assets] There is no Image asset with an ID of \"" + id + "\"",{ fileName : "Assets.hx", lineNumber : 765, className : "lime.Assets", methodName : "loadImage"});
-	} else haxe.Log.trace("[Assets] There is no asset library named \"" + libraryName + "\"",{ fileName : "Assets.hx", lineNumber : 771, className : "lime.Assets", methodName : "loadImage"});
-	handler(null);
+			});
+			promise.completeWith(future);
+		} else promise.error("[Assets] There is no Image asset with an ID of \"" + id + "\"");
+	} else promise.error("[Assets] There is no asset library named \"" + libraryName + "\"");
+	return promise.future;
 };
-lime.Assets.loadLibrary = function(name,handler) {
+lime.Assets.loadLibrary = function(name) {
 	lime.Assets.initialize();
+	var promise = new lime.app.Promise();
 	var data = lime.Assets.getText("libraries/" + name + ".json");
 	if(data != null && data != "") {
 		var info = JSON.parse(data);
 		var library = Type.createInstance(Type.resolveClass(info.type),info.args);
 		lime.Assets.libraries.set(name,library);
-		library.eventCallback = lime.Assets.library_onEvent;
-		library.load(handler);
-		return;
-	} else haxe.Log.trace("[Assets] There is no asset library named \"" + name + "\"",{ fileName : "Assets.hx", lineNumber : 801, className : "lime.Assets", methodName : "loadLibrary"});
-	handler(null);
+		library.onChange.add(($_=lime.Assets.onChange,$bind($_,$_.dispatch)));
+		promise.completeWith(library.load());
+	} else promise.error("[Assets] There is no asset library named \"" + name + "\"");
+	return promise.future;
 };
-lime.Assets.loadText = function(id,handler) {
+lime.Assets.loadText = function(id) {
 	lime.Assets.initialize();
+	var promise = new lime.app.Promise();
 	var libraryName = id.substring(0,id.indexOf(":"));
 	var symbolName;
 	var pos = id.indexOf(":") + 1;
 	symbolName = HxOverrides.substr(id,pos,null);
 	var library = lime.Assets.getLibrary(libraryName);
 	if(library != null) {
-		if(library.exists(symbolName,"TEXT")) {
-			library.loadText(symbolName,handler);
-			return;
-		} else haxe.Log.trace("[Assets] There is no String asset with an ID of \"" + id + "\"",{ fileName : "Assets.hx", lineNumber : 894, className : "lime.Assets", methodName : "loadText"});
-	} else haxe.Log.trace("[Assets] There is no asset library named \"" + libraryName + "\"",{ fileName : "Assets.hx", lineNumber : 900, className : "lime.Assets", methodName : "loadText"});
-	handler(null);
+		if(library.exists(symbolName,"TEXT")) promise.completeWith(library.loadText(symbolName)); else promise.error("[Assets] There is no String asset with an ID of \"" + id + "\"");
+	} else promise.error("[Assets] There is no asset library named \"" + libraryName + "\"");
+	return promise.future;
 };
 lime.Assets.registerLibrary = function(name,library) {
-	if(lime.Assets.libraries.exists(name)) lime.Assets.unloadLibrary(name);
-	if(library != null) library.eventCallback = lime.Assets.library_onEvent;
+	if(lime.Assets.libraries.exists(name)) {
+		if(lime.Assets.libraries.get(name) == library) return; else lime.Assets.unloadLibrary(name);
+	}
+	if(library != null) library.onChange.add(lime.Assets.library_onChange);
 	lime.Assets.libraries.set(name,library);
 };
 lime.Assets.unloadLibrary = function(name) {
@@ -5382,13 +5490,14 @@ lime.Assets.unloadLibrary = function(name) {
 	var library = lime.Assets.libraries.get(name);
 	if(library != null) {
 		lime.Assets.cache.clear(name + ":");
+		library.onChange.remove(lime.Assets.library_onChange);
 		library.unload();
-		library.eventCallback = null;
 	}
 	lime.Assets.libraries.remove(name);
 };
-lime.Assets.library_onEvent = function(library,type) {
-	if(type == "change") lime.Assets.cache.clear();
+lime.Assets.library_onChange = function() {
+	lime.Assets.cache.clear();
+	lime.Assets.onChange.dispatch();
 };
 lime._Assets = {};
 lime._Assets.AssetType_Impl_ = function() { };
@@ -5542,21 +5651,9 @@ lime._backend.html5.HTML5Application.prototype = {
 		this.currentUpdate = new Date().getTime();
 		if(this.currentUpdate >= this.nextUpdate) {
 			this.deltaTime = this.currentUpdate - this.lastUpdate;
-			var listeners = this.parent.onUpdate.listeners;
-			var repeat = this.parent.onUpdate.repeat;
-			var i = 0;
-			while(i < listeners.length) {
-				listeners[i](this.deltaTime | 0);
-				if(!repeat[i]) this.parent.onUpdate.remove(listeners[i]); else i++;
-			}
+			this.parent.onUpdate.dispatch(this.deltaTime | 0);
 			if(this.parent.renderers[0] != null) {
-				var listeners1 = this.parent.renderers[0].onRender.listeners;
-				var repeat1 = this.parent.renderers[0].onRender.repeat;
-				var i1 = 0;
-				while(i1 < listeners1.length) {
-					listeners1[i1]();
-					if(!repeat1[i1]) this.parent.renderers[0].onRender.remove(listeners1[i1]); else i1++;
-				}
+				this.parent.renderers[0].onRender.dispatch();
 				this.parent.renderers[0].flip();
 			}
 			if(this.framePeriod < 0) {
@@ -5572,23 +5669,7 @@ lime._backend.html5.HTML5Application.prototype = {
 			var keyCode = this.convertKeyCode(event.keyCode != null?event.keyCode:event.which);
 			var modifier;
 			modifier = (event.shiftKey?3:0) | (event.ctrlKey?192:0) | (event.altKey?768:0) | (event.metaKey?3072:0);
-			if(event.type == "keydown") {
-				var listeners = this.parent.windows[0].onKeyDown.listeners;
-				var repeat = this.parent.windows[0].onKeyDown.repeat;
-				var i = 0;
-				while(i < listeners.length) {
-					listeners[i](keyCode,modifier);
-					if(!repeat[i]) this.parent.windows[0].onKeyDown.remove(listeners[i]); else i++;
-				}
-			} else {
-				var listeners1 = this.parent.windows[0].onKeyUp.listeners;
-				var repeat1 = this.parent.windows[0].onKeyUp.repeat;
-				var i1 = 0;
-				while(i1 < listeners1.length) {
-					listeners1[i1](keyCode,modifier);
-					if(!repeat1[i1]) this.parent.windows[0].onKeyUp.remove(listeners1[i1]); else i1++;
-				}
-			}
+			if(event.type == "keydown") this.parent.windows[0].onKeyDown.dispatch(keyCode,modifier); else this.parent.windows[0].onKeyUp.dispatch(keyCode,modifier);
 		}
 	}
 	,handleWindowEvent: function(event) {
@@ -5596,59 +5677,21 @@ lime._backend.html5.HTML5Application.prototype = {
 			var _g = event.type;
 			switch(_g) {
 			case "focus":
-				var listeners = this.parent.windows[0].onFocusIn.listeners;
-				var repeat = this.parent.windows[0].onFocusIn.repeat;
-				var i = 0;
-				while(i < listeners.length) {
-					listeners[i]();
-					if(!repeat[i]) this.parent.windows[0].onFocusIn.remove(listeners[i]); else i++;
-				}
-				var listeners1 = this.parent.windows[0].onActivate.listeners;
-				var repeat1 = this.parent.windows[0].onActivate.repeat;
-				var i1 = 0;
-				while(i1 < listeners1.length) {
-					listeners1[i1]();
-					if(!repeat1[i1]) this.parent.windows[0].onActivate.remove(listeners1[i1]); else i1++;
-				}
+				this.parent.windows[0].onFocusIn.dispatch();
+				this.parent.windows[0].onActivate.dispatch();
 				break;
 			case "blur":
-				var listeners2 = this.parent.windows[0].onFocusOut.listeners;
-				var repeat2 = this.parent.windows[0].onFocusOut.repeat;
-				var i2 = 0;
-				while(i2 < listeners2.length) {
-					listeners2[i2]();
-					if(!repeat2[i2]) this.parent.windows[0].onFocusOut.remove(listeners2[i2]); else i2++;
-				}
-				var listeners3 = this.parent.windows[0].onDeactivate.listeners;
-				var repeat3 = this.parent.windows[0].onDeactivate.repeat;
-				var i3 = 0;
-				while(i3 < listeners3.length) {
-					listeners3[i3]();
-					if(!repeat3[i3]) this.parent.windows[0].onDeactivate.remove(listeners3[i3]); else i3++;
-				}
+				this.parent.windows[0].onFocusOut.dispatch();
+				this.parent.windows[0].onDeactivate.dispatch();
 				break;
 			case "resize":
 				var cacheWidth = this.parent.windows[0].__width;
 				var cacheHeight = this.parent.windows[0].__height;
 				this.parent.windows[0].backend.handleResize();
-				if(this.parent.windows[0].__width != cacheWidth || this.parent.windows[0].__height != cacheHeight) {
-					var listeners4 = this.parent.windows[0].onResize.listeners;
-					var repeat4 = this.parent.windows[0].onResize.repeat;
-					var i4 = 0;
-					while(i4 < listeners4.length) {
-						listeners4[i4](this.parent.windows[0].__width,this.parent.windows[0].__height);
-						if(!repeat4[i4]) this.parent.windows[0].onResize.remove(listeners4[i4]); else i4++;
-					}
-				}
+				if(this.parent.windows[0].__width != cacheWidth || this.parent.windows[0].__height != cacheHeight) this.parent.windows[0].onResize.dispatch(this.parent.windows[0].__width,this.parent.windows[0].__height);
 				break;
 			case "beforeunload":
-				var listeners5 = this.parent.windows[0].onClose.listeners;
-				var repeat5 = this.parent.windows[0].onClose.repeat;
-				var i5 = 0;
-				while(i5 < listeners5.length) {
-					listeners5[i5]();
-					if(!repeat5[i5]) this.parent.windows[0].onClose.remove(listeners5[i5]); else i5++;
-				}
+				this.parent.windows[0].onClose.dispatch();
 				break;
 			}
 		}
@@ -5703,23 +5746,11 @@ lime._backend.html5.HTML5Renderer.prototype = {
 		case "webglcontextlost":
 			event.preventDefault();
 			this.parent.context = null;
-			var listeners = this.parent.onContextLost.listeners;
-			var repeat = this.parent.onContextLost.repeat;
-			var i = 0;
-			while(i < listeners.length) {
-				listeners[i]();
-				if(!repeat[i]) this.parent.onContextLost.remove(listeners[i]); else i++;
-			}
+			this.parent.onContextLost.dispatch();
 			break;
 		case "webglcontextrestored":
 			this.createContext();
-			var listeners1 = this.parent.onContextRestored.listeners;
-			var repeat1 = this.parent.onContextRestored.repeat;
-			var i1 = 0;
-			while(i1 < listeners1.length) {
-				listeners1[i1](this.parent.context);
-				if(!repeat1[i1]) this.parent.onContextRestored.remove(listeners1[i1]); else i1++;
-			}
+			this.parent.onContextRestored.dispatch(this.parent.context);
 			break;
 		default:
 		}
@@ -5737,7 +5768,10 @@ lime._backend.html5.HTML5Window = function(parent) {
 $hxClasses["lime._backend.html5.HTML5Window"] = lime._backend.html5.HTML5Window;
 lime._backend.html5.HTML5Window.__name__ = true;
 lime._backend.html5.HTML5Window.prototype = {
-	close: function() {
+	alert: function(message,title) {
+		if(message != null) js.Lib.alert(message);
+	}
+	,close: function() {
 		this.parent.application.removeWindow(this.parent);
 	}
 	,create: function(application) {
@@ -5816,13 +5850,7 @@ lime._backend.html5.HTML5Window.prototype = {
 	}
 	,handleInputEvent: function(event) {
 		if(lime._backend.html5.HTML5Window.textInput.value != "") {
-			var listeners = this.parent.onTextInput.listeners;
-			var repeat = this.parent.onTextInput.repeat;
-			var i = 0;
-			while(i < listeners.length) {
-				listeners[i](lime._backend.html5.HTML5Window.textInput.value);
-				if(!repeat[i]) this.parent.onTextInput.remove(listeners[i]); else i++;
-			}
+			this.parent.onTextInput.dispatch(lime._backend.html5.HTML5Window.textInput.value);
 			lime._backend.html5.HTML5Window.textInput.value = "";
 		}
 	}
@@ -5851,61 +5879,23 @@ lime._backend.html5.HTML5Window.prototype = {
 			var _g = event.type;
 			switch(_g) {
 			case "mousedown":
-				var listeners = this.parent.onMouseDown.listeners;
-				var repeat = this.parent.onMouseDown.repeat;
-				var i = 0;
-				while(i < listeners.length) {
-					listeners[i](x,y,event.button);
-					if(!repeat[i]) this.parent.onMouseDown.remove(listeners[i]); else i++;
-				}
+				this.parent.onMouseDown.dispatch(x,y,event.button);
 				break;
 			case "mouseenter":
-				var listeners1 = this.parent.onEnter.listeners;
-				var repeat1 = this.parent.onEnter.repeat;
-				var i1 = 0;
-				while(i1 < listeners1.length) {
-					listeners1[i1]();
-					if(!repeat1[i1]) this.parent.onEnter.remove(listeners1[i1]); else i1++;
-				}
+				this.parent.onEnter.dispatch();
 				break;
 			case "mouseleave":
-				var listeners2 = this.parent.onLeave.listeners;
-				var repeat2 = this.parent.onLeave.repeat;
-				var i2 = 0;
-				while(i2 < listeners2.length) {
-					listeners2[i2]();
-					if(!repeat2[i2]) this.parent.onLeave.remove(listeners2[i2]); else i2++;
-				}
+				this.parent.onLeave.dispatch();
 				break;
 			case "mouseup":
-				var listeners3 = this.parent.onMouseUp.listeners;
-				var repeat3 = this.parent.onMouseUp.repeat;
-				var i3 = 0;
-				while(i3 < listeners3.length) {
-					listeners3[i3](x,y,event.button);
-					if(!repeat3[i3]) this.parent.onMouseUp.remove(listeners3[i3]); else i3++;
-				}
+				this.parent.onMouseUp.dispatch(x,y,event.button);
 				break;
 			case "mousemove":
-				var listeners4 = this.parent.onMouseMove.listeners;
-				var repeat4 = this.parent.onMouseMove.repeat;
-				var i4 = 0;
-				while(i4 < listeners4.length) {
-					listeners4[i4](x,y);
-					if(!repeat4[i4]) this.parent.onMouseMove.remove(listeners4[i4]); else i4++;
-				}
+				this.parent.onMouseMove.dispatch(x,y);
 				break;
 			default:
 			}
-		} else {
-			var listeners5 = this.parent.onMouseWheel.listeners;
-			var repeat5 = this.parent.onMouseWheel.repeat;
-			var i5 = 0;
-			while(i5 < listeners5.length) {
-				listeners5[i5](event.deltaX,-event.deltaY);
-				if(!repeat5[i5]) this.parent.onMouseWheel.remove(listeners5[i5]); else i5++;
-			}
-		}
+		} else this.parent.onMouseWheel.dispatch(event.deltaX,-event.deltaY);
 	}
 	,handleResize: function() {
 		var stretch = this.parent.__fullscreen || this.setWidth == 0 && this.setHeight == 0;
@@ -5979,22 +5969,9 @@ lime._backend.html5.HTML5Window.prototype = {
 					touch.device = this.parent.id;
 				}
 				this.currentTouches.set(data.identifier,touch);
-				var listeners = lime.ui.Touch.onStart.listeners;
-				var repeat = lime.ui.Touch.onStart.repeat;
-				var i = 0;
-				while(i < listeners.length) {
-					listeners[i](touch);
-					if(!repeat[i]) lime.ui.Touch.onStart.remove(listeners[i]); else i++;
-				}
-				if(data == event.touches[0]) {
-					var listeners1 = this.parent.onMouseDown.listeners;
-					var repeat1 = this.parent.onMouseDown.repeat;
-					var i1 = 0;
-					while(i1 < listeners1.length) {
-						listeners1[i1](x,y,0);
-						if(!repeat1[i1]) this.parent.onMouseDown.remove(listeners1[i1]); else i1++;
-					}
-				}
+				lime.ui.Touch.onStart.dispatch(touch);
+				if(this.primaryTouch == null) this.primaryTouch = touch;
+				if(touch == this.primaryTouch) this.parent.onMouseDown.dispatch(x,y,0);
 				break;
 			case "touchend":
 				var touch1 = this.currentTouches.get(data.identifier);
@@ -6006,23 +5983,12 @@ lime._backend.html5.HTML5Window.prototype = {
 					touch1.dx = touch1.x - cacheX;
 					touch1.dy = touch1.y - cacheY;
 					touch1.pressure = data.force;
-					var listeners2 = lime.ui.Touch.onEnd.listeners;
-					var repeat2 = lime.ui.Touch.onEnd.repeat;
-					var i2 = 0;
-					while(i2 < listeners2.length) {
-						listeners2[i2](touch1);
-						if(!repeat2[i2]) lime.ui.Touch.onEnd.remove(listeners2[i2]); else i2++;
-					}
+					lime.ui.Touch.onEnd.dispatch(touch1);
 					this.currentTouches.remove(data.identifier);
 					this.unusedTouchesPool.add(touch1);
-					if(data == event.touches[0]) {
-						var listeners3 = this.parent.onMouseUp.listeners;
-						var repeat3 = this.parent.onMouseUp.repeat;
-						var i3 = 0;
-						while(i3 < listeners3.length) {
-							listeners3[i3](x,y,0);
-							if(!repeat3[i3]) this.parent.onMouseUp.remove(listeners3[i3]); else i3++;
-						}
+					if(touch1 == this.primaryTouch) {
+						this.parent.onMouseUp.dispatch(x,y,0);
+						this.primaryTouch = null;
 					}
 				}
 				break;
@@ -6036,22 +6002,8 @@ lime._backend.html5.HTML5Window.prototype = {
 					touch2.dx = touch2.x - cacheX1;
 					touch2.dy = touch2.y - cacheY1;
 					touch2.pressure = data.force;
-					var listeners4 = lime.ui.Touch.onMove.listeners;
-					var repeat4 = lime.ui.Touch.onMove.repeat;
-					var i4 = 0;
-					while(i4 < listeners4.length) {
-						listeners4[i4](touch2);
-						if(!repeat4[i4]) lime.ui.Touch.onMove.remove(listeners4[i4]); else i4++;
-					}
-					if(data == event.touches[0]) {
-						var listeners5 = this.parent.onMouseMove.listeners;
-						var repeat5 = this.parent.onMouseMove.repeat;
-						var i5 = 0;
-						while(i5 < listeners5.length) {
-							listeners5[i5](x,y);
-							if(!repeat5[i5]) this.parent.onMouseMove.remove(listeners5[i5]); else i5++;
-						}
-					}
+					lime.ui.Touch.onMove.dispatch(touch2);
+					if(touch2 == this.primaryTouch) this.parent.onMouseMove.dispatch(x,y);
 				}
 				break;
 			default:
@@ -6159,11 +6111,1023 @@ lime.app.Event.prototype = {
 	}
 	,__class__: lime.app.Event
 };
+lime.app.Event_Dynamic_Void = function() {
+	this.listeners = new Array();
+	this.priorities = new Array();
+	this.repeat = new Array();
+};
+$hxClasses["lime.app.Event_Dynamic_Void"] = lime.app.Event_Dynamic_Void;
+lime.app.Event_Dynamic_Void.__name__ = true;
+lime.app.Event_Dynamic_Void.prototype = {
+	add: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		var _g1 = 0;
+		var _g = this.priorities.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(priority > this.priorities[i]) {
+				this.listeners.splice(i,0,listener);
+				this.priorities.splice(i,0,priority);
+				this.repeat.splice(i,0,!once);
+				return;
+			}
+		}
+		this.listeners.push(listener);
+		this.priorities.push(priority);
+		this.repeat.push(!once);
+	}
+	,has: function(listener) {
+		var _g = 0;
+		var _g1 = this.listeners;
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			if(Reflect.compareMethods(l,listener)) return true;
+		}
+		return false;
+	}
+	,remove: function(listener) {
+		var i = this.listeners.length;
+		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
+			this.listeners.splice(i,1);
+			this.priorities.splice(i,1);
+			this.repeat.splice(i,1);
+		}
+	}
+	,dispatch: function(a) {
+		var listeners = this.listeners;
+		var repeat = this.repeat;
+		var i = 0;
+		while(i < listeners.length) {
+			listeners[i](a);
+			if(!repeat[i]) this.remove(listeners[i]); else i++;
+		}
+	}
+	,__class__: lime.app.Event_Dynamic_Void
+};
+lime.app.Event_Float_Float_Int_Void = function() {
+	this.listeners = new Array();
+	this.priorities = new Array();
+	this.repeat = new Array();
+};
+$hxClasses["lime.app.Event_Float_Float_Int_Void"] = lime.app.Event_Float_Float_Int_Void;
+lime.app.Event_Float_Float_Int_Void.__name__ = true;
+lime.app.Event_Float_Float_Int_Void.prototype = {
+	add: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		var _g1 = 0;
+		var _g = this.priorities.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(priority > this.priorities[i]) {
+				this.listeners.splice(i,0,listener);
+				this.priorities.splice(i,0,priority);
+				this.repeat.splice(i,0,!once);
+				return;
+			}
+		}
+		this.listeners.push(listener);
+		this.priorities.push(priority);
+		this.repeat.push(!once);
+	}
+	,has: function(listener) {
+		var _g = 0;
+		var _g1 = this.listeners;
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			if(Reflect.compareMethods(l,listener)) return true;
+		}
+		return false;
+	}
+	,remove: function(listener) {
+		var i = this.listeners.length;
+		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
+			this.listeners.splice(i,1);
+			this.priorities.splice(i,1);
+			this.repeat.splice(i,1);
+		}
+	}
+	,dispatch: function(a,a1,a2) {
+		var listeners = this.listeners;
+		var repeat = this.repeat;
+		var i = 0;
+		while(i < listeners.length) {
+			listeners[i](a,a1,a2);
+			if(!repeat[i]) this.remove(listeners[i]); else i++;
+		}
+	}
+	,__class__: lime.app.Event_Float_Float_Int_Void
+};
+lime.app.Event_Float_Float_Void = function() {
+	this.listeners = new Array();
+	this.priorities = new Array();
+	this.repeat = new Array();
+};
+$hxClasses["lime.app.Event_Float_Float_Void"] = lime.app.Event_Float_Float_Void;
+lime.app.Event_Float_Float_Void.__name__ = true;
+lime.app.Event_Float_Float_Void.prototype = {
+	add: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		var _g1 = 0;
+		var _g = this.priorities.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(priority > this.priorities[i]) {
+				this.listeners.splice(i,0,listener);
+				this.priorities.splice(i,0,priority);
+				this.repeat.splice(i,0,!once);
+				return;
+			}
+		}
+		this.listeners.push(listener);
+		this.priorities.push(priority);
+		this.repeat.push(!once);
+	}
+	,has: function(listener) {
+		var _g = 0;
+		var _g1 = this.listeners;
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			if(Reflect.compareMethods(l,listener)) return true;
+		}
+		return false;
+	}
+	,remove: function(listener) {
+		var i = this.listeners.length;
+		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
+			this.listeners.splice(i,1);
+			this.priorities.splice(i,1);
+			this.repeat.splice(i,1);
+		}
+	}
+	,dispatch: function(a,a1) {
+		var listeners = this.listeners;
+		var repeat = this.repeat;
+		var i = 0;
+		while(i < listeners.length) {
+			listeners[i](a,a1);
+			if(!repeat[i]) this.remove(listeners[i]); else i++;
+		}
+	}
+	,__class__: lime.app.Event_Float_Float_Void
+};
+lime.app.Event_Int_Int_Void = function() {
+	this.listeners = new Array();
+	this.priorities = new Array();
+	this.repeat = new Array();
+};
+$hxClasses["lime.app.Event_Int_Int_Void"] = lime.app.Event_Int_Int_Void;
+lime.app.Event_Int_Int_Void.__name__ = true;
+lime.app.Event_Int_Int_Void.prototype = {
+	add: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		var _g1 = 0;
+		var _g = this.priorities.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(priority > this.priorities[i]) {
+				this.listeners.splice(i,0,listener);
+				this.priorities.splice(i,0,priority);
+				this.repeat.splice(i,0,!once);
+				return;
+			}
+		}
+		this.listeners.push(listener);
+		this.priorities.push(priority);
+		this.repeat.push(!once);
+	}
+	,has: function(listener) {
+		var _g = 0;
+		var _g1 = this.listeners;
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			if(Reflect.compareMethods(l,listener)) return true;
+		}
+		return false;
+	}
+	,remove: function(listener) {
+		var i = this.listeners.length;
+		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
+			this.listeners.splice(i,1);
+			this.priorities.splice(i,1);
+			this.repeat.splice(i,1);
+		}
+	}
+	,dispatch: function(a,a1) {
+		var listeners = this.listeners;
+		var repeat = this.repeat;
+		var i = 0;
+		while(i < listeners.length) {
+			listeners[i](a,a1);
+			if(!repeat[i]) this.remove(listeners[i]); else i++;
+		}
+	}
+	,__class__: lime.app.Event_Int_Int_Void
+};
+lime.app.Event_Int_Void = function() {
+	this.listeners = new Array();
+	this.priorities = new Array();
+	this.repeat = new Array();
+};
+$hxClasses["lime.app.Event_Int_Void"] = lime.app.Event_Int_Void;
+lime.app.Event_Int_Void.__name__ = true;
+lime.app.Event_Int_Void.prototype = {
+	add: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		var _g1 = 0;
+		var _g = this.priorities.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(priority > this.priorities[i]) {
+				this.listeners.splice(i,0,listener);
+				this.priorities.splice(i,0,priority);
+				this.repeat.splice(i,0,!once);
+				return;
+			}
+		}
+		this.listeners.push(listener);
+		this.priorities.push(priority);
+		this.repeat.push(!once);
+	}
+	,has: function(listener) {
+		var _g = 0;
+		var _g1 = this.listeners;
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			if(Reflect.compareMethods(l,listener)) return true;
+		}
+		return false;
+	}
+	,remove: function(listener) {
+		var i = this.listeners.length;
+		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
+			this.listeners.splice(i,1);
+			this.priorities.splice(i,1);
+			this.repeat.splice(i,1);
+		}
+	}
+	,dispatch: function(a) {
+		var listeners = this.listeners;
+		var repeat = this.repeat;
+		var i = 0;
+		while(i < listeners.length) {
+			listeners[i](a);
+			if(!repeat[i]) this.remove(listeners[i]); else i++;
+		}
+	}
+	,__class__: lime.app.Event_Int_Void
+};
+lime.app.Event_String_Int_Int_Void = function() {
+	this.listeners = new Array();
+	this.priorities = new Array();
+	this.repeat = new Array();
+};
+$hxClasses["lime.app.Event_String_Int_Int_Void"] = lime.app.Event_String_Int_Int_Void;
+lime.app.Event_String_Int_Int_Void.__name__ = true;
+lime.app.Event_String_Int_Int_Void.prototype = {
+	add: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		var _g1 = 0;
+		var _g = this.priorities.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(priority > this.priorities[i]) {
+				this.listeners.splice(i,0,listener);
+				this.priorities.splice(i,0,priority);
+				this.repeat.splice(i,0,!once);
+				return;
+			}
+		}
+		this.listeners.push(listener);
+		this.priorities.push(priority);
+		this.repeat.push(!once);
+	}
+	,has: function(listener) {
+		var _g = 0;
+		var _g1 = this.listeners;
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			if(Reflect.compareMethods(l,listener)) return true;
+		}
+		return false;
+	}
+	,remove: function(listener) {
+		var i = this.listeners.length;
+		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
+			this.listeners.splice(i,1);
+			this.priorities.splice(i,1);
+			this.repeat.splice(i,1);
+		}
+	}
+	,dispatch: function(a,a1,a2) {
+		var listeners = this.listeners;
+		var repeat = this.repeat;
+		var i = 0;
+		while(i < listeners.length) {
+			listeners[i](a,a1,a2);
+			if(!repeat[i]) this.remove(listeners[i]); else i++;
+		}
+	}
+	,__class__: lime.app.Event_String_Int_Int_Void
+};
+lime.app.Event_String_Void = function() {
+	this.listeners = new Array();
+	this.priorities = new Array();
+	this.repeat = new Array();
+};
+$hxClasses["lime.app.Event_String_Void"] = lime.app.Event_String_Void;
+lime.app.Event_String_Void.__name__ = true;
+lime.app.Event_String_Void.prototype = {
+	add: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		var _g1 = 0;
+		var _g = this.priorities.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(priority > this.priorities[i]) {
+				this.listeners.splice(i,0,listener);
+				this.priorities.splice(i,0,priority);
+				this.repeat.splice(i,0,!once);
+				return;
+			}
+		}
+		this.listeners.push(listener);
+		this.priorities.push(priority);
+		this.repeat.push(!once);
+	}
+	,has: function(listener) {
+		var _g = 0;
+		var _g1 = this.listeners;
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			if(Reflect.compareMethods(l,listener)) return true;
+		}
+		return false;
+	}
+	,remove: function(listener) {
+		var i = this.listeners.length;
+		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
+			this.listeners.splice(i,1);
+			this.priorities.splice(i,1);
+			this.repeat.splice(i,1);
+		}
+	}
+	,dispatch: function(a) {
+		var listeners = this.listeners;
+		var repeat = this.repeat;
+		var i = 0;
+		while(i < listeners.length) {
+			listeners[i](a);
+			if(!repeat[i]) this.remove(listeners[i]); else i++;
+		}
+	}
+	,__class__: lime.app.Event_String_Void
+};
+lime.app.Event_lime_graphics_RenderContext_Void = function() {
+	this.listeners = new Array();
+	this.priorities = new Array();
+	this.repeat = new Array();
+};
+$hxClasses["lime.app.Event_lime_graphics_RenderContext_Void"] = lime.app.Event_lime_graphics_RenderContext_Void;
+lime.app.Event_lime_graphics_RenderContext_Void.__name__ = true;
+lime.app.Event_lime_graphics_RenderContext_Void.prototype = {
+	add: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		var _g1 = 0;
+		var _g = this.priorities.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(priority > this.priorities[i]) {
+				this.listeners.splice(i,0,listener);
+				this.priorities.splice(i,0,priority);
+				this.repeat.splice(i,0,!once);
+				return;
+			}
+		}
+		this.listeners.push(listener);
+		this.priorities.push(priority);
+		this.repeat.push(!once);
+	}
+	,has: function(listener) {
+		var _g = 0;
+		var _g1 = this.listeners;
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			if(Reflect.compareMethods(l,listener)) return true;
+		}
+		return false;
+	}
+	,remove: function(listener) {
+		var i = this.listeners.length;
+		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
+			this.listeners.splice(i,1);
+			this.priorities.splice(i,1);
+			this.repeat.splice(i,1);
+		}
+	}
+	,dispatch: function(a) {
+		var listeners = this.listeners;
+		var repeat = this.repeat;
+		var i = 0;
+		while(i < listeners.length) {
+			listeners[i](a);
+			if(!repeat[i]) this.remove(listeners[i]); else i++;
+		}
+	}
+	,__class__: lime.app.Event_lime_graphics_RenderContext_Void
+};
+lime.app.Event_lime_net_URLLoader_Int_Int_Void = function() {
+	this.listeners = new Array();
+	this.priorities = new Array();
+	this.repeat = new Array();
+};
+$hxClasses["lime.app.Event_lime_net_URLLoader_Int_Int_Void"] = lime.app.Event_lime_net_URLLoader_Int_Int_Void;
+lime.app.Event_lime_net_URLLoader_Int_Int_Void.__name__ = true;
+lime.app.Event_lime_net_URLLoader_Int_Int_Void.prototype = {
+	add: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		var _g1 = 0;
+		var _g = this.priorities.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(priority > this.priorities[i]) {
+				this.listeners.splice(i,0,listener);
+				this.priorities.splice(i,0,priority);
+				this.repeat.splice(i,0,!once);
+				return;
+			}
+		}
+		this.listeners.push(listener);
+		this.priorities.push(priority);
+		this.repeat.push(!once);
+	}
+	,has: function(listener) {
+		var _g = 0;
+		var _g1 = this.listeners;
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			if(Reflect.compareMethods(l,listener)) return true;
+		}
+		return false;
+	}
+	,remove: function(listener) {
+		var i = this.listeners.length;
+		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
+			this.listeners.splice(i,1);
+			this.priorities.splice(i,1);
+			this.repeat.splice(i,1);
+		}
+	}
+	,dispatch: function(a,a1,a2) {
+		var listeners = this.listeners;
+		var repeat = this.repeat;
+		var i = 0;
+		while(i < listeners.length) {
+			listeners[i](a,a1,a2);
+			if(!repeat[i]) this.remove(listeners[i]); else i++;
+		}
+	}
+	,__class__: lime.app.Event_lime_net_URLLoader_Int_Int_Void
+};
+lime.app.Event_lime_net_URLLoader_Int_Void = function() {
+	this.listeners = new Array();
+	this.priorities = new Array();
+	this.repeat = new Array();
+};
+$hxClasses["lime.app.Event_lime_net_URLLoader_Int_Void"] = lime.app.Event_lime_net_URLLoader_Int_Void;
+lime.app.Event_lime_net_URLLoader_Int_Void.__name__ = true;
+lime.app.Event_lime_net_URLLoader_Int_Void.prototype = {
+	add: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		var _g1 = 0;
+		var _g = this.priorities.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(priority > this.priorities[i]) {
+				this.listeners.splice(i,0,listener);
+				this.priorities.splice(i,0,priority);
+				this.repeat.splice(i,0,!once);
+				return;
+			}
+		}
+		this.listeners.push(listener);
+		this.priorities.push(priority);
+		this.repeat.push(!once);
+	}
+	,has: function(listener) {
+		var _g = 0;
+		var _g1 = this.listeners;
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			if(Reflect.compareMethods(l,listener)) return true;
+		}
+		return false;
+	}
+	,remove: function(listener) {
+		var i = this.listeners.length;
+		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
+			this.listeners.splice(i,1);
+			this.priorities.splice(i,1);
+			this.repeat.splice(i,1);
+		}
+	}
+	,dispatch: function(a,a1) {
+		var listeners = this.listeners;
+		var repeat = this.repeat;
+		var i = 0;
+		while(i < listeners.length) {
+			listeners[i](a,a1);
+			if(!repeat[i]) this.remove(listeners[i]); else i++;
+		}
+	}
+	,__class__: lime.app.Event_lime_net_URLLoader_Int_Void
+};
+lime.app.Event_lime_net_URLLoader_String_Void = function() {
+	this.listeners = new Array();
+	this.priorities = new Array();
+	this.repeat = new Array();
+};
+$hxClasses["lime.app.Event_lime_net_URLLoader_String_Void"] = lime.app.Event_lime_net_URLLoader_String_Void;
+lime.app.Event_lime_net_URLLoader_String_Void.__name__ = true;
+lime.app.Event_lime_net_URLLoader_String_Void.prototype = {
+	add: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		var _g1 = 0;
+		var _g = this.priorities.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(priority > this.priorities[i]) {
+				this.listeners.splice(i,0,listener);
+				this.priorities.splice(i,0,priority);
+				this.repeat.splice(i,0,!once);
+				return;
+			}
+		}
+		this.listeners.push(listener);
+		this.priorities.push(priority);
+		this.repeat.push(!once);
+	}
+	,has: function(listener) {
+		var _g = 0;
+		var _g1 = this.listeners;
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			if(Reflect.compareMethods(l,listener)) return true;
+		}
+		return false;
+	}
+	,remove: function(listener) {
+		var i = this.listeners.length;
+		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
+			this.listeners.splice(i,1);
+			this.priorities.splice(i,1);
+			this.repeat.splice(i,1);
+		}
+	}
+	,dispatch: function(a,a1) {
+		var listeners = this.listeners;
+		var repeat = this.repeat;
+		var i = 0;
+		while(i < listeners.length) {
+			listeners[i](a,a1);
+			if(!repeat[i]) this.remove(listeners[i]); else i++;
+		}
+	}
+	,__class__: lime.app.Event_lime_net_URLLoader_String_Void
+};
+lime.app.Event_lime_net_URLLoader_Void = function() {
+	this.listeners = new Array();
+	this.priorities = new Array();
+	this.repeat = new Array();
+};
+$hxClasses["lime.app.Event_lime_net_URLLoader_Void"] = lime.app.Event_lime_net_URLLoader_Void;
+lime.app.Event_lime_net_URLLoader_Void.__name__ = true;
+lime.app.Event_lime_net_URLLoader_Void.prototype = {
+	add: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		var _g1 = 0;
+		var _g = this.priorities.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(priority > this.priorities[i]) {
+				this.listeners.splice(i,0,listener);
+				this.priorities.splice(i,0,priority);
+				this.repeat.splice(i,0,!once);
+				return;
+			}
+		}
+		this.listeners.push(listener);
+		this.priorities.push(priority);
+		this.repeat.push(!once);
+	}
+	,has: function(listener) {
+		var _g = 0;
+		var _g1 = this.listeners;
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			if(Reflect.compareMethods(l,listener)) return true;
+		}
+		return false;
+	}
+	,remove: function(listener) {
+		var i = this.listeners.length;
+		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
+			this.listeners.splice(i,1);
+			this.priorities.splice(i,1);
+			this.repeat.splice(i,1);
+		}
+	}
+	,dispatch: function(a) {
+		var listeners = this.listeners;
+		var repeat = this.repeat;
+		var i = 0;
+		while(i < listeners.length) {
+			listeners[i](a);
+			if(!repeat[i]) this.remove(listeners[i]); else i++;
+		}
+	}
+	,__class__: lime.app.Event_lime_net_URLLoader_Void
+};
+lime.app.Event_lime_ui_GamepadAxis_Float_Void = function() {
+	this.listeners = new Array();
+	this.priorities = new Array();
+	this.repeat = new Array();
+};
+$hxClasses["lime.app.Event_lime_ui_GamepadAxis_Float_Void"] = lime.app.Event_lime_ui_GamepadAxis_Float_Void;
+lime.app.Event_lime_ui_GamepadAxis_Float_Void.__name__ = true;
+lime.app.Event_lime_ui_GamepadAxis_Float_Void.prototype = {
+	add: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		var _g1 = 0;
+		var _g = this.priorities.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(priority > this.priorities[i]) {
+				this.listeners.splice(i,0,listener);
+				this.priorities.splice(i,0,priority);
+				this.repeat.splice(i,0,!once);
+				return;
+			}
+		}
+		this.listeners.push(listener);
+		this.priorities.push(priority);
+		this.repeat.push(!once);
+	}
+	,has: function(listener) {
+		var _g = 0;
+		var _g1 = this.listeners;
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			if(Reflect.compareMethods(l,listener)) return true;
+		}
+		return false;
+	}
+	,remove: function(listener) {
+		var i = this.listeners.length;
+		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
+			this.listeners.splice(i,1);
+			this.priorities.splice(i,1);
+			this.repeat.splice(i,1);
+		}
+	}
+	,dispatch: function(a,a1) {
+		var listeners = this.listeners;
+		var repeat = this.repeat;
+		var i = 0;
+		while(i < listeners.length) {
+			listeners[i](a,a1);
+			if(!repeat[i]) this.remove(listeners[i]); else i++;
+		}
+	}
+	,__class__: lime.app.Event_lime_ui_GamepadAxis_Float_Void
+};
+lime.app.Event_lime_ui_GamepadButton_Void = function() {
+	this.listeners = new Array();
+	this.priorities = new Array();
+	this.repeat = new Array();
+};
+$hxClasses["lime.app.Event_lime_ui_GamepadButton_Void"] = lime.app.Event_lime_ui_GamepadButton_Void;
+lime.app.Event_lime_ui_GamepadButton_Void.__name__ = true;
+lime.app.Event_lime_ui_GamepadButton_Void.prototype = {
+	add: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		var _g1 = 0;
+		var _g = this.priorities.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(priority > this.priorities[i]) {
+				this.listeners.splice(i,0,listener);
+				this.priorities.splice(i,0,priority);
+				this.repeat.splice(i,0,!once);
+				return;
+			}
+		}
+		this.listeners.push(listener);
+		this.priorities.push(priority);
+		this.repeat.push(!once);
+	}
+	,has: function(listener) {
+		var _g = 0;
+		var _g1 = this.listeners;
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			if(Reflect.compareMethods(l,listener)) return true;
+		}
+		return false;
+	}
+	,remove: function(listener) {
+		var i = this.listeners.length;
+		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
+			this.listeners.splice(i,1);
+			this.priorities.splice(i,1);
+			this.repeat.splice(i,1);
+		}
+	}
+	,dispatch: function(a) {
+		var listeners = this.listeners;
+		var repeat = this.repeat;
+		var i = 0;
+		while(i < listeners.length) {
+			listeners[i](a);
+			if(!repeat[i]) this.remove(listeners[i]); else i++;
+		}
+	}
+	,__class__: lime.app.Event_lime_ui_GamepadButton_Void
+};
+lime.app.Event_lime_ui_Gamepad_Void = function() {
+	this.listeners = new Array();
+	this.priorities = new Array();
+	this.repeat = new Array();
+};
+$hxClasses["lime.app.Event_lime_ui_Gamepad_Void"] = lime.app.Event_lime_ui_Gamepad_Void;
+lime.app.Event_lime_ui_Gamepad_Void.__name__ = true;
+lime.app.Event_lime_ui_Gamepad_Void.prototype = {
+	add: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		var _g1 = 0;
+		var _g = this.priorities.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(priority > this.priorities[i]) {
+				this.listeners.splice(i,0,listener);
+				this.priorities.splice(i,0,priority);
+				this.repeat.splice(i,0,!once);
+				return;
+			}
+		}
+		this.listeners.push(listener);
+		this.priorities.push(priority);
+		this.repeat.push(!once);
+	}
+	,has: function(listener) {
+		var _g = 0;
+		var _g1 = this.listeners;
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			if(Reflect.compareMethods(l,listener)) return true;
+		}
+		return false;
+	}
+	,remove: function(listener) {
+		var i = this.listeners.length;
+		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
+			this.listeners.splice(i,1);
+			this.priorities.splice(i,1);
+			this.repeat.splice(i,1);
+		}
+	}
+	,dispatch: function(a) {
+		var listeners = this.listeners;
+		var repeat = this.repeat;
+		var i = 0;
+		while(i < listeners.length) {
+			listeners[i](a);
+			if(!repeat[i]) this.remove(listeners[i]); else i++;
+		}
+	}
+	,__class__: lime.app.Event_lime_ui_Gamepad_Void
+};
+lime.app.Event_lime_ui_KeyCode_lime_ui_KeyModifier_Void = function() {
+	this.listeners = new Array();
+	this.priorities = new Array();
+	this.repeat = new Array();
+};
+$hxClasses["lime.app.Event_lime_ui_KeyCode_lime_ui_KeyModifier_Void"] = lime.app.Event_lime_ui_KeyCode_lime_ui_KeyModifier_Void;
+lime.app.Event_lime_ui_KeyCode_lime_ui_KeyModifier_Void.__name__ = true;
+lime.app.Event_lime_ui_KeyCode_lime_ui_KeyModifier_Void.prototype = {
+	add: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		var _g1 = 0;
+		var _g = this.priorities.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(priority > this.priorities[i]) {
+				this.listeners.splice(i,0,listener);
+				this.priorities.splice(i,0,priority);
+				this.repeat.splice(i,0,!once);
+				return;
+			}
+		}
+		this.listeners.push(listener);
+		this.priorities.push(priority);
+		this.repeat.push(!once);
+	}
+	,has: function(listener) {
+		var _g = 0;
+		var _g1 = this.listeners;
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			if(Reflect.compareMethods(l,listener)) return true;
+		}
+		return false;
+	}
+	,remove: function(listener) {
+		var i = this.listeners.length;
+		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
+			this.listeners.splice(i,1);
+			this.priorities.splice(i,1);
+			this.repeat.splice(i,1);
+		}
+	}
+	,dispatch: function(a,a1) {
+		var listeners = this.listeners;
+		var repeat = this.repeat;
+		var i = 0;
+		while(i < listeners.length) {
+			listeners[i](a,a1);
+			if(!repeat[i]) this.remove(listeners[i]); else i++;
+		}
+	}
+	,__class__: lime.app.Event_lime_ui_KeyCode_lime_ui_KeyModifier_Void
+};
+lime.app.Event_lime_ui_Touch_Void = function() {
+	this.listeners = new Array();
+	this.priorities = new Array();
+	this.repeat = new Array();
+};
+$hxClasses["lime.app.Event_lime_ui_Touch_Void"] = lime.app.Event_lime_ui_Touch_Void;
+lime.app.Event_lime_ui_Touch_Void.__name__ = true;
+lime.app.Event_lime_ui_Touch_Void.prototype = {
+	add: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		var _g1 = 0;
+		var _g = this.priorities.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(priority > this.priorities[i]) {
+				this.listeners.splice(i,0,listener);
+				this.priorities.splice(i,0,priority);
+				this.repeat.splice(i,0,!once);
+				return;
+			}
+		}
+		this.listeners.push(listener);
+		this.priorities.push(priority);
+		this.repeat.push(!once);
+	}
+	,has: function(listener) {
+		var _g = 0;
+		var _g1 = this.listeners;
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			if(Reflect.compareMethods(l,listener)) return true;
+		}
+		return false;
+	}
+	,remove: function(listener) {
+		var i = this.listeners.length;
+		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
+			this.listeners.splice(i,1);
+			this.priorities.splice(i,1);
+			this.repeat.splice(i,1);
+		}
+	}
+	,dispatch: function(a) {
+		var listeners = this.listeners;
+		var repeat = this.repeat;
+		var i = 0;
+		while(i < listeners.length) {
+			listeners[i](a);
+			if(!repeat[i]) this.remove(listeners[i]); else i++;
+		}
+	}
+	,__class__: lime.app.Event_lime_ui_Touch_Void
+};
+lime.app.Future = function(work) {
+	if(work != null) {
+		if(lime.app.Future.__threadPool == null) {
+			lime.app.Future.__threadPool = new lime.system.ThreadPool();
+			lime.app.Future.__threadPool.doWork.add(lime.app.Future.threadPool_doWork);
+			lime.app.Future.__threadPool.onComplete.add(lime.app.Future.threadPool_onComplete);
+			lime.app.Future.__threadPool.onError.add(lime.app.Future.threadPool_onError);
+		}
+		var promise = new lime.app.Promise();
+		promise.future = this;
+		lime.app.Future.__threadPool.queue({ promise : promise, work : work});
+	}
+};
+$hxClasses["lime.app.Future"] = lime.app.Future;
+lime.app.Future.__name__ = true;
+lime.app.Future.threadPool_doWork = function(state) {
+	try {
+		var result = state.work();
+		lime.app.Future.__threadPool.sendComplete({ promise : state.promise, result : result});
+	} catch( e ) {
+		lime.app.Future.__threadPool.sendError({ promise : state.promise, error : e});
+	}
+};
+lime.app.Future.threadPool_onComplete = function(state) {
+	state.promise.complete(state.result);
+};
+lime.app.Future.threadPool_onError = function(state) {
+	state.promise.error(state.error);
+};
+lime.app.Future.prototype = {
+	onComplete: function(listener) {
+		if(listener != null) {
+			if(this.__completed) listener(this.value); else if(!this.__errored) {
+				if(this.__completeListeners == null) this.__completeListeners = new Array();
+				this.__completeListeners.push(listener);
+			}
+		}
+		return this;
+	}
+	,onError: function(listener) {
+		if(listener != null) {
+			if(this.__errored) listener(this.__errorMessage); else if(!this.__completed) {
+				if(this.__errorListeners == null) this.__errorListeners = new Array();
+				this.__errorListeners.push(listener);
+			}
+		}
+		return this;
+	}
+	,onProgress: function(listener) {
+		if(listener != null) {
+			if(this.__progressListeners == null) this.__progressListeners = new Array();
+			this.__progressListeners.push(listener);
+		}
+		return this;
+	}
+	,then: function(next) {
+		if(this.__completed) return next(this.value); else if(this.__errored) {
+			var future = new lime.app.Future();
+			future.onError(this.__errorMessage);
+			return future;
+		} else {
+			var promise = new lime.app.Promise();
+			this.onError($bind(promise,promise.error));
+			this.onProgress($bind(promise,promise.progress));
+			this.onComplete(function(val) {
+				var future1 = next(val);
+				future1.onError($bind(promise,promise.error));
+				future1.onComplete($bind(promise,promise.complete));
+			});
+			return promise.future;
+		}
+	}
+	,get_isCompleted: function() {
+		return this.__completed || this.__errored;
+	}
+	,__class__: lime.app.Future
+};
 lime.app.Preloader = function() {
 	this.total = 0;
 	this.loaded = 0;
-	this.onProgress = new lime.app.Event();
-	this.onComplete = new lime.app.Event();
+	this.onProgress = new lime.app.Event_Int_Int_Void();
+	this.onComplete = new lime.app.Event_Void_Void();
 	this.onProgress.add($bind(this,this.update));
 };
 $hxClasses["lime.app.Preloader"] = lime.app.Preloader;
@@ -6218,13 +7182,7 @@ lime.app.Preloader.prototype = {
 		var _g = this;
 		if(window.document.fonts && window.document.fonts.load) window.document.fonts.load("1em '" + font + "'").then(function(_) {
 			_g.loaded++;
-			var listeners = _g.onProgress.listeners;
-			var repeat = _g.onProgress.repeat;
-			var i = 0;
-			while(i < listeners.length) {
-				listeners[i](_g.loaded,_g.total);
-				if(!repeat[i]) _g.onProgress.remove(listeners[i]); else i++;
-			}
+			_g.onProgress.dispatch(_g.loaded,_g.total);
 			if(_g.loaded == _g.total) _g.start();
 		}); else {
 			var node = window.document.createElement("span");
@@ -6254,13 +7212,7 @@ lime.app.Preloader.prototype = {
 					if(interval != null) window.clearInterval(interval);
 					node.parentNode.removeChild(node);
 					node = null;
-					var listeners1 = _g.onProgress.listeners;
-					var repeat1 = _g.onProgress.repeat;
-					var i1 = 0;
-					while(i1 < listeners1.length) {
-						listeners1[i1](_g.loaded,_g.total);
-						if(!repeat1[i1]) _g.onProgress.remove(listeners1[i1]); else i1++;
-					}
+					_g.onProgress.dispatch(_g.loaded,_g.total);
 					if(_g.loaded == _g.total) _g.start();
 					return true;
 				}
@@ -6271,39 +7223,86 @@ lime.app.Preloader.prototype = {
 	}
 	,start: function() {
 		this.complete = true;
-		var listeners = this.onComplete.listeners;
-		var repeat = this.onComplete.repeat;
-		var i = 0;
-		while(i < listeners.length) {
-			listeners[i]();
-			if(!repeat[i]) this.onComplete.remove(listeners[i]); else i++;
-		}
+		this.onComplete.dispatch();
 	}
 	,update: function(loaded,total) {
 	}
 	,image_onLoad: function(_) {
 		this.loaded++;
-		var listeners = this.onProgress.listeners;
-		var repeat = this.onProgress.repeat;
-		var i = 0;
-		while(i < listeners.length) {
-			listeners[i](this.loaded,this.total);
-			if(!repeat[i]) this.onProgress.remove(listeners[i]); else i++;
-		}
+		this.onProgress.dispatch(this.loaded,this.total);
 		if(this.loaded == this.total) this.start();
 	}
 	,loader_onComplete: function(loader) {
 		this.loaded++;
-		var listeners = this.onProgress.listeners;
-		var repeat = this.onProgress.repeat;
-		var i = 0;
-		while(i < listeners.length) {
-			listeners[i](this.loaded,this.total);
-			if(!repeat[i]) this.onProgress.remove(listeners[i]); else i++;
-		}
+		this.onProgress.dispatch(this.loaded,this.total);
 		if(this.loaded == this.total) this.start();
 	}
 	,__class__: lime.app.Preloader
+};
+lime.app.Promise = function() {
+	this.future = new lime.app.Future();
+};
+$hxClasses["lime.app.Promise"] = lime.app.Promise;
+lime.app.Promise.__name__ = true;
+lime.app.Promise.prototype = {
+	complete: function(data) {
+		if(!this.future.__errored) {
+			this.future.__completed = true;
+			this.future.value = data;
+			if(this.future.__completeListeners != null) {
+				var _g = 0;
+				var _g1 = this.future.__completeListeners;
+				while(_g < _g1.length) {
+					var listener = _g1[_g];
+					++_g;
+					listener(data);
+				}
+				this.future.__completeListeners = null;
+			}
+		}
+		return this;
+	}
+	,completeWith: function(future) {
+		future.onComplete($bind(this,this.complete));
+		future.onError($bind(this,this.error));
+		future.onProgress($bind(this,this.progress));
+		return this;
+	}
+	,error: function(msg) {
+		if(!this.future.__completed) {
+			this.future.__errored = true;
+			this.future.__errorMessage = msg;
+			if(this.future.__errorListeners != null) {
+				var _g = 0;
+				var _g1 = this.future.__errorListeners;
+				while(_g < _g1.length) {
+					var listener = _g1[_g];
+					++_g;
+					listener(msg);
+				}
+				this.future.__errorListeners = null;
+			}
+		}
+		return this;
+	}
+	,progress: function(progress) {
+		if(!this.future.__errored && !this.future.__completed) {
+			if(this.future.__progressListeners != null) {
+				var _g = 0;
+				var _g1 = this.future.__progressListeners;
+				while(_g < _g1.length) {
+					var listener = _g1[_g];
+					++_g;
+					listener(progress);
+				}
+			}
+		}
+		return this;
+	}
+	,get_isCompleted: function() {
+		return this.future.get_isCompleted();
+	}
+	,__class__: lime.app.Promise
 };
 lime.audio = {};
 lime.audio.ALAudioContext = function() {
@@ -6522,7 +7521,8 @@ lime.audio.ALAudioContext.prototype = {
 	,getSource3i: function(source,param) {
 		return lime.audio.openal.AL.getSource3i(source,param);
 	}
-	,getSourcefv: function(source,param) {
+	,getSourcefv: function(source,param,count) {
+		if(count == null) count = 1;
 		return lime.audio.openal.AL.getSourcefv(source,param);
 	}
 	,getSourcei: function(source,param) {
@@ -6788,7 +7788,7 @@ lime.audio.AudioManager.suspend = function() {
 lime.audio.AudioSource = function(buffer,offset,length,loops) {
 	if(loops == null) loops = 0;
 	if(offset == null) offset = 0;
-	this.onComplete = new lime.app.Event();
+	this.onComplete = new lime.app.Event_Void_Void();
 	this.buffer = buffer;
 	this.offset = offset;
 	if(length != null && length != 0) this.set_length(length);
@@ -7250,7 +8250,8 @@ lime.audio.openal.AL.getSourcef = function(source,param) {
 lime.audio.openal.AL.getSource3i = function(source,param) {
 	return null;
 };
-lime.audio.openal.AL.getSourcefv = function(source,param) {
+lime.audio.openal.AL.getSourcefv = function(source,param,count) {
+	if(count == null) count = 1;
 	return null;
 };
 lime.audio.openal.AL.getSourcei = function(source,param) {
@@ -7605,9 +8606,7 @@ lime.graphics.Image.fromBase64 = function(base64,type,onload) {
 };
 lime.graphics.Image.fromBitmapData = function(bitmapData) {
 	if(bitmapData == null) return null;
-	var buffer = new lime.graphics.ImageBuffer(null,bitmapData.width,bitmapData.height);
-	buffer.__srcBitmapData = bitmapData;
-	return new lime.graphics.Image(buffer);
+	return bitmapData.image;
 };
 lime.graphics.Image.fromBytes = function(bytes,onload) {
 	if(bytes == null) return null;
@@ -7669,9 +8668,7 @@ lime.graphics.Image.prototype = {
 		if(this.buffer != null) {
 			if(this.type == lime.graphics.ImageType.CANVAS && this.buffer.__srcImage == null) {
 				lime.graphics.utils.ImageCanvasUtil.convertToCanvas(this);
-				lime.graphics.utils.ImageCanvasUtil.sync(this);
-				this.buffer.data = null;
-				this.buffer.__srcImageData = null;
+				lime.graphics.utils.ImageCanvasUtil.sync(this,true);
 			}
 			var image = new lime.graphics.Image(this.buffer.clone(),this.offsetX,this.offsetY,this.width,this.height,null,this.type);
 			image.dirty = this.dirty;
@@ -7813,6 +8810,7 @@ lime.graphics.Image.prototype = {
 			break;
 		case 1:
 			lime.graphics.utils.ImageCanvasUtil.convertToData(this);
+			if(this.buffer.data.length == 0) return;
 			lime.graphics.utils.ImageDataUtil.fillRect(this,rect,color,format);
 			break;
 		case 2:
@@ -8254,7 +9252,7 @@ lime.graphics.Image.prototype = {
 	,get_data: function() {
 		if(this.buffer.data == null && this.buffer.width > 0 && this.buffer.height > 0) {
 			lime.graphics.utils.ImageCanvasUtil.convertToCanvas(this);
-			lime.graphics.utils.ImageCanvasUtil.sync(this);
+			lime.graphics.utils.ImageCanvasUtil.sync(this,false);
 			lime.graphics.utils.ImageCanvasUtil.createImageData(this);
 		}
 		return this.buffer.data;
@@ -8442,9 +9440,9 @@ lime.graphics.RenderContext.CUSTOM = function(data) { var $x = ["CUSTOM",6,data]
 lime.graphics.RenderContext.NONE = ["NONE",7];
 lime.graphics.RenderContext.NONE.__enum__ = lime.graphics.RenderContext;
 lime.graphics.Renderer = function(window) {
-	this.onRender = new lime.app.Event();
-	this.onContextRestored = new lime.app.Event();
-	this.onContextLost = new lime.app.Event();
+	this.onRender = new lime.app.Event_Void_Void();
+	this.onContextRestored = new lime.app.Event_lime_graphics_RenderContext_Void();
+	this.onContextLost = new lime.app.Event_Void_Void();
 	this.window = window;
 	this.backend = new lime._backend.html5.HTML5Renderer(this);
 	this.window.renderer = this;
@@ -8492,9 +9490,7 @@ lime.graphics.cairo.Cairo.get_versionString = function() {
 	return "";
 };
 lime.graphics.cairo.Cairo.prototype = {
-	recreate: function(surface) {
-	}
-	,arc: function(xc,yc,radius,angle1,angle2) {
+	arc: function(xc,yc,radius,angle1,angle2) {
 	}
 	,arcNegative: function(xc,yc,radius,angle1,angle2) {
 	}
@@ -8509,8 +9505,6 @@ lime.graphics.cairo.Cairo.prototype = {
 	,copyPage: function() {
 	}
 	,curveTo: function(x1,y1,x2,y2,x3,y3) {
-	}
-	,destroy: function() {
 	}
 	,fill: function() {
 	}
@@ -8552,9 +9546,9 @@ lime.graphics.cairo.Cairo.prototype = {
 	}
 	,pushGroupWithContent: function(content) {
 	}
-	,rectangle: function(x,y,width,height) {
+	,recreate: function(surface) {
 	}
-	,reference: function() {
+	,rectangle: function(x,y,width,height) {
 	}
 	,relCurveTo: function(dx1,dy1,dx2,dy2,dx3,dy3) {
 	}
@@ -8568,15 +9562,7 @@ lime.graphics.cairo.Cairo.prototype = {
 	}
 	,save: function() {
 	}
-	,setFontFace: function(face) {
-	}
 	,setFontSize: function(size) {
-	}
-	,getFontOptions: function() {
-		return null;
-	}
-	,setFontOptions: function(value) {
-		return value;
 	}
 	,setSourceRGB: function(r,g,b) {
 	}
@@ -8629,6 +9615,18 @@ lime.graphics.cairo.Cairo.prototype = {
 	,set_fillRule: function(value) {
 		return value;
 	}
+	,get_fontFace: function() {
+		return 0;
+	}
+	,set_fontFace: function(value) {
+		return value;
+	}
+	,get_fontOptions: function() {
+		return null;
+	}
+	,set_fontOptions: function(value) {
+		return value;
+	}
 	,get_groupTarget: function() {
 		return 0;
 	}
@@ -8671,9 +9669,6 @@ lime.graphics.cairo.Cairo.prototype = {
 	,set_operator: function(value) {
 		return value;
 	}
-	,get_referenceCount: function() {
-		return 0;
-	}
 	,get_source: function() {
 		return 0;
 	}
@@ -8711,47 +9706,46 @@ lime.graphics.cairo._CairoFilter = {};
 lime.graphics.cairo._CairoFilter.CairoFilter_Impl_ = function() { };
 $hxClasses["lime.graphics.cairo._CairoFilter.CairoFilter_Impl_"] = lime.graphics.cairo._CairoFilter.CairoFilter_Impl_;
 lime.graphics.cairo._CairoFilter.CairoFilter_Impl_.__name__ = true;
-lime.graphics.cairo.CairoFont = function(font,flags) {
-	if(flags == null) flags = 0;
+lime.graphics.cairo._CairoFontFace = {};
+lime.graphics.cairo._CairoFontFace.CairoFontFace_Impl_ = function() { };
+$hxClasses["lime.graphics.cairo._CairoFontFace.CairoFontFace_Impl_"] = lime.graphics.cairo._CairoFontFace.CairoFontFace_Impl_;
+lime.graphics.cairo._CairoFontFace.CairoFontFace_Impl_.__name__ = true;
+lime.graphics.cairo._CairoFontFace.CairoFontFace_Impl_._new = function() {
+	return null;
 };
-$hxClasses["lime.graphics.cairo.CairoFont"] = lime.graphics.cairo.CairoFont;
-lime.graphics.cairo.CairoFont.__name__ = true;
-lime.graphics.cairo.CairoFont.prototype = {
-	destroy: function() {
-	}
-	,__class__: lime.graphics.cairo.CairoFont
+lime.graphics.cairo._CairoFontFace.CairoFontFace_Impl_.status = function(this1) {
+	return 0;
 };
-lime.graphics.cairo.CairoFontOptions = function(handle) {
-	this.handle = handle;
+lime.graphics.cairo._CairoFontOptions = {};
+lime.graphics.cairo._CairoFontOptions.CairoFontOptions_Impl_ = function() { };
+$hxClasses["lime.graphics.cairo._CairoFontOptions.CairoFontOptions_Impl_"] = lime.graphics.cairo._CairoFontOptions.CairoFontOptions_Impl_;
+lime.graphics.cairo._CairoFontOptions.CairoFontOptions_Impl_.__name__ = true;
+lime.graphics.cairo._CairoFontOptions.CairoFontOptions_Impl_._new = function() {
+	return null;
 };
-$hxClasses["lime.graphics.cairo.CairoFontOptions"] = lime.graphics.cairo.CairoFontOptions;
-lime.graphics.cairo.CairoFontOptions.__name__ = true;
-lime.graphics.cairo.CairoFontOptions.prototype = {
-	get_antialias: function() {
-		return 0;
-	}
-	,set_antialias: function(value) {
-		return value;
-	}
-	,get_hintMetrics: function() {
-		return 0;
-	}
-	,set_hintMetrics: function(value) {
-		return value;
-	}
-	,get_hintStyle: function() {
-		return 0;
-	}
-	,set_hintStyle: function(value) {
-		return value;
-	}
-	,get_subpixelOrder: function() {
-		return 0;
-	}
-	,set_subpixelOrder: function(value) {
-		return value;
-	}
-	,__class__: lime.graphics.cairo.CairoFontOptions
+lime.graphics.cairo._CairoFontOptions.CairoFontOptions_Impl_.get_antialias = function(this1) {
+	return 0;
+};
+lime.graphics.cairo._CairoFontOptions.CairoFontOptions_Impl_.set_antialias = function(this1,value) {
+	return value;
+};
+lime.graphics.cairo._CairoFontOptions.CairoFontOptions_Impl_.get_hintMetrics = function(this1) {
+	return 0;
+};
+lime.graphics.cairo._CairoFontOptions.CairoFontOptions_Impl_.set_hintMetrics = function(this1,value) {
+	return value;
+};
+lime.graphics.cairo._CairoFontOptions.CairoFontOptions_Impl_.get_hintStyle = function(this1) {
+	return 0;
+};
+lime.graphics.cairo._CairoFontOptions.CairoFontOptions_Impl_.set_hintStyle = function(this1,value) {
+	return value;
+};
+lime.graphics.cairo._CairoFontOptions.CairoFontOptions_Impl_.get_subpixelOrder = function(this1) {
+	return 0;
+};
+lime.graphics.cairo._CairoFontOptions.CairoFontOptions_Impl_.set_subpixelOrder = function(this1,value) {
+	return value;
 };
 lime.graphics.cairo._CairoHintMetrics = {};
 lime.graphics.cairo._CairoHintMetrics.CairoHintMetrics_Impl_ = function() { };
@@ -8799,8 +9793,6 @@ lime.graphics.cairo._CairoPattern.CairoPattern_Impl_.createRGB = function(r,g,b)
 lime.graphics.cairo._CairoPattern.CairoPattern_Impl_.createRGBA = function(r,g,b,a) {
 	return 0;
 };
-lime.graphics.cairo._CairoPattern.CairoPattern_Impl_.destroy = function(this1) {
-};
 lime.graphics.cairo._CairoPattern.CairoPattern_Impl_.get_colorStopCount = function(this1) {
 	return 0;
 };
@@ -8834,8 +9826,6 @@ lime.graphics.cairo._CairoSurface = {};
 lime.graphics.cairo._CairoSurface.CairoSurface_Impl_ = function() { };
 $hxClasses["lime.graphics.cairo._CairoSurface.CairoSurface_Impl_"] = lime.graphics.cairo._CairoSurface.CairoSurface_Impl_;
 lime.graphics.cairo._CairoSurface.CairoSurface_Impl_.__name__ = true;
-lime.graphics.cairo._CairoSurface.CairoSurface_Impl_.destroy = function(this1) {
-};
 lime.graphics.cairo._CairoSurface.CairoSurface_Impl_.flush = function(this1) {
 };
 lime.graphics.console = {};
@@ -9515,7 +10505,7 @@ lime.graphics.utils.ImageCanvasUtil.convertToCanvas = function(image) {
 lime.graphics.utils.ImageCanvasUtil.convertToData = function(image) {
 	if(image.buffer.data == null) {
 		lime.graphics.utils.ImageCanvasUtil.convertToCanvas(image);
-		lime.graphics.utils.ImageCanvasUtil.sync(image);
+		lime.graphics.utils.ImageCanvasUtil.sync(image,false);
 		lime.graphics.utils.ImageCanvasUtil.createImageData(image);
 		image.buffer.__srcCanvas = null;
 		image.buffer.__srcContext = null;
@@ -9530,18 +10520,18 @@ lime.graphics.utils.ImageCanvasUtil.copyChannel = function(image,sourceImage,sou
 };
 lime.graphics.utils.ImageCanvasUtil.copyPixels = function(image,sourceImage,sourceRect,destPoint,alphaImage,alphaPoint,mergeAlpha) {
 	if(mergeAlpha == null) mergeAlpha = false;
-	if(destPoint == null || destPoint.x >= image.width || destPoint.y >= image.height || sourceRect == null || sourceRect.width <= 0 || sourceRect.height <= 0) return;
+	if(destPoint == null || destPoint.x >= image.width || destPoint.y >= image.height || sourceRect == null || sourceRect.width < 1 || sourceRect.height < 1) return;
 	if(alphaImage != null && alphaImage.get_transparent()) {
 		if(alphaPoint == null) alphaPoint = new lime.math.Vector2();
 		var tempData = image.clone();
 		tempData.copyChannel(alphaImage,new lime.math.Rectangle(alphaPoint.x,alphaPoint.y,sourceRect.width,sourceRect.height),new lime.math.Vector2(sourceRect.x,sourceRect.y),lime.graphics.ImageChannel.ALPHA,lime.graphics.ImageChannel.ALPHA);
 		sourceImage = tempData;
 	}
-	lime.graphics.utils.ImageCanvasUtil.sync(image);
+	lime.graphics.utils.ImageCanvasUtil.sync(image,true);
 	if(!mergeAlpha) {
 		if(image.get_transparent() && sourceImage.get_transparent()) image.buffer.__srcContext.clearRect(destPoint.x + image.offsetX,destPoint.y + image.offsetY,sourceRect.width + image.offsetX,sourceRect.height + image.offsetY);
 	}
-	lime.graphics.utils.ImageCanvasUtil.sync(sourceImage);
+	lime.graphics.utils.ImageCanvasUtil.sync(sourceImage,false);
 	if(sourceImage.buffer.get_src() != null) image.buffer.__srcContext.drawImage(sourceImage.buffer.get_src(),sourceRect.x + sourceImage.offsetX | 0,sourceRect.y + sourceImage.offsetY | 0,sourceRect.width | 0,sourceRect.height | 0,destPoint.x + image.offsetX | 0,destPoint.y + image.offsetY | 0,sourceRect.width | 0,sourceRect.height | 0);
 };
 lime.graphics.utils.ImageCanvasUtil.createCanvas = function(image,width,height) {
@@ -9555,7 +10545,7 @@ lime.graphics.utils.ImageCanvasUtil.createCanvas = function(image,width,height) 
 			buffer.__srcContext = buffer.__srcCanvas.getContext ("2d", { alpha: false });
 		} else buffer.__srcContext = buffer.__srcCanvas.getContext("2d");
 		buffer.__srcContext.mozImageSmoothingEnabled = false;
-		buffer.__srcContext.webkitImageSmoothingEnabled = false;
+		buffer.__srcContext.msImageSmoothingEnabled = false;
 		buffer.__srcContext.imageSmoothingEnabled = false;
 	}
 };
@@ -9574,7 +10564,7 @@ lime.graphics.utils.ImageCanvasUtil.createImageData = function(image) {
 };
 lime.graphics.utils.ImageCanvasUtil.fillRect = function(image,rect,color,format) {
 	lime.graphics.utils.ImageCanvasUtil.convertToCanvas(image);
-	lime.graphics.utils.ImageCanvasUtil.sync(image);
+	lime.graphics.utils.ImageCanvasUtil.sync(image,true);
 	if(rect.x == 0 && rect.y == 0 && rect.width == image.width && rect.height == image.height) {
 		if(image.get_transparent() && (color & 255) == 0) {
 			image.buffer.__srcCanvas.width = image.buffer.width;
@@ -9632,7 +10622,7 @@ lime.graphics.utils.ImageCanvasUtil.resize = function(image,newWidth,newHeight) 
 		lime.graphics.utils.ImageCanvasUtil.createCanvas(image,newWidth,newHeight);
 		buffer.__srcContext.drawImage(buffer.get_src(),0,0,newWidth,newHeight);
 	} else {
-		lime.graphics.utils.ImageCanvasUtil.sync(image);
+		lime.graphics.utils.ImageCanvasUtil.sync(image,true);
 		var sourceCanvas = buffer.__srcCanvas;
 		buffer.__srcCanvas = null;
 		lime.graphics.utils.ImageCanvasUtil.createCanvas(image,newWidth,newHeight);
@@ -9642,7 +10632,7 @@ lime.graphics.utils.ImageCanvasUtil.resize = function(image,newWidth,newHeight) 
 lime.graphics.utils.ImageCanvasUtil.scroll = function(image,x,y) {
 	if(x % image.width == 0 && y % image.height == 0) return;
 	lime.graphics.utils.ImageCanvasUtil.convertToCanvas(image);
-	lime.graphics.utils.ImageCanvasUtil.sync(image);
+	lime.graphics.utils.ImageCanvasUtil.sync(image,true);
 	image.buffer.__srcContext.clearRect(x,y,image.width,image.height);
 	image.buffer.__srcContext.drawImage(image.buffer.__srcCanvas,x,y);
 };
@@ -9661,11 +10651,15 @@ lime.graphics.utils.ImageCanvasUtil.setPixels = function(image,rect,byteArray,fo
 	lime.graphics.utils.ImageCanvasUtil.createImageData(image);
 	lime.graphics.utils.ImageDataUtil.setPixels(image,rect,byteArray,format);
 };
-lime.graphics.utils.ImageCanvasUtil.sync = function(image) {
+lime.graphics.utils.ImageCanvasUtil.sync = function(image,clear) {
 	if(image.dirty && image.buffer.__srcImageData != null && image.type != lime.graphics.ImageType.DATA) {
 		image.buffer.__srcContext.putImageData(image.buffer.__srcImageData,0,0);
 		image.buffer.data = null;
 		image.dirty = false;
+	}
+	if(clear) {
+		image.buffer.__srcImageData = null;
+		image.buffer.data = null;
 	}
 };
 lime.graphics.utils.ImageDataUtil = function() { };
@@ -11214,10 +12208,40 @@ lime.graphics.utils.ImageDataUtil.setPixel = function(image,x,y,color,format) {
 	default:
 		pixel = color;
 	}
-	pixel = (pixel >> 24 & 255 & 255) << 24 | (pixel >> 16 & 255 & 255) << 16 | (pixel >> 8 & 255 & 255) << 8 | 255;
-	255;
+	var source = 0;
 	var data = image.buffer.data;
 	var offset = 4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4;
+	switch(image.buffer.format) {
+	case 2:
+		source = (data[offset + 2] & 255) << 24 | (data[offset + 1] & 255) << 16 | (data[offset] & 255) << 8 | data[offset + 3] & 255;
+		break;
+	case 0:
+		source = (data[offset] & 255) << 24 | (data[offset + 1] & 255) << 16 | (data[offset + 2] & 255) << 8 | data[offset + 3] & 255;
+		break;
+	case 1:
+		source = (data[offset + 1] & 255) << 24 | (data[offset + 2] & 255) << 16 | (data[offset + 3] & 255) << 8 | data[offset] & 255;
+		break;
+	}
+	if(image.buffer.premultiplied) {
+		if((source & 255) != 0 && (source & 255) != 255) {
+			lime.math.color._RGBA.RGBA_Impl_.unmult = 255.0 / (source & 255);
+			var r;
+			var idx = Math.round((source >> 24 & 255) * lime.math.color._RGBA.RGBA_Impl_.unmult);
+			r = lime.math.color._RGBA.RGBA_Impl_.__clamp[idx];
+			var g;
+			var idx1 = Math.round((source >> 16 & 255) * lime.math.color._RGBA.RGBA_Impl_.unmult);
+			g = lime.math.color._RGBA.RGBA_Impl_.__clamp[idx1];
+			var b;
+			var idx2 = Math.round((source >> 8 & 255) * lime.math.color._RGBA.RGBA_Impl_.unmult);
+			b = lime.math.color._RGBA.RGBA_Impl_.__clamp[idx2];
+			source = (r & 255) << 24 | (g & 255) << 16 | (b & 255) << 8 | source & 255 & 255;
+		}
+	}
+	var value = source & 255;
+	pixel = (pixel >> 24 & 255 & 255) << 24 | (pixel >> 16 & 255 & 255) << 16 | (pixel >> 8 & 255 & 255) << 8 | value & 255;
+	value;
+	var data1 = image.buffer.data;
+	var offset1 = 4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4;
 	if(image.buffer.premultiplied) {
 		if((pixel & 255) == 0) {
 			if(pixel != 0) pixel = 0;
@@ -11228,22 +12252,22 @@ lime.graphics.utils.ImageDataUtil.setPixel = function(image,x,y,color,format) {
 	}
 	switch(image.buffer.format) {
 	case 2:
-		data[offset] = pixel >> 8 & 255;
-		data[offset + 1] = pixel >> 16 & 255;
-		data[offset + 2] = pixel >> 24 & 255;
-		data[offset + 3] = pixel & 255;
+		data1[offset1] = pixel >> 8 & 255;
+		data1[offset1 + 1] = pixel >> 16 & 255;
+		data1[offset1 + 2] = pixel >> 24 & 255;
+		data1[offset1 + 3] = pixel & 255;
 		break;
 	case 0:
-		data[offset] = pixel >> 24 & 255;
-		data[offset + 1] = pixel >> 16 & 255;
-		data[offset + 2] = pixel >> 8 & 255;
-		data[offset + 3] = pixel & 255;
+		data1[offset1] = pixel >> 24 & 255;
+		data1[offset1 + 1] = pixel >> 16 & 255;
+		data1[offset1 + 2] = pixel >> 8 & 255;
+		data1[offset1 + 3] = pixel & 255;
 		break;
 	case 1:
-		data[offset] = pixel & 255;
-		data[offset + 1] = pixel >> 24 & 255;
-		data[offset + 2] = pixel >> 16 & 255;
-		data[offset + 3] = pixel >> 8 & 255;
+		data1[offset1] = pixel & 255;
+		data1[offset1 + 1] = pixel >> 24 & 255;
+		data1[offset1 + 2] = pixel >> 16 & 255;
+		data1[offset1 + 3] = pixel >> 8 & 255;
 		break;
 	}
 	image.dirty = true;
@@ -12689,12 +13713,12 @@ lime.math.color._RGBA.RGBA_Impl_.set_r = function(this1,value) {
 };
 lime.net = {};
 lime.net.URLLoader = function(request) {
-	this.onSecurityError = new lime.app.Event();
-	this.onProgress = new lime.app.Event();
-	this.onOpen = new lime.app.Event();
-	this.onIOError = new lime.app.Event();
-	this.onHTTPStatus = new lime.app.Event();
-	this.onComplete = new lime.app.Event();
+	this.onSecurityError = new lime.app.Event_lime_net_URLLoader_String_Void();
+	this.onProgress = new lime.app.Event_lime_net_URLLoader_Int_Int_Void();
+	this.onOpen = new lime.app.Event_lime_net_URLLoader_Void();
+	this.onIOError = new lime.app.Event_lime_net_URLLoader_String_Void();
+	this.onHTTPStatus = new lime.app.Event_lime_net_URLLoader_Int_Void();
+	this.onComplete = new lime.app.Event_lime_net_URLLoader_Void();
 	this.bytesLoaded = 0;
 	this.bytesTotal = 0;
 	this.set_dataFormat(lime.net.URLLoaderDataFormat.TEXT);
@@ -12724,63 +13748,11 @@ lime.net.URLLoader.prototype = {
 				s = null;
 			}
 			if(s == undefined) s = null;
-			if(s != null) {
-				var listeners = self.onHTTPStatus.listeners;
-				var repeat = self.onHTTPStatus.repeat;
-				var i = 0;
-				while(i < listeners.length) {
-					listeners[i](_g,s);
-					if(!repeat[i]) self.onHTTPStatus.remove(listeners[i]); else i++;
-				}
-			}
-			if(s != null && s >= 200 && s < 400) self.__onData(subject.response); else if(s == null) {
-				var listeners1 = self.onIOError.listeners;
-				var repeat1 = self.onIOError.repeat;
-				var i1 = 0;
-				while(i1 < listeners1.length) {
-					listeners1[i1](_g,"Failed to connect or resolve host");
-					if(!repeat1[i1]) self.onIOError.remove(listeners1[i1]); else i1++;
-				}
-			} else if(s == 12029) {
-				var listeners2 = self.onIOError.listeners;
-				var repeat2 = self.onIOError.repeat;
-				var i2 = 0;
-				while(i2 < listeners2.length) {
-					listeners2[i2](_g,"Failed to connect to host");
-					if(!repeat2[i2]) self.onIOError.remove(listeners2[i2]); else i2++;
-				}
-			} else if(s == 12007) {
-				var listeners3 = self.onIOError.listeners;
-				var repeat3 = self.onIOError.repeat;
-				var i3 = 0;
-				while(i3 < listeners3.length) {
-					listeners3[i3](_g,"Unknown host");
-					if(!repeat3[i3]) self.onIOError.remove(listeners3[i3]); else i3++;
-				}
-			} else if(s == 0) {
-				var listeners4 = self.onIOError.listeners;
-				var repeat4 = self.onIOError.repeat;
-				var i4 = 0;
-				while(i4 < listeners4.length) {
-					listeners4[i4](_g,"Unable to make request (may be blocked due to cross-domain permissions)");
-					if(!repeat4[i4]) self.onIOError.remove(listeners4[i4]); else i4++;
-				}
-				var listeners5 = self.onSecurityError.listeners;
-				var repeat5 = self.onSecurityError.repeat;
-				var i5 = 0;
-				while(i5 < listeners5.length) {
-					listeners5[i5](_g,"Unable to make request (may be blocked due to cross-domain permissions)");
-					if(!repeat5[i5]) self.onSecurityError.remove(listeners5[i5]); else i5++;
-				}
-			} else {
-				var listeners6 = self.onIOError.listeners;
-				var repeat6 = self.onIOError.repeat;
-				var i6 = 0;
-				while(i6 < listeners6.length) {
-					listeners6[i6](_g,"Http Error #" + subject.status);
-					if(!repeat6[i6]) self.onIOError.remove(listeners6[i6]); else i6++;
-				}
-			}
+			if(s != null) self.onHTTPStatus.dispatch(_g,s);
+			if(s != null && s >= 200 && s < 400) self.__onData(subject.response); else if(s == null) self.onIOError.dispatch(_g,"Failed to connect or resolve host"); else if(s == 12029) self.onIOError.dispatch(_g,"Failed to connect to host"); else if(s == 12007) self.onIOError.dispatch(_g,"Unknown host"); else if(s == 0) {
+				self.onIOError.dispatch(_g,"Unable to make request (may be blocked due to cross-domain permissions)");
+				self.onSecurityError.dispatch(_g,"Unable to make request (may be blocked due to cross-domain permissions)");
+			} else self.onIOError.dispatch(_g,"Http Error #" + subject.status);
 		};
 	}
 	,requestUrl: function(url,method,data,requestHeaders) {
@@ -12815,13 +13787,7 @@ lime.net.URLLoader.prototype = {
 				uri = "";
 			} else xmlHttpRequest.open(js.Boot.__cast(method , String),url,true);
 		} catch( e ) {
-			var listeners = this.onIOError.listeners;
-			var repeat = this.onIOError.repeat;
-			var i = 0;
-			while(i < listeners.length) {
-				listeners[i](this,e.toString());
-				if(!repeat[i]) this.onIOError.remove(listeners[i]); else i++;
-			}
+			this.onIOError.dispatch(this,e.toString());
 			return;
 		}
 		var _g2 = this.dataFormat;
@@ -12838,13 +13804,7 @@ lime.net.URLLoader.prototype = {
 			xmlHttpRequest.setRequestHeader(header.name,header.value);
 		}
 		xmlHttpRequest.send(uri);
-		var listeners1 = this.onOpen.listeners;
-		var repeat1 = this.onOpen.repeat;
-		var i1 = 0;
-		while(i1 < listeners1.length) {
-			listeners1[i1](this);
-			if(!repeat1[i1]) this.onOpen.remove(listeners1[i1]); else i1++;
-		}
+		this.onOpen.dispatch(this);
 		this.getData = function() {
 			if(xmlHttpRequest.response != null) return xmlHttpRequest.response; else return xmlHttpRequest.responseText;
 		};
@@ -12859,24 +13819,12 @@ lime.net.URLLoader.prototype = {
 		default:
 			this.data = Std.string(content);
 		}
-		var listeners = this.onComplete.listeners;
-		var repeat = this.onComplete.repeat;
-		var i = 0;
-		while(i < listeners.length) {
-			listeners[i](this);
-			if(!repeat[i]) this.onComplete.remove(listeners[i]); else i++;
-		}
+		this.onComplete.dispatch(this);
 	}
 	,__onProgress: function(event) {
 		this.bytesLoaded = event.loaded;
 		this.bytesTotal = event.total;
-		var listeners = this.onProgress.listeners;
-		var repeat = this.onProgress.repeat;
-		var i = 0;
-		while(i < listeners.length) {
-			listeners[i](this,this.bytesLoaded,this.bytesTotal);
-			if(!repeat[i]) this.onProgress.remove(listeners[i]); else i++;
-		}
+		this.onProgress.dispatch(this,this.bytesLoaded,this.bytesTotal);
 	}
 	,set_dataFormat: function(inputVal) {
 		if(inputVal == lime.net.URLLoaderDataFormat.BINARY && !Reflect.hasField(window,"ArrayBuffer")) this.dataFormat = lime.net.URLLoaderDataFormat.TEXT; else this.dataFormat = inputVal;
@@ -12964,6 +13912,77 @@ lime.net.URLVariables.prototype = {
 	,__class__: lime.net.URLVariables
 };
 lime.system = {};
+lime.system.CFFI = function() { };
+$hxClasses["lime.system.CFFI"] = lime.system.CFFI;
+lime.system.CFFI.__name__ = true;
+lime.system.CFFI.load = function(library,method,args,lazy) {
+	if(lazy == null) lazy = false;
+	if(args == null) args = 0;
+	if(!lime.system.CFFI.enabled) return Reflect.makeVarArgs(function(__) {
+		return { };
+	});
+	var result = null;
+	return result;
+};
+lime.system.CFFI.__findHaxelib = function(library) {
+	return "";
+};
+lime.system.CFFI.__loaderTrace = function(message) {
+};
+lime.system.CFFI.__sysName = function() {
+	return null;
+};
+lime.system.CFFI.__tryLoad = function(name,library,func,args) {
+	return null;
+};
+lime.system._CFFIPointer = {};
+lime.system._CFFIPointer.CFFIPointer_Impl_ = function() { };
+$hxClasses["lime.system._CFFIPointer.CFFIPointer_Impl_"] = lime.system._CFFIPointer.CFFIPointer_Impl_;
+lime.system._CFFIPointer.CFFIPointer_Impl_.__name__ = true;
+lime.system._CFFIPointer.CFFIPointer_Impl_._new = function(handle) {
+	return handle;
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.get = function(this1) {
+	if(this1 != null) {
+	}
+	return 0;
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.equals = function(a,b) {
+	return lime.system._CFFIPointer.CFFIPointer_Impl_.get(a) == b;
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.equalsPointer = function(a,b) {
+	return lime.system._CFFIPointer.CFFIPointer_Impl_.get(a) == lime.system._CFFIPointer.CFFIPointer_Impl_.get(b);
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.greaterThan = function(a,b) {
+	return lime.system._CFFIPointer.CFFIPointer_Impl_.get(a) > b;
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.greaterThanPointer = function(a,b) {
+	return lime.system._CFFIPointer.CFFIPointer_Impl_.get(a) > lime.system._CFFIPointer.CFFIPointer_Impl_.get(b);
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.greaterThanOrEqual = function(a,b) {
+	return lime.system._CFFIPointer.CFFIPointer_Impl_.get(a) >= b;
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.greaterThanOrEqualPointer = function(a,b) {
+	return lime.system._CFFIPointer.CFFIPointer_Impl_.get(a) >= lime.system._CFFIPointer.CFFIPointer_Impl_.get(b);
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.lessThan = function(a,b) {
+	return lime.system._CFFIPointer.CFFIPointer_Impl_.get(a) < b;
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.lessThanPointer = function(a,b) {
+	return lime.system._CFFIPointer.CFFIPointer_Impl_.get(a) < lime.system._CFFIPointer.CFFIPointer_Impl_.get(b);
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.lessThanOrEqual = function(a,b) {
+	return lime.system._CFFIPointer.CFFIPointer_Impl_.get(a) <= b;
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.lessThanOrEqualPointer = function(a,b) {
+	return lime.system._CFFIPointer.CFFIPointer_Impl_.get(a) <= lime.system._CFFIPointer.CFFIPointer_Impl_.get(b);
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.notEquals = function(a,b) {
+	return lime.system._CFFIPointer.CFFIPointer_Impl_.get(a) != b;
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.notEqualsPointer = function(a,b) {
+	return lime.system._CFFIPointer.CFFIPointer_Impl_.get(a) != lime.system._CFFIPointer.CFFIPointer_Impl_.get(b);
+};
 lime.system.Display = function() {
 };
 $hxClasses["lime.system.Display"] = lime.system.Display;
@@ -13009,9 +14028,6 @@ lime.system.System.embed = $hx_exports.lime.embed = function(element,width,heigh
 };
 lime.system.System.exit = function(code) {
 };
-lime.system.System.findHaxeLib = function(library) {
-	return "";
-};
 lime.system.System.getDisplay = function(id) {
 	if(id == 0) {
 		var display = new lime.system.Display();
@@ -13030,19 +14046,7 @@ lime.system.System.getTimer = function() {
 lime.system.System.load = function(library,method,args,lazy) {
 	if(lazy == null) lazy = false;
 	if(args == null) args = 0;
-	if(lime.system.System.disableCFFI) return Reflect.makeVarArgs(function(__) {
-		return { };
-	});
-	var result = null;
-	return result;
-};
-lime.system.System.sysName = function() {
-	return null;
-};
-lime.system.System.tryLoad = function(name,library,func,args) {
-	return null;
-};
-lime.system.System.loaderTrace = function(message) {
+	return lime.system.CFFI.load(library,method,args,lazy);
 };
 lime.system.System.get_applicationDirectory = function() {
 	return null;
@@ -13081,10 +14085,10 @@ lime.system._System.SystemDirectory_Impl_.__name__ = true;
 lime.system.ThreadPool = function(minThreads,maxThreads) {
 	if(maxThreads == null) maxThreads = 1;
 	if(minThreads == null) minThreads = 0;
-	this.onProgress = new lime.app.Event();
-	this.onError = new lime.app.Event();
-	this.onComplete = new lime.app.Event();
-	this.doWork = new lime.app.Event();
+	this.onProgress = new lime.app.Event_Dynamic_Void();
+	this.onError = new lime.app.Event_Dynamic_Void();
+	this.onComplete = new lime.app.Event_Dynamic_Void();
+	this.doWork = new lime.app.Event_Dynamic_Void();
 	this.minThreads = minThreads;
 	this.maxThreads = maxThreads;
 	this.currentThreads = 0;
@@ -13092,41 +14096,17 @@ lime.system.ThreadPool = function(minThreads,maxThreads) {
 $hxClasses["lime.system.ThreadPool"] = lime.system.ThreadPool;
 lime.system.ThreadPool.__name__ = true;
 lime.system.ThreadPool.prototype = {
-	queue: function(id,message) {
-		var listeners = this.doWork.listeners;
-		var repeat = this.doWork.repeat;
-		var i = 0;
-		while(i < listeners.length) {
-			listeners[i](id,message);
-			if(!repeat[i]) this.doWork.remove(listeners[i]); else i++;
-		}
+	queue: function(state) {
+		this.doWork.dispatch(state);
 	}
-	,sendComplete: function(id,message) {
-		var listeners = this.onComplete.listeners;
-		var repeat = this.onComplete.repeat;
-		var i = 0;
-		while(i < listeners.length) {
-			listeners[i](id,message);
-			if(!repeat[i]) this.onComplete.remove(listeners[i]); else i++;
-		}
+	,sendComplete: function(state) {
+		this.onComplete.dispatch(state);
 	}
-	,sendError: function(id,message) {
-		var listeners = this.onError.listeners;
-		var repeat = this.onError.repeat;
-		var i = 0;
-		while(i < listeners.length) {
-			listeners[i](id,message);
-			if(!repeat[i]) this.onError.remove(listeners[i]); else i++;
-		}
+	,sendError: function(state) {
+		this.onError.dispatch(state);
 	}
-	,sendProgress: function(id,message) {
-		var listeners = this.onProgress.listeners;
-		var repeat = this.onProgress.repeat;
-		var i = 0;
-		while(i < listeners.length) {
-			listeners[i](id,message);
-			if(!repeat[i]) this.onProgress.remove(listeners[i]); else i++;
-		}
+	,sendProgress: function(state) {
+		this.onProgress.dispatch(state);
 	}
 	,__class__: lime.system.ThreadPool
 };
@@ -13142,10 +14122,9 @@ lime.system._ThreadPool.ThreadPoolMessageType.PROGRESS = ["PROGRESS",3];
 lime.system._ThreadPool.ThreadPoolMessageType.PROGRESS.__enum__ = lime.system._ThreadPool.ThreadPoolMessageType;
 lime.system._ThreadPool.ThreadPoolMessageType.WORK = ["WORK",4];
 lime.system._ThreadPool.ThreadPoolMessageType.WORK.__enum__ = lime.system._ThreadPool.ThreadPoolMessageType;
-lime.system._ThreadPool.ThreadPoolMessage = function(type,id,message) {
+lime.system._ThreadPool.ThreadPoolMessage = function(type,state) {
 	this.type = type;
-	this.id = id;
-	this.message = message;
+	this.state = state;
 };
 $hxClasses["lime.system._ThreadPool.ThreadPoolMessage"] = lime.system._ThreadPool.ThreadPoolMessage;
 lime.system._ThreadPool.ThreadPoolMessage.__name__ = true;
@@ -13234,10 +14213,10 @@ lime.text.GlyphMetrics.prototype = {
 };
 lime.ui = {};
 lime.ui.Gamepad = function(id) {
-	this.onDisconnect = new lime.app.Event();
-	this.onButtonUp = new lime.app.Event();
-	this.onButtonDown = new lime.app.Event();
-	this.onAxisMove = new lime.app.Event();
+	this.onDisconnect = new lime.app.Event_Void_Void();
+	this.onButtonUp = new lime.app.Event_lime_ui_GamepadButton_Void();
+	this.onButtonDown = new lime.app.Event_lime_ui_GamepadButton_Void();
+	this.onAxisMove = new lime.app.Event_lime_ui_GamepadAxis_Float_Void();
 	this.id = id;
 	this.connected = true;
 };
@@ -13396,28 +14375,28 @@ lime.ui.Touch.prototype = {
 	__class__: lime.ui.Touch
 };
 lime.ui.Window = function(config) {
-	this.onTextInput = new lime.app.Event();
-	this.onTextEdit = new lime.app.Event();
-	this.onRestore = new lime.app.Event();
-	this.onResize = new lime.app.Event();
-	this.onMove = new lime.app.Event();
-	this.onMouseWheel = new lime.app.Event();
-	this.onMouseUp = new lime.app.Event();
-	this.onMouseMoveRelative = new lime.app.Event();
-	this.onMouseMove = new lime.app.Event();
-	this.onMouseDown = new lime.app.Event();
-	this.onMinimize = new lime.app.Event();
-	this.onLeave = new lime.app.Event();
-	this.onKeyUp = new lime.app.Event();
-	this.onKeyDown = new lime.app.Event();
-	this.onFullscreen = new lime.app.Event();
-	this.onFocusOut = new lime.app.Event();
-	this.onFocusIn = new lime.app.Event();
-	this.onEnter = new lime.app.Event();
-	this.onDeactivate = new lime.app.Event();
-	this.onCreate = new lime.app.Event();
-	this.onClose = new lime.app.Event();
-	this.onActivate = new lime.app.Event();
+	this.onTextInput = new lime.app.Event_String_Void();
+	this.onTextEdit = new lime.app.Event_String_Int_Int_Void();
+	this.onRestore = new lime.app.Event_Void_Void();
+	this.onResize = new lime.app.Event_Int_Int_Void();
+	this.onMove = new lime.app.Event_Float_Float_Void();
+	this.onMouseWheel = new lime.app.Event_Float_Float_Void();
+	this.onMouseUp = new lime.app.Event_Float_Float_Int_Void();
+	this.onMouseMoveRelative = new lime.app.Event_Float_Float_Void();
+	this.onMouseMove = new lime.app.Event_Float_Float_Void();
+	this.onMouseDown = new lime.app.Event_Float_Float_Int_Void();
+	this.onMinimize = new lime.app.Event_Void_Void();
+	this.onLeave = new lime.app.Event_Void_Void();
+	this.onKeyUp = new lime.app.Event_lime_ui_KeyCode_lime_ui_KeyModifier_Void();
+	this.onKeyDown = new lime.app.Event_lime_ui_KeyCode_lime_ui_KeyModifier_Void();
+	this.onFullscreen = new lime.app.Event_Void_Void();
+	this.onFocusOut = new lime.app.Event_Void_Void();
+	this.onFocusIn = new lime.app.Event_Void_Void();
+	this.onEnter = new lime.app.Event_Void_Void();
+	this.onDeactivate = new lime.app.Event_Void_Void();
+	this.onCreate = new lime.app.Event_Void_Void();
+	this.onClose = new lime.app.Event_Void_Void();
+	this.onActivate = new lime.app.Event_Void_Void();
 	this.config = config;
 	this.__width = 0;
 	this.__height = 0;
@@ -13439,7 +14418,10 @@ lime.ui.Window = function(config) {
 $hxClasses["lime.ui.Window"] = lime.ui.Window;
 lime.ui.Window.__name__ = true;
 lime.ui.Window.prototype = {
-	close: function() {
+	alert: function(message,title) {
+		this.backend.alert(message,title);
+	}
+	,close: function() {
 		this.backend.close();
 	}
 	,create: function(application) {
@@ -13560,6 +14542,15 @@ lime.utils.ByteArray.__ofBuffer = function(buffer) {
 	bytes.data = new DataView(buffer);
 	bytes.byteView = new Uint8Array(buffer);
 	return bytes;
+};
+lime.utils.ByteArray.lime_bytes_from_data_pointer = function(data,length) {
+	return lime.utils.ByteArray.cffi_lime_bytes_from_data_pointer(data,length);
+};
+lime.utils.ByteArray.lime_bytes_get_data_pointer = function(data) {
+	return lime.utils.ByteArray.cffi_lime_bytes_get_data_pointer(data);
+};
+lime.utils.ByteArray.lime_bytes_read_file = function(path) {
+	return lime.utils.ByteArray.cffi_lime_bytes_read_file(path);
 };
 lime.utils.ByteArray.prototype = {
 	clear: function() {
@@ -14058,13 +15049,18 @@ while(_g11 < _g2) {
 	var i2 = _g11++;
 	lime.math.color._RGBA.RGBA_Impl_.__clamp[i2] = 255;
 }
+lime.system.CFFI.available = false;
+lime.system.CFFI.enabled = false;
 de.peote.view.Buffer.VERTEX_COUNT = 6;
-de.peote.view.PeoteView.elementDefaults = { displaylist : 0, program : null, image : null, tile : null, x : 0, y : 0, w : 100, h : 100, z : 0};
+de.peote.view.PeoteView.elementDefaults = { displaylist : 0, program : null, image : null, tile : null, x : 0, y : 0, w : 100, h : 100, z : 0, rgba : 1431655765, rotation : 0, pivotX : 0, pivotY : 0};
 de.peote.view.Program.aPOSITION = 0;
 de.peote.view.Program.aTEXTCOORD = 1;
 de.peote.view.Program.aZINDEX = 2;
 de.peote.view.Program.aRGBA = 3;
-de.peote.view.Program.aTIME = 4;
+de.peote.view.Program.aRGBA_END = 4;
+de.peote.view.Program.aRotation = 5;
+de.peote.view.Program.aPivot = 6;
+de.peote.view.Program.aTIME = 7;
 de.peote.view.Program.uMODELVIEWMATRIX = 0;
 de.peote.view.Program.uPROJECTIONMATRIX = 1;
 de.peote.view.Program.uIMAGE = 2;
@@ -14080,6 +15076,8 @@ de.peote.view.Program.rZINDEXstart = new EReg("#else_ZINDEX(.*?)#end_ZINDEX","ig
 de.peote.view.Program.rZINDEXend = new EReg("#if_ZINDEX(.*?)#end_ZINDEX","ig");
 de.peote.view.Program.rRGBAstart = new EReg("#else_RGBA(.*?)#end_RGBA","ig");
 de.peote.view.Program.rRGBAend = new EReg("#if_RGBA(.*?)#end_RGBA","ig");
+de.peote.view.Program.rROTATIONstart = new EReg("#else_ROTATION(.*?)#end_ROTATION","ig");
+de.peote.view.Program.rROTATIONend = new EReg("#if_ROTATION(.*?)#end_ROTATION","ig");
 de.peote.view.Program.rMAX_TEXTURE_SIZE = new EReg("#MAX_TEXTURE_SIZE","g");
 de.peote.view.displaylist.DType.SIMPLE = 0;
 de.peote.view.displaylist.DType.ANIM = 1;
@@ -14089,16 +15087,10 @@ de.peote.view.displaylist.DType.ROTATION = 16;
 de.peote.view.displaylist.DType.SCALE = 32;
 de.peote.view.displaylist.DType.TILE = 64;
 de.peote.view.element.ElementAnimBuffer.VERTEX_COUNT = 6;
-de.peote.view.element.ElementAnimBuffer.ANIM_PARAM_SIZE = 8;
-de.peote.view.element.ElementAnimBuffer.PARAM_SIZE = 4;
-de.peote.view.element.ElementAnimBuffer.TIME_OFFSET = de.peote.view.element.ElementAnimBuffer.ANIM_PARAM_SIZE;
-de.peote.view.element.ElementAnimBuffer.PARAM_OFFSET = de.peote.view.element.ElementAnimBuffer.TIME_OFFSET + 8;
-de.peote.view.element.ElementAnimBuffer.TEX_OFFSET = de.peote.view.element.ElementAnimBuffer.PARAM_OFFSET + de.peote.view.element.ElementAnimBuffer.PARAM_SIZE;
-de.peote.view.element.ElementAnimBuffer.VERTEX_STRIDE = de.peote.view.element.ElementAnimBuffer.TEX_OFFSET + 4;
-de.peote.view.element.ElementAnimBuffer.defaultVertexShaderSrc = "\tprecision mediump float;\r\n\r\n\t\t// always twice if time dependend\r\n\t\tattribute vec4 aPosition;\r\n\t\tattribute vec2 aTime;\r\n\t\t\r\n\t\tattribute float aZindex;\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = 255.0/aRGBA;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\r\n\t\t\tvec2 VertexPosStart = vec2( aPosition ); //vec2 (aPosition.x, aPosition.y);\r\n\t\t\tvec2 VertexPosEnd   = vec2 (aPosition.z, aPosition.w);\r\n\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (VertexPosStart + floor( \r\n\t\t\t\t\t\t\t\t(VertexPosEnd - VertexPosStart)\r\n\t\t\t\t\t\t\t\t* max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0))\r\n\t\t\t\t\t\t\t\t* zoom) / zoom\r\n\t\t\t\t, aZindex ,1.0);\r\n\t\t}\r\n\t";
-de.peote.view.element.ElementAnimBuffer.defaultFragmentShaderSrc = "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE);\r\n\t\t\tif(texel.a < 0.5) discard;\r\n\t\t\tgl_FragColor = texel;\r\n\t\t}\r\n\t";
+de.peote.view.element.ElementAnimBuffer.defaultVertexShaderSrc = "\tprecision mediump float;\r\n\r\n\t\tattribute vec4 aPosition;\r\n\t\t\r\n\t\t#if_ZINDEX\r\n\t\tattribute float aZindex;\r\n\t\t#end_ZINDEX\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tattribute vec4 aRGBA_END;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\t\t\r\n\t\t#if_ROTATION\r\n\t\tattribute vec2 aRotation;\r\n\t\tattribute vec4 aPivot;\r\n\t\t#end_ROTATION\r\n\t\t\r\n\t\tattribute vec2 aTime;\r\n\t\t\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = aRGBA.wzyx + (aRGBA_END.wzyx - aRGBA.wzyx) * max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0));\t\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\r\n\t\t\tvec2 VertexPosStart = vec2 ( aPosition ); //vec2 (aPosition.x, aPosition.y);\r\n\t\t\tvec2 VertexPosEnd   = vec2 ( aPosition.z, aPosition.w);\r\n\t\t\t\r\n\t\t\t#if_ROTATION\r\n\t\t\tfloat alpha = aRotation.x + (aRotation.y - aRotation.x)\t* max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0));\r\n\t\t\t\t\t\t\t\t\r\n\t\t\tVertexPosStart = (VertexPosStart - vec2(aPivot))\r\n\t\t\t\t\t\t\t* mat2 (\r\n\t\t\t\t\t\t\t\tvec2(cos(alpha), -sin(alpha)),\r\n\t\t\t\t\t\t\t\tvec2(sin(alpha),  cos(alpha))\r\n\t\t\t\t\t\t\t) + vec2(aPivot);\r\n\t\t\t\r\n\t\t\tVertexPosEnd = (VertexPosEnd -  vec2(aPivot.z, aPivot.w))\r\n\t\t\t\t\t\t\t* mat2 (\r\n\t\t\t\t\t\t\t\tvec2(cos(alpha), -sin(alpha)),\r\n\t\t\t\t\t\t\t\tvec2(sin(alpha),  cos(alpha))\r\n\t\t\t\t\t\t\t) + vec2(aPivot.z, aPivot.w);\r\n\t\t\t#end_ROTATION\r\n\t\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4( VertexPosStart + floor( \r\n\t\t\t\t\t\t\t\t(VertexPosEnd - VertexPosStart)\r\n\t\t\t\t\t\t\t\t* max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0))\r\n\t\t\t\t\t\t\t\t* zoom) / zoom ,\r\n\t\t\t\t#if_ZINDEX\r\n\t\t\t\taZindex\r\n\t\t\t\t#else_ZINDEX\r\n\t\t\t\t0.0\r\n\t\t\t\t#end_ZINDEX\r\n\t\t\t\t, 1.0\r\n\t\t\t)\r\n\t\t\t// rotate displaylist\r\n\t\t\t/** mat4 (\r\n\t\t\t\tvec4(cos(winkel), -sin(winkel), 0.0, 0.0),\r\n\t\t\t\tvec4(sin(winkel),  cos(winkel), 0.0, 0.0),\r\n\t\t\t\tvec4(        0.0,          1.0, 0.0, 0.0),\r\n\t\t\t\tvec4(        0.0,          0.0, 0.0, 1.0)\r\n\t\t\t)*/\r\n\t\t\t;\r\n\t\t}\r\n\t";
+de.peote.view.element.ElementAnimBuffer.defaultFragmentShaderSrc = "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t#if_RGBA\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE);\r\n\t\t\tif(texel.a < 0.5) discard; // TODO (z-order/blend mode!!!)\r\n\t\t\t#if_RGBA\r\n\t\t\tgl_FragColor = texel * vRGBA;\r\n\t\t\t#else_RGBA\r\n\t\t\tgl_FragColor = texel;\r\n\t\t\t#end_RGBA\r\n\t\t}\r\n\t";
 de.peote.view.element.ElementSimpleBuffer.VERTEX_COUNT = 6;
-de.peote.view.element.ElementSimpleBuffer.defaultVertexShaderSrc = "\tprecision mediump float;\r\n\r\n\t\t// always twice if time dependend\r\n\t\tattribute vec2 aPosition;\r\n\t\t\r\n\t\t#if_ZINDEX\r\n\t\tattribute float aZindex;\r\n\t\t#end_ZINDEX\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = aRGBA.wzyx;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (aPosition ,\r\n\t\t\t\t#if_ZINDEX\r\n\t\t\t\taZindex\r\n\t\t\t\t#else_ZINDEX\r\n\t\t\t\t0.0\r\n\t\t\t\t#end_ZINDEX\r\n\t\t\t\t, 1.0\r\n\t\t\t\t);\r\n\t\t}\r\n\t";
+de.peote.view.element.ElementSimpleBuffer.defaultVertexShaderSrc = "\tprecision mediump float;\r\n\r\n\t\tattribute vec2 aPosition;\r\n\t\t\r\n\t\t#if_ZINDEX\r\n\t\tattribute float aZindex;\r\n\t\t#end_ZINDEX\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = aRGBA.wzyx;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -0.001, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (aPosition ,\r\n\t\t\t\t#if_ZINDEX\r\n\t\t\t\taZindex\r\n\t\t\t\t#else_ZINDEX\r\n\t\t\t\t0.0\r\n\t\t\t\t#end_ZINDEX\r\n\t\t\t\t, 1.0\r\n\t\t\t\t);\r\n\t\t}\r\n\t";
 de.peote.view.element.ElementSimpleBuffer.defaultFragmentShaderSrc = "\tprecision mediump float;\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t#if_RGBA\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\t\tuniform sampler2D uImage;\r\n\t\t\r\n\t\tuniform vec2 uMouse, uResolution;\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\r\n\t\t\tvec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE );\r\n\t\t\tif(texel.a < 0.5) discard;\r\n\t\t\t#if_RGBA\r\n\t\t\tgl_FragColor = texel * vRGBA;\r\n\t\t\t#else_RGBA\r\n\t\t\tgl_FragColor = texel;\r\n\t\t\t#end_RGBA\r\n\t\t}\r\n\t";
 format.tools._InflateImpl.Window.SIZE = 32768;
 format.tools._InflateImpl.Window.BUFSIZE = 65536;
@@ -14110,6 +15102,7 @@ format.tools.InflateImpl.CODE_LENGTHS_POS = [16,17,18,0,8,7,9,6,10,5,11,4,12,3,1
 js.Boot.__toStr = {}.toString;
 lime.Assets.cache = new lime.AssetCache();
 lime.Assets.libraries = new haxe.ds.StringMap();
+lime.Assets.onChange = new lime.app.Event_Void_Void();
 lime.Assets.initialized = false;
 lime._Assets.AssetType_Impl_.BINARY = "BINARY";
 lime._Assets.AssetType_Impl_.FONT = "FONT";
@@ -14230,7 +15223,6 @@ lime.graphics.cairo._CairoFilter.CairoFilter_Impl_.BEST = 2;
 lime.graphics.cairo._CairoFilter.CairoFilter_Impl_.NEAREST = 3;
 lime.graphics.cairo._CairoFilter.CairoFilter_Impl_.BILINEAR = 4;
 lime.graphics.cairo._CairoFilter.CairoFilter_Impl_.GAUSSIAN = 5;
-lime.graphics.cairo.CairoFont.FT_LOAD_FORCE_AUTOHINT = 32;
 lime.graphics.cairo._CairoHintMetrics.CairoHintMetrics_Impl_.DEFAULT = 0;
 lime.graphics.cairo._CairoHintMetrics.CairoHintMetrics_Impl_.OFF = 1;
 lime.graphics.cairo._CairoHintMetrics.CairoHintMetrics_Impl_.ON = 2;
@@ -14340,8 +15332,6 @@ lime.graphics.opengl.GL.DST_COLOR = 774;
 lime.graphics.opengl.GL.ONE_MINUS_DST_COLOR = 775;
 lime.graphics.opengl.GL.SRC_ALPHA_SATURATE = 776;
 lime.graphics.opengl.GL.FUNC_ADD = 32774;
-lime.graphics.opengl.GL.MIN = 32775;
-lime.graphics.opengl.GL.MAX = 32776;
 lime.graphics.opengl.GL.BLEND_EQUATION = 32777;
 lime.graphics.opengl.GL.BLEND_EQUATION_RGB = 32777;
 lime.graphics.opengl.GL.BLEND_EQUATION_ALPHA = 34877;
@@ -14447,6 +15437,8 @@ lime.graphics.opengl.GL.DEPTH_COMPONENT = 6402;
 lime.graphics.opengl.GL.ALPHA = 6406;
 lime.graphics.opengl.GL.RGB = 6407;
 lime.graphics.opengl.GL.RGBA = 6408;
+lime.graphics.opengl.GL.BGR_EXT = 32992;
+lime.graphics.opengl.GL.BGRA_EXT = 32993;
 lime.graphics.opengl.GL.LUMINANCE = 6409;
 lime.graphics.opengl.GL.LUMINANCE_ALPHA = 6410;
 lime.graphics.opengl.GL.UNSIGNED_SHORT_4_4_4_4 = 32819;
@@ -14625,6 +15617,7 @@ lime.net._URLRequestMethod.URLRequestMethod_Impl_.HEAD = "HEAD";
 lime.net._URLRequestMethod.URLRequestMethod_Impl_.OPTIONS = "OPTIONS";
 lime.net._URLRequestMethod.URLRequestMethod_Impl_.POST = "POST";
 lime.net._URLRequestMethod.URLRequestMethod_Impl_.PUT = "PUT";
+lime.system.CFFI.lime_cffi_set_finalizer = lime.system.CFFI.load("lime","lime_cffi_set_finalizer",1,false);
 lime.system._System.SystemDirectory_Impl_.APPLICATION = 0;
 lime.system._System.SystemDirectory_Impl_.APPLICATION_STORAGE = 1;
 lime.system._System.SystemDirectory_Impl_.DESKTOP = 2;
@@ -14632,7 +15625,7 @@ lime.system._System.SystemDirectory_Impl_.DOCUMENTS = 3;
 lime.system._System.SystemDirectory_Impl_.FONTS = 4;
 lime.system._System.SystemDirectory_Impl_.USER = 5;
 lime.ui.Gamepad.devices = new haxe.ds.IntMap();
-lime.ui.Gamepad.onConnect = new lime.app.Event();
+lime.ui.Gamepad.onConnect = new lime.app.Event_lime_ui_Gamepad_Void();
 lime.ui._GamepadAxis.GamepadAxis_Impl_.LEFT_X = 0;
 lime.ui._GamepadAxis.GamepadAxis_Impl_.LEFT_Y = 1;
 lime.ui._GamepadAxis.GamepadAxis_Impl_.RIGHT_X = 2;
@@ -14905,9 +15898,9 @@ lime.ui._KeyModifier.KeyModifier_Impl_.CTRL = 192;
 lime.ui._KeyModifier.KeyModifier_Impl_.SHIFT = 3;
 lime.ui._KeyModifier.KeyModifier_Impl_.ALT = 768;
 lime.ui._KeyModifier.KeyModifier_Impl_.META = 3072;
-lime.ui.Touch.onEnd = new lime.app.Event();
-lime.ui.Touch.onMove = new lime.app.Event();
-lime.ui.Touch.onStart = new lime.app.Event();
+lime.ui.Touch.onEnd = new lime.app.Event_lime_ui_Touch_Void();
+lime.ui.Touch.onMove = new lime.app.Event_lime_ui_Touch_Void();
+lime.ui.Touch.onStart = new lime.app.Event_lime_ui_Touch_Void();
 lime.utils._ArrayBufferView.TypedArrayType_Impl_.None = 0;
 lime.utils._ArrayBufferView.TypedArrayType_Impl_.Int8 = 1;
 lime.utils._ArrayBufferView.TypedArrayType_Impl_.Int16 = 2;
@@ -14918,9 +15911,9 @@ lime.utils._ArrayBufferView.TypedArrayType_Impl_.Uint16 = 6;
 lime.utils._ArrayBufferView.TypedArrayType_Impl_.Uint32 = 7;
 lime.utils._ArrayBufferView.TypedArrayType_Impl_.Float32 = 8;
 lime.utils._ArrayBufferView.TypedArrayType_Impl_.Float64 = 9;
-lime.utils.ByteArray.lime_bytes_from_data_pointer = lime.system.System.load("lime","lime_bytes_from_data_pointer",2);
-lime.utils.ByteArray.lime_bytes_get_data_pointer = lime.system.System.load("lime","lime_bytes_get_data_pointer",1);
-lime.utils.ByteArray.lime_bytes_read_file = lime.system.System.load("lime","lime_bytes_read_file",1);
+lime.utils.ByteArray.cffi_lime_bytes_from_data_pointer = lime.system.CFFI.load("lime","lime_bytes_from_data_pointer",2,false);
+lime.utils.ByteArray.cffi_lime_bytes_get_data_pointer = lime.system.CFFI.load("lime","lime_bytes_get_data_pointer",1,false);
+lime.utils.ByteArray.cffi_lime_bytes_read_file = lime.system.CFFI.load("lime","lime_bytes_read_file",1,false);
 lime.utils._Float32Array.Float32Array_Impl_.BYTES_PER_ELEMENT = 4;
 lime.utils._Int32Array.Int32Array_Impl_.BYTES_PER_ELEMENT = 4;
 lime.utils._UInt32Array.UInt32Array_Impl_.BYTES_PER_ELEMENT = 4;

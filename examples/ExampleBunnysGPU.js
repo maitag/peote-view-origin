@@ -56,14 +56,14 @@ ApplicationMain.create = function() {
 	ApplicationMain.preloader.load(urls,types);
 };
 ApplicationMain.main = function() {
-	ApplicationMain.config = { build : "639", company : "Sylvio Sell - maitag", file : "ExampleBunnysGPU", fps : 60, name : "peote_view", orientation : "", packageName : "de.peote.view", version : "0.1.5", windows : [{ antialiasing : 4, background : 16777215, borderless : false, depthBuffer : true, display : 0, fullscreen : false, hardware : true, height : 0, parameters : "{}", resizable : true, stencilBuffer : false, title : "peote_view", vsync : true, width : 0, x : null, y : null}]};
+	ApplicationMain.config = { build : "661", company : "Sylvio Sell - maitag", file : "ExampleBunnysGPU", fps : 60, name : "peote_view", orientation : "", packageName : "de.peote.view", version : "0.1.5", windows : [{ antialiasing : 4, background : 16777215, borderless : false, depthBuffer : true, display : 0, fullscreen : false, hardware : true, height : 0, parameters : "{}", resizable : true, stencilBuffer : false, title : "peote_view", vsync : true, width : 0, x : null, y : null}]};
 };
 ApplicationMain.start = function() {
 	var result = ApplicationMain.app.exec();
 };
 var lime = {};
 lime.AssetLibrary = function() {
-	this.onChange = new lime.app.Event$1();
+	this.onChange = new lime.app.Event_Void_Void();
 };
 $hxClasses["lime.AssetLibrary"] = lime.AssetLibrary;
 lime.AssetLibrary.__name__ = true;
@@ -352,7 +352,7 @@ lime.app.IModule.prototype = {
 	__class__: lime.app.IModule
 };
 lime.app.Module = function() {
-	this.onExit = new lime.app.Event$10();
+	this.onExit = new lime.app.Event_Int_Void();
 };
 $hxClasses["lime.app.Module"] = lime.app.Module;
 lime.app.Module.__name__ = true;
@@ -435,7 +435,7 @@ lime.app.Module.prototype = {
 	,__class__: lime.app.Module
 };
 lime.app.Application = function() {
-	this.onUpdate = new lime.app.Event$10();
+	this.onUpdate = new lime.app.Event_Int_Void();
 	lime.app.Module.call(this);
 	if(lime.app.Application.current == null) lime.app.Application.current = this;
 	this.modules = new Array();
@@ -1059,8 +1059,8 @@ Example.prototype = $extend(lime.app.Application.prototype,{
 		this.peoteView.programCache.loadShaderSrc(0,"assets/lyapunov_01.frag","");
 		this.peoteView.texturecache.setImage(0,"assets/peote_font_white.png",512,512);
 		this.peoteView.texturecache.setImage(1,"assets/peote_tiles.png",512,512);
-		this.peoteView.setDisplaylist({ displaylist : 0, type : 8, max_elements : 100, max_programs : 10, buffer_segment_size : 1000, x : 150, y : 50, w : 1000, h : 1000, z : 0, enable : true});
-		this.peoteView.setDisplaylist({ displaylist : 1, type : 1, max_elements : 1000, max_programs : 10, buffer_segment_size : 1000, x : 100, y : 70, w : 350, h : 150, z : 1, renderBackground : true, r : 0.1, g : 0.5, b : 0.8, a : 0.8, enable : true});
+		this.peoteView.setDisplaylist({ displaylist : 0, type : 8, elements : 100, programs : 10, segments : 10, x : 150, y : 50, w : 1000, h : 1000, z : 0, enable : true});
+		this.peoteView.setDisplaylist({ displaylist : 1, type : 1, elements : 1000, programs : 10, segments : 10, x : 100, y : 70, w : 350, h : 150, z : 1, renderBackground : true, r : 0.1, g : 0.5, b : 0.8, a : 0.8, enable : true});
 		this.peoteView.setElementDefaults({ displaylist : 0, z : 1, image : 1, tile : 2});
 		this.peoteView.setElement({ element : 0, x : -50000, y : -50000, w : 100000, h : 100000, tw : 10000000, th : 10000000, program : 0});
 		this.peoteView.setElement({ element : 1, image : 0, tile : 65, x : 211, y : 0, w : 222, h : 222, rgba : Math.floor(Math.random() * 256) << 24 | Math.floor(Math.random() * 256) << 16 | Math.floor(Math.random() * 256) << 8 | Math.floor(Math.random() * 256)});
@@ -1130,12 +1130,12 @@ ExampleBunnysGPU.prototype = $extend(Example.prototype,{
 		this.peoteView.programCache.loadShaderSrc(1,"","");
 		this.peoteView.texturecache.setImage(0,"assets/peote_tiles_flowers_alpha.png",512,512);
 		this.peoteView.texturecache.setImage(1,"assets/peote_font_white.png",512,512);
-		this.peoteView.setDisplaylist({ displaylist : 0, type : 25, enable : true, max_elements : this.max_bunnys, max_programs : 1, buffer_segment_size : this.max_bunnys, z : 0});
-		this.peoteView.setDisplaylist({ displaylist : 1, type : 8, enable : true, max_elements : 8, max_programs : 1, buffer_segment_size : 8, x : 310, y : 4, w : 1, h : 1, renderBackground : true, a : 0.8, r : 0.3, g : 0.2, z : 1});
-		this.peoteView.setDisplaylist({ displaylist : 2, type : 8, enable : true, max_elements : 7, max_programs : 1, buffer_segment_size : 7, x : 190, y : 4, w : 1, h : 1, renderBackground : true, a : 0.75, r : 0.25, z : 1});
-		this.peoteView.setDisplaylist({ displaylist : 3, type : 8, enable : true, max_elements : 33, max_programs : 1, buffer_segment_size : 33, x : 8, y : 34, w : 1, h : 1, renderBackground : true, a : 0.75, r : 0.2, z : 1});
-		this.peoteView.setDisplaylist({ displaylist : 4, type : 8, enable : true, max_elements : 200, max_programs : 1, buffer_segment_size : 200, x : 460, y : 0, w : 1, h : 1, renderBackground : true, a : 0.8, r : 0.25, z : 1});
-		this.peoteView.setDisplaylist({ displaylist : 5, type : 8, enable : true, max_elements : 12, max_programs : 1, buffer_segment_size : 12, x : 8, y : 4, w : 1, h : 1, renderBackground : true, a : 0.75, r : 0.25, z : 1});
+		this.peoteView.setDisplaylist({ displaylist : 0, type : 25, enable : true, elements : this.max_bunnys, z : 0});
+		this.peoteView.setDisplaylist({ displaylist : 1, type : 8, enable : true, elements : 8, x : 310, y : 4, w : 1, h : 1, renderBackground : true, a : 0.8, r : 0.3, g : 0.2, z : 1});
+		this.peoteView.setDisplaylist({ displaylist : 2, type : 8, enable : true, elements : 7, x : 190, y : 4, w : 1, h : 1, renderBackground : true, a : 0.75, r : 0.25, z : 1});
+		this.peoteView.setDisplaylist({ displaylist : 3, type : 8, enable : true, elements : 33, x : 8, y : 34, w : 1, h : 1, renderBackground : true, a : 0.75, r : 0.2, z : 1});
+		this.peoteView.setDisplaylist({ displaylist : 4, type : 8, enable : true, elements : 200, x : 460, y : 0, w : 1, h : 1, renderBackground : true, a : 0.8, r : 0.25, z : 1});
+		this.peoteView.setDisplaylist({ displaylist : 5, type : 8, enable : true, elements : 12, x : 8, y : 4, w : 1, h : 1, renderBackground : true, a : 0.75, r : 0.25, z : 1});
 		this.spawn_x = Math.floor(this.width / 2);
 		this.spawn_y = Math.floor(this.height / 2);
 		this.updateMaxSpawn();
@@ -1282,7 +1282,7 @@ ExampleBunnysGPU.prototype = $extend(Example.prototype,{
 		var py = 0;
 		var xmax = 0;
 		var _g1 = 0;
-		var _g = this.peoteView.getDisplaylist({ displaylist : d}).max_elements;
+		var _g = this.peoteView.getDisplaylist({ displaylist : d}).elements;
 		while(_g1 < _g) {
 			var i = _g1++;
 			if(i < s.length) letter = HxOverrides.cca(s,i); else letter = 0;
@@ -2117,18 +2117,18 @@ de.peote.view.displaylist.Displaylist = function(param,programCache,texturecache
 	this.x = 0;
 	this.next = this;
 	this.prev = this;
-	this.max_elements = 0;
 	this.type = 0;
 	this.texturecache = texturecache;
 	this.programCache = programCache;
 	this.type = param.type;
-	this.max_elements = param.max_elements;
+	if(param.elements != null) this.elements = param.elements; else this.elements = 1;
+	if(param.programs != null) this.programs = param.programs; else this.programs = 1;
+	this.segments = Math.floor(Math.max(param.segments != null?param.segments:1,this.programs));
 	if(param.z != null) this.z = param.z; else this.z = 0;
 	var this1;
-	this1 = new Array(param.max_elements);
+	this1 = new Array(this.elements);
 	this.element = this1;
-	haxe.Log.trace("max_segments: " + (Math.floor(this.max_elements / param.buffer_segment_size) + param.max_programs),{ fileName : "Displaylist.hx", lineNumber : 99, className : "de.peote.view.displaylist.Displaylist", methodName : "new"});
-	this.buffer = new de.peote.view.Buffer(param.buffer_segment_size,Math.floor(this.max_elements / param.buffer_segment_size) + param.max_programs);
+	this.buffer = new de.peote.view.Buffer(Math.floor(this.elements / this.segments),this.segments);
 	this.elemBuff = js.Boot.__cast(new de.peote.view.displaylist.Displaylist.BUFFER(this.type,this.buffer) , de.peote.view.element.I_ElementBuffer);
 	programCache.addDisplaylist(this.type,this.elemBuff);
 };
@@ -2213,18 +2213,18 @@ de.peote.view.displaylist.Displaylist_de_peote_view_element_ElementAnim_de_peote
 	this.x = 0;
 	this.next = this;
 	this.prev = this;
-	this.max_elements = 0;
 	this.type = 0;
 	this.texturecache = texturecache;
 	this.programCache = programCache;
 	this.type = param.type;
-	this.max_elements = param.max_elements;
+	if(param.elements != null) this.elements = param.elements; else this.elements = 1;
+	if(param.programs != null) this.programs = param.programs; else this.programs = 1;
+	this.segments = Math.floor(Math.max(param.segments != null?param.segments:1,this.programs));
 	if(param.z != null) this.z = param.z; else this.z = 0;
 	var this1;
-	this1 = new Array(param.max_elements);
+	this1 = new Array(this.elements);
 	this.element = this1;
-	haxe.Log.trace("max_segments: " + (Math.floor(this.max_elements / param.buffer_segment_size) + param.max_programs),{ fileName : "Displaylist.hx", lineNumber : 99, className : "de.peote.view.displaylist.Displaylist", methodName : "new"});
-	this.buffer = new de.peote.view.Buffer(param.buffer_segment_size,Math.floor(this.max_elements / param.buffer_segment_size) + param.max_programs);
+	this.buffer = new de.peote.view.Buffer(Math.floor(this.elements / this.segments),this.segments);
 	this.elemBuff = js.Boot.__cast(new de.peote.view.element.ElementAnimBuffer(this.type,this.buffer) , de.peote.view.element.I_ElementBuffer);
 	programCache.addDisplaylist(this.type,this.elemBuff);
 };
@@ -2309,18 +2309,18 @@ de.peote.view.displaylist.Displaylist_de_peote_view_element_ElementSimple_de_peo
 	this.x = 0;
 	this.next = this;
 	this.prev = this;
-	this.max_elements = 0;
 	this.type = 0;
 	this.texturecache = texturecache;
 	this.programCache = programCache;
 	this.type = param.type;
-	this.max_elements = param.max_elements;
+	if(param.elements != null) this.elements = param.elements; else this.elements = 1;
+	if(param.programs != null) this.programs = param.programs; else this.programs = 1;
+	this.segments = Math.floor(Math.max(param.segments != null?param.segments:1,this.programs));
 	if(param.z != null) this.z = param.z; else this.z = 0;
 	var this1;
-	this1 = new Array(param.max_elements);
+	this1 = new Array(this.elements);
 	this.element = this1;
-	haxe.Log.trace("max_segments: " + (Math.floor(this.max_elements / param.buffer_segment_size) + param.max_programs),{ fileName : "Displaylist.hx", lineNumber : 99, className : "de.peote.view.displaylist.Displaylist", methodName : "new"});
-	this.buffer = new de.peote.view.Buffer(param.buffer_segment_size,Math.floor(this.max_elements / param.buffer_segment_size) + param.max_programs);
+	this.buffer = new de.peote.view.Buffer(Math.floor(this.elements / this.segments),this.segments);
 	this.elemBuff = js.Boot.__cast(new de.peote.view.element.ElementSimpleBuffer(this.type,this.buffer) , de.peote.view.element.I_ElementBuffer);
 	programCache.addDisplaylist(this.type,this.elemBuff);
 };
@@ -5277,14 +5277,14 @@ lime.AssetCache.prototype = {
 	}
 	,__class__: lime.AssetCache
 };
-lime.app.Event$1 = function() {
+lime.app.Event_Void_Void = function() {
 	this.listeners = new Array();
 	this.priorities = new Array();
 	this.repeat = new Array();
 };
-$hxClasses["lime.app.Event$1"] = lime.app.Event$1;
-lime.app.Event$1.__name__ = true;
-lime.app.Event$1.prototype = {
+$hxClasses["lime.app.Event_Void_Void"] = lime.app.Event_Void_Void;
+lime.app.Event_Void_Void.__name__ = true;
+lime.app.Event_Void_Void.prototype = {
 	add: function(listener,once,priority) {
 		if(priority == null) priority = 0;
 		if(once == null) once = false;
@@ -5330,7 +5330,7 @@ lime.app.Event$1.prototype = {
 			if(!repeat[i]) this.remove(listeners[i]); else i++;
 		}
 	}
-	,__class__: lime.app.Event$1
+	,__class__: lime.app.Event_Void_Void
 };
 lime.Assets = function() { };
 $hxClasses["lime.Assets"] = lime.Assets;
@@ -5486,7 +5486,6 @@ lime.Assets.isLocal = function(id,type,useCache) {
 };
 lime.Assets.isValidAudio = function(buffer) {
 	return buffer != null;
-	return true;
 };
 lime.Assets.isValidImage = function(buffer) {
 	return true;
@@ -6241,14 +6240,14 @@ lime.app.Event.prototype = {
 	}
 	,__class__: lime.app.Event
 };
-lime.app.Event$0 = function() {
+lime.app.Event_Dynamic_Void = function() {
 	this.listeners = new Array();
 	this.priorities = new Array();
 	this.repeat = new Array();
 };
-$hxClasses["lime.app.Event$0"] = lime.app.Event$0;
-lime.app.Event$0.__name__ = true;
-lime.app.Event$0.prototype = {
+$hxClasses["lime.app.Event_Dynamic_Void"] = lime.app.Event_Dynamic_Void;
+lime.app.Event_Dynamic_Void.__name__ = true;
+lime.app.Event_Dynamic_Void.prototype = {
 	add: function(listener,once,priority) {
 		if(priority == null) priority = 0;
 		if(once == null) once = false;
@@ -6294,236 +6293,16 @@ lime.app.Event$0.prototype = {
 			if(!repeat[i]) this.remove(listeners[i]); else i++;
 		}
 	}
-	,__class__: lime.app.Event$0
+	,__class__: lime.app.Event_Dynamic_Void
 };
-lime.app.Event$10 = function() {
+lime.app.Event_Float_Float_Int_Void = function() {
 	this.listeners = new Array();
 	this.priorities = new Array();
 	this.repeat = new Array();
 };
-$hxClasses["lime.app.Event$10"] = lime.app.Event$10;
-lime.app.Event$10.__name__ = true;
-lime.app.Event$10.prototype = {
-	add: function(listener,once,priority) {
-		if(priority == null) priority = 0;
-		if(once == null) once = false;
-		var _g1 = 0;
-		var _g = this.priorities.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			if(priority > this.priorities[i]) {
-				this.listeners.splice(i,0,listener);
-				this.priorities.splice(i,0,priority);
-				this.repeat.splice(i,0,!once);
-				return;
-			}
-		}
-		this.listeners.push(listener);
-		this.priorities.push(priority);
-		this.repeat.push(!once);
-	}
-	,has: function(listener) {
-		var _g = 0;
-		var _g1 = this.listeners;
-		while(_g < _g1.length) {
-			var l = _g1[_g];
-			++_g;
-			if(Reflect.compareMethods(l,listener)) return true;
-		}
-		return false;
-	}
-	,remove: function(listener) {
-		var i = this.listeners.length;
-		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
-			this.listeners.splice(i,1);
-			this.priorities.splice(i,1);
-			this.repeat.splice(i,1);
-		}
-	}
-	,dispatch: function(a) {
-		var listeners = this.listeners;
-		var repeat = this.repeat;
-		var i = 0;
-		while(i < listeners.length) {
-			listeners[i](a);
-			if(!repeat[i]) this.remove(listeners[i]); else i++;
-		}
-	}
-	,__class__: lime.app.Event$10
-};
-lime.app.Event$11 = function() {
-	this.listeners = new Array();
-	this.priorities = new Array();
-	this.repeat = new Array();
-};
-$hxClasses["lime.app.Event$11"] = lime.app.Event$11;
-lime.app.Event$11.__name__ = true;
-lime.app.Event$11.prototype = {
-	add: function(listener,once,priority) {
-		if(priority == null) priority = 0;
-		if(once == null) once = false;
-		var _g1 = 0;
-		var _g = this.priorities.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			if(priority > this.priorities[i]) {
-				this.listeners.splice(i,0,listener);
-				this.priorities.splice(i,0,priority);
-				this.repeat.splice(i,0,!once);
-				return;
-			}
-		}
-		this.listeners.push(listener);
-		this.priorities.push(priority);
-		this.repeat.push(!once);
-	}
-	,has: function(listener) {
-		var _g = 0;
-		var _g1 = this.listeners;
-		while(_g < _g1.length) {
-			var l = _g1[_g];
-			++_g;
-			if(Reflect.compareMethods(l,listener)) return true;
-		}
-		return false;
-	}
-	,remove: function(listener) {
-		var i = this.listeners.length;
-		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
-			this.listeners.splice(i,1);
-			this.priorities.splice(i,1);
-			this.repeat.splice(i,1);
-		}
-	}
-	,dispatch: function(a) {
-		var listeners = this.listeners;
-		var repeat = this.repeat;
-		var i = 0;
-		while(i < listeners.length) {
-			listeners[i](a);
-			if(!repeat[i]) this.remove(listeners[i]); else i++;
-		}
-	}
-	,__class__: lime.app.Event$11
-};
-lime.app.Event$12 = function() {
-	this.listeners = new Array();
-	this.priorities = new Array();
-	this.repeat = new Array();
-};
-$hxClasses["lime.app.Event$12"] = lime.app.Event$12;
-lime.app.Event$12.__name__ = true;
-lime.app.Event$12.prototype = {
-	add: function(listener,once,priority) {
-		if(priority == null) priority = 0;
-		if(once == null) once = false;
-		var _g1 = 0;
-		var _g = this.priorities.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			if(priority > this.priorities[i]) {
-				this.listeners.splice(i,0,listener);
-				this.priorities.splice(i,0,priority);
-				this.repeat.splice(i,0,!once);
-				return;
-			}
-		}
-		this.listeners.push(listener);
-		this.priorities.push(priority);
-		this.repeat.push(!once);
-	}
-	,has: function(listener) {
-		var _g = 0;
-		var _g1 = this.listeners;
-		while(_g < _g1.length) {
-			var l = _g1[_g];
-			++_g;
-			if(Reflect.compareMethods(l,listener)) return true;
-		}
-		return false;
-	}
-	,remove: function(listener) {
-		var i = this.listeners.length;
-		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
-			this.listeners.splice(i,1);
-			this.priorities.splice(i,1);
-			this.repeat.splice(i,1);
-		}
-	}
-	,dispatch: function(a,a1) {
-		var listeners = this.listeners;
-		var repeat = this.repeat;
-		var i = 0;
-		while(i < listeners.length) {
-			listeners[i](a,a1);
-			if(!repeat[i]) this.remove(listeners[i]); else i++;
-		}
-	}
-	,__class__: lime.app.Event$12
-};
-lime.app.Event$13 = function() {
-	this.listeners = new Array();
-	this.priorities = new Array();
-	this.repeat = new Array();
-};
-$hxClasses["lime.app.Event$13"] = lime.app.Event$13;
-lime.app.Event$13.__name__ = true;
-lime.app.Event$13.prototype = {
-	add: function(listener,once,priority) {
-		if(priority == null) priority = 0;
-		if(once == null) once = false;
-		var _g1 = 0;
-		var _g = this.priorities.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			if(priority > this.priorities[i]) {
-				this.listeners.splice(i,0,listener);
-				this.priorities.splice(i,0,priority);
-				this.repeat.splice(i,0,!once);
-				return;
-			}
-		}
-		this.listeners.push(listener);
-		this.priorities.push(priority);
-		this.repeat.push(!once);
-	}
-	,has: function(listener) {
-		var _g = 0;
-		var _g1 = this.listeners;
-		while(_g < _g1.length) {
-			var l = _g1[_g];
-			++_g;
-			if(Reflect.compareMethods(l,listener)) return true;
-		}
-		return false;
-	}
-	,remove: function(listener) {
-		var i = this.listeners.length;
-		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
-			this.listeners.splice(i,1);
-			this.priorities.splice(i,1);
-			this.repeat.splice(i,1);
-		}
-	}
-	,dispatch: function(a) {
-		var listeners = this.listeners;
-		var repeat = this.repeat;
-		var i = 0;
-		while(i < listeners.length) {
-			listeners[i](a);
-			if(!repeat[i]) this.remove(listeners[i]); else i++;
-		}
-	}
-	,__class__: lime.app.Event$13
-};
-lime.app.Event$14 = function() {
-	this.listeners = new Array();
-	this.priorities = new Array();
-	this.repeat = new Array();
-};
-$hxClasses["lime.app.Event$14"] = lime.app.Event$14;
-lime.app.Event$14.__name__ = true;
-lime.app.Event$14.prototype = {
+$hxClasses["lime.app.Event_Float_Float_Int_Void"] = lime.app.Event_Float_Float_Int_Void;
+lime.app.Event_Float_Float_Int_Void.__name__ = true;
+lime.app.Event_Float_Float_Int_Void.prototype = {
 	add: function(listener,once,priority) {
 		if(priority == null) priority = 0;
 		if(once == null) once = false;
@@ -6569,16 +6348,16 @@ lime.app.Event$14.prototype = {
 			if(!repeat[i]) this.remove(listeners[i]); else i++;
 		}
 	}
-	,__class__: lime.app.Event$14
+	,__class__: lime.app.Event_Float_Float_Int_Void
 };
-lime.app.Event$15 = function() {
+lime.app.Event_Float_Float_Void = function() {
 	this.listeners = new Array();
 	this.priorities = new Array();
 	this.repeat = new Array();
 };
-$hxClasses["lime.app.Event$15"] = lime.app.Event$15;
-lime.app.Event$15.__name__ = true;
-lime.app.Event$15.prototype = {
+$hxClasses["lime.app.Event_Float_Float_Void"] = lime.app.Event_Float_Float_Void;
+lime.app.Event_Float_Float_Void.__name__ = true;
+lime.app.Event_Float_Float_Void.prototype = {
 	add: function(listener,once,priority) {
 		if(priority == null) priority = 0;
 		if(once == null) once = false;
@@ -6624,16 +6403,71 @@ lime.app.Event$15.prototype = {
 			if(!repeat[i]) this.remove(listeners[i]); else i++;
 		}
 	}
-	,__class__: lime.app.Event$15
+	,__class__: lime.app.Event_Float_Float_Void
 };
-lime.app.Event$16 = function() {
+lime.app.Event_Int_Int_Void = function() {
 	this.listeners = new Array();
 	this.priorities = new Array();
 	this.repeat = new Array();
 };
-$hxClasses["lime.app.Event$16"] = lime.app.Event$16;
-lime.app.Event$16.__name__ = true;
-lime.app.Event$16.prototype = {
+$hxClasses["lime.app.Event_Int_Int_Void"] = lime.app.Event_Int_Int_Void;
+lime.app.Event_Int_Int_Void.__name__ = true;
+lime.app.Event_Int_Int_Void.prototype = {
+	add: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		var _g1 = 0;
+		var _g = this.priorities.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(priority > this.priorities[i]) {
+				this.listeners.splice(i,0,listener);
+				this.priorities.splice(i,0,priority);
+				this.repeat.splice(i,0,!once);
+				return;
+			}
+		}
+		this.listeners.push(listener);
+		this.priorities.push(priority);
+		this.repeat.push(!once);
+	}
+	,has: function(listener) {
+		var _g = 0;
+		var _g1 = this.listeners;
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			if(Reflect.compareMethods(l,listener)) return true;
+		}
+		return false;
+	}
+	,remove: function(listener) {
+		var i = this.listeners.length;
+		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
+			this.listeners.splice(i,1);
+			this.priorities.splice(i,1);
+			this.repeat.splice(i,1);
+		}
+	}
+	,dispatch: function(a,a1) {
+		var listeners = this.listeners;
+		var repeat = this.repeat;
+		var i = 0;
+		while(i < listeners.length) {
+			listeners[i](a,a1);
+			if(!repeat[i]) this.remove(listeners[i]); else i++;
+		}
+	}
+	,__class__: lime.app.Event_Int_Int_Void
+};
+lime.app.Event_Int_Void = function() {
+	this.listeners = new Array();
+	this.priorities = new Array();
+	this.repeat = new Array();
+};
+$hxClasses["lime.app.Event_Int_Void"] = lime.app.Event_Int_Void;
+lime.app.Event_Int_Void.__name__ = true;
+lime.app.Event_Int_Void.prototype = {
 	add: function(listener,once,priority) {
 		if(priority == null) priority = 0;
 		if(once == null) once = false;
@@ -6679,126 +6513,16 @@ lime.app.Event$16.prototype = {
 			if(!repeat[i]) this.remove(listeners[i]); else i++;
 		}
 	}
-	,__class__: lime.app.Event$16
+	,__class__: lime.app.Event_Int_Void
 };
-lime.app.Event$17 = function() {
+lime.app.Event_String_Int_Int_Void = function() {
 	this.listeners = new Array();
 	this.priorities = new Array();
 	this.repeat = new Array();
 };
-$hxClasses["lime.app.Event$17"] = lime.app.Event$17;
-lime.app.Event$17.__name__ = true;
-lime.app.Event$17.prototype = {
-	add: function(listener,once,priority) {
-		if(priority == null) priority = 0;
-		if(once == null) once = false;
-		var _g1 = 0;
-		var _g = this.priorities.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			if(priority > this.priorities[i]) {
-				this.listeners.splice(i,0,listener);
-				this.priorities.splice(i,0,priority);
-				this.repeat.splice(i,0,!once);
-				return;
-			}
-		}
-		this.listeners.push(listener);
-		this.priorities.push(priority);
-		this.repeat.push(!once);
-	}
-	,has: function(listener) {
-		var _g = 0;
-		var _g1 = this.listeners;
-		while(_g < _g1.length) {
-			var l = _g1[_g];
-			++_g;
-			if(Reflect.compareMethods(l,listener)) return true;
-		}
-		return false;
-	}
-	,remove: function(listener) {
-		var i = this.listeners.length;
-		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
-			this.listeners.splice(i,1);
-			this.priorities.splice(i,1);
-			this.repeat.splice(i,1);
-		}
-	}
-	,dispatch: function(a,a1) {
-		var listeners = this.listeners;
-		var repeat = this.repeat;
-		var i = 0;
-		while(i < listeners.length) {
-			listeners[i](a,a1);
-			if(!repeat[i]) this.remove(listeners[i]); else i++;
-		}
-	}
-	,__class__: lime.app.Event$17
-};
-lime.app.Event$2 = function() {
-	this.listeners = new Array();
-	this.priorities = new Array();
-	this.repeat = new Array();
-};
-$hxClasses["lime.app.Event$2"] = lime.app.Event$2;
-lime.app.Event$2.__name__ = true;
-lime.app.Event$2.prototype = {
-	add: function(listener,once,priority) {
-		if(priority == null) priority = 0;
-		if(once == null) once = false;
-		var _g1 = 0;
-		var _g = this.priorities.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			if(priority > this.priorities[i]) {
-				this.listeners.splice(i,0,listener);
-				this.priorities.splice(i,0,priority);
-				this.repeat.splice(i,0,!once);
-				return;
-			}
-		}
-		this.listeners.push(listener);
-		this.priorities.push(priority);
-		this.repeat.push(!once);
-	}
-	,has: function(listener) {
-		var _g = 0;
-		var _g1 = this.listeners;
-		while(_g < _g1.length) {
-			var l = _g1[_g];
-			++_g;
-			if(Reflect.compareMethods(l,listener)) return true;
-		}
-		return false;
-	}
-	,remove: function(listener) {
-		var i = this.listeners.length;
-		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
-			this.listeners.splice(i,1);
-			this.priorities.splice(i,1);
-			this.repeat.splice(i,1);
-		}
-	}
-	,dispatch: function(a,a1) {
-		var listeners = this.listeners;
-		var repeat = this.repeat;
-		var i = 0;
-		while(i < listeners.length) {
-			listeners[i](a,a1);
-			if(!repeat[i]) this.remove(listeners[i]); else i++;
-		}
-	}
-	,__class__: lime.app.Event$2
-};
-lime.app.Event$3 = function() {
-	this.listeners = new Array();
-	this.priorities = new Array();
-	this.repeat = new Array();
-};
-$hxClasses["lime.app.Event$3"] = lime.app.Event$3;
-lime.app.Event$3.__name__ = true;
-lime.app.Event$3.prototype = {
+$hxClasses["lime.app.Event_String_Int_Int_Void"] = lime.app.Event_String_Int_Int_Void;
+lime.app.Event_String_Int_Int_Void.__name__ = true;
+lime.app.Event_String_Int_Int_Void.prototype = {
 	add: function(listener,once,priority) {
 		if(priority == null) priority = 0;
 		if(once == null) once = false;
@@ -6844,16 +6568,16 @@ lime.app.Event$3.prototype = {
 			if(!repeat[i]) this.remove(listeners[i]); else i++;
 		}
 	}
-	,__class__: lime.app.Event$3
+	,__class__: lime.app.Event_String_Int_Int_Void
 };
-lime.app.Event$4 = function() {
+lime.app.Event_String_Void = function() {
 	this.listeners = new Array();
 	this.priorities = new Array();
 	this.repeat = new Array();
 };
-$hxClasses["lime.app.Event$4"] = lime.app.Event$4;
-lime.app.Event$4.__name__ = true;
-lime.app.Event$4.prototype = {
+$hxClasses["lime.app.Event_String_Void"] = lime.app.Event_String_Void;
+lime.app.Event_String_Void.__name__ = true;
+lime.app.Event_String_Void.prototype = {
 	add: function(listener,once,priority) {
 		if(priority == null) priority = 0;
 		if(once == null) once = false;
@@ -6890,25 +6614,25 @@ lime.app.Event$4.prototype = {
 			this.repeat.splice(i,1);
 		}
 	}
-	,dispatch: function(a,a1) {
+	,dispatch: function(a) {
 		var listeners = this.listeners;
 		var repeat = this.repeat;
 		var i = 0;
 		while(i < listeners.length) {
-			listeners[i](a,a1);
+			listeners[i](a);
 			if(!repeat[i]) this.remove(listeners[i]); else i++;
 		}
 	}
-	,__class__: lime.app.Event$4
+	,__class__: lime.app.Event_String_Void
 };
-lime.app.Event$5 = function() {
+lime.app.Event_lime_graphics_RenderContext_Void = function() {
 	this.listeners = new Array();
 	this.priorities = new Array();
 	this.repeat = new Array();
 };
-$hxClasses["lime.app.Event$5"] = lime.app.Event$5;
-lime.app.Event$5.__name__ = true;
-lime.app.Event$5.prototype = {
+$hxClasses["lime.app.Event_lime_graphics_RenderContext_Void"] = lime.app.Event_lime_graphics_RenderContext_Void;
+lime.app.Event_lime_graphics_RenderContext_Void.__name__ = true;
+lime.app.Event_lime_graphics_RenderContext_Void.prototype = {
 	add: function(listener,once,priority) {
 		if(priority == null) priority = 0;
 		if(once == null) once = false;
@@ -6945,25 +6669,25 @@ lime.app.Event$5.prototype = {
 			this.repeat.splice(i,1);
 		}
 	}
-	,dispatch: function(a,a1) {
+	,dispatch: function(a) {
 		var listeners = this.listeners;
 		var repeat = this.repeat;
 		var i = 0;
 		while(i < listeners.length) {
-			listeners[i](a,a1);
+			listeners[i](a);
 			if(!repeat[i]) this.remove(listeners[i]); else i++;
 		}
 	}
-	,__class__: lime.app.Event$5
+	,__class__: lime.app.Event_lime_graphics_RenderContext_Void
 };
-lime.app.Event$6 = function() {
+lime.app.Event_lime_net_URLLoader_Int_Int_Void = function() {
 	this.listeners = new Array();
 	this.priorities = new Array();
 	this.repeat = new Array();
 };
-$hxClasses["lime.app.Event$6"] = lime.app.Event$6;
-lime.app.Event$6.__name__ = true;
-lime.app.Event$6.prototype = {
+$hxClasses["lime.app.Event_lime_net_URLLoader_Int_Int_Void"] = lime.app.Event_lime_net_URLLoader_Int_Int_Void;
+lime.app.Event_lime_net_URLLoader_Int_Int_Void.__name__ = true;
+lime.app.Event_lime_net_URLLoader_Int_Int_Void.prototype = {
 	add: function(listener,once,priority) {
 		if(priority == null) priority = 0;
 		if(once == null) once = false;
@@ -7009,16 +6733,126 @@ lime.app.Event$6.prototype = {
 			if(!repeat[i]) this.remove(listeners[i]); else i++;
 		}
 	}
-	,__class__: lime.app.Event$6
+	,__class__: lime.app.Event_lime_net_URLLoader_Int_Int_Void
 };
-lime.app.Event$7 = function() {
+lime.app.Event_lime_net_URLLoader_Int_Void = function() {
 	this.listeners = new Array();
 	this.priorities = new Array();
 	this.repeat = new Array();
 };
-$hxClasses["lime.app.Event$7"] = lime.app.Event$7;
-lime.app.Event$7.__name__ = true;
-lime.app.Event$7.prototype = {
+$hxClasses["lime.app.Event_lime_net_URLLoader_Int_Void"] = lime.app.Event_lime_net_URLLoader_Int_Void;
+lime.app.Event_lime_net_URLLoader_Int_Void.__name__ = true;
+lime.app.Event_lime_net_URLLoader_Int_Void.prototype = {
+	add: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		var _g1 = 0;
+		var _g = this.priorities.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(priority > this.priorities[i]) {
+				this.listeners.splice(i,0,listener);
+				this.priorities.splice(i,0,priority);
+				this.repeat.splice(i,0,!once);
+				return;
+			}
+		}
+		this.listeners.push(listener);
+		this.priorities.push(priority);
+		this.repeat.push(!once);
+	}
+	,has: function(listener) {
+		var _g = 0;
+		var _g1 = this.listeners;
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			if(Reflect.compareMethods(l,listener)) return true;
+		}
+		return false;
+	}
+	,remove: function(listener) {
+		var i = this.listeners.length;
+		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
+			this.listeners.splice(i,1);
+			this.priorities.splice(i,1);
+			this.repeat.splice(i,1);
+		}
+	}
+	,dispatch: function(a,a1) {
+		var listeners = this.listeners;
+		var repeat = this.repeat;
+		var i = 0;
+		while(i < listeners.length) {
+			listeners[i](a,a1);
+			if(!repeat[i]) this.remove(listeners[i]); else i++;
+		}
+	}
+	,__class__: lime.app.Event_lime_net_URLLoader_Int_Void
+};
+lime.app.Event_lime_net_URLLoader_String_Void = function() {
+	this.listeners = new Array();
+	this.priorities = new Array();
+	this.repeat = new Array();
+};
+$hxClasses["lime.app.Event_lime_net_URLLoader_String_Void"] = lime.app.Event_lime_net_URLLoader_String_Void;
+lime.app.Event_lime_net_URLLoader_String_Void.__name__ = true;
+lime.app.Event_lime_net_URLLoader_String_Void.prototype = {
+	add: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		var _g1 = 0;
+		var _g = this.priorities.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(priority > this.priorities[i]) {
+				this.listeners.splice(i,0,listener);
+				this.priorities.splice(i,0,priority);
+				this.repeat.splice(i,0,!once);
+				return;
+			}
+		}
+		this.listeners.push(listener);
+		this.priorities.push(priority);
+		this.repeat.push(!once);
+	}
+	,has: function(listener) {
+		var _g = 0;
+		var _g1 = this.listeners;
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			if(Reflect.compareMethods(l,listener)) return true;
+		}
+		return false;
+	}
+	,remove: function(listener) {
+		var i = this.listeners.length;
+		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
+			this.listeners.splice(i,1);
+			this.priorities.splice(i,1);
+			this.repeat.splice(i,1);
+		}
+	}
+	,dispatch: function(a,a1) {
+		var listeners = this.listeners;
+		var repeat = this.repeat;
+		var i = 0;
+		while(i < listeners.length) {
+			listeners[i](a,a1);
+			if(!repeat[i]) this.remove(listeners[i]); else i++;
+		}
+	}
+	,__class__: lime.app.Event_lime_net_URLLoader_String_Void
+};
+lime.app.Event_lime_net_URLLoader_Void = function() {
+	this.listeners = new Array();
+	this.priorities = new Array();
+	this.repeat = new Array();
+};
+$hxClasses["lime.app.Event_lime_net_URLLoader_Void"] = lime.app.Event_lime_net_URLLoader_Void;
+lime.app.Event_lime_net_URLLoader_Void.__name__ = true;
+lime.app.Event_lime_net_URLLoader_Void.prototype = {
 	add: function(listener,once,priority) {
 		if(priority == null) priority = 0;
 		if(once == null) once = false;
@@ -7064,16 +6898,71 @@ lime.app.Event$7.prototype = {
 			if(!repeat[i]) this.remove(listeners[i]); else i++;
 		}
 	}
-	,__class__: lime.app.Event$7
+	,__class__: lime.app.Event_lime_net_URLLoader_Void
 };
-lime.app.Event$8 = function() {
+lime.app.Event_lime_ui_GamepadAxis_Float_Void = function() {
 	this.listeners = new Array();
 	this.priorities = new Array();
 	this.repeat = new Array();
 };
-$hxClasses["lime.app.Event$8"] = lime.app.Event$8;
-lime.app.Event$8.__name__ = true;
-lime.app.Event$8.prototype = {
+$hxClasses["lime.app.Event_lime_ui_GamepadAxis_Float_Void"] = lime.app.Event_lime_ui_GamepadAxis_Float_Void;
+lime.app.Event_lime_ui_GamepadAxis_Float_Void.__name__ = true;
+lime.app.Event_lime_ui_GamepadAxis_Float_Void.prototype = {
+	add: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		var _g1 = 0;
+		var _g = this.priorities.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(priority > this.priorities[i]) {
+				this.listeners.splice(i,0,listener);
+				this.priorities.splice(i,0,priority);
+				this.repeat.splice(i,0,!once);
+				return;
+			}
+		}
+		this.listeners.push(listener);
+		this.priorities.push(priority);
+		this.repeat.push(!once);
+	}
+	,has: function(listener) {
+		var _g = 0;
+		var _g1 = this.listeners;
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			if(Reflect.compareMethods(l,listener)) return true;
+		}
+		return false;
+	}
+	,remove: function(listener) {
+		var i = this.listeners.length;
+		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
+			this.listeners.splice(i,1);
+			this.priorities.splice(i,1);
+			this.repeat.splice(i,1);
+		}
+	}
+	,dispatch: function(a,a1) {
+		var listeners = this.listeners;
+		var repeat = this.repeat;
+		var i = 0;
+		while(i < listeners.length) {
+			listeners[i](a,a1);
+			if(!repeat[i]) this.remove(listeners[i]); else i++;
+		}
+	}
+	,__class__: lime.app.Event_lime_ui_GamepadAxis_Float_Void
+};
+lime.app.Event_lime_ui_GamepadButton_Void = function() {
+	this.listeners = new Array();
+	this.priorities = new Array();
+	this.repeat = new Array();
+};
+$hxClasses["lime.app.Event_lime_ui_GamepadButton_Void"] = lime.app.Event_lime_ui_GamepadButton_Void;
+lime.app.Event_lime_ui_GamepadButton_Void.__name__ = true;
+lime.app.Event_lime_ui_GamepadButton_Void.prototype = {
 	add: function(listener,once,priority) {
 		if(priority == null) priority = 0;
 		if(once == null) once = false;
@@ -7119,16 +7008,16 @@ lime.app.Event$8.prototype = {
 			if(!repeat[i]) this.remove(listeners[i]); else i++;
 		}
 	}
-	,__class__: lime.app.Event$8
+	,__class__: lime.app.Event_lime_ui_GamepadButton_Void
 };
-lime.app.Event$9 = function() {
+lime.app.Event_lime_ui_Gamepad_Void = function() {
 	this.listeners = new Array();
 	this.priorities = new Array();
 	this.repeat = new Array();
 };
-$hxClasses["lime.app.Event$9"] = lime.app.Event$9;
-lime.app.Event$9.__name__ = true;
-lime.app.Event$9.prototype = {
+$hxClasses["lime.app.Event_lime_ui_Gamepad_Void"] = lime.app.Event_lime_ui_Gamepad_Void;
+lime.app.Event_lime_ui_Gamepad_Void.__name__ = true;
+lime.app.Event_lime_ui_Gamepad_Void.prototype = {
 	add: function(listener,once,priority) {
 		if(priority == null) priority = 0;
 		if(once == null) once = false;
@@ -7174,7 +7063,117 @@ lime.app.Event$9.prototype = {
 			if(!repeat[i]) this.remove(listeners[i]); else i++;
 		}
 	}
-	,__class__: lime.app.Event$9
+	,__class__: lime.app.Event_lime_ui_Gamepad_Void
+};
+lime.app.Event_lime_ui_KeyCode_lime_ui_KeyModifier_Void = function() {
+	this.listeners = new Array();
+	this.priorities = new Array();
+	this.repeat = new Array();
+};
+$hxClasses["lime.app.Event_lime_ui_KeyCode_lime_ui_KeyModifier_Void"] = lime.app.Event_lime_ui_KeyCode_lime_ui_KeyModifier_Void;
+lime.app.Event_lime_ui_KeyCode_lime_ui_KeyModifier_Void.__name__ = true;
+lime.app.Event_lime_ui_KeyCode_lime_ui_KeyModifier_Void.prototype = {
+	add: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		var _g1 = 0;
+		var _g = this.priorities.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(priority > this.priorities[i]) {
+				this.listeners.splice(i,0,listener);
+				this.priorities.splice(i,0,priority);
+				this.repeat.splice(i,0,!once);
+				return;
+			}
+		}
+		this.listeners.push(listener);
+		this.priorities.push(priority);
+		this.repeat.push(!once);
+	}
+	,has: function(listener) {
+		var _g = 0;
+		var _g1 = this.listeners;
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			if(Reflect.compareMethods(l,listener)) return true;
+		}
+		return false;
+	}
+	,remove: function(listener) {
+		var i = this.listeners.length;
+		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
+			this.listeners.splice(i,1);
+			this.priorities.splice(i,1);
+			this.repeat.splice(i,1);
+		}
+	}
+	,dispatch: function(a,a1) {
+		var listeners = this.listeners;
+		var repeat = this.repeat;
+		var i = 0;
+		while(i < listeners.length) {
+			listeners[i](a,a1);
+			if(!repeat[i]) this.remove(listeners[i]); else i++;
+		}
+	}
+	,__class__: lime.app.Event_lime_ui_KeyCode_lime_ui_KeyModifier_Void
+};
+lime.app.Event_lime_ui_Touch_Void = function() {
+	this.listeners = new Array();
+	this.priorities = new Array();
+	this.repeat = new Array();
+};
+$hxClasses["lime.app.Event_lime_ui_Touch_Void"] = lime.app.Event_lime_ui_Touch_Void;
+lime.app.Event_lime_ui_Touch_Void.__name__ = true;
+lime.app.Event_lime_ui_Touch_Void.prototype = {
+	add: function(listener,once,priority) {
+		if(priority == null) priority = 0;
+		if(once == null) once = false;
+		var _g1 = 0;
+		var _g = this.priorities.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(priority > this.priorities[i]) {
+				this.listeners.splice(i,0,listener);
+				this.priorities.splice(i,0,priority);
+				this.repeat.splice(i,0,!once);
+				return;
+			}
+		}
+		this.listeners.push(listener);
+		this.priorities.push(priority);
+		this.repeat.push(!once);
+	}
+	,has: function(listener) {
+		var _g = 0;
+		var _g1 = this.listeners;
+		while(_g < _g1.length) {
+			var l = _g1[_g];
+			++_g;
+			if(Reflect.compareMethods(l,listener)) return true;
+		}
+		return false;
+	}
+	,remove: function(listener) {
+		var i = this.listeners.length;
+		while(--i >= 0) if(Reflect.compareMethods(this.listeners[i],listener)) {
+			this.listeners.splice(i,1);
+			this.priorities.splice(i,1);
+			this.repeat.splice(i,1);
+		}
+	}
+	,dispatch: function(a) {
+		var listeners = this.listeners;
+		var repeat = this.repeat;
+		var i = 0;
+		while(i < listeners.length) {
+			listeners[i](a);
+			if(!repeat[i]) this.remove(listeners[i]); else i++;
+		}
+	}
+	,__class__: lime.app.Event_lime_ui_Touch_Void
 };
 lime.app.Future = function(work) {
 	if(work != null) {
@@ -7256,8 +7255,8 @@ lime.app.Future.prototype = {
 lime.app.Preloader = function() {
 	this.total = 0;
 	this.loaded = 0;
-	this.onProgress = new lime.app.Event$5();
-	this.onComplete = new lime.app.Event$1();
+	this.onProgress = new lime.app.Event_Int_Int_Void();
+	this.onComplete = new lime.app.Event_Void_Void();
 	this.onProgress.add($bind(this,this.update));
 };
 $hxClasses["lime.app.Preloader"] = lime.app.Preloader;
@@ -7918,7 +7917,7 @@ lime.audio.AudioManager.suspend = function() {
 lime.audio.AudioSource = function(buffer,offset,length,loops) {
 	if(loops == null) loops = 0;
 	if(offset == null) offset = 0;
-	this.onComplete = new lime.app.Event$1();
+	this.onComplete = new lime.app.Event_Void_Void();
 	this.buffer = buffer;
 	this.offset = offset;
 	if(length != null && length != 0) this.set_length(length);
@@ -8736,9 +8735,7 @@ lime.graphics.Image.fromBase64 = function(base64,type,onload) {
 };
 lime.graphics.Image.fromBitmapData = function(bitmapData) {
 	if(bitmapData == null) return null;
-	var buffer = new lime.graphics.ImageBuffer(null,bitmapData.width,bitmapData.height);
-	buffer.__srcBitmapData = bitmapData;
-	return new lime.graphics.Image(buffer);
+	return bitmapData.image;
 };
 lime.graphics.Image.fromBytes = function(bytes,onload) {
 	if(bytes == null) return null;
@@ -8800,9 +8797,7 @@ lime.graphics.Image.prototype = {
 		if(this.buffer != null) {
 			if(this.type == lime.graphics.ImageType.CANVAS && this.buffer.__srcImage == null) {
 				lime.graphics.utils.ImageCanvasUtil.convertToCanvas(this);
-				lime.graphics.utils.ImageCanvasUtil.sync(this);
-				this.buffer.data = null;
-				this.buffer.__srcImageData = null;
+				lime.graphics.utils.ImageCanvasUtil.sync(this,true);
 			}
 			var image = new lime.graphics.Image(this.buffer.clone(),this.offsetX,this.offsetY,this.width,this.height,null,this.type);
 			image.dirty = this.dirty;
@@ -8944,6 +8939,7 @@ lime.graphics.Image.prototype = {
 			break;
 		case 1:
 			lime.graphics.utils.ImageCanvasUtil.convertToData(this);
+			if(this.buffer.data.length == 0) return;
 			lime.graphics.utils.ImageDataUtil.fillRect(this,rect,color,format);
 			break;
 		case 2:
@@ -9385,7 +9381,7 @@ lime.graphics.Image.prototype = {
 	,get_data: function() {
 		if(this.buffer.data == null && this.buffer.width > 0 && this.buffer.height > 0) {
 			lime.graphics.utils.ImageCanvasUtil.convertToCanvas(this);
-			lime.graphics.utils.ImageCanvasUtil.sync(this);
+			lime.graphics.utils.ImageCanvasUtil.sync(this,false);
 			lime.graphics.utils.ImageCanvasUtil.createImageData(this);
 		}
 		return this.buffer.data;
@@ -9573,9 +9569,9 @@ lime.graphics.RenderContext.CUSTOM = function(data) { var $x = ["CUSTOM",6,data]
 lime.graphics.RenderContext.NONE = ["NONE",7];
 lime.graphics.RenderContext.NONE.__enum__ = lime.graphics.RenderContext;
 lime.graphics.Renderer = function(window) {
-	this.onRender = new lime.app.Event$1();
-	this.onContextRestored = new lime.app.Event$9();
-	this.onContextLost = new lime.app.Event$1();
+	this.onRender = new lime.app.Event_Void_Void();
+	this.onContextRestored = new lime.app.Event_lime_graphics_RenderContext_Void();
+	this.onContextLost = new lime.app.Event_Void_Void();
 	this.window = window;
 	this.backend = new lime._backend.html5.HTML5Renderer(this);
 	this.window.renderer = this;
@@ -9623,9 +9619,7 @@ lime.graphics.cairo.Cairo.get_versionString = function() {
 	return "";
 };
 lime.graphics.cairo.Cairo.prototype = {
-	recreate: function(surface) {
-	}
-	,arc: function(xc,yc,radius,angle1,angle2) {
+	arc: function(xc,yc,radius,angle1,angle2) {
 	}
 	,arcNegative: function(xc,yc,radius,angle1,angle2) {
 	}
@@ -9640,8 +9634,6 @@ lime.graphics.cairo.Cairo.prototype = {
 	,copyPage: function() {
 	}
 	,curveTo: function(x1,y1,x2,y2,x3,y3) {
-	}
-	,destroy: function() {
 	}
 	,fill: function() {
 	}
@@ -9683,9 +9675,9 @@ lime.graphics.cairo.Cairo.prototype = {
 	}
 	,pushGroupWithContent: function(content) {
 	}
-	,rectangle: function(x,y,width,height) {
+	,recreate: function(surface) {
 	}
-	,reference: function() {
+	,rectangle: function(x,y,width,height) {
 	}
 	,relCurveTo: function(dx1,dy1,dx2,dy2,dx3,dy3) {
 	}
@@ -9806,9 +9798,6 @@ lime.graphics.cairo.Cairo.prototype = {
 	,set_operator: function(value) {
 		return value;
 	}
-	,get_referenceCount: function() {
-		return 0;
-	}
 	,get_source: function() {
 		return 0;
 	}
@@ -9851,17 +9840,9 @@ lime.graphics.cairo._CairoFontFace.CairoFontFace_Impl_ = function() { };
 $hxClasses["lime.graphics.cairo._CairoFontFace.CairoFontFace_Impl_"] = lime.graphics.cairo._CairoFontFace.CairoFontFace_Impl_;
 lime.graphics.cairo._CairoFontFace.CairoFontFace_Impl_.__name__ = true;
 lime.graphics.cairo._CairoFontFace.CairoFontFace_Impl_._new = function() {
-	return 0;
-};
-lime.graphics.cairo._CairoFontFace.CairoFontFace_Impl_.destroy = function(this1) {
-};
-lime.graphics.cairo._CairoFontFace.CairoFontFace_Impl_.reference = function(this1) {
-	return this1;
+	return null;
 };
 lime.graphics.cairo._CairoFontFace.CairoFontFace_Impl_.status = function(this1) {
-	return 0;
-};
-lime.graphics.cairo._CairoFontFace.CairoFontFace_Impl_.get_referenceCount = function(this1) {
 	return 0;
 };
 lime.graphics.cairo._CairoFontOptions = {};
@@ -9869,9 +9850,7 @@ lime.graphics.cairo._CairoFontOptions.CairoFontOptions_Impl_ = function() { };
 $hxClasses["lime.graphics.cairo._CairoFontOptions.CairoFontOptions_Impl_"] = lime.graphics.cairo._CairoFontOptions.CairoFontOptions_Impl_;
 lime.graphics.cairo._CairoFontOptions.CairoFontOptions_Impl_.__name__ = true;
 lime.graphics.cairo._CairoFontOptions.CairoFontOptions_Impl_._new = function() {
-	return 0;
-};
-lime.graphics.cairo._CairoFontOptions.CairoFontOptions_Impl_.destroy = function(this1) {
+	return null;
 };
 lime.graphics.cairo._CairoFontOptions.CairoFontOptions_Impl_.get_antialias = function(this1) {
 	return 0;
@@ -9943,8 +9922,6 @@ lime.graphics.cairo._CairoPattern.CairoPattern_Impl_.createRGB = function(r,g,b)
 lime.graphics.cairo._CairoPattern.CairoPattern_Impl_.createRGBA = function(r,g,b,a) {
 	return 0;
 };
-lime.graphics.cairo._CairoPattern.CairoPattern_Impl_.destroy = function(this1) {
-};
 lime.graphics.cairo._CairoPattern.CairoPattern_Impl_.get_colorStopCount = function(this1) {
 	return 0;
 };
@@ -9978,8 +9955,6 @@ lime.graphics.cairo._CairoSurface = {};
 lime.graphics.cairo._CairoSurface.CairoSurface_Impl_ = function() { };
 $hxClasses["lime.graphics.cairo._CairoSurface.CairoSurface_Impl_"] = lime.graphics.cairo._CairoSurface.CairoSurface_Impl_;
 lime.graphics.cairo._CairoSurface.CairoSurface_Impl_.__name__ = true;
-lime.graphics.cairo._CairoSurface.CairoSurface_Impl_.destroy = function(this1) {
-};
 lime.graphics.cairo._CairoSurface.CairoSurface_Impl_.flush = function(this1) {
 };
 lime.graphics.console = {};
@@ -10659,7 +10634,7 @@ lime.graphics.utils.ImageCanvasUtil.convertToCanvas = function(image) {
 lime.graphics.utils.ImageCanvasUtil.convertToData = function(image) {
 	if(image.buffer.data == null) {
 		lime.graphics.utils.ImageCanvasUtil.convertToCanvas(image);
-		lime.graphics.utils.ImageCanvasUtil.sync(image);
+		lime.graphics.utils.ImageCanvasUtil.sync(image,false);
 		lime.graphics.utils.ImageCanvasUtil.createImageData(image);
 		image.buffer.__srcCanvas = null;
 		image.buffer.__srcContext = null;
@@ -10674,18 +10649,18 @@ lime.graphics.utils.ImageCanvasUtil.copyChannel = function(image,sourceImage,sou
 };
 lime.graphics.utils.ImageCanvasUtil.copyPixels = function(image,sourceImage,sourceRect,destPoint,alphaImage,alphaPoint,mergeAlpha) {
 	if(mergeAlpha == null) mergeAlpha = false;
-	if(destPoint == null || destPoint.x >= image.width || destPoint.y >= image.height || sourceRect == null || sourceRect.width <= 0 || sourceRect.height <= 0) return;
+	if(destPoint == null || destPoint.x >= image.width || destPoint.y >= image.height || sourceRect == null || sourceRect.width < 1 || sourceRect.height < 1) return;
 	if(alphaImage != null && alphaImage.get_transparent()) {
 		if(alphaPoint == null) alphaPoint = new lime.math.Vector2();
 		var tempData = image.clone();
 		tempData.copyChannel(alphaImage,new lime.math.Rectangle(alphaPoint.x,alphaPoint.y,sourceRect.width,sourceRect.height),new lime.math.Vector2(sourceRect.x,sourceRect.y),lime.graphics.ImageChannel.ALPHA,lime.graphics.ImageChannel.ALPHA);
 		sourceImage = tempData;
 	}
-	lime.graphics.utils.ImageCanvasUtil.sync(image);
+	lime.graphics.utils.ImageCanvasUtil.sync(image,true);
 	if(!mergeAlpha) {
 		if(image.get_transparent() && sourceImage.get_transparent()) image.buffer.__srcContext.clearRect(destPoint.x + image.offsetX,destPoint.y + image.offsetY,sourceRect.width + image.offsetX,sourceRect.height + image.offsetY);
 	}
-	lime.graphics.utils.ImageCanvasUtil.sync(sourceImage);
+	lime.graphics.utils.ImageCanvasUtil.sync(sourceImage,false);
 	if(sourceImage.buffer.get_src() != null) image.buffer.__srcContext.drawImage(sourceImage.buffer.get_src(),sourceRect.x + sourceImage.offsetX | 0,sourceRect.y + sourceImage.offsetY | 0,sourceRect.width | 0,sourceRect.height | 0,destPoint.x + image.offsetX | 0,destPoint.y + image.offsetY | 0,sourceRect.width | 0,sourceRect.height | 0);
 };
 lime.graphics.utils.ImageCanvasUtil.createCanvas = function(image,width,height) {
@@ -10718,7 +10693,7 @@ lime.graphics.utils.ImageCanvasUtil.createImageData = function(image) {
 };
 lime.graphics.utils.ImageCanvasUtil.fillRect = function(image,rect,color,format) {
 	lime.graphics.utils.ImageCanvasUtil.convertToCanvas(image);
-	lime.graphics.utils.ImageCanvasUtil.sync(image);
+	lime.graphics.utils.ImageCanvasUtil.sync(image,true);
 	if(rect.x == 0 && rect.y == 0 && rect.width == image.width && rect.height == image.height) {
 		if(image.get_transparent() && (color & 255) == 0) {
 			image.buffer.__srcCanvas.width = image.buffer.width;
@@ -10776,7 +10751,7 @@ lime.graphics.utils.ImageCanvasUtil.resize = function(image,newWidth,newHeight) 
 		lime.graphics.utils.ImageCanvasUtil.createCanvas(image,newWidth,newHeight);
 		buffer.__srcContext.drawImage(buffer.get_src(),0,0,newWidth,newHeight);
 	} else {
-		lime.graphics.utils.ImageCanvasUtil.sync(image);
+		lime.graphics.utils.ImageCanvasUtil.sync(image,true);
 		var sourceCanvas = buffer.__srcCanvas;
 		buffer.__srcCanvas = null;
 		lime.graphics.utils.ImageCanvasUtil.createCanvas(image,newWidth,newHeight);
@@ -10786,7 +10761,7 @@ lime.graphics.utils.ImageCanvasUtil.resize = function(image,newWidth,newHeight) 
 lime.graphics.utils.ImageCanvasUtil.scroll = function(image,x,y) {
 	if(x % image.width == 0 && y % image.height == 0) return;
 	lime.graphics.utils.ImageCanvasUtil.convertToCanvas(image);
-	lime.graphics.utils.ImageCanvasUtil.sync(image);
+	lime.graphics.utils.ImageCanvasUtil.sync(image,true);
 	image.buffer.__srcContext.clearRect(x,y,image.width,image.height);
 	image.buffer.__srcContext.drawImage(image.buffer.__srcCanvas,x,y);
 };
@@ -10805,11 +10780,15 @@ lime.graphics.utils.ImageCanvasUtil.setPixels = function(image,rect,byteArray,fo
 	lime.graphics.utils.ImageCanvasUtil.createImageData(image);
 	lime.graphics.utils.ImageDataUtil.setPixels(image,rect,byteArray,format);
 };
-lime.graphics.utils.ImageCanvasUtil.sync = function(image) {
+lime.graphics.utils.ImageCanvasUtil.sync = function(image,clear) {
 	if(image.dirty && image.buffer.__srcImageData != null && image.type != lime.graphics.ImageType.DATA) {
 		image.buffer.__srcContext.putImageData(image.buffer.__srcImageData,0,0);
 		image.buffer.data = null;
 		image.dirty = false;
+	}
+	if(clear) {
+		image.buffer.__srcImageData = null;
+		image.buffer.data = null;
 	}
 };
 lime.graphics.utils.ImageDataUtil = function() { };
@@ -12358,10 +12337,40 @@ lime.graphics.utils.ImageDataUtil.setPixel = function(image,x,y,color,format) {
 	default:
 		pixel = color;
 	}
-	pixel = (pixel >> 24 & 255 & 255) << 24 | (pixel >> 16 & 255 & 255) << 16 | (pixel >> 8 & 255 & 255) << 8 | 255;
-	255;
+	var source = 0;
 	var data = image.buffer.data;
 	var offset = 4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4;
+	switch(image.buffer.format) {
+	case 2:
+		source = (data[offset + 2] & 255) << 24 | (data[offset + 1] & 255) << 16 | (data[offset] & 255) << 8 | data[offset + 3] & 255;
+		break;
+	case 0:
+		source = (data[offset] & 255) << 24 | (data[offset + 1] & 255) << 16 | (data[offset + 2] & 255) << 8 | data[offset + 3] & 255;
+		break;
+	case 1:
+		source = (data[offset + 1] & 255) << 24 | (data[offset + 2] & 255) << 16 | (data[offset + 3] & 255) << 8 | data[offset] & 255;
+		break;
+	}
+	if(image.buffer.premultiplied) {
+		if((source & 255) != 0 && (source & 255) != 255) {
+			lime.math.color._RGBA.RGBA_Impl_.unmult = 255.0 / (source & 255);
+			var r;
+			var idx = Math.round((source >> 24 & 255) * lime.math.color._RGBA.RGBA_Impl_.unmult);
+			r = lime.math.color._RGBA.RGBA_Impl_.__clamp[idx];
+			var g;
+			var idx1 = Math.round((source >> 16 & 255) * lime.math.color._RGBA.RGBA_Impl_.unmult);
+			g = lime.math.color._RGBA.RGBA_Impl_.__clamp[idx1];
+			var b;
+			var idx2 = Math.round((source >> 8 & 255) * lime.math.color._RGBA.RGBA_Impl_.unmult);
+			b = lime.math.color._RGBA.RGBA_Impl_.__clamp[idx2];
+			source = (r & 255) << 24 | (g & 255) << 16 | (b & 255) << 8 | source & 255 & 255;
+		}
+	}
+	var value = source & 255;
+	pixel = (pixel >> 24 & 255 & 255) << 24 | (pixel >> 16 & 255 & 255) << 16 | (pixel >> 8 & 255 & 255) << 8 | value & 255;
+	value;
+	var data1 = image.buffer.data;
+	var offset1 = 4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4;
 	if(image.buffer.premultiplied) {
 		if((pixel & 255) == 0) {
 			if(pixel != 0) pixel = 0;
@@ -12372,22 +12381,22 @@ lime.graphics.utils.ImageDataUtil.setPixel = function(image,x,y,color,format) {
 	}
 	switch(image.buffer.format) {
 	case 2:
-		data[offset] = pixel >> 8 & 255;
-		data[offset + 1] = pixel >> 16 & 255;
-		data[offset + 2] = pixel >> 24 & 255;
-		data[offset + 3] = pixel & 255;
+		data1[offset1] = pixel >> 8 & 255;
+		data1[offset1 + 1] = pixel >> 16 & 255;
+		data1[offset1 + 2] = pixel >> 24 & 255;
+		data1[offset1 + 3] = pixel & 255;
 		break;
 	case 0:
-		data[offset] = pixel >> 24 & 255;
-		data[offset + 1] = pixel >> 16 & 255;
-		data[offset + 2] = pixel >> 8 & 255;
-		data[offset + 3] = pixel & 255;
+		data1[offset1] = pixel >> 24 & 255;
+		data1[offset1 + 1] = pixel >> 16 & 255;
+		data1[offset1 + 2] = pixel >> 8 & 255;
+		data1[offset1 + 3] = pixel & 255;
 		break;
 	case 1:
-		data[offset] = pixel & 255;
-		data[offset + 1] = pixel >> 24 & 255;
-		data[offset + 2] = pixel >> 16 & 255;
-		data[offset + 3] = pixel >> 8 & 255;
+		data1[offset1] = pixel & 255;
+		data1[offset1 + 1] = pixel >> 24 & 255;
+		data1[offset1 + 2] = pixel >> 16 & 255;
+		data1[offset1 + 3] = pixel >> 8 & 255;
 		break;
 	}
 	image.dirty = true;
@@ -13833,12 +13842,12 @@ lime.math.color._RGBA.RGBA_Impl_.set_r = function(this1,value) {
 };
 lime.net = {};
 lime.net.URLLoader = function(request) {
-	this.onSecurityError = new lime.app.Event$17();
-	this.onProgress = new lime.app.Event$14();
-	this.onOpen = new lime.app.Event$16();
-	this.onIOError = new lime.app.Event$17();
-	this.onHTTPStatus = new lime.app.Event$15();
-	this.onComplete = new lime.app.Event$16();
+	this.onSecurityError = new lime.app.Event_lime_net_URLLoader_String_Void();
+	this.onProgress = new lime.app.Event_lime_net_URLLoader_Int_Int_Void();
+	this.onOpen = new lime.app.Event_lime_net_URLLoader_Void();
+	this.onIOError = new lime.app.Event_lime_net_URLLoader_String_Void();
+	this.onHTTPStatus = new lime.app.Event_lime_net_URLLoader_Int_Void();
+	this.onComplete = new lime.app.Event_lime_net_URLLoader_Void();
 	this.bytesLoaded = 0;
 	this.bytesTotal = 0;
 	this.set_dataFormat(lime.net.URLLoaderDataFormat.TEXT);
@@ -14055,6 +14064,54 @@ lime.system.CFFI.__sysName = function() {
 lime.system.CFFI.__tryLoad = function(name,library,func,args) {
 	return null;
 };
+lime.system._CFFIPointer = {};
+lime.system._CFFIPointer.CFFIPointer_Impl_ = function() { };
+$hxClasses["lime.system._CFFIPointer.CFFIPointer_Impl_"] = lime.system._CFFIPointer.CFFIPointer_Impl_;
+lime.system._CFFIPointer.CFFIPointer_Impl_.__name__ = true;
+lime.system._CFFIPointer.CFFIPointer_Impl_._new = function(handle) {
+	return handle;
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.get = function(this1) {
+	if(this1 != null) {
+	}
+	return 0;
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.equals = function(a,b) {
+	return lime.system._CFFIPointer.CFFIPointer_Impl_.get(a) == b;
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.equalsPointer = function(a,b) {
+	return lime.system._CFFIPointer.CFFIPointer_Impl_.get(a) == lime.system._CFFIPointer.CFFIPointer_Impl_.get(b);
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.greaterThan = function(a,b) {
+	return lime.system._CFFIPointer.CFFIPointer_Impl_.get(a) > b;
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.greaterThanPointer = function(a,b) {
+	return lime.system._CFFIPointer.CFFIPointer_Impl_.get(a) > lime.system._CFFIPointer.CFFIPointer_Impl_.get(b);
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.greaterThanOrEqual = function(a,b) {
+	return lime.system._CFFIPointer.CFFIPointer_Impl_.get(a) >= b;
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.greaterThanOrEqualPointer = function(a,b) {
+	return lime.system._CFFIPointer.CFFIPointer_Impl_.get(a) >= lime.system._CFFIPointer.CFFIPointer_Impl_.get(b);
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.lessThan = function(a,b) {
+	return lime.system._CFFIPointer.CFFIPointer_Impl_.get(a) < b;
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.lessThanPointer = function(a,b) {
+	return lime.system._CFFIPointer.CFFIPointer_Impl_.get(a) < lime.system._CFFIPointer.CFFIPointer_Impl_.get(b);
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.lessThanOrEqual = function(a,b) {
+	return lime.system._CFFIPointer.CFFIPointer_Impl_.get(a) <= b;
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.lessThanOrEqualPointer = function(a,b) {
+	return lime.system._CFFIPointer.CFFIPointer_Impl_.get(a) <= lime.system._CFFIPointer.CFFIPointer_Impl_.get(b);
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.notEquals = function(a,b) {
+	return lime.system._CFFIPointer.CFFIPointer_Impl_.get(a) != b;
+};
+lime.system._CFFIPointer.CFFIPointer_Impl_.notEqualsPointer = function(a,b) {
+	return lime.system._CFFIPointer.CFFIPointer_Impl_.get(a) != lime.system._CFFIPointer.CFFIPointer_Impl_.get(b);
+};
 lime.system.Display = function() {
 };
 $hxClasses["lime.system.Display"] = lime.system.Display;
@@ -14157,10 +14214,10 @@ lime.system._System.SystemDirectory_Impl_.__name__ = true;
 lime.system.ThreadPool = function(minThreads,maxThreads) {
 	if(maxThreads == null) maxThreads = 1;
 	if(minThreads == null) minThreads = 0;
-	this.onProgress = new lime.app.Event$0();
-	this.onError = new lime.app.Event$0();
-	this.onComplete = new lime.app.Event$0();
-	this.doWork = new lime.app.Event$0();
+	this.onProgress = new lime.app.Event_Dynamic_Void();
+	this.onError = new lime.app.Event_Dynamic_Void();
+	this.onComplete = new lime.app.Event_Dynamic_Void();
+	this.doWork = new lime.app.Event_Dynamic_Void();
 	this.minThreads = minThreads;
 	this.maxThreads = maxThreads;
 	this.currentThreads = 0;
@@ -14285,10 +14342,10 @@ lime.text.GlyphMetrics.prototype = {
 };
 lime.ui = {};
 lime.ui.Gamepad = function(id) {
-	this.onDisconnect = new lime.app.Event$1();
-	this.onButtonUp = new lime.app.Event$13();
-	this.onButtonDown = new lime.app.Event$13();
-	this.onAxisMove = new lime.app.Event$12();
+	this.onDisconnect = new lime.app.Event_Void_Void();
+	this.onButtonUp = new lime.app.Event_lime_ui_GamepadButton_Void();
+	this.onButtonDown = new lime.app.Event_lime_ui_GamepadButton_Void();
+	this.onAxisMove = new lime.app.Event_lime_ui_GamepadAxis_Float_Void();
 	this.id = id;
 	this.connected = true;
 };
@@ -14447,28 +14504,28 @@ lime.ui.Touch.prototype = {
 	__class__: lime.ui.Touch
 };
 lime.ui.Window = function(config) {
-	this.onTextInput = new lime.app.Event$7();
-	this.onTextEdit = new lime.app.Event$6();
-	this.onRestore = new lime.app.Event$1();
-	this.onResize = new lime.app.Event$5();
-	this.onMove = new lime.app.Event$4();
-	this.onMouseWheel = new lime.app.Event$4();
-	this.onMouseUp = new lime.app.Event$3();
-	this.onMouseMoveRelative = new lime.app.Event$4();
-	this.onMouseMove = new lime.app.Event$4();
-	this.onMouseDown = new lime.app.Event$3();
-	this.onMinimize = new lime.app.Event$1();
-	this.onLeave = new lime.app.Event$1();
-	this.onKeyUp = new lime.app.Event$2();
-	this.onKeyDown = new lime.app.Event$2();
-	this.onFullscreen = new lime.app.Event$1();
-	this.onFocusOut = new lime.app.Event$1();
-	this.onFocusIn = new lime.app.Event$1();
-	this.onEnter = new lime.app.Event$1();
-	this.onDeactivate = new lime.app.Event$1();
-	this.onCreate = new lime.app.Event$1();
-	this.onClose = new lime.app.Event$1();
-	this.onActivate = new lime.app.Event$1();
+	this.onTextInput = new lime.app.Event_String_Void();
+	this.onTextEdit = new lime.app.Event_String_Int_Int_Void();
+	this.onRestore = new lime.app.Event_Void_Void();
+	this.onResize = new lime.app.Event_Int_Int_Void();
+	this.onMove = new lime.app.Event_Float_Float_Void();
+	this.onMouseWheel = new lime.app.Event_Float_Float_Void();
+	this.onMouseUp = new lime.app.Event_Float_Float_Int_Void();
+	this.onMouseMoveRelative = new lime.app.Event_Float_Float_Void();
+	this.onMouseMove = new lime.app.Event_Float_Float_Void();
+	this.onMouseDown = new lime.app.Event_Float_Float_Int_Void();
+	this.onMinimize = new lime.app.Event_Void_Void();
+	this.onLeave = new lime.app.Event_Void_Void();
+	this.onKeyUp = new lime.app.Event_lime_ui_KeyCode_lime_ui_KeyModifier_Void();
+	this.onKeyDown = new lime.app.Event_lime_ui_KeyCode_lime_ui_KeyModifier_Void();
+	this.onFullscreen = new lime.app.Event_Void_Void();
+	this.onFocusOut = new lime.app.Event_Void_Void();
+	this.onFocusIn = new lime.app.Event_Void_Void();
+	this.onEnter = new lime.app.Event_Void_Void();
+	this.onDeactivate = new lime.app.Event_Void_Void();
+	this.onCreate = new lime.app.Event_Void_Void();
+	this.onClose = new lime.app.Event_Void_Void();
+	this.onActivate = new lime.app.Event_Void_Void();
 	this.config = config;
 	this.__width = 0;
 	this.__height = 0;
@@ -15175,7 +15232,7 @@ format.tools.InflateImpl.CODE_LENGTHS_POS = [16,17,18,0,8,7,9,6,10,5,11,4,12,3,1
 js.Boot.__toStr = {}.toString;
 lime.Assets.cache = new lime.AssetCache();
 lime.Assets.libraries = new haxe.ds.StringMap();
-lime.Assets.onChange = new lime.app.Event$1();
+lime.Assets.onChange = new lime.app.Event_Void_Void();
 lime.Assets.initialized = false;
 lime._Assets.AssetType_Impl_.BINARY = "BINARY";
 lime._Assets.AssetType_Impl_.FONT = "FONT";
@@ -15690,6 +15747,7 @@ lime.net._URLRequestMethod.URLRequestMethod_Impl_.HEAD = "HEAD";
 lime.net._URLRequestMethod.URLRequestMethod_Impl_.OPTIONS = "OPTIONS";
 lime.net._URLRequestMethod.URLRequestMethod_Impl_.POST = "POST";
 lime.net._URLRequestMethod.URLRequestMethod_Impl_.PUT = "PUT";
+lime.system.CFFI.lime_cffi_set_finalizer = lime.system.CFFI.load("lime","lime_cffi_set_finalizer",1,false);
 lime.system._System.SystemDirectory_Impl_.APPLICATION = 0;
 lime.system._System.SystemDirectory_Impl_.APPLICATION_STORAGE = 1;
 lime.system._System.SystemDirectory_Impl_.DESKTOP = 2;
@@ -15697,7 +15755,7 @@ lime.system._System.SystemDirectory_Impl_.DOCUMENTS = 3;
 lime.system._System.SystemDirectory_Impl_.FONTS = 4;
 lime.system._System.SystemDirectory_Impl_.USER = 5;
 lime.ui.Gamepad.devices = new haxe.ds.IntMap();
-lime.ui.Gamepad.onConnect = new lime.app.Event$11();
+lime.ui.Gamepad.onConnect = new lime.app.Event_lime_ui_Gamepad_Void();
 lime.ui._GamepadAxis.GamepadAxis_Impl_.LEFT_X = 0;
 lime.ui._GamepadAxis.GamepadAxis_Impl_.LEFT_Y = 1;
 lime.ui._GamepadAxis.GamepadAxis_Impl_.RIGHT_X = 2;
@@ -15970,9 +16028,9 @@ lime.ui._KeyModifier.KeyModifier_Impl_.CTRL = 192;
 lime.ui._KeyModifier.KeyModifier_Impl_.SHIFT = 3;
 lime.ui._KeyModifier.KeyModifier_Impl_.ALT = 768;
 lime.ui._KeyModifier.KeyModifier_Impl_.META = 3072;
-lime.ui.Touch.onEnd = new lime.app.Event$8();
-lime.ui.Touch.onMove = new lime.app.Event$8();
-lime.ui.Touch.onStart = new lime.app.Event$8();
+lime.ui.Touch.onEnd = new lime.app.Event_lime_ui_Touch_Void();
+lime.ui.Touch.onMove = new lime.app.Event_lime_ui_Touch_Void();
+lime.ui.Touch.onStart = new lime.app.Event_lime_ui_Touch_Void();
 lime.utils._ArrayBufferView.TypedArrayType_Impl_.None = 0;
 lime.utils._ArrayBufferView.TypedArrayType_Impl_.Int8 = 1;
 lime.utils._ArrayBufferView.TypedArrayType_Impl_.Int16 = 2;
