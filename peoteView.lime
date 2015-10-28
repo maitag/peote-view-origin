@@ -7,8 +7,9 @@
 	<!--<app main="Example" path="Export" file="Example" />-->
 	<!--<app main="ExampleMassAnim" path="Export" file="ExampleMassAnim" />-->
 	<!--<app main="ExampleBunnys" path="Export" file="ExampleBunnys" />-->
-	<app main="ExampleBunnysGPU" path="Export" file="ExampleBunnysGPU" />
+	<!--<app main="ExampleBunnysGPU" path="Export" file="ExampleBunnysGPU" />-->
 	<!--<app main="ExampleRandomLetter" path="Export" file="ExampleRandomLetter" />-->
+	<app main="ExamplePicking" path="Export" file="ExamplePicking" />
 	<!--<app main="ExampleTesting" path="Export" file="ExampleTesting" />-->
 	
 	<window fps="60" width="800" height="600" vsync="true" antialiasing="4" resizable="true" hardware="true" allow-shaders="true" require-shaders="true" depth-buffer="true" stencil-buffer="false" />
@@ -21,8 +22,11 @@
 	
 	<!-- -Dwebgl -debug -->
 	
-	<!-- if dead code elimination problem: -->
-	<!-- <haxeflag name="-dce" value="no" if="cpp" /> -->
+	<!-- if dead code elimination, problem with displaylist-element-templating and casts with CPP -->
+	<haxeflag name="-dce" value="no" if="cpp" />
+	
+	<!-- cool... full dead code elimination on html5 reduces js-code (default dce is std only) -->
+	<haxeflag name="-dce" value="full" if="html5" />
 	
 	<assets path="Assets" rename="assets" exclude="lime.svg" />
 	<icon path="Assets/lime.svg" />

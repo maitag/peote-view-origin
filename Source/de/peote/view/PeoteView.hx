@@ -29,6 +29,9 @@
 package de.peote.view;
 
 import de.peote.view.texture.TextureCache;
+import de.peote.view.texture.Texture;
+import lime.utils.UInt8Array;
+
 import haxe.ds.Vector;
 import haxe.Timer;
 import lime.graphics.opengl.GLUniformLocation;
@@ -37,6 +40,8 @@ import lime.math.Matrix3;
 import lime.graphics.opengl.GL;
 import lime.graphics.opengl.GLBuffer;
 import lime.graphics.opengl.GLProgram;
+import lime.graphics.opengl.GLTexture;
+import lime.graphics.opengl.GLFramebuffer;
 import lime.utils.GLUtils;
 
 import de.peote.view.displaylist.*;
@@ -57,7 +62,7 @@ class PeoteView
 			h:100,
 			z:0,
 			
-			rgba:0x55555555,
+			rgba:0xffffffff,
 			
 			rotation:0,
 			pivotX:0,
@@ -76,15 +81,21 @@ class PeoteView
 	var	background_aPosition:Int;
 	var background_uRGBA:GLUniformLocation;
 	
+	var framebuffer:GLFramebuffer;
+	var fb_texture:GLTexture;
+	var picked:UInt8Array;
+
+	
 	public function new(max_displaylists:Int = 10, max_programs:Int = 100) // TODO -> PARAM 
-	{	/*
+	{	
 		trace("GL.MAX_TEXTURE_IMAGE_UNITS:" + GL.getParameter(GL.MAX_TEXTURE_IMAGE_UNITS));
 		trace("GL.MAX_VERTEX_TEXTURE_IMAGE_UNITS:" + GL.getParameter(GL.MAX_VERTEX_TEXTURE_IMAGE_UNITS));
 		trace("GL.MAX_TEXTURE_SIZE:" + GL.getParameter(GL.MAX_TEXTURE_SIZE));
 		trace("GL.MAX_VERTEX_ATTRIBS:" + GL.getParameter(GL.MAX_VERTEX_ATTRIBS));
 		trace("GL.MAX_VERTEX_UNIFORM_VECTORS:" + GL.getParameter(GL.MAX_VERTEX_UNIFORM_VECTORS));
 		trace("GL.MAX_FRAGMENT_UNIFORM_VECTORS:" + GL.getParameter(GL.MAX_FRAGMENT_UNIFORM_VECTORS));
-		*/
+		
+		
 		// TODO:  img_width, img_height, max_images
 		texturecache = new TextureCache(512, 512, 64);
 
@@ -96,6 +107,9 @@ class PeoteView
 		
 		// for background-GL-quad
 		createBackgroundBuffer();
+		
+		// init array for get picked pixels
+		picked = new UInt8Array(4); // TODO: for multitouch maybe pick hole view (width*height*4)
 	}
 	
 	// ------------------------------------------------------------------------------------------------------
@@ -218,7 +232,7 @@ class PeoteView
 	// ------------------------------------------------------------------------------------------------------
 	// -------------------------------- IMAGE ---------------------------------------------------------------
 	// ------------------------------------------------------------------------------------------------------
-	public inline function setImage(image_nr:Int, imageUrl:String, w:Int, h:Int):Void
+	public inline function setImage(image_nr:Int, imageUrl:String="", w:Int=0, h:Int=0):Void
 	{
 		texturecache.setImage(image_nr, imageUrl, w ,h);
 	}
@@ -289,13 +303,22 @@ class PeoteView
 		GL.scissor(0, 0, width, height);
 		GL.enable(GL.SCISSOR_TEST);	
 		
-		GL.clearColor(0.0, 0.0, 0.0, 1.0); //GL.clearDepth(0.0);
+		GL.clearColor(0.0, 0.0, 0.0, 1.0); // TODO: maybe alpha to 0.0 ?
+		//GL.clearDepth(0.0);
 		GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT); //GL.STENCIL_BUFFER_BIT
 		
 		// loop over enabled displaylists
 		dl = startDisplaylist;
 		while (dl != null)
 		{	
+			// TODO: render to framebuffer
+			/* if (dl.renderToImage) {
+				//GL.activeTexture (GL.TEXTURE0); // 1 ????????????
+				GL.bindTexture (GL.TEXTURE_2D, texture);
+				GL.bindFramebuffer(GL.FRAMEBUFFER, dl.framebuffer);
+			}*/
+			// width und height und scissor-werte entsprechend der texture im texturecache (fuer image-slot) setzen
+
 			// max/min values, optimize
 			var sx:Int = (dl.x + xOffset) * zoom;
 			var sy:Int = (dl.y + yOffset) * zoom;
@@ -309,10 +332,7 @@ class PeoteView
 			if (sy < 0) sh += sy;
 			sy = Std.int( Math.max(0, Math.min(height, sy)) );
 			sh = Std.int( Math.max(0, Math.min(height-sy, sh)) );
-			
-			
-			//sh -= dl.y;
-			
+
 			GL.scissor(sx, height-sh-sy, sw, sh);
 			
 			// TODO TODO -> depends on blend (and hardware diff webgl/cpp)
@@ -324,9 +344,9 @@ class PeoteView
 			//GL.enable(GL.TEXTURE_2D);
 			
 			// alpha blend -> TODO
-			if (dl.blend != 0) {
+			//if (dl.blend != 0) {
 				GL.enable(GL.BLEND); GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
-			} else {GL.disable(GL.BLEND);}
+			//} else {GL.disable(GL.BLEND);}
 			
 			
 			// Texture
@@ -366,13 +386,14 @@ class PeoteView
 			
 			// next displaylist in loop
 			dl = (dl.next != startDisplaylist) ? dl.next : null;
-			
 		} // end loop displaylists
 		
 		// --- clean Buffers
 		GL.bindBuffer (GL.ARRAY_BUFFER, null);
 		GL.bindTexture (GL.TEXTURE_2D, null);
 		GL.useProgram (null);
+		
+		// if (dl.renderToImage) GL.bindFramebuffer(GL.FRAMEBUFFER, null);
 	}
 	
 	// ------------------------------------------------------------------------------
@@ -440,6 +461,121 @@ class PeoteView
 
 	}
 	
+	// ------------------------ OPENGL PICKING -----------------------------------------
+	
+	public inline function createFramebuffer():Void
+	{
+		fb_texture = Texture.createEmptyTexture(1, 1);
+
+		framebuffer = GL.createFramebuffer();
+		GL.bindFramebuffer(GL.FRAMEBUFFER, framebuffer);
+		
+		GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, fb_texture, 0);
+		
+		GL.bindFramebuffer(GL.FRAMEBUFFER, null);
+		
+	}
+	
+	public inline function pick(displaylist_nr:Int, time:Float, mouseX:Int, mouseY:Int, zoom:Int, xOffset:Int = 0, yOffset:Int = 0):Int
+	{	
+		var dl:I_Displaylist = displaylist.get(displaylist_nr);
+		
+		var width:Int = 1;
+		var height:Int = 1;
+		xOffset -= Math.round(mouseX / zoom);
+		yOffset -= Math.round(mouseY / zoom);
+		
+		// render to framebuffer
+		GL.bindFramebuffer(GL.FRAMEBUFFER, framebuffer);
+
+		GL.viewport (0, 0, width, height);
+		
+		GL.scissor(0, 0, width, height);
+		GL.enable(GL.SCISSOR_TEST);	
+		
+		GL.clearColor(0.0, 0.0, 0.0, 0.0); //GL.clearDepth(0.0);
+		GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT); //GL.STENCIL_BUFFER_BIT
+		
+		// TODO: if (dl.picking)
+		
+		// max/min values, optimize
+		var sx:Int = (dl.x + xOffset) * zoom;
+		var sy:Int = (dl.y + yOffset) * zoom;
+		var sw:Int = (dl.w != 0) ? dl.w * zoom: width * zoom;
+		var sh:Int = (dl.h != 0) ? dl.h * zoom: height * zoom;
+		
+		if (sx < 0) sw += sx;
+		sx = Std.int( Math.max(0, Math.min(width, sx)) );
+		sw = Std.int( Math.max(0, Math.min(width-sx, sw)) );
+		
+		if (sy < 0) sh += sy;
+		sy = Std.int( Math.max(0, Math.min(height, sy)) );
+		sh = Std.int( Math.max(0, Math.min(height-sy, sh)) );
+
+		GL.scissor(sx, height-sh-sy, sw, sh);
+		
+		// TODO TODO -> depends on blend (and hardware diff webgl/cpp)
+		//if (dl.blend == 0) {
+			GL.enable(GL.DEPTH_TEST); GL.depthFunc(GL.LEQUAL); //GL.depthFunc(GL.LESS);
+		//} else {GL.disable(GL.DEPTH_TEST);}
+		// TODO: alpha (+ filter?) je nach dl
+		
+		//GL.enable(GL.TEXTURE_2D);
+		
+		// disable alpha blend for picking
+		GL.disable(GL.BLEND);
+		
+		
+		// Texture
+		GL.activeTexture (GL.TEXTURE0);
+		GL.bindTexture (GL.TEXTURE_2D, texturecache.texture);
+		
+		GL.clear( GL.DEPTH_BUFFER_BIT );
+
+		GL.bindBuffer(GL.ARRAY_BUFFER, dl.elemBuff.glBuff); // nur EIN BUffer zum knechten (pro displaylist)
+		dl.elemBuff.setVertexAttributes(); // VertexAttributes
+		
+		var len:Int = dl.buffer.activeProgram.length; //hoisted (performance)
+		for (i in 0...len)
+		{
+			ap = dl.buffer.activeProgram[i];
+			GL.useProgram(ap.program.glProgram); // ------ Shader Program
+			
+			// UNIFORMS
+			GL.uniform1i (ap.program.uniforms.get(Program.uIMAGE), 0);
+			GL.uniform2f (ap.program.uniforms.get(Program.uMOUSE),(mouseX / width) * 2 - 1,(mouseY / height) * 2 - 1); // remap from -1 to +1
+			//GL.uniform2f (ap.program.uniforms.get(Program.uRESOLUTION), (dl.w!=0) ? dl.w : width, (dl.h != 0) ? dl.h : height);
+			GL.uniform2f (ap.program.uniforms.get(Program.uRESOLUTION), width, height);
+			GL.uniform1f (ap.program.uniforms.get(Program.uTIME),  time);
+			GL.uniform1f (ap.program.uniforms.get(Program.uZOOM),  dl.zoom * zoom);
+			GL.uniform2f (ap.program.uniforms.get(Program.uDELTA), dl.x + dl.xOffset + xOffset, dl.y + dl.yOffset + yOffset);
+			//draw
+			GL.drawArrays (GL.TRIANGLE_STRIP,  ap.start,  ap.size);
+			
+		}
+		
+		dl.elemBuff.disableVertexAttributes();
+		
+		
+		// --- clean Buffers
+		GL.bindBuffer (GL.ARRAY_BUFFER, null);
+		GL.bindTexture (GL.TEXTURE_2D, null);
+		GL.useProgram (null);
+		
+		
+		// read picked pixel (element-number)
+		if (GL.checkFramebufferStatus(GL.FRAMEBUFFER) == GL.FRAMEBUFFER_COMPLETE) {
+			
+			//GL.bindTexture (GL.TEXTURE_2D, fb_texture);
+			GL.readPixels(0, 0, width, height, GL.RGBA, GL.UNSIGNED_BYTE, picked);
+			//GL.bindTexture (GL.TEXTURE_2D, null);
+		}
+		else trace("PICKING ERROR: Framebuffer not complete");
+		
+		GL.bindFramebuffer(GL.FRAMEBUFFER, null);
+		
+		return(picked[3]<<24 | picked[2]<<16 | picked[1]<<8 | picked[0] - 1);
+	}
 	
 	
 	

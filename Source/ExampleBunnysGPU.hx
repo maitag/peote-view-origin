@@ -49,7 +49,7 @@ class ExampleBunnysGPU extends Example
 	var bunny_nr:Int = 0;
 	var max_bunnys:Int = 1000000;
 	var max_spawn:Int = 100;
-	var spawn_time:Int = 1;
+	var spawn_time:Int = 10;
 	var tile_size:Int = 8;
 	var pause:Bool = false;
 	
@@ -72,7 +72,7 @@ class ExampleBunnysGPU extends Example
 		peoteView.setImage(1, "assets/peote_font_white.png", 512, 512);
 		
 		// Displaylist for massive tiles
-		peoteView.setDisplaylist( { displaylist:0, type:DType.ANIM|DType.RGBA|DType.ROTATION, //|DType.ZINDEX
+		peoteView.setDisplaylist( { displaylist:0, type:DType.ANIM|DType.RGBA|DType.ROTATION,
 			enable:true,
 			elements:max_bunnys,
 			//w:1920, h:1280,

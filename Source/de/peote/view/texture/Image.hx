@@ -43,7 +43,7 @@ import js.html.ImageElement;
 class Image
 {
 	
-	public var url:String;
+	public var url:String="";
 	public var holePos:Int = -1;
 	
 	public var used:Int = 0;

@@ -62,6 +62,8 @@ class ElementAnimBuffer implements I_ElementBuffer
 	var PIVOT_OFFSET:Int;
 	var TIME_OFFSET:Int;
 	var TEX_OFFSET:Int;
+	var PICKING_OFFSET:Int;
+	
 	var VERTEX_STRIDE:Int;
 
 	var fill_bytes:Bool = false;
@@ -72,7 +74,9 @@ class ElementAnimBuffer implements I_ElementBuffer
 		
 		
 		var offset = 8;
-		if (type & DType.ZINDEX != 0) { ZINDEX_OFFSET = offset; offset += 4;  } 
+		if (type & DType.ZINDEX != 0) {
+			ZINDEX_OFFSET = offset; offset += 4;
+		}
 		if (type & DType.RGBA != 0)   {
 			RGBA_OFFSET     = offset; offset += 4;
 			RGBA_END_OFFSET = offset; offset += 4;
@@ -81,8 +85,12 @@ class ElementAnimBuffer implements I_ElementBuffer
 			ROTATION_OFFSET = offset; offset += 8;
 			PIVOT_OFFSET    = offset; offset += 8;
 		}
+		if (type & DType.PICKING != 0) {
+			PICKING_OFFSET = offset; offset += 4;
+		}
 		TIME_OFFSET   = offset; offset += 8;
 		TEX_OFFSET    = offset; offset += 4;
+		
 		VERTEX_STRIDE = offset;
 		if (VERTEX_STRIDE % 8 != 0) {
 			//trace("VERTEX_STRIDE not dividable by 8 "+VERTEX_STRIDE);
@@ -114,16 +122,7 @@ class ElementAnimBuffer implements I_ElementBuffer
 	{
 		GL.deleteBuffer(glBuff);
 	}
-	/*	
-	public static var ANIM_PARAM_SIZE  :Int = 8; // aPosition,       4, GL.SHORT
-	public static var PARAM_SIZE       :Int = 4; // aZindex,         1, GL.FLOAT
-	
-	public static var TIME_OFFSET      :Int = ANIM_PARAM_SIZE;
-	public static var PARAM_OFFSET     :Int = TIME_OFFSET + 8;  // + aTime,      2, GL.FLOAT
-	public static var TEX_OFFSET       :Int = PARAM_OFFSET + PARAM_SIZE;
-	
-	public static var VERTEX_STRIDE :Int = TEX_OFFSET + 4; // + aTexCoord,       2, GL.SHORT
-	*/
+
 	public inline function disableVertexAttributes():Void
 	{
 		GL.disableVertexAttribArray (attr.get(Program.aPOSITION));
@@ -135,6 +134,9 @@ class ElementAnimBuffer implements I_ElementBuffer
 		if (type & DType.ROTATION != 0) {
 			GL.disableVertexAttribArray (attr.get(Program.aRotation));
 			GL.disableVertexAttribArray (attr.get(Program.aPivot));
+		}
+		if (type & DType.PICKING != 0) {
+			GL.disableVertexAttribArray (attr.get(Program.aELEMENT));
 		}
 		GL.disableVertexAttribArray (attr.get(Program.aTIME));
 		GL.disableVertexAttribArray (attr.get(Program.aTEXTCOORD));
@@ -152,8 +154,13 @@ class ElementAnimBuffer implements I_ElementBuffer
 			GL.enableVertexAttribArray (attr.get(Program.aRotation));
 			GL.enableVertexAttribArray (attr.get(Program.aPivot));
 		}
+		if (type & DType.PICKING != 0) {
+			GL.enableVertexAttribArray (attr.get(Program.aELEMENT));
+		}
 		GL.enableVertexAttribArray (attr.get(Program.aTIME));
 		GL.enableVertexAttribArray (attr.get(Program.aTEXTCOORD));
+		
+		// -----------------
 		
 		GL.vertexAttribPointer (attr.get(Program.aPOSITION), 4, GL.SHORT, false, VERTEX_STRIDE, 0 );
 		if (type & DType.ZINDEX != 0) GL.vertexAttribPointer (attr.get(Program.aZINDEX), 1, GL.FLOAT, false, VERTEX_STRIDE, ZINDEX_OFFSET );
@@ -165,15 +172,13 @@ class ElementAnimBuffer implements I_ElementBuffer
 			GL.vertexAttribPointer (attr.get(Program.aRotation), 2, GL.FLOAT,  false, VERTEX_STRIDE, ROTATION_OFFSET );
 			GL.vertexAttribPointer (attr.get(Program.aPivot),    4, GL.SHORT,  false, VERTEX_STRIDE, PIVOT_OFFSET );
 		}
-		//if (type & DType.ROTATION != 0) GL.vertexAttribPointer (attr.get(Program.aROTATION),  2, GL.SHORT, false, VERTEX_STRIDE, +12 );
-		//if (type & DType.PIVOT != 0)    GL.vertexAttribPointer (attr.get(Program.aPIVOT),     2, GL.SHORT, false, VERTEX_STRIDE, +16  );
-		//if (type & DType.TILE != 0)     GL.vertexAttribPointer (Program.aTile,   2, GL.UNSIGNED_SHORT,false, VERTEX_STRIDE, +16  );
-		//if (type & DType.PARAM_A != 0)  GL.vertexAttribPointer (attr.get(Program.aPARAM_A),   2, GL.SHORT, false, VERTEX_STRIDE, PARAM_OFFSET+4 );
+		if (type & DType.PICKING != 0) {
+			GL.vertexAttribPointer (attr.get(Program.aELEMENT), 4, GL.UNSIGNED_BYTE,  true, VERTEX_STRIDE, PICKING_OFFSET );
+		}
 		
 		GL.vertexAttribPointer (attr.get(Program.aTIME),     2, GL.FLOAT, false, VERTEX_STRIDE, TIME_OFFSET );
 		
 		GL.vertexAttribPointer (attr.get(Program.aTEXTCOORD),2, GL.SHORT, false, VERTEX_STRIDE, TEX_OFFSET );// better medium_float?
-		// damit stride hinhaut einfach VERTEX_STRIDE erhoehen wenn noetig
 	}
 
 	/*
@@ -230,8 +235,10 @@ class ElementAnimBuffer implements I_ElementBuffer
 		var pivot_x2:Int = x2 + param.end.pivotX;
 		var pivot_y2:Int = y2 + param.end.pivotY;
 		
-		buffFull.setByteOffset( 0 );
+		param.element+=1;
 		
+		
+		buffFull.setByteOffset( 0 );
 		
 		buffFull.write_2_Short( xw1, yh1 );	// VERTEX_POSITION_START
 		buffFull.write_2_Short( xw2, yh2 );	// VERTEX_POSITION_END
@@ -245,6 +252,9 @@ class ElementAnimBuffer implements I_ElementBuffer
 			buffFull.write_2_Float( rotation1, rotation2 ); // Rotation START/END
 			buffFull.write_2_Short( pivot_x1, pivot_y1 ); // PIVOT START
 			buffFull.write_2_Short( pivot_x2, pivot_y2 ); // PIVOT END
+		}
+		if (type & DType.PICKING != 0) {
+			buffFull.write_1_UInt( param.element ); // ELEMENT
 		}
 		buffFull.write_2_Float( t1, t2   ); // TIME
 		buffFull.write_2_Short( txw, tyh );	// TEXT COORD 
@@ -263,6 +273,9 @@ class ElementAnimBuffer implements I_ElementBuffer
 			buffFull.write_2_Float( rotation1, rotation2 ); // Rotation START/END
 			buffFull.write_2_Short( pivot_x1, pivot_y1 ); // PIVOT START
 			buffFull.write_2_Short( pivot_x2, pivot_y2 ); // PIVOT END
+		}
+		if (type & DType.PICKING != 0) {
+			buffFull.write_1_UInt( param.element ); // ELEMENT
 		}
 		buffFull.write_2_Float( t1, t2   ); // TIME
 		buffFull.write_2_Short( txw, tyh );	// TEXT COORD 
@@ -282,6 +295,9 @@ class ElementAnimBuffer implements I_ElementBuffer
 			buffFull.write_2_Short( pivot_x1, pivot_y1 ); // PIVOT START
 			buffFull.write_2_Short( pivot_x2, pivot_y2 ); // PIVOT END
 		}
+		if (type & DType.PICKING != 0) {
+			buffFull.write_1_UInt( param.element ); // ELEMENT
+		}
 		buffFull.write_2_Float( t1, t2   ); // TIME
 		buffFull.write_2_Short( tx, tyh );	// TEXT COORD 
 		
@@ -299,6 +315,9 @@ class ElementAnimBuffer implements I_ElementBuffer
 			buffFull.write_2_Float( rotation1, rotation2 ); // Rotation START/END
 			buffFull.write_2_Short( pivot_x1, pivot_y1 ); // PIVOT START
 			buffFull.write_2_Short( pivot_x2, pivot_y2 ); // PIVOT END
+		}
+		if (type & DType.PICKING != 0) {
+			buffFull.write_1_UInt( param.element ); // ELEMENT
 		}
 		buffFull.write_2_Float( t1, t2   ); // TIME
 		buffFull.write_2_Short( txw, ty );	// TEXT COORD 
@@ -318,6 +337,9 @@ class ElementAnimBuffer implements I_ElementBuffer
 			buffFull.write_2_Short( pivot_x1, pivot_y1 ); // PIVOT START
 			buffFull.write_2_Short( pivot_x2, pivot_y2 ); // PIVOT END
 		}
+		if (type & DType.PICKING != 0) {
+			buffFull.write_1_UInt( param.element ); // ELEMENT
+		}
 		buffFull.write_2_Float( t1, t2   ); // TIME
 		buffFull.write_2_Short( tx, ty );	// TEXT COORD 
 		
@@ -335,6 +357,9 @@ class ElementAnimBuffer implements I_ElementBuffer
 			buffFull.write_2_Float( rotation1, rotation2 ); // Rotation START/END
 			buffFull.write_2_Short( pivot_x1, pivot_y1 ); // PIVOT START
 			buffFull.write_2_Short( pivot_x2, pivot_y2 ); // PIVOT END
+		}
+		if (type & DType.PICKING != 0) {
+			buffFull.write_1_UInt( param.element ); // ELEMENT
 		}
 		buffFull.write_2_Float( t1, t2   ); // TIME
 		buffFull.write_2_Short( tx, ty );	// TEXT COORD
@@ -418,6 +443,14 @@ class ElementAnimBuffer implements I_ElementBuffer
 		attribute vec4 aPivot;
 		#end_ROTATION
 		
+		#if_PICKING
+		attribute vec4 aElement;
+			#if_RGBA
+			#else_RGBA
+			varying vec4 vRGBA;
+			#end_RGBA
+		#end_PICKING
+			
 		attribute vec2 aTime;
 		
 		attribute vec2 aTexCoord;
@@ -433,6 +466,12 @@ class ElementAnimBuffer implements I_ElementBuffer
 			#if_RGBA
 			vRGBA = aRGBA.wzyx + (aRGBA_END.wzyx - aRGBA.wzyx) * max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0));	
 			#end_RGBA
+			
+			#if_PICKING
+			if (uResolution.x == 1.0) {
+				vRGBA = aElement;
+			}
+			#end_PICKING
 			
 			vTexCoord = aTexCoord;
 			
@@ -499,20 +538,40 @@ class ElementAnimBuffer implements I_ElementBuffer
 		varying vec2 vTexCoord;
 		#if_RGBA
 		varying vec4 vRGBA;
+		#else_RGBA
+			#if_PICKING
+			varying vec4 vRGBA;
+			#end_PICKING
 		#end_RGBA
+		
 		uniform sampler2D uImage;
 		
-		uniform vec2 uMouse, uResolution;
+		#if_PICKING
+		uniform vec2 uResolution;
+		#end_PICKING
 		
 		void main(void)
 		{
 			vec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE);
 			if(texel.a < 0.5) discard; // TODO (z-order/blend mode!!!)
-			#if_RGBA
-			gl_FragColor = texel * vRGBA;
-			#else_RGBA
-			gl_FragColor = texel;
-			#end_RGBA
+			#if_PICKING
+			if (uResolution.x == 1.0) { 
+				gl_FragColor = vRGBA; //vec4(1.0, 1.0, 1.0, 1.0);
+			}
+			else {
+				#if_RGBA
+				gl_FragColor = texel * vRGBA;
+				#else_RGBA
+				gl_FragColor = texel;
+				#end_RGBA				
+			}
+			#else_PICKING
+				#if_RGBA
+				gl_FragColor = texel * vRGBA;
+				#else_RGBA
+				gl_FragColor = texel;
+				#end_RGBA
+			#end_PICKING
 		}
 	";
 }

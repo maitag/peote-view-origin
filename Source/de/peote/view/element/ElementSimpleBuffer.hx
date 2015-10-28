@@ -58,6 +58,8 @@ class ElementSimpleBuffer implements I_ElementBuffer
 	var ZINDEX_OFFSET:Int;
 	var RGBA_OFFSET:Int;
 	var TEX_OFFSET:Int;
+	var PICKING_OFFSET:Int;
+
 	var VERTEX_STRIDE:Int;
 
 	public function new(t:Int, b:Buffer)
@@ -67,6 +69,7 @@ class ElementSimpleBuffer implements I_ElementBuffer
 		var offset = 4;
 		if (type & DType.ZINDEX != 0) { ZINDEX_OFFSET = offset; offset += 4;  } 
 		if (type & DType.RGBA != 0)   { RGBA_OFFSET   = offset; offset += 4;  } 
+		if (type & DType.PICKING != 0) { PICKING_OFFSET = offset; offset += 4; }
 		TEX_OFFSET    = offset; offset += 4;
 		VERTEX_STRIDE = offset;
 		
@@ -98,8 +101,9 @@ class ElementSimpleBuffer implements I_ElementBuffer
 	public inline function disableVertexAttributes():Void
 	{
 		GL.disableVertexAttribArray (attr.get(Program.aPOSITION));
-		if (type & DType.ZINDEX != 0) GL.disableVertexAttribArray (attr.get(Program.aZINDEX));
-		if (type & DType.RGBA != 0)   GL.disableVertexAttribArray (attr.get(Program.aRGBA));
+		if (type & DType.ZINDEX != 0)  GL.disableVertexAttribArray (attr.get(Program.aZINDEX));
+		if (type & DType.RGBA != 0)    GL.disableVertexAttribArray (attr.get(Program.aRGBA));
+		if (type & DType.PICKING != 0) GL.disableVertexAttribArray (attr.get(Program.aELEMENT));
 		GL.disableVertexAttribArray (attr.get(Program.aTEXTCOORD));
 	}
 	public inline function setVertexAttributes():Void
@@ -108,20 +112,15 @@ class ElementSimpleBuffer implements I_ElementBuffer
 		GL.enableVertexAttribArray (attr.get(Program.aPOSITION));
 		if (type & DType.ZINDEX != 0) GL.enableVertexAttribArray (attr.get(Program.aZINDEX));
 		if (type & DType.RGBA   != 0) GL.enableVertexAttribArray (attr.get(Program.aRGBA));
+		if (type & DType.PICKING != 0) GL.enableVertexAttribArray (attr.get(Program.aELEMENT));
 		GL.enableVertexAttribArray (attr.get(Program.aTEXTCOORD));
 		
 		GL.vertexAttribPointer (attr.get(Program.aPOSITION), 2, GL.SHORT, false, VERTEX_STRIDE, 0 );
-		if (type & DType.ZINDEX != 0) GL.vertexAttribPointer (attr.get(Program.aZINDEX), 1, GL.FLOAT,         false, VERTEX_STRIDE, ZINDEX_OFFSET );
-		if (type & DType.RGBA   != 0) GL.vertexAttribPointer (attr.get(Program.aRGBA  ), 4, GL.UNSIGNED_BYTE,  true, VERTEX_STRIDE, RGBA_OFFSET );
+		if (type & DType.ZINDEX != 0)  GL.vertexAttribPointer (attr.get(Program.aZINDEX), 1, GL.FLOAT,         false, VERTEX_STRIDE, ZINDEX_OFFSET );
+		if (type & DType.RGBA   != 0)  GL.vertexAttribPointer (attr.get(Program.aRGBA  ), 4, GL.UNSIGNED_BYTE,  true, VERTEX_STRIDE, RGBA_OFFSET );
+		if (type & DType.PICKING != 0) GL.vertexAttribPointer (attr.get(Program.aELEMENT), 4, GL.UNSIGNED_BYTE,  true, VERTEX_STRIDE, PICKING_OFFSET );
 		
-		// TODO: in ElementSimple berechnen! .. nur bei ANIM
-		/*
-		if (type & DType.ROTATION != 0) GL.vertexAttribPointer (attr.get(Program.aROTATION),  2, GL.SHORT, false, VERTEX_STRIDE, +12 );
-		if (type & DType.PIVOT    != 0) GL.vertexAttribPointer (attr.get(Program.aPIVOT),     2, GL.SHORT, false, VERTEX_STRIDE, +16  );
-		if (type & DType.PARAM_A  != 0) GL.vertexAttribPointer (attr.get(Program.aPARAM_A),   2, GL.SHORT, false, VERTEX_STRIDE, PARAM_OFFSET+4 );
-		*/
 		GL.vertexAttribPointer (attr.get(Program.aTEXTCOORD),2, GL.SHORT, false, VERTEX_STRIDE, TEX_OFFSET );// TODO: evtl. optimize mit medium_float
-		// damit stride hinhaut einfach VERTEX_STRIDE erhoehen wenn noetig
 	}
 
 	/*
@@ -140,14 +139,51 @@ class ElementSimpleBuffer implements I_ElementBuffer
 		
 	}
 
+	public inline function rotX( x:Int, y:Int, pivotX:Int, pivotY:Int, alpha:Float ):Int
+	{
+		return(	Math.round(
+				 (x - pivotX) * Math.cos(alpha)
+				-(y - pivotY) * Math.sin(alpha)
+				+ pivotX ));
+	}
+	public inline function rotY( x:Int, y:Int, pivotX:Int, pivotY:Int, alpha:Float ):Int
+	{
+		return( Math.round(
+				  (y - pivotY) * Math.cos(alpha)
+				+ (x - pivotX) * Math.sin(alpha)
+				+ pivotY ));
+	}
+	
 	public inline function set( e:I_Element, param:Param ):Void
 	{
 		var buf_pos:Int = e.buf_pos;
 		
-		var x:Int = param.x;
-		var y:Int = param.y;
-		var xw:Int = x + param.w;
-		var yh:Int = y + param.h;
+		var x:Int, y:Int, xw:Int, yh:Int, x1:Int, y1:Int, xw1:Int, yh1:Int;
+		
+		if (type & DType.ROTATION != 0 && param.rotation != null) 
+		{
+			param.pivotX = (param.pivotX != null) ? param.x + param.pivotX : param.x;
+			param.pivotY = (param.pivotY != null) ? param.y + param.pivotY : param.y;
+			
+			var alpha:Float = param.rotation / 180 * Math.PI;
+			
+			x  = rotX( param.x, param.y, param.pivotX, param.pivotY, alpha );
+			y  = rotY( param.x, param.y, param.pivotX, param.pivotY, alpha );
+			xw = rotX( param.x + param.w, param.y + param.h, param.pivotX, param.pivotY, alpha );
+			yh = rotY( param.x + param.w, param.y + param.h, param.pivotX, param.pivotY, alpha );
+			
+			x1  = rotX( param.x, param.y + param.h, param.pivotX, param.pivotY, alpha );
+			y1  = rotY( param.x + param.w, param.y, param.pivotX, param.pivotY, alpha );
+			xw1 = rotX( param.x + param.w, param.y, param.pivotX, param.pivotY, alpha );
+			yh1 = rotY( param.x, param.y + param.h, param.pivotX, param.pivotY, alpha );
+		}
+		else
+		{
+			x  = x1  = param.x;
+			y  = y1  = param.y;
+			xw = xw1 = x + param.w;
+			yh = yh1 = y + param.h;
+		}
 		
 		var z:Int = param.z;
 		var rgba:Int = param.rgba;
@@ -157,36 +193,44 @@ class ElementSimpleBuffer implements I_ElementBuffer
 		var txw:Int = tx + param.tw;
 		var tyh:Int = ty + param.th;
 		
+		param.element+=1;
+		
 		buffFull.setByteOffset( 0 );
 		
 		buffFull.write_2_Short( xw, yh );                          // VERTEX_POSITION_START
 		if (type & DType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
 		if (type & DType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
+		if (type & DType.PICKING != 0) buffFull.write_1_UInt( param.element ); // ELEMENT
 		buffFull.write_2_Short( txw, tyh );                        // TEXT COORD 
 		
 		buffFull.write_2_Short( xw, yh );                          // VERTEX_POSITION_START
 		if (type & DType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
 		if (type & DType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
+		if (type & DType.PICKING != 0) buffFull.write_1_UInt( param.element ); // ELEMENT
 		buffFull.write_2_Short( txw, tyh );                        // TEXT COORD 
 		
-		buffFull.write_2_Short( x, yh );                           // VERTEX_POSITION_START
+		buffFull.write_2_Short( x1, yh1 );                           // VERTEX_POSITION_START
 		if (type & DType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
 		if (type & DType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
+		if (type & DType.PICKING != 0) buffFull.write_1_UInt( param.element ); // ELEMENT
 		buffFull.write_2_Short( tx, tyh );                         // TEXT COORD 
 		
-		buffFull.write_2_Short( xw, y );                           // VERTEX_POSITION_START
+		buffFull.write_2_Short( xw1, y1 );                           // VERTEX_POSITION_START
 		if (type & DType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
 		if (type & DType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
+		if (type & DType.PICKING != 0) buffFull.write_1_UInt( param.element ); // ELEMENT
 		buffFull.write_2_Short( txw, ty );                         // TEXT COORD 
 		
 		buffFull.write_2_Short( x, y );                            // VERTEX_POSITION_START
 		if (type & DType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
 		if (type & DType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
+		if (type & DType.PICKING != 0) buffFull.write_1_UInt( param.element ); // ELEMENT
 		buffFull.write_2_Short( tx, ty );                          // TEXT COORD 
 		
 		buffFull.write_2_Short( x, y );                            // VERTEX_POSITION_START
 		if (type & DType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
 		if (type & DType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
+		if (type & DType.PICKING != 0) buffFull.write_1_UInt( param.element ); // ELEMENT
 		buffFull.write_2_Short( tx, ty );                          // TEXT COORD 
 		
 		buffFull.setByteOffset( 0 );
@@ -259,6 +303,14 @@ class ElementSimpleBuffer implements I_ElementBuffer
 		varying vec4 vRGBA;
 		#end_RGBA
 
+		#if_PICKING
+		attribute vec4 aElement;
+			#if_RGBA
+			#else_RGBA
+			varying vec4 vRGBA;
+			#end_RGBA
+		#end_PICKING
+			
 		attribute vec2 aTexCoord;
 		
 		varying vec2 vTexCoord;
@@ -272,6 +324,12 @@ class ElementSimpleBuffer implements I_ElementBuffer
 			#if_RGBA
 			vRGBA = aRGBA.wzyx;
 			#end_RGBA
+			
+			#if_PICKING
+			if (uResolution.x == 1.0) {
+				vRGBA = aElement;
+			}
+			#end_PICKING
 			
 			vTexCoord = aTexCoord;
 						
@@ -308,20 +366,40 @@ class ElementSimpleBuffer implements I_ElementBuffer
 		varying vec2 vTexCoord;
 		#if_RGBA
 		varying vec4 vRGBA;
+		#else_RGBA
+			#if_PICKING
+			varying vec4 vRGBA;
+			#end_PICKING
 		#end_RGBA
+		
 		uniform sampler2D uImage;
 		
-		uniform vec2 uMouse, uResolution;
+		#if_PICKING
+		uniform vec2 uResolution;
+		#end_PICKING
 		
 		void main(void)
 		{
-			vec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE );
-			if(texel.a < 0.5) discard;
-			#if_RGBA
-			gl_FragColor = texel * vRGBA;
-			#else_RGBA
-			gl_FragColor = texel;
-			#end_RGBA
+			vec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE);
+			if(texel.a < 0.5) discard; // TODO (z-order/blend mode!!!)
+			#if_PICKING
+			if (uResolution.x == 1.0) { 
+				gl_FragColor = vRGBA; //vec4(1.0, 1.0, 1.0, 1.0);
+			}
+			else {
+				#if_RGBA
+				gl_FragColor = texel * vRGBA;
+				#else_RGBA
+				gl_FragColor = texel;
+				#end_RGBA				
+			}
+			#else_PICKING
+				#if_RGBA
+				gl_FragColor = texel * vRGBA;
+				#else_RGBA
+				gl_FragColor = texel;
+				#end_RGBA
+			#end_PICKING
 		}
 	";
 

@@ -81,6 +81,8 @@ class ElementSimple implements I_Element
 		
 		if (param.z == null) param.z = z; else z = param.z;
 		
+		if (param.rgba == null) param.rgba = PeoteView.elementDefaults.rgba; // TODO -> save this param in element ?
+		
 		// IMAGE
 		if (param.image == null && PeoteView.elementDefaults.image != null ) param.image = PeoteView.elementDefaults.image;
 		if (param.image!= null && param.image != image)

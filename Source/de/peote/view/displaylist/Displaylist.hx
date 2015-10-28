@@ -30,12 +30,16 @@ package de.peote.view.displaylist;
 
 import de.peote.view.Program;
 import de.peote.view.ProgramCache;
+import de.peote.view.texture.Image;
 import de.peote.view.texture.TextureCache;
+import de.peote.view.texture.Texture;
 import de.peote.view.element.*;
 import de.peote.view.Param;
+import lime.graphics.opengl.GLTexture;
 
 import lime.graphics.opengl.GLProgram;
 import lime.graphics.opengl.GLShader;
+import lime.graphics.opengl.GL;
 
 import haxe.ds.Vector;
 import haxe.Http;
@@ -75,6 +79,7 @@ class Displaylist<ELEMENT:{function new():Void;}, BUFFER:{function new(t:Int, b:
 
 	public var renderBackground:Bool = false;
 	public var enable:Bool = true;
+	
 	// -----------
 	
 	public var element:Vector<I_Element>;
@@ -82,7 +87,7 @@ class Displaylist<ELEMENT:{function new():Void;}, BUFFER:{function new(t:Int, b:
 	public var buffer:Buffer;
 	public var elemBuff:I_ElementBuffer;
 	
-	// von parent (peoteView)
+	// from peoteView
 	public var texturecache:TextureCache;
 	public var programCache:ProgramCache;
 	
@@ -189,5 +194,5 @@ class Displaylist<ELEMENT:{function new():Void;}, BUFFER:{function new(t:Int, b:
 	{
 		for (element_nr in 0...element.length) delElement(element_nr);
 	}
-	
+
 }

@@ -60,7 +60,7 @@ class TextureCache
 	{
 		segment_width = img_width;
 		segment_height = img_height;
-		
+		// TODO TODO TODO
 		max_texture_size = Math.floor( GL.getParameter(GL.MAX_TEXTURE_SIZE) / 2 );
 		//max_texture_size = 2048; // TODO: firefox and MAX_TEXTURE_SIZE 16384 prbl. on windows
 		
@@ -83,10 +83,11 @@ class TextureCache
 	
 	public function onerror(msg:String):Void {  trace(msg); }
 	
-	public inline function setImage(image_nr:Int, imageUrl:String, w:Int, h:Int):Void 
+	public inline function setImage(image_nr:Int, imageUrl:String="", w:Int=0, h:Int=0):Void 
 	{	
+		if (w == 0) w = segment_width;
+		if (h == 0) h = segment_height;
 		image.set(image_nr, new Image(imageUrl, w, h) );
-		// TODO: w, h -> Texturecache defaults
 		// TODO: preload, onLoad 
 		// TODO: if image inUse -> load queue
 	}
@@ -98,6 +99,7 @@ class TextureCache
 	
 	public inline function useImage(image_nr:Int):Image 
 	{
+		
 		var img:Image = image.get(image_nr);		
 		//trace("useImage: "+image_nr+" img.used= "+(img.used+1)+" ---");
 		
@@ -124,7 +126,7 @@ class TextureCache
 					//trace("lade image " + image_nr + ", holePos:" + img.holePos );
 					// img.load(onImageLoad, onerror);
 					imgLoadQueue.push(img);
-					startLoadQueue(); // to keep in simple ALL queued
+					if (img.url != "") startLoadQueue(); // to keep in simple ALL queued
 				}
 				
 			}

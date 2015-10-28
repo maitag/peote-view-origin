@@ -49,6 +49,7 @@ class Program
 	public static inline var aRotation:Int  = 5;
 	public static inline var aPivot:Int     = 6;
 	public static inline var aTIME:Int      = 7;
+	public static inline var aELEMENT:Int   = 8;
 	
 	public static inline var uMODELVIEWMATRIX:Int = 0;
 	public static inline var uPROJECTIONMATRIX:Int = 1;
@@ -72,6 +73,9 @@ class Program
 	
 	public static var rROTATIONstart:   EReg = new EReg("#else_ROTATION(.*?)#end_ROTATION","ig");
 	public static var rROTATIONend:     EReg = new EReg("#if_ROTATION(.*?)#end_ROTATION","ig");
+	
+	public static var rPICKINGstart:   EReg = new EReg("#else_PICKING(.*?)#end_PICKING","ig");
+	public static var rPICKINGend:     EReg = new EReg("#if_PICKING(.*?)#end_PICKING","ig");
 	
 	
 	public static var rMAX_TEXTURE_SIZE:EReg = new EReg("#MAX_TEXTURE_SIZE","g");
@@ -116,6 +120,12 @@ class Program
 			s = rROTATIONstart.replace(s, "#end_ROTATION"); s = rROTATIONend.replace(s, "$1");
 		} else {
 			s = rROTATIONstart.replace(s, "#end_ROTATION$1"); s = rROTATIONend.replace(s, "");
+		}
+		
+		if (type & DType.PICKING != 0) {
+			s = rPICKINGstart.replace(s, "#end_PICKING"); s = rPICKINGend.replace(s, "$1");
+		} else {
+			s = rPICKINGstart.replace(s, "#end_PICKING$1"); s = rPICKINGend.replace(s, "");
 		}
 		
 		// replace template variables
@@ -189,6 +199,7 @@ class Program
 								case "aRotation":	elemBuff.attr.set(aRotation,  GL.getAttribLocation(glProgram, name) );
 								case "aPivot":		elemBuff.attr.set(aPivot,     GL.getAttribLocation(glProgram, name) );
 								case "aTime":		elemBuff.attr.set(aTIME,      GL.getAttribLocation(glProgram, name) );
+								case "aElement":	elemBuff.attr.set(aELEMENT,   GL.getAttribLocation(glProgram, name) );
 							}
 						}
 						

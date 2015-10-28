@@ -16,5 +16,7 @@ class DType
 	public static inline var ROTATION:Int = 16;
 	public static inline var SCALE:Int = 32;
 	public static inline var TILE:Int = 64;
+	
+	public static inline var PICKING:Int = 128;
 
 }
