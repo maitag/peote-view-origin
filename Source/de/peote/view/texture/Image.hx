@@ -30,9 +30,11 @@ package de.peote.view.texture;
 
 import format.png.Reader;
 import format.png.Tools;
+
 import haxe.io.BytesInput;
+import haxe.io.Bytes;
+
 import lime.utils.UInt8Array;
-import lime.utils.ByteArray;
 import lime.Assets;
 
 #if js
@@ -96,7 +98,7 @@ class Image
 	#else
 	public function load(onload:Image->Int->Int->UInt8Array->Void, onerror:String->Void):Void
 	{
-		var bytes:ByteArray = Assets.getBytes(url);
+		var bytes:Bytes = Assets.getBytes(url);
 		var byteInput:BytesInput = new BytesInput ( bytes, 0, bytes.length );
 		var png = new Reader(byteInput).read();
 		var data = Tools.extract32(png);

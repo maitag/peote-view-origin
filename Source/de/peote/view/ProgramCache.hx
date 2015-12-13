@@ -156,8 +156,8 @@ class ProgramCache
 			req.send();
 			fsSrc = req.responseText;
 			#else
-			//fsSrc = Assets.getText(fsUrl);
-			fsSrc = Assets.getBytes(fsUrl).asString(); // TODO: getText dont work with windows-target
+			fsSrc = Assets.getText(fsUrl);
+			//fsSrc = Assets.getBytes(fsUrl).asString(); // TODO: getText dont work with windows-target
 			#end
 		}
 		var vsSrc:String = '';
@@ -169,8 +169,8 @@ class ProgramCache
 			req.send();
 			vsSrc = req.responseText;
 			#else
-			//vsSrc = Assets.getText(vsUrl);
-			vsSrc = Assets.getBytes(vsUrl).asString(); // TODO: getText dont work with windows-target;
+			vsSrc = Assets.getText(vsUrl);
+			//vsSrc = Assets.getBytes(vsUrl).asString(); // TODO: getText dont work with windows-target;
 			#end
 		}
 		

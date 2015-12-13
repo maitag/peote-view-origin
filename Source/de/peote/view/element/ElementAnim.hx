@@ -32,6 +32,7 @@ import de.peote.view.texture.TextureCache;
 
 //import de.peote.view.ActiveProgram;
 
+@keep
 class ElementAnim implements I_Element
 {
 	public var act_program:ActiveProgram;

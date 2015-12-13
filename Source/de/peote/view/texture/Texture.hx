@@ -30,8 +30,10 @@ package de.peote.view.texture;
 
 import format.png.Reader;
 import format.png.Tools;
+
 import haxe.io.BytesInput;
-import lime.utils.ByteArray;
+import haxe.io.Bytes;
+
 import lime.utils.UInt8Array;
 import lime.graphics.opengl.GL;
 import lime.graphics.opengl.GLTexture;

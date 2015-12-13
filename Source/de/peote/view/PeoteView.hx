@@ -98,7 +98,7 @@ class PeoteView
 		
 		// TODO:  img_width, img_height, max_images
 		texturecache = new TextureCache(512, 512, 64);
-
+		
 		programCache = new ProgramCache( max_programs + 1 ); // last one is DEFAULT Program
 		
 		
@@ -336,27 +336,24 @@ class PeoteView
 			GL.scissor(sx, height-sh-sy, sw, sh);
 			
 			// TODO TODO -> depends on blend (and hardware diff webgl/cpp)
-			//if (dl.blend == 0) {
+			if (dl.blend == 0) {
 				GL.enable(GL.DEPTH_TEST); GL.depthFunc(GL.LEQUAL); //GL.depthFunc(GL.LESS);
-			//} else {GL.disable(GL.DEPTH_TEST);}
+			} else {GL.disable(GL.DEPTH_TEST);}
 			// TODO: alpha (+ filter?) je nach dl
 			
 			//GL.enable(GL.TEXTURE_2D);
 			
 			// alpha blend -> TODO
-			//if (dl.blend != 0) {
+			if (dl.blend != 0) {
 				GL.enable(GL.BLEND); GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
-			//} else {GL.disable(GL.BLEND);}
+			} else {GL.disable(GL.BLEND);}
 			
 			
 			// Texture
 			GL.activeTexture (GL.TEXTURE0);
 			GL.bindTexture (GL.TEXTURE_2D, texturecache.texture);
 			
-			if (dl != startDisplaylist &&
-			    dl.z != dl.prev.z
-			   )
-				GL.clear( GL.DEPTH_BUFFER_BIT );
+			if (dl != startDisplaylist && dl.z != dl.prev.z) GL.clear( GL.DEPTH_BUFFER_BIT );
 
 			if (dl.renderBackground) renderBackground ( dl.r, dl.g, dl.b, dl.a );
 			
@@ -419,9 +416,7 @@ class PeoteView
 			}
 			",
 			// -------------------------- FRAGMENT SHADER ---
-			#if !desktop
 			"precision mediump float;" +
-			#end
 			"
 			uniform vec4 uRGBA;
 			void main(void)

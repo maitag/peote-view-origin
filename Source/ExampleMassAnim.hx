@@ -59,6 +59,7 @@ class ExampleMassAnim extends Example
 		
 		// set shaders
 		peoteView.setProgram(0, "assets/lyapunov_01.frag");
+		//peoteView.setProgram(0, "assets/lyapunov.frag");
 		peoteView.setProgram(1); // default image shader
 		
 		// set images
@@ -66,25 +67,25 @@ class ExampleMassAnim extends Example
 		peoteView.setImage(1, "assets/peote_tiles.png", 512, 512);
 		
 		// new Displaylist
-		peoteView.setDisplaylist( { displaylist:0, type:DType.SIMPLE,
+		peoteView.setDisplaylist( { displaylist:0, type:DType.ANIM,
 			enable:true,
 			elements:1, programs:1, segments:1,
 			w:1920, h:1280,
-			z:0
+			z:0,blend:0
 		});
 		// new Displaylist
 		peoteView.setDisplaylist( { displaylist:1, type:DType.ANIM,
 			enable:true,
 			elements:w * h, programs:1, segments:1,
 			w:1920, h:1280,
-			z:1
+			z:1,blend:0
 		});
 		
 		// fractal BG
 		peoteView.setElement( { element:0, displaylist:0,
 			time:t,
 			x:0, y:0, w:3000, h:3000,
-			z: -2,
+			//z: -2,
 			program:0, tw:1000, th:1000,
 			end: {
 				x: -1500, y: -1500, w:11000, h:11000,
@@ -98,7 +99,7 @@ class ExampleMassAnim extends Example
 		//var x,y:Int;
 		for (x in 0...w)
 			for (y in 0...h)
-				peoteView.setElement( { element:1 + y*w +x, displaylist:1,
+				peoteView.setElement( { element: y*w +x, displaylist:1,
 					start: {
 						x: x*s, y: y*s-s,
 						w:s, h:s,
@@ -109,7 +110,7 @@ class ExampleMassAnim extends Example
 						w:s, h:s,
 						time:t + h/speed
 					},
-					z: -1,
+					//z: -1,
 					program:1, image:random(2), tile:1+random(255)
 				});
 		
@@ -128,7 +129,7 @@ class ExampleMassAnim extends Example
 		var t:Float = Timer.stamp() - startTime;
 		
 		for (x in 0...w)
-			peoteView.setElement( { element: 1+last_y*w+x, displaylist:1,
+			peoteView.setElement( { element: last_y*w+x, displaylist:1,
 				start: {
 					y: -s,
 					time:t
