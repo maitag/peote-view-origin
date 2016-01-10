@@ -200,6 +200,17 @@ class Example extends Application {
 		setOffsets();
 	}
 
+	public override function onRenderContextLost (renderer:Renderer):Void {
+		
+		trace(" --------- ERROR :  LOST RENDERCONTEXT ----------- ");
+		
+	}
+	public override function onPreloadComplete ():Void {
+		
+		trace(" --------- onPreload Complete ----------- ");
+		
+	}
+	
 	// end Event Handler ------------------------------
 	// ------------------------------------------------------------
 	

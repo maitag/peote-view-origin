@@ -28,7 +28,6 @@
 
 package;
 
-import de.peote.view.Param;
 import haxe.Timer;
 import lime.graphics.Renderer;
 import lime.ui.Window;
@@ -64,7 +63,7 @@ class ExampleBunnysGPU extends Example
 		peoteView = new PeoteView(10, 2); // max_displaylists, max_programs(for all displaylists -> TODO)
 		
 		// set shaders
-		peoteView.setProgramSrc(0, '', vertexShaderSrc); // modified gpu-animation
+		peoteView.setProgram(0, '', 'assets/ping-pong_raspi.vert'); // custom vertex shader for gpu-animation
 		peoteView.setProgram(1); // default image shader
 		
 		// set images
@@ -331,103 +330,5 @@ class ExampleBunnysGPU extends Example
 		
 	}
 	
-	public static inline var vertexShaderSrc:String =
-	"	precision mediump float;
-
-		attribute vec4 aPosition;
-		
-		#if_ZINDEX
-		attribute float aZindex;
-		#end_ZINDEX
-		
-		#if_RGBA
-		attribute vec4 aRGBA;
-		attribute vec4 aRGBA_END;
-		varying vec4 vRGBA;
-		#end_RGBA
-
-		#if_ROTATION
-		attribute vec2 aRotation;
-		attribute vec4 aPivot;
-		#end_ROTATION
-		
-		attribute vec2 aTime;
-		attribute vec2 aTexCoord;
-		
-		varying vec2 vTexCoord;
-		
-		uniform float uTime;
-		uniform float uZoom;
-		uniform vec2 uResolution;
-		uniform vec2 uDelta;
-		
-		void main(void) {
-			#if_RGBA
-			vRGBA = aRGBA.wzyx + (aRGBA_END.wzyx - aRGBA.wzyx) * max( 0.0, min( (uTime-aTime.x) / (aTime.y - aTime.x), 1.0));	
-			#end_RGBA
-			
-			vTexCoord = aTexCoord;
-			
-			vec2 VertexPosStart = vec2( aPosition );
-			vec2 VertexPosEnd   = vec2 (aPosition.z, aPosition.w);
-			
-			#if_ROTATION
-			float alpha = aRotation.x + (aRotation.y - aRotation.x)	* (uTime-aTime.x) / (aTime.y - aTime.x);
-								
-			VertexPosStart = (VertexPosStart - vec2(aPivot))
-							* mat2 (
-								vec2(cos(alpha), -sin(alpha)),
-								vec2(sin(alpha),  cos(alpha))
-							) + vec2(aPivot);
-			
-			VertexPosEnd = (VertexPosEnd -  vec2(aPivot.z, aPivot.w))
-							* mat2 (
-								vec2(cos(alpha), -sin(alpha)),
-								vec2(sin(alpha),  cos(alpha))
-							) + vec2(aPivot.z, aPivot.w);
-			#end_ROTATION
-			
-			float zoom = uZoom;
-			float width = uResolution.x;
-			float height = uResolution.y;
-			float deltaX = floor(uDelta.x);
-			float deltaY = floor(uDelta.y);
-			
-			float right = width-deltaX*zoom;
-			float left = -deltaX*zoom;
-			float bottom = height-deltaY*zoom;
-			float top = -deltaY * zoom;
-			
-			float x = VertexPosStart.x + floor( 
-								(VertexPosEnd.x - VertexPosStart.x)
-								* (uTime-aTime.x) / (aTime.y - aTime.x)
-								* zoom) / zoom;
-			float swapX = mod(floor(x / width), 2.0);
-
-			float y = VertexPosStart.y + floor( 
-								(VertexPosEnd.y - VertexPosStart.y)
-								* (uTime-aTime.x) / (aTime.y - aTime.x)
-								* zoom) / zoom;
-			float swapY = mod(floor(y / height), 2.0);
-			
-			gl_Position = mat4 (
-				vec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),
-				vec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),
-				vec4(0.0, 0.0, -0.001, 0.0),
-				vec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)
-			)
-		* vec4 ( swapX * (width - mod(x, width)) + (1.0 - swapX) * mod(x, width),
-				 swapY * (height - mod(y, height)) + (1.0 - swapY) * mod(y, height),
-				#if_ZINDEX
-				aZindex
-				#else_ZINDEX
-				0.0
-				#end_ZINDEX
-				, 1.0
-				);
-		}
-	";
-
-
 
 }

@@ -6,7 +6,7 @@ package de.peote.view.displaylist;
 
 import de.peote.view.element.I_ElementBuffer;
 import de.peote.view.Param;
- 
+@:keep
 interface I_Displaylist 
 {
 	public var type:Int;

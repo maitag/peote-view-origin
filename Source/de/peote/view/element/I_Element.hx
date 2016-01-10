@@ -5,7 +5,7 @@ import de.peote.view.texture.TextureCache;
 /**
  * @author Sylvio Sell
  */
-
+@:keep
 interface I_Element
 {
 	public var act_program:ActiveProgram;

@@ -38,8 +38,7 @@ import haxe.ds.Vector;
 
 //import lime.utils.Float32Array;
 //import lime.utils.Int16Array;
-
-@keep
+@:keep
 class ElementAnimBuffer implements I_ElementBuffer
 {
 	public static var VERTEX_COUNT:Int = 6;

@@ -29,19 +29,21 @@
 package;
 
 import haxe.Timer;
+import lime.graphics.Renderer;
 
 import de.peote.view.PeoteView;
 import de.peote.view.displaylist.DType;
 
 class ExampleMassAnim extends Example
 {
-	var w:Int = 280;
-	var h:Int = 180;
-	var s:Int = 7;
+	var w:Int = 70; // TODO: probl. on windows cpp -> maybe if to much spawn while loading image (not from within FD!)
+	var h:Int = 70;
+	var s:Int = 10;
 	var last_y:Int;
 	var switchBGanim:Int = 1;
 	var speed:Float = 1;
 		
+	var timer:Timer;
 	var frames:Int = 0;
 	var render_time:Float = 0;
 	var update_time:Float = 0;
@@ -70,14 +72,14 @@ class ExampleMassAnim extends Example
 		peoteView.setDisplaylist( { displaylist:0, type:DType.ANIM,
 			enable:true,
 			elements:1, programs:1, segments:1,
-			w:1920, h:1280,
+			//w:1920, h:1280,
 			z:0,blend:0
 		});
 		// new Displaylist
 		peoteView.setDisplaylist( { displaylist:1, type:DType.ANIM,
 			enable:true,
 			elements:w * h, programs:1, segments:1,
-			w:1920, h:1280,
+			//w:1920, h:1280,
 			z:1,blend:0
 		});
 		
@@ -115,10 +117,16 @@ class ExampleMassAnim extends Example
 				});
 		
 		// Timer every second  - TODO: may own Timer inside RenderLoop
-		var timer = new Timer(Math.floor(1000/speed));
+		timer = new Timer(Math.floor(1000/speed));
 		timer.run = moveTilesUp;
 		
 		trace("START update_time: " + Math.round((Timer.stamp() - update_time)*100000)/100000);
+	}
+	
+	public override function render(renderer:Renderer):Void
+	{
+		frames++;
+		super.render(renderer);
 	}
 	
 	private inline function moveTilesUp():Void
@@ -137,7 +145,7 @@ class ExampleMassAnim extends Example
 				end: {
 					y: -s+h*s,
 					time: t+h/speed
-				}
+				},program:1, image:random(2), tile:1+random(255)
 			});
 		
 		if (last_y == 0)
@@ -145,7 +153,7 @@ class ExampleMassAnim extends Example
 			last_y = h - 1;
 			// anim BG
 			if (switchBGanim == 1)
-				peoteView.setElement( { element:0,displaylist:0,
+				peoteView.setElement( { element:0, displaylist:0,
 					end: {
 						x:0, y:0, w:3000, h:3000,
 						time:t+h/speed

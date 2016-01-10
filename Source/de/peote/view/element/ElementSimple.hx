@@ -31,8 +31,7 @@ import de.peote.view.Param;
 import de.peote.view.texture.TextureCache;
 
 //import de.peote.view.ActiveProgram;
-
-@keep
+@:keep
 class ElementSimple implements I_Element
 {
 	public var act_program:ActiveProgram;

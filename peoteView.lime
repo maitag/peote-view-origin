@@ -25,8 +25,8 @@
 	
 	<!-- -Dwebgl -debug -->
 	
-	<!-- if dead code elimination, problem with displaylist-element-templating and casts with CPP -->
-	<haxeflag name="-dce" value="full" if="cpp" /> <!-- PROBLEM: since haxe 3.2 on windows-cpp:  ExampleBunnysGPU "full" works  BUT  ExampleMassAnim "std" works ..@keep should work now  -->
+	<!-- if dead code elimination problem with displaylist-element generative class "std" or "no" may help here .. should work now with @:keep class -->
+	<haxeflag name="-dce" value="no" if="cpp" />
 	
 	<!-- cool... full dead code elimination on html5 reduces js-code (default dce is std only) -->
 	<haxeflag name="-dce" value="full" if="html5" />

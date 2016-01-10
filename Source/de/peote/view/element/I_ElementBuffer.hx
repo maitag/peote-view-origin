@@ -8,7 +8,7 @@ import lime.graphics.opengl.GLBuffer;
 
 import de.peote.view.ProgramCache;
 import haxe.ds.Vector;
-
+@:keep
 interface I_ElementBuffer
 {
 	public var attr:Vector<Int>;

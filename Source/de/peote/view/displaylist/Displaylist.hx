@@ -43,7 +43,7 @@ import lime.graphics.opengl.GL;
 
 import haxe.ds.Vector;
 import haxe.Http;
-
+@:keep
 @:generic
 class Displaylist<ELEMENT:{function new():Void;}, BUFFER:{function new(t:Int, b:Buffer):Void;}> implements I_Displaylist
 {

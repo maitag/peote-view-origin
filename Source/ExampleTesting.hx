@@ -50,7 +50,7 @@ class ExampleTesting extends Example
 		// -----------------------------------------------------
 		// ---------------- PROGRAM SHADER ---------------------
 		// -----------------------------------------------------
-		//peoteView.setProgram(0, "assets/lyapunov_01.frag");
+		peoteView.setProgram(0, "assets/debug.frag", "assets/debug.vert");
 		
 		// -----------------------------------------------------
 		// ------------------- IMAGES --------------------------
@@ -62,7 +62,7 @@ class ExampleTesting extends Example
 		// -----------------------------------------------------
 		// ---------------- DISPLAYLISTS -----------------------
 		// -----------------------------------------------------
-		peoteView.setDisplaylist( { displaylist:0, type:DType.ANIM|DType.RGBA|DType.ROTATION|DType.PICKING, //|DType.ZINDEX
+		peoteView.setDisplaylist( { displaylist:0, type:DType.ANIM|DType.RGBA|DType.ROTATION|DType.PICKING,//|DType.ZINDEX,
 			elements:10000, programs:1, segments:10, // for low-end devices better max_elements < 100 000
 			x:0, y:0,
 			w:512, h:512,
@@ -103,7 +103,8 @@ class ExampleTesting extends Example
 			},
 			w:100, h:100,
 			image:0,
-			tile:65
+			tile:65,
+			program:0
 		});
 		peoteView.setElement( { element:1,
 			x:100, y:100,
@@ -111,7 +112,8 @@ class ExampleTesting extends Example
 			pivotX:50, pivotY:50,
 			rotation:-90,
 			image:0,
-			tile:65
+			tile:65,
+			program:0
 		});
 		peoteView.setElement( { element:2,
 			x:200, y:100,
@@ -119,7 +121,8 @@ class ExampleTesting extends Example
 			pivotX:50, pivotY:50,
 			rotation:135,
 			image:0,
-			tile:65
+			tile:65,
+			program:0
 		});
 		/*
 		peoteView.setElementDefaults({ displaylist:1, z:0, image:0 });
