@@ -9,7 +9,7 @@
    #                          (have fun!;)                                       #
    ############################################################################### */
    
-precision mediump float;
+//precision mediump float;
 
 varying vec2 vTexCoord;
 uniform sampler2D uImage;

@@ -310,7 +310,7 @@ class PeoteView
 		// loop over enabled displaylists
 		dl = startDisplaylist;
 		while (dl != null)
-		{	
+		{	//trace(dl.type);
 			// TODO: render to framebuffer
 			/* if (dl.renderToImage) {
 				//GL.activeTexture (GL.TEXTURE0); // 1 ????????????
@@ -377,12 +377,17 @@ class PeoteView
 				//draw
 				GL.drawArrays (GL.TRIANGLE_STRIP,  ap.start,  ap.size);
 				
+				GL.useProgram (null); // try without here to optimize
 			}
 			
 			dl.elemBuff.disableVertexAttributes();
 			
+			GL.bindBuffer (GL.ARRAY_BUFFER, null); // try without here to optimize
+			GL.bindTexture (GL.TEXTURE_2D, null); // try without here to optimize
+			
 			// next displaylist in loop
 			dl = (dl.next != startDisplaylist) ? dl.next : null;
+			
 		} // end loop displaylists
 		
 		// --- clean Buffers

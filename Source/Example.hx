@@ -29,6 +29,8 @@
 package;
 
 import haxe.Timer;
+import lime.ui.KeyCode;
+import lime.ui.KeyModifier;
 
 import lime.app.Application;
 import lime.app.Config;
@@ -136,7 +138,12 @@ class Example extends Application {
 			tile:1
 		});
 	}
-
+	/*
+	public override function update (deltaTime:Int):Void {
+		trace(deltaTime);		
+	}
+	*/
+	
 	// -- Math-Stuff
 	private inline function random(n:Int):Int
 	{
@@ -209,6 +216,14 @@ class Example extends Application {
 		
 		trace(" --------- onPreload Complete ----------- ");
 		
+	}
+	public override function onKeyDown (window:Window, keyCode:KeyCode, modifier:KeyModifier):Void
+	{
+		switch (keyCode) {
+			case KeyCode.F:
+				window.fullscreen = !window.fullscreen;
+			default:
+		}
 	}
 	
 	// end Event Handler ------------------------------

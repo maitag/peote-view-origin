@@ -36,9 +36,9 @@ import de.peote.view.displaylist.DType;
 
 class ExampleMassAnim extends Example
 {
-	var w:Int = 70; // TODO: probl. on windows cpp -> maybe if to much spawn while loading image (not from within FD!)
-	var h:Int = 70;
-	var s:Int = 10;
+	var w:Int = 400;
+	var h:Int = 400;
+	var s:Int = 5;
 	var last_y:Int;
 	var switchBGanim:Int = 1;
 	var speed:Float = 1;
@@ -47,8 +47,15 @@ class ExampleMassAnim extends Example
 	var frames:Int = 0;
 	var render_time:Float = 0;
 	var update_time:Float = 0;
+	//var ok:Bool = false;
+	var firstrun:Bool = true;
 	
 	public override function run()
+	{	//peoteView = new PeoteView(10, 10); // max_displaylists, max_programs(for all displaylists -> TODO)
+		//Timer.delay(rundelayed,1000);
+		//ok = true;
+	}
+	public function rundelayed()
 	{
 		last_y = h - 1;
 		
@@ -69,14 +76,14 @@ class ExampleMassAnim extends Example
 		peoteView.setImage(1, "assets/peote_tiles.png", 512, 512);
 		
 		// new Displaylist
-		peoteView.setDisplaylist( { displaylist:0, type:DType.ANIM,
+		peoteView.setDisplaylist( { displaylist:0, type:DType.SIMPLE,
 			enable:true,
 			elements:1, programs:1, segments:1,
 			//w:1920, h:1280,
 			z:0,blend:0
 		});
 		// new Displaylist
-		peoteView.setDisplaylist( { displaylist:1, type:DType.ANIM,
+		peoteView.setDisplaylist( { displaylist:1, type:DType.ANIM|DType.ZINDEX,
 			enable:true,
 			elements:w * h, programs:1, segments:1,
 			//w:1920, h:1280,
@@ -98,7 +105,7 @@ class ExampleMassAnim extends Example
 		update_time = Timer.stamp();
 		// tiles
 		
-		//var x,y:Int;
+		
 		for (x in 0...w)
 			for (y in 0...h)
 				peoteView.setElement( { element: y*w +x, displaylist:1,
@@ -120,13 +127,20 @@ class ExampleMassAnim extends Example
 		timer = new Timer(Math.floor(1000/speed));
 		timer.run = moveTilesUp;
 		
-		trace("START update_time: " + Math.round((Timer.stamp() - update_time)*100000)/100000);
+		trace("START update_time: " + Math.round((Timer.stamp() - update_time)*1000)/1000);
 	}
 	
 	public override function render(renderer:Renderer):Void
 	{
-		frames++;
-		super.render(renderer);
+		//if (ok)
+		if (firstrun)
+		{
+			rundelayed(); firstrun = false;
+		}
+		else
+		{ frames++;
+		  super.render(renderer);
+		}
 	}
 	
 	private inline function moveTilesUp():Void
@@ -174,7 +188,7 @@ class ExampleMassAnim extends Example
 		
 		
 		// FPS:
-		trace("FPS: " + frames + " - render time: "+Math.round(render_time/frames*100000)/100000+" - update_time: " + Math.round((Timer.stamp() - update_time)*100000)/100000);
+		trace("FPS: " + frames + " - render time: "+Math.round(render_time/frames*1000)/1000+" - update_time: " + Math.round((Timer.stamp() - update_time)*1000)/1000);
 		frames = 0; render_time = 0;
 		
 	};
