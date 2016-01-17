@@ -127,10 +127,13 @@ class ProgramCache
 					default_vs = ElementSimpleBuffer.defaultVertexShaderSrc;
 				}
 				trace("setShaderSrc:" + type);
+				
 				if (fs == '' )
 					pmap.get(type).compile(null, type, default_fs, vs, onerror);
 				else if (vs == '' )
 					pmap.get(type).compile(null, type, fs, default_vs, onerror);
+				else
+					pmap.get(type).compile(null, type, fs, vs, onerror);
 				
 			}
 			

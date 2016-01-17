@@ -26,7 +26,6 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-precision mediump float;
 varying vec2 vTexCoord;
 #if_RGBA
 varying vec4 vRGBA;

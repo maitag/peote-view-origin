@@ -8,7 +8,6 @@
 // #                          (have fun!;)                                       #
 // ###############################################################################
 
-precision mediump float;
 varying vec2 vTexCoord;
 #if_RGBA
 varying vec4 vRGBA;

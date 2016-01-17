@@ -242,6 +242,8 @@ class ExampleBunnysGPU extends Example
 					pause = true;
 					peoteView.setDisplaylist( { displaylist:3, enable:false } );
 				}
+			case KeyCode.F:
+				window.fullscreen = !window.fullscreen;
 			case KeyCode.UP:
 				max_spawn += 10;
 				updateMaxSpawn();

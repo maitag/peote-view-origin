@@ -138,9 +138,16 @@ class Program
 								fragmentShaderSrc:String, vertexShaderSrc:String,
 								onerror:String->Void):Void
 	{
-		fragmentShaderSrc = parseType(type, fragmentShaderSrc);
 		vertexShaderSrc = parseType(type, vertexShaderSrc);
+		#if peote_vert_medium_precision
+		vertexShaderSrc = "precision mediump float;" + vertexShaderSrc;
+		#end
 		
+		fragmentShaderSrc = parseType(type, fragmentShaderSrc);
+		#if peote_frag_medium_precision
+		fragmentShaderSrc = "precision mediump float;" + fragmentShaderSrc;
+		#end
+ 
 		// reformat to debug
 		var r:EReg = new EReg(";", "g");
 		trace("VERTEXSHADER:\n"+r.replace(vertexShaderSrc, ";\n"));

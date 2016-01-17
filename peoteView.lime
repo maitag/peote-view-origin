@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 	
-	<meta title="peote_view" package="de.peote.view" version="0.1.5" company="Sylvio Sell - maitag" />
+	<meta title="peote_view" package="de.peote.view" version="0.1.6" company="Sylvio Sell - maitag" />
 	
 	<!-- choose example to build: -->
 	<!--<app main="Example" path="Export" file="Example" />-->
-	<app main="ExampleMassAnim" path="Export" file="ExampleMassAnim" />
-	<!--<app main="ExampleBunnys" path="Export" file="ExampleBunnys" />-->
-	<!--<app main="ExampleBunnysGPU" path="Export" file="ExampleBunnysGPU" />-->
+	<!--<app main="ExampleMassAnim" path="Export" file="ExampleMassAnim" />-->
+	<app main="ExampleBunnysGPU" path="Export" file="ExampleBunnysGPU" />
 	<!--<app main="ExampleRandomLetter" path="Export" file="ExampleRandomLetter" />-->
 	<!--<app main="ExamplePicking" path="Export" file="ExamplePicking" />-->
 	<!--<app main="ExampleTesting" path="Export" file="ExampleTesting" />-->
@@ -24,9 +23,12 @@
 	<haxelib name="lime" />
 	<haxelib name="format" />
 	
-	<!-- <haxedef name="peote-fillstride" /> -->
-	<!-- <haxedef name="peote-vert-medium-precision" /> -->
-	<!-- <haxedef name="peote-frag-medium-precision" /> -->
+	<!-- this is for optimize interleave vertex stride (filled auto up to 8 bytecount) .. may buggy on some device -->
+	<!-- <haxedef name="peote_fillstride" /> -->
+	
+	<!-- shader float precision for html5 and raspberry pi and android -->
+	<haxedef name="peote_vert_medium_precision" if="html5||rpi||android" />
+	<haxedef name="peote_frag_medium_precision" if="html5||rpi||android" />
 
 	<!-- -Dwebgl -debug -->
 	

@@ -291,9 +291,6 @@ class ElementSimpleBuffer implements I_ElementBuffer
 	// ----------------------------------------------------------------------------------
 	
 	public static inline var defaultVertexShaderSrc:String =
-	#if peote-vert-medium-precision
-	"	precision mediump float" +
-	#end
 	
 	"	attribute vec2 aPosition;
 		
@@ -365,9 +362,6 @@ class ElementSimpleBuffer implements I_ElementBuffer
 	";
 	
 	public static inline var defaultFragmentShaderSrc:String =
-	#if peote-frag-medium-precision
-	"	precision mediump float" +
-	#end
 	
 	"	varying vec2 vTexCoord;
 		#if_RGBA

@@ -68,7 +68,6 @@ class ExampleMassAnim extends Example
 		
 		// set shaders
 		peoteView.setProgram(0, "assets/lyapunov_01.frag");
-		//peoteView.setProgram(0, "assets/lyapunov.frag");
 		peoteView.setProgram(1); // default image shader
 		
 		// set images

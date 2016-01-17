@@ -94,7 +94,7 @@ class ElementAnimBuffer implements I_ElementBuffer
 		
 		VERTEX_STRIDE = offset;
 		
-		#if peote-fillstride
+		#if peote_fillstride
 		if (VERTEX_STRIDE % 8 != 0) {
 			//trace("VERTEX_STRIDE not dividable by 8 "+VERTEX_STRIDE);
 			VERTEX_STRIDE += 4;			 //VERTEX_STRIDE % 8;
@@ -428,12 +428,8 @@ class ElementAnimBuffer implements I_ElementBuffer
 	// ----------------------------------------------------------------------------------
 	
 	public static inline var defaultVertexShaderSrc:String =
-	#if peote-vert-medium-precision
-	"	precision mediump float" +
-	#end
 	
-	"
-		attribute vec4 aPosition;
+	"	attribute vec4 aPosition;
 		
 		#if_ZINDEX
 		attribute float aZindex;
@@ -541,9 +537,6 @@ class ElementAnimBuffer implements I_ElementBuffer
 	";
 	
 	public static inline var defaultFragmentShaderSrc:String =
-	#if peote-frag-medium-precision
-	"	precision mediump float" +
-	#end
 	
 	"	varying vec2 vTexCoord;
 		#if_RGBA
