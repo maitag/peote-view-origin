@@ -47,6 +47,7 @@ import lime.utils.GLUtils;
 import de.peote.view.displaylist.*;
 import de.peote.view.element.*;
 
+@:keep 
 class PeoteView
 {	
 	public static var elementDefaults:Param = {
@@ -357,7 +358,8 @@ class PeoteView
 
 			if (dl.renderBackground) renderBackground ( dl.r, dl.g, dl.b, dl.a );
 			
-			GL.bindBuffer(GL.ARRAY_BUFFER, dl.elemBuff.glBuff); // nur EIN BUffer zum knechten (pro displaylist)
+			
+			GL.bindBuffer(GL.ARRAY_BUFFER, dl.elemBuff.glBuff); // TODO: put this into dl.elemBuff and may try optimize with SOA (multiple buffer)
 			dl.elemBuff.setVertexAttributes(); // VertexAttributes
 			
 			var len:Int = dl.buffer.activeProgram.length; //hoisted (performance)
