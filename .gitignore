@@ -1,4 +1,6 @@
 Export/html5/
 Export/windows/
 Export/android/
+Export/linux/
+Export/flash/
 .build

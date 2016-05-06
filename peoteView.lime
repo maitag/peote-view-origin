@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 	
-	<meta title="peote_view" package="de.peote.view" version="0.1.6" company="Sylvio Sell - maitag" />
+	<meta title="ExampleBunnysGPUtest" package="de.peote.view" version="0.1.6" company="Sylvio Sell - maitag" />
 	
 	<!-- choose example to build: -->
 	<!--<app main="Example" path="Export" file="Example" />-->
@@ -24,15 +24,15 @@
 	<haxelib name="format" />
 	
 	<!-- this is for optimize interleave vertex stride (filled auto up to 8 bytecount) .. may buggy on some device -->
-	<!-- <haxedef name="peote_fillstride" /> -->
+	<!--<haxedef name="peote_fillstride" />-->
 	
 	<!-- shader float precision for html5 and raspberry pi and android -->
 	<haxedef name="peote_vert_medium_precision" if="html5||rpi||android" />
-	<haxedef name="peote_frag_medium_precision" if="html5||rpi||android" />
+	<haxedef name="peote_frag_medium_precision" if="html5||rpi||android" /><!-- midestens -->
 
 	<!-- -Dwebgl -debug -->
 	
-	<!-- <haxeflag name="-dce" value="full" if="cpp" />-->
+	<haxeflag name="-dce" value="full" if="cpp||android" />
 	<!-- <haxedef name="dce-debug" if="cpp" />-->
 	<!-- <haxedef name="absolute-path" if="cpp" />-->
 	<!-- <haxedef name="no-inline" if="cpp" />-->
@@ -40,6 +40,7 @@
 	
 	<!--<haxedef name="no-traces" />-->
 	
+	<!--<haxedef name="HXCPP_M64" if="cpp" />-->
 	
 	<!-- cool... full dead code elimination on html5 reduces js-code (default dce is std only) -->
 	<haxeflag name="-dce" value="full" if="html5" />

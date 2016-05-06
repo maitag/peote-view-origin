@@ -46,10 +46,18 @@ class ExampleBunnysGPU extends Example
 	
 	var timer:Timer;
 	var bunny_nr:Int = 0;
-	var max_bunnys:Int = 1000000;
-	var max_spawn:Int = 100;
+	#if android
+	var max_bunnys:Int = 10000;
+	var max_spawn:Int = 100; 
 	var spawn_time:Int = 10;
-	var tile_size:Int = 8;
+	var tile_size:Int = 18;
+	#else
+	var max_bunnys:Int = 1000000;
+	var max_spawn:Int = 1000; 
+	var spawn_time:Int = 10;
+	var tile_size:Int = 18;
+	#end
+	
 	var pause:Bool = false;
 	
 	var spawn_x:Int;
@@ -63,7 +71,10 @@ class ExampleBunnysGPU extends Example
 		peoteView = new PeoteView(10, 2); // max_displaylists, max_programs(for all displaylists -> TODO)
 		
 		// set shaders
-		peoteView.setProgram(0, '', 'assets/ping-pong_raspi.vert'); // custom vertex shader for gpu-animation
+		//peoteView.setProgram(0, '', 'assets/ping-pong.vert'); // custom vertex shader for gpu-animation
+		peoteView.setProgram(0, '', 'assets/ping-pong_android.vert'); // custom vertex shader for gpu-animation
+		//peoteView.setProgram(0, '', 'assets/ping-pong_raspi.vert'); // custom vertex shader for gpu-animation
+		//peoteView.setProgram(0); // default image shader
 		peoteView.setProgram(1); // default image shader
 		
 		// set images
@@ -71,7 +82,7 @@ class ExampleBunnysGPU extends Example
 		peoteView.setImage(1, "assets/peote_font_white.png", 512, 512);
 		
 		// Displaylist for massive tiles
-		peoteView.setDisplaylist( { displaylist:0, type:DType.ANIM|DType.RGBA|DType.ROTATION,
+		peoteView.setDisplaylist( { displaylist:0, type:DType.ANIM|DType.ROTATION|DType.RGBA,
 			enable:true,
 			elements:max_bunnys,
 			//w:1920, h:1280,

@@ -124,7 +124,7 @@ class ElementAnim implements I_Element
 		
 		// IMAGE
 		if (param.image == null && PeoteView.elementDefaults.image != null ) param.image = PeoteView.elementDefaults.image;
-		if (param.image!= null && param.image != image)
+		if (param.image != null && param.image != image)
 		{
 			if (image != -1) texturecache.unUseImage(image);
 			if (texturecache.useImage(param.image) != null)
@@ -184,6 +184,10 @@ class ElementAnim implements I_Element
 			w: w,
 			h: h,
 			rgba: rgba,
+			rotation: rotation,
+			pivotX: pivotX,
+			pivotY: pivotY,
+			time: time,
 			tile:tile,
 			image:image
 		};

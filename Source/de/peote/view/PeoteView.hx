@@ -338,7 +338,9 @@ class PeoteView
 			
 			// TODO TODO -> depends on blend (and hardware diff webgl/cpp)
 			if (dl.blend == 0) {
-				GL.enable(GL.DEPTH_TEST); GL.depthFunc(GL.LEQUAL); //GL.depthFunc(GL.LESS);
+				GL.enable(GL.DEPTH_TEST);
+				GL.depthFunc(GL.LEQUAL);
+				//GL.depthFunc(GL.LESS);
 			} else {GL.disable(GL.DEPTH_TEST);}
 			// TODO: alpha (+ filter?) je nach dl
 			

@@ -182,7 +182,9 @@ class ElementAnimBuffer implements I_ElementBuffer
 		
 		GL.vertexAttribPointer (attr.get(Program.aTIME),     2, GL.FLOAT, false, VERTEX_STRIDE, TIME_OFFSET );
 		
-		GL.vertexAttribPointer (attr.get(Program.aTEXTCOORD),2, GL.SHORT, false, VERTEX_STRIDE, TEX_OFFSET );// better medium_float?
+		GL.vertexAttribPointer (attr.get(Program.aTEXTCOORD), 2, GL.SHORT, false, VERTEX_STRIDE, TEX_OFFSET );// better medium_float?
+		
+		// TODO: -> stupid  ;)=   i need dummy here ?
 	}
 
 	/*

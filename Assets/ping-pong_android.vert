@@ -55,8 +55,8 @@ uniform vec2 uDelta;
 
 void main(void) {
 	#if_RGBA
-	vRGBA = mix(aRGBA.wzyx, aRGBA_END.wzyx, clamp( (uTime-aTime.x)/(aTime.y - aTime.x), 0.0, 1.0) );	
-	//vRGBA = aRGBA.wzyx + (aRGBA_END.wzyx - aRGBA.wzyx) * clamp( (uTime-aTime.x)/(aTime.y - aTime.x), 0.0, 1.0);
+	//vRGBA = mix(aRGBA.wzyx, aRGBA_END.wzyx, clamp( (uTime-aTime.x)/(aTime.y - aTime.x), 0.0, 1.0) );
+	vRGBA = aRGBA.wzyx + (aRGBA_END.wzyx - aRGBA.wzyx) * clamp( (uTime-aTime.x)/(aTime.y - aTime.x), 0.0, 1.0);
 	#end_RGBA
 	
 	vTexCoord = aTexCoord;
@@ -93,7 +93,7 @@ void main(void) {
 	
 	float x = VertexPosStart.x + floor( 
 						(VertexPosEnd.x - VertexPosStart.x)
-						* (uTime-aTime.x) / (aTime.y - aTime.x)
+						* max( (uTime-aTime.x) / (aTime.y - aTime.x), 0.0 )
 						* zoom) / zoom;
 						
 	float signx = sign(-x);
@@ -101,7 +101,7 @@ void main(void) {
 
 	float y = VertexPosStart.y + floor( 
 						(VertexPosEnd.y - VertexPosStart.y)
-						* (uTime-aTime.x) / (aTime.y - aTime.x)
+						* max( (uTime-aTime.x) / (aTime.y - aTime.x), 0.0 )
 						* zoom) / zoom;
 						
 	float signy = sign(-y);

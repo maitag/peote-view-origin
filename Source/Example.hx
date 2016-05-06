@@ -64,7 +64,7 @@ class Example extends Application {
 			case OPENGL (gl):
 				width = window.width;
 				height = window.height;
-				run(); // start Example Code (override by child example classes)				
+				//run(); // start Example Code (override by child example classes)				
 			default:
 				trace("only opengl supported");
 		}
@@ -207,16 +207,27 @@ class Example extends Application {
 		setOffsets();
 	}
 
-	public override function onRenderContextLost (renderer:Renderer):Void {
-		
-		trace(" --------- ERROR :  LOST RENDERCONTEXT ----------- ");
-		
+	public override function onRenderContextLost (renderer:Renderer):Void
+	{		
+		trace(" --------- ERROR :  LOST RENDERCONTEXT ----------- ");		
 	}
-	public override function onPreloadComplete ():Void {
-		
+	
+	public override function onRenderContextRestored (renderer:Renderer, context:RenderContext):Void
+	{
+		trace(" --------- onRenderContextRestored ----------- ");		
+	}
+	
+	public override function onPreloadProgress (loaded:Int, total:Int):Void
+	{		
+		trace(" --------- onPreloadProgress ----------- ");		
+	}
+	
+	public override function onPreloadComplete ():Void
+	{		
 		trace(" --------- onPreload Complete ----------- ");
-		
+		run();
 	}
+	
 	public override function onKeyDown (window:Window, keyCode:KeyCode, modifier:KeyModifier):Void
 	{
 		switch (keyCode) {
