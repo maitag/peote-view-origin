@@ -48,7 +48,7 @@ That Items will be reserved in a "static way" to get best performance.
 
 
 You will be able to display "massive" graphic elements and use your own shadercode
-for variation, animation or combining Imagadata!
+for variation, animation or combining Imagedata!
 
 To be near OpenGl - all items are numbered - to speed up rendering.
 
@@ -74,12 +74,10 @@ A Texture reserves space on GPU-Ram for storing many (same sized) Imagedata.
 		//type: RGBA      // not implemented yes (allways RGBA)
 	}); 
 ```	
-Return values: 
-- max number of Images that can be stored at same time (16 in this case)
-- OR Image Width if only set aspect and maxImages to store
 	
 Texturesize depends on Hardware (2048 up to 16384), should be a power of 2 and can
 be checked throught: peoteView.MAX_TEXTURE_SIZE
+
 
 
 #####2) Image-Data
@@ -102,6 +100,7 @@ if some element use an image, it's Data will be load into free Image-Slot of ass
 		h: 512                        // if it's smaller than reserved in texture
 	});
 ```
+
 		
 
 #####3) Program (GPU-Shader)
@@ -123,6 +122,7 @@ opengl-shadercode and textures that can be use
 	});
 ```		
 		
+
 		
 
 #####4) Displaylist
@@ -172,8 +172,11 @@ little Graphic inside Displaylist-Area (like a c64-sprite)
 		w: 100,	// width
 		h: 100,	// height
 		z: 0    // z-order   ( 0 <= z <= 32767 )
+		
+		// (rotation, animation, coloring ...)
 	});
 ```
+
 	
 
 #####How to optimize render-loop:
