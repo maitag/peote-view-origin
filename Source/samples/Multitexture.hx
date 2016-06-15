@@ -26,15 +26,16 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package;
+package samples;
 
+import samples.Sample;
 import de.peote.view.PeoteView;
-import de.peote.view.displaylist.DType;
+import de.peote.view.displaylist.DisplaylistType;
 import haxe.Timer;
 
 import lime.ui.Window;
 
-class ExampleTesting extends Example
+class Multitexture extends samples.Sample
 {
 	public override function run() 
 	{
@@ -42,48 +43,134 @@ class ExampleTesting extends Example
 		startTime = Timer.stamp();
 		var t:Float = Timer.stamp() - startTime;
 		
-		peoteView = new PeoteView(10, 1000); // max_displaylists, max_programs (for all displaylists)
+		peoteView = new PeoteView({
+			maxDisplaylists:    10,
+			maxPrograms:       100,
+			maxTextures:       100,
+			maxImages:        1000
+		});
 		
 		// PICKING
-		peoteView.createFramebuffer();
+		peoteView.createFramebuffer(); // TODO: set automatically if displayneed use picking
 		
 		// -----------------------------------------------------
-		// ---------------- PROGRAM SHADER ---------------------
+		// --------------------- TEXTURECACHES -----------------
 		// -----------------------------------------------------
-		peoteView.setProgram(0, "assets/debug.frag", "assets/debug.vert");
+		
+		peoteView.setTexture( {  texture: 0,
+			
+			w:   2048,        // Texture width
+			h:   2048,        // Texture height
+			
+			iw:  512,         // Image-Slot width
+			ih:  512,         // Image-Slot height
+								  
+			//type: RGBA  // not implemented yes (allways RGBA)
+		});
+		
+		peoteView.setTexture( {  texture: 1,
+			
+			w:   2048,        // Texture width
+			h:   2048,        // Texture height
+			
+			iw:  512,         // Image-Slot width
+			ih:  512,         // Image-Slot height
+								  
+			//type: RGBA  // not implemented yes (allways RGBA)
+		});
+		
+		peoteView.setTexture( {  texture: 2,
+			
+			w:   2048,        // Texture width
+			h:   2048,        // Texture height
+			
+			iw:  512,         // Image-Slot width
+			ih:  512,         // Image-Slot height
+								  
+			//type: RGBA  // not implemented yes (allways RGBA)
+		});
 		
 		// -----------------------------------------------------
 		// ------------------- IMAGES --------------------------
 		// -----------------------------------------------------
-		//peoteView.setImage(0, "assets/peote_font_green.png", 512, 512);
-		//peoteView.setImage(1, "assets/peote_tiles.png", 512, 512);
-		peoteView.setImage(0, "assets/peote_font_white.png", 512, 512);
+		peoteView.setImage( {  image: 0,
+		
+			texture:0,
+			//filename: "assets/peote_font_green.png",
+			filename: "assets/peote_font_white.png",
+			w: 512,
+			h: 512
+		});
+		
+		peoteView.setImage( {  image: 1,
+		
+			texture:1,
+			filename: "assets/peote_tiles.png",
+			w: 512,
+			h: 512
+		});
+		
+		peoteView.setImage( {  image: 2,
+		
+			texture:2,
+			filename: "assets/peote_tiles_bunnys.png",
+			w: 512,
+			h: 512,
+			preload:true
+		});
+		
+		// -----------------------------------------------------
+		// ---------------- PROGRAM SHADER ---------------------
+		// -----------------------------------------------------
+		peoteView.setProgram( {	program: 0,
+			textures: [0,1]
+			//vshader: "assets/debug.vert",
+			//fshader: "assets/debug.frag"
+		});
+		
+		var timer = new Timer(2000);
+		timer.run = function() {
+			timer.stop();
+			peoteView.setProgram( {	program: 0,
+				textures: [0,2]
+			});
+		}
+		
 		
 		// -----------------------------------------------------
 		// ---------------- DISPLAYLISTS -----------------------
 		// -----------------------------------------------------
-		peoteView.setDisplaylist( { displaylist:0, type:DType.ANIM|DType.RGBA|DType.ROTATION|DType.PICKING,//|DType.ZINDEX,
-			elements:10000, programs:1, segments:10, // for low-end devices better max_elements < 100 000
-			x:0, y:0,
-			w:512, h:512,
+		peoteView.setDisplaylist( {	displaylist: 0,
+			
+			type: //DisplaylistType.ANIM |
+			      DisplaylistType.RGBA |
+				  DisplaylistType.ROTATION |
+				  DisplaylistType.PICKING |
+				  DisplaylistType.ZINDEX
+				,
+			
+			maxElements:    10000,
+			maxPrograms:       10,
+			bufferSegments:    10,
+			
+			x: 0,
+			y: 0,
+			w: 512,
+			h: 512,
 			z:0,
+			
 			renderBackground:true,
-			r:0.1,g:0.5,b:0.8, a:0.8,
-			//renderToImage:true,
-			//image:0,
+
+			// TODO: better backgroundColor:[0.1, 0.5, 0.8, 0.8]
+			r:0.1,
+			g:0.5,
+			b:0.8,
+			a:0.8,
+			
+			//renderToImage:0, // (not yet)
+			
 			enable:true
 		});
-		/*
-		peoteView.setDisplaylist( { displaylist:1, type:DType.ANIM|DType.RGBA|DType.ROTATION, //|DType.ZINDEX
-			elements:1000, programs:10, segments:10, // for low-end devices better max_elements < 100 000
-			x:512, y:0,
-			w:150, h:150,
-			z:1,
-			renderBackground:true,
-			r:0.8,g:0.5,b:0.1, a:0.8,
-			enable:true
-		});
-		*/
 		
 		// -----------------------------------------------------
 		// ---------------- ELEMENTS ---------------------------
@@ -91,6 +178,27 @@ class ExampleTesting extends Example
 		peoteView.setElementDefaults( { displaylist:0 } );
 		
 		peoteView.setElement( { element:0,
+			x:100, y:100,
+			w:100, h:100,
+			pivotX:50, pivotY:50,
+			rotation:-90,
+			program:0,
+			image:0,
+			tile:2
+		});
+		
+		peoteView.setElement( { element:1,
+			x:200, y:100,
+			w:100, h:100,
+			pivotX:50, pivotY:50,
+			rotation:135,
+			program:0,
+			image:1,
+			tile:1
+		});
+
+		/*
+		peoteView.setElement( { element:2,
 			x:0, y:0,
 			rgba:0xff0000ff,
 			pivotX:50,
@@ -106,24 +214,8 @@ class ExampleTesting extends Example
 			tile:65,
 			program:0
 		});
-		peoteView.setElement( { element:1,
-			x:100, y:100,
-			w:100, h:100,
-			pivotX:50, pivotY:50,
-			rotation:-90,
-			image:0,
-			tile:65,
-			program:0
-		});
-		peoteView.setElement( { element:2,
-			x:200, y:100,
-			w:100, h:100,
-			pivotX:50, pivotY:50,
-			rotation:135,
-			image:0,
-			tile:65,
-			program:0
-		});
+		*/
+		
 		/*
 		peoteView.setElementDefaults({ displaylist:1, z:0, image:0 });
 		

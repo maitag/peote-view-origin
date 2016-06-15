@@ -29,7 +29,7 @@
 package de.peote.view.element;
 
 import de.peote.view.ProgramCache;
-import de.peote.view.displaylist.DType;
+import de.peote.view.displaylist.DisplaylistType;
 
 import lime.graphics.opengl.GL;
 import lime.graphics.opengl.GLBuffer;
@@ -68,9 +68,9 @@ class ElementSimpleBuffer implements I_ElementBuffer
 		type = t;
 		
 		var offset = 4;
-		if (type & DType.ZINDEX != 0) { ZINDEX_OFFSET = offset; offset += 4;  } 
-		if (type & DType.RGBA != 0)   { RGBA_OFFSET   = offset; offset += 4;  } 
-		if (type & DType.PICKING != 0) { PICKING_OFFSET = offset; offset += 4; }
+		if (type & DisplaylistType.ZINDEX != 0) { ZINDEX_OFFSET = offset; offset += 4;  } 
+		if (type & DisplaylistType.RGBA != 0)   { RGBA_OFFSET   = offset; offset += 4;  } 
+		if (type & DisplaylistType.PICKING != 0) { PICKING_OFFSET = offset; offset += 4; }
 		TEX_OFFSET    = offset; offset += 4;
 		VERTEX_STRIDE = offset;
 		
@@ -102,24 +102,24 @@ class ElementSimpleBuffer implements I_ElementBuffer
 	public inline function disableVertexAttributes():Void
 	{
 		GL.disableVertexAttribArray (attr.get(Program.aPOSITION));
-		if (type & DType.ZINDEX != 0)  GL.disableVertexAttribArray (attr.get(Program.aZINDEX));
-		if (type & DType.RGBA != 0)    GL.disableVertexAttribArray (attr.get(Program.aRGBA));
-		if (type & DType.PICKING != 0) GL.disableVertexAttribArray (attr.get(Program.aELEMENT));
+		if (type & DisplaylistType.ZINDEX != 0)  GL.disableVertexAttribArray (attr.get(Program.aZINDEX));
+		if (type & DisplaylistType.RGBA != 0)    GL.disableVertexAttribArray (attr.get(Program.aRGBA));
+		if (type & DisplaylistType.PICKING != 0) GL.disableVertexAttribArray (attr.get(Program.aELEMENT));
 		GL.disableVertexAttribArray (attr.get(Program.aTEXTCOORD));
 	}
 	public inline function setVertexAttributes():Void
 	{		
 		// vertexAttribPointers
 		GL.enableVertexAttribArray (attr.get(Program.aPOSITION));
-		if (type & DType.ZINDEX != 0) GL.enableVertexAttribArray (attr.get(Program.aZINDEX));
-		if (type & DType.RGBA   != 0) GL.enableVertexAttribArray (attr.get(Program.aRGBA));
-		if (type & DType.PICKING != 0) GL.enableVertexAttribArray (attr.get(Program.aELEMENT));
+		if (type & DisplaylistType.ZINDEX != 0) GL.enableVertexAttribArray (attr.get(Program.aZINDEX));
+		if (type & DisplaylistType.RGBA   != 0) GL.enableVertexAttribArray (attr.get(Program.aRGBA));
+		if (type & DisplaylistType.PICKING != 0) GL.enableVertexAttribArray (attr.get(Program.aELEMENT));
 		GL.enableVertexAttribArray (attr.get(Program.aTEXTCOORD));
 		
 		GL.vertexAttribPointer (attr.get(Program.aPOSITION), 2, GL.SHORT, false, VERTEX_STRIDE, 0 );
-		if (type & DType.ZINDEX != 0)  GL.vertexAttribPointer (attr.get(Program.aZINDEX), 1, GL.FLOAT,         false, VERTEX_STRIDE, ZINDEX_OFFSET );
-		if (type & DType.RGBA   != 0)  GL.vertexAttribPointer (attr.get(Program.aRGBA  ), 4, GL.UNSIGNED_BYTE,  true, VERTEX_STRIDE, RGBA_OFFSET );
-		if (type & DType.PICKING != 0) GL.vertexAttribPointer (attr.get(Program.aELEMENT), 4, GL.UNSIGNED_BYTE,  true, VERTEX_STRIDE, PICKING_OFFSET );
+		if (type & DisplaylistType.ZINDEX != 0)  GL.vertexAttribPointer (attr.get(Program.aZINDEX), 1, GL.FLOAT,         false, VERTEX_STRIDE, ZINDEX_OFFSET );
+		if (type & DisplaylistType.RGBA   != 0)  GL.vertexAttribPointer (attr.get(Program.aRGBA  ), 4, GL.UNSIGNED_BYTE,  true, VERTEX_STRIDE, RGBA_OFFSET );
+		if (type & DisplaylistType.PICKING != 0) GL.vertexAttribPointer (attr.get(Program.aELEMENT), 4, GL.UNSIGNED_BYTE,  true, VERTEX_STRIDE, PICKING_OFFSET );
 		
 		GL.vertexAttribPointer (attr.get(Program.aTEXTCOORD),2, GL.SHORT, false, VERTEX_STRIDE, TEX_OFFSET );// TODO: evtl. optimize mit medium_float
 	}
@@ -155,13 +155,13 @@ class ElementSimpleBuffer implements I_ElementBuffer
 				+ pivotY ));
 	}
 	
-	public inline function set( e:I_Element, param:Param ):Void
+	public inline function set( e:I_Element, param:ElementParam ):Void
 	{
 		var buf_pos:Int = e.buf_pos;
 		
 		var x:Int, y:Int, xw:Int, yh:Int, x1:Int, y1:Int, xw1:Int, yh1:Int;
 		
-		if (type & DType.ROTATION != 0 && param.rotation != null) 
+		if (type & DisplaylistType.ROTATION != 0 && param.rotation != null) 
 		{
 			param.pivotX = (param.pivotX != null) ? param.x + param.pivotX : param.x;
 			param.pivotY = (param.pivotY != null) ? param.y + param.pivotY : param.y;
@@ -186,7 +186,7 @@ class ElementSimpleBuffer implements I_ElementBuffer
 			yh = yh1 = y + param.h;
 		}
 		
-		var z:Int = param.z;
+		var z:Float = Math.max(0.0, Math.min(1.0, param.z/32767) );
 		var rgba:Int = param.rgba;
 		
 		var tx:Int = param.tx;
@@ -199,39 +199,39 @@ class ElementSimpleBuffer implements I_ElementBuffer
 		buffFull.setByteOffset( 0 );
 		
 		buffFull.write_2_Short( xw, yh );                          // VERTEX_POSITION_START
-		if (type & DType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
-		if (type & DType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
-		if (type & DType.PICKING != 0) buffFull.write_1_UInt( param.element ); // ELEMENT
+		if (type & DisplaylistType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
+		if (type & DisplaylistType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
+		if (type & DisplaylistType.PICKING != 0) buffFull.write_1_UInt( param.element ); // ELEMENT
 		buffFull.write_2_Short( txw, tyh );                        // TEXT COORD 
 		
 		buffFull.write_2_Short( xw, yh );                          // VERTEX_POSITION_START
-		if (type & DType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
-		if (type & DType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
-		if (type & DType.PICKING != 0) buffFull.write_1_UInt( param.element ); // ELEMENT
+		if (type & DisplaylistType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
+		if (type & DisplaylistType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
+		if (type & DisplaylistType.PICKING != 0) buffFull.write_1_UInt( param.element ); // ELEMENT
 		buffFull.write_2_Short( txw, tyh );                        // TEXT COORD 
 		
 		buffFull.write_2_Short( x1, yh1 );                           // VERTEX_POSITION_START
-		if (type & DType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
-		if (type & DType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
-		if (type & DType.PICKING != 0) buffFull.write_1_UInt( param.element ); // ELEMENT
+		if (type & DisplaylistType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
+		if (type & DisplaylistType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
+		if (type & DisplaylistType.PICKING != 0) buffFull.write_1_UInt( param.element ); // ELEMENT
 		buffFull.write_2_Short( tx, tyh );                         // TEXT COORD 
 		
 		buffFull.write_2_Short( xw1, y1 );                           // VERTEX_POSITION_START
-		if (type & DType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
-		if (type & DType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
-		if (type & DType.PICKING != 0) buffFull.write_1_UInt( param.element ); // ELEMENT
+		if (type & DisplaylistType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
+		if (type & DisplaylistType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
+		if (type & DisplaylistType.PICKING != 0) buffFull.write_1_UInt( param.element ); // ELEMENT
 		buffFull.write_2_Short( txw, ty );                         // TEXT COORD 
 		
 		buffFull.write_2_Short( x, y );                            // VERTEX_POSITION_START
-		if (type & DType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
-		if (type & DType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
-		if (type & DType.PICKING != 0) buffFull.write_1_UInt( param.element ); // ELEMENT
+		if (type & DisplaylistType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
+		if (type & DisplaylistType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
+		if (type & DisplaylistType.PICKING != 0) buffFull.write_1_UInt( param.element ); // ELEMENT
 		buffFull.write_2_Short( tx, ty );                          // TEXT COORD 
 		
 		buffFull.write_2_Short( x, y );                            // VERTEX_POSITION_START
-		if (type & DType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
-		if (type & DType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
-		if (type & DType.PICKING != 0) buffFull.write_1_UInt( param.element ); // ELEMENT
+		if (type & DisplaylistType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
+		if (type & DisplaylistType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
+		if (type & DisplaylistType.PICKING != 0) buffFull.write_1_UInt( param.element ); // ELEMENT
 		buffFull.write_2_Short( tx, ty );                          // TEXT COORD 
 		
 		buffFull.setByteOffset( 0 );
@@ -347,7 +347,7 @@ class ElementSimpleBuffer implements I_ElementBuffer
 			gl_Position = mat4 (
 				vec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),
 				vec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),
-				vec4(0.0, 0.0, -0.001, 0.0),
+				vec4(0.0, 0.0, -1.0, 0.0),
 				vec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)
 			)
 			* vec4 (aPosition ,
@@ -372,19 +372,38 @@ class ElementSimpleBuffer implements I_ElementBuffer
 			#end_PICKING
 		#end_RGBA
 		
-		uniform sampler2D uImage;
-		
 		#if_PICKING
 		uniform vec2 uResolution;
 		#end_PICKING
 		
+		
+		#if_TEXTURE0
+		uniform sampler2D uTexture0;
+		#end_TEXTURE0
+		
+		#if_TEXTURE1
+		uniform sampler2D uTexture1;
+		#end_TEXTURE1
+		
 		void main(void)
-		{
-			vec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE);
-			if(texel.a < 0.5) discard; // TODO (z-order/blend mode!!!)
+		{	
+			#if_TEXTURE0
+			vec4 texel = texture2D(uTexture0, vTexCoord / #MAX_TEXTURE0);
+			#else_TEXTURE0
+			vec4 texel = vec4(1.0, 1.0, 1.0, 1.0);
+			#end_TEXTURE0
+			
+			// if use more than one texture unit to combine or do something crazy here:)
+			#if_TEXTURE1
+			texel = texel * texture2D(uTexture1, vTexCoord / #MAX_TEXTURE0);
+			#end_TEXTURE1
+			// ... TEXTURE2 ...TEXTURE3 ...
+			
+			if (texel.a < 0.5) discard; // TODO (z-order/blend mode!!!)
+			
 			#if_PICKING
 			if (uResolution.x == 1.0) { 
-				gl_FragColor = vRGBA; //vec4(1.0, 1.0, 1.0, 1.0);
+				gl_FragColor = vRGBA; // vRGBA color defines element-number for gl-picking;
 			}
 			else {
 				#if_RGBA

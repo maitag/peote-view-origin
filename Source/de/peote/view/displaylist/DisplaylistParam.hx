@@ -4,12 +4,16 @@ package de.peote.view.displaylist;
  * @author Sylvio Sell
  */
 
-typedef DParam =
+typedef DisplaylistParam =
 {
 	?displaylist:Int,
 	?type:Int,
 	?enable:Bool,
-	?elements:Int, ?programs:Int, ?segments:Int,
+	
+	?maxElements:Int,
+	?maxPrograms:Int,
+	?bufferSegments:Int,
+	
 	?x:Int,
 	?y:Int,
 	?w:Int,
@@ -30,10 +34,3 @@ typedef DParam =
 	?a:Float,
 	?renderBackground:Bool
 }
-
-/*
-typedef DParamAnim =
-{
-
-}
-*/

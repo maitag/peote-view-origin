@@ -1,17 +1,17 @@
-package de.peote.view;
+package de.peote.view.element;
 import de.peote.view.texture.Image;
 
 /**
  * @author Sylvio Sell
  */
 
-typedef Param =
+typedef ElementParam =
 {
 	?element:Int,
 	?displaylist:Int,
 	
-	?start:ParamAnim,
-	?end:ParamAnim,
+	?start:ElementParamAnim,
+	?end:ElementParamAnim,
 	
 	?x:Int, ?y:Int, ?w:Int, ?h:Int,
 	?time:Float,
@@ -28,7 +28,7 @@ typedef Param =
 	?img:Image
 }
 
-typedef ParamAnim =
+typedef ElementParamAnim =
 {
 	?x:Int, ?y:Int, ?w:Int, ?h:Int,
 

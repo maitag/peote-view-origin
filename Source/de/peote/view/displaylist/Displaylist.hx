@@ -31,10 +31,10 @@ package de.peote.view.displaylist;
 import de.peote.view.Program;
 import de.peote.view.ProgramCache;
 import de.peote.view.texture.Image;
-import de.peote.view.texture.TextureCache;
-import de.peote.view.texture.Texture;
-import de.peote.view.element.*;
-import de.peote.view.Param;
+import de.peote.view.texture.ImageCache;
+import de.peote.view.element.ElementParam;
+import de.peote.view.element.I_Element;
+import de.peote.view.element.I_ElementBuffer;
 import lime.graphics.opengl.GLTexture;
 
 import lime.graphics.opengl.GLProgram;
@@ -88,20 +88,20 @@ class Displaylist<ELEMENT:{function new():Void;}, BUFFER:{function new(t:Int, b:
 	public var elemBuff:I_ElementBuffer;
 	
 	// from peoteView
-	public var texturecache:TextureCache;
+	public var imageCache:ImageCache;
 	public var programCache:ProgramCache;
 	
 	// -----------
 	
-	public function new(param:DParam, programCache:ProgramCache, texturecache:TextureCache) 
+	public function new(param:DisplaylistParam, programCache:ProgramCache, imageCache:ImageCache) 
 	{
-		this.texturecache = texturecache;
+		this.imageCache = imageCache;
 		this.programCache = programCache;
 		this.type = param.type;
 		
-		this.elements = (param.elements != null) ? param.elements : 1;
-		this.programs = (param.programs!= null) ? param.programs : 1;
-		this.segments = Math.floor(Math.max( (param.segments != null) ? param.segments : 1, programs ));
+		this.elements = (param.maxElements != null) ? param.maxElements : 1;
+		this.programs = (param.maxPrograms!= null) ? param.maxPrograms : 1;
+		this.segments = Math.floor(Math.max( (param.bufferSegments != null) ? param.bufferSegments : 1, programs ));
 		
 		z = (param.z != null) ? param.z : 0;
 		
@@ -123,7 +123,7 @@ class Displaylist<ELEMENT:{function new():Void;}, BUFFER:{function new(t:Int, b:
 		element = null;
 	}
 
-	public inline function set(param:DParam):Void
+	public inline function set(param:DisplaylistParam):Void
 	{
 		if (param.x != null) x = param.x;
 		if (param.y != null) y = param.y;		
@@ -140,7 +140,7 @@ class Displaylist<ELEMENT:{function new():Void;}, BUFFER:{function new(t:Int, b:
 		if (param.renderBackground != null) renderBackground = param.renderBackground;		
 	}
 
-	public inline function setElement(param:Param):Void
+	public inline function setElement(param:ElementParam):Void
 	{		
 		var e:I_Element = element.get(param.element);
 		
@@ -150,7 +150,7 @@ class Displaylist<ELEMENT:{function new():Void;}, BUFFER:{function new(t:Int, b:
 			
 			if (param.program == null) param.program = programCache.program.length-1;
 
-			buffer.addElement( e, programCache.getProgram(param.program, type, elemBuff), param.program );
+			buffer.addElement( e, programCache.getProgram(param.program, type, elemBuff), param.program, programCache.programTextures.get(param.program) ); // TODO: optimize call
 			element.set( param.element, e );
 			//trace("addElement "+param.element+" displaylist:"+param.displaylist+" buf_pos :"+e.buf_pos + " start" + e.act_program.start+ " size" + e.act_program.size);
 		}
@@ -158,15 +158,15 @@ class Displaylist<ELEMENT:{function new():Void;}, BUFFER:{function new(t:Int, b:
 		{
 			elemBuff.del(e);
 			buffer.delElement(e);
-			buffer.addElement( e, programCache.getProgram(param.program, type, elemBuff), param.program );
+			buffer.addElement( e, programCache.getProgram(param.program, type, elemBuff), param.program, programCache.programTextures.get(param.program) ); // TODO: optimize call
 		}
 		//else trace("set element "+param.element+"--------- buf_pos :"+e.buf_pos);
 		
-		e.set(elemBuff, param, texturecache);
+		e.set(elemBuff, param, imageCache);
 	}
 
 			
-	public inline function getElement(element_nr:Int):Param
+	public inline function getElement(element_nr:Int):ElementParam
 	{
 		var e:I_Element = element.get(element_nr);
 		return (e == null) ? null : e.get();
@@ -186,7 +186,7 @@ class Displaylist<ELEMENT:{function new():Void;}, BUFFER:{function new(t:Int, b:
 			element.set(element_nr, null);
 			
 			buffer.delElement(e);
-			e.del(elemBuff, texturecache);
+			e.del(elemBuff, imageCache);
 		}
 	}
 	

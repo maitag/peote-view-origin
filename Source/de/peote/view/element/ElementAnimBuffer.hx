@@ -29,7 +29,7 @@
 package de.peote.view.element;
 
 import de.peote.view.ProgramCache;
-import de.peote.view.displaylist.DType;
+import de.peote.view.displaylist.DisplaylistType;
 
 import lime.graphics.opengl.GL;
 import lime.graphics.opengl.GLBuffer;
@@ -75,18 +75,18 @@ class ElementAnimBuffer implements I_ElementBuffer
 		
 		
 		var offset = 8;
-		if (type & DType.ZINDEX != 0) {
+		if (type & DisplaylistType.ZINDEX != 0) {
 			ZINDEX_OFFSET = offset; offset += 4;
 		}
-		if (type & DType.RGBA != 0)   {
+		if (type & DisplaylistType.RGBA != 0)   {
 			RGBA_OFFSET     = offset; offset += 4;
 			RGBA_END_OFFSET = offset; offset += 4;
 		}
-		if (type & DType.ROTATION != 0)   {
+		if (type & DisplaylistType.ROTATION != 0)   {
 			ROTATION_OFFSET = offset; offset += 8;
 			PIVOT_OFFSET    = offset; offset += 8;
 		}
-		if (type & DType.PICKING != 0) {
+		if (type & DisplaylistType.PICKING != 0) {
 			PICKING_OFFSET = offset; offset += 4;
 		}
 		TIME_OFFSET   = offset; offset += 8;
@@ -130,16 +130,16 @@ class ElementAnimBuffer implements I_ElementBuffer
 	public inline function disableVertexAttributes():Void
 	{
 		GL.disableVertexAttribArray (attr.get(Program.aPOSITION));
-		if (type & DType.ZINDEX != 0) GL.disableVertexAttribArray (attr.get(Program.aZINDEX));
-		if (type & DType.RGBA != 0) {
+		if (type & DisplaylistType.ZINDEX != 0) GL.disableVertexAttribArray (attr.get(Program.aZINDEX));
+		if (type & DisplaylistType.RGBA != 0) {
 			GL.disableVertexAttribArray (attr.get(Program.aRGBA));
 			GL.disableVertexAttribArray (attr.get(Program.aRGBA_END));
 		}
-		if (type & DType.ROTATION != 0) {
+		if (type & DisplaylistType.ROTATION != 0) {
 			GL.disableVertexAttribArray (attr.get(Program.aRotation));
 			GL.disableVertexAttribArray (attr.get(Program.aPivot));
 		}
-		if (type & DType.PICKING != 0) {
+		if (type & DisplaylistType.PICKING != 0) {
 			GL.disableVertexAttribArray (attr.get(Program.aELEMENT));
 		}
 		GL.disableVertexAttribArray (attr.get(Program.aTIME));
@@ -149,16 +149,16 @@ class ElementAnimBuffer implements I_ElementBuffer
 	{		
 		// vertexAttribPointers
 		GL.enableVertexAttribArray (attr.get(Program.aPOSITION));
-		if (type & DType.ZINDEX != 0) GL.enableVertexAttribArray (attr.get(Program.aZINDEX));
-		if (type & DType.RGBA   != 0) {
+		if (type & DisplaylistType.ZINDEX != 0) GL.enableVertexAttribArray (attr.get(Program.aZINDEX));
+		if (type & DisplaylistType.RGBA   != 0) {
 			GL.enableVertexAttribArray (attr.get(Program.aRGBA));
 			GL.enableVertexAttribArray (attr.get(Program.aRGBA_END));
 		}
-		if (type & DType.ROTATION   != 0) {
+		if (type & DisplaylistType.ROTATION   != 0) {
 			GL.enableVertexAttribArray (attr.get(Program.aRotation));
 			GL.enableVertexAttribArray (attr.get(Program.aPivot));
 		}
-		if (type & DType.PICKING != 0) {
+		if (type & DisplaylistType.PICKING != 0) {
 			GL.enableVertexAttribArray (attr.get(Program.aELEMENT));
 		}
 		GL.enableVertexAttribArray (attr.get(Program.aTIME));
@@ -167,16 +167,16 @@ class ElementAnimBuffer implements I_ElementBuffer
 		// -----------------
 		
 		GL.vertexAttribPointer (attr.get(Program.aPOSITION), 4, GL.SHORT, false, VERTEX_STRIDE, 0 );
-		if (type & DType.ZINDEX != 0) GL.vertexAttribPointer (attr.get(Program.aZINDEX), 1, GL.FLOAT, false, VERTEX_STRIDE, ZINDEX_OFFSET );
-		if (type & DType.RGBA != 0) {
+		if (type & DisplaylistType.ZINDEX != 0) GL.vertexAttribPointer (attr.get(Program.aZINDEX), 1, GL.FLOAT, false, VERTEX_STRIDE, ZINDEX_OFFSET );
+		if (type & DisplaylistType.RGBA != 0) {
 			GL.vertexAttribPointer (attr.get(Program.aRGBA),    4, GL.UNSIGNED_BYTE,  true, VERTEX_STRIDE, RGBA_OFFSET );
 			GL.vertexAttribPointer (attr.get(Program.aRGBA_END),4, GL.UNSIGNED_BYTE,  true, VERTEX_STRIDE, RGBA_END_OFFSET );
 		}
-		if (type & DType.ROTATION != 0) {
+		if (type & DisplaylistType.ROTATION != 0) {
 			GL.vertexAttribPointer (attr.get(Program.aRotation), 2, GL.FLOAT,  false, VERTEX_STRIDE, ROTATION_OFFSET );
 			GL.vertexAttribPointer (attr.get(Program.aPivot),    4, GL.SHORT,  false, VERTEX_STRIDE, PIVOT_OFFSET );
 		}
-		if (type & DType.PICKING != 0) {
+		if (type & DisplaylistType.PICKING != 0) {
 			GL.vertexAttribPointer (attr.get(Program.aELEMENT), 4, GL.UNSIGNED_BYTE,  true, VERTEX_STRIDE, PICKING_OFFSET );
 		}
 		
@@ -203,7 +203,7 @@ class ElementAnimBuffer implements I_ElementBuffer
 		
 	}
 
-	public inline function set( e:I_Element, param:Param ):Void
+	public inline function set( e:I_Element, param:ElementParam ):Void
 	{
 		var buf_pos:Int = e.buf_pos;
 		
@@ -226,7 +226,7 @@ class ElementAnimBuffer implements I_ElementBuffer
 		var t2:Float = param.end.time;
 
 		// static
-		var z:Int = param.z;
+		var z:Float = Math.max(0.0, Math.min(1.0, param.z/32767) );
 
 		var tx:Int = param.tx;
 		var ty:Int = param.ty;
@@ -248,18 +248,18 @@ class ElementAnimBuffer implements I_ElementBuffer
 		
 		buffFull.write_2_Short( xw1, yh1 );	// VERTEX_POSITION_START
 		buffFull.write_2_Short( xw2, yh2 );	// VERTEX_POSITION_END
-		if (type & DType.ZINDEX != 0)
+		if (type & DisplaylistType.ZINDEX != 0)
 			buffFull.write_1_Float( z ); 	// Z INDEX
-		if (type & DType.RGBA   != 0) {
+		if (type & DisplaylistType.RGBA   != 0) {
 			buffFull.write_1_UInt( rgba1 ); // RGBA START
 			buffFull.write_1_UInt( rgba2 ); // RGBA END
 		}
-		if (type & DType.ROTATION != 0) {
+		if (type & DisplaylistType.ROTATION != 0) {
 			buffFull.write_2_Float( rotation1, rotation2 ); // Rotation START/END
 			buffFull.write_2_Short( pivot_x1, pivot_y1 ); // PIVOT START
 			buffFull.write_2_Short( pivot_x2, pivot_y2 ); // PIVOT END
 		}
-		if (type & DType.PICKING != 0) {
+		if (type & DisplaylistType.PICKING != 0) {
 			buffFull.write_1_UInt( param.element ); // ELEMENT
 		}
 		buffFull.write_2_Float( t1, t2   ); // TIME
@@ -269,18 +269,18 @@ class ElementAnimBuffer implements I_ElementBuffer
 		
 		buffFull.write_2_Short( xw1, yh1 );	// VERTEX_POSITION_START
 		buffFull.write_2_Short( xw2, yh2 );	// VERTEX_POSITION_END
-		if (type & DType.ZINDEX != 0)
+		if (type & DisplaylistType.ZINDEX != 0)
 			buffFull.write_1_Float( z );	// Z INDEX
-		if (type & DType.RGBA   != 0) {
+		if (type & DisplaylistType.RGBA   != 0) {
 			buffFull.write_1_UInt( rgba1 ); // RGBA START
 			buffFull.write_1_UInt( rgba2 ); // RGBA END
 		}
-		if (type & DType.ROTATION != 0) {
+		if (type & DisplaylistType.ROTATION != 0) {
 			buffFull.write_2_Float( rotation1, rotation2 ); // Rotation START/END
 			buffFull.write_2_Short( pivot_x1, pivot_y1 ); // PIVOT START
 			buffFull.write_2_Short( pivot_x2, pivot_y2 ); // PIVOT END
 		}
-		if (type & DType.PICKING != 0) {
+		if (type & DisplaylistType.PICKING != 0) {
 			buffFull.write_1_UInt( param.element ); // ELEMENT
 		}
 		buffFull.write_2_Float( t1, t2   ); // TIME
@@ -290,18 +290,18 @@ class ElementAnimBuffer implements I_ElementBuffer
 		
 		buffFull.write_2_Short( x1, yh1 );	// VERTEX_POSITION_START
 		buffFull.write_2_Short( x2, yh2 );	// VERTEX_POSITION_END
-		if (type & DType.ZINDEX != 0)
+		if (type & DisplaylistType.ZINDEX != 0)
 			buffFull.write_1_Float( z );	// Z INDEX
-		if (type & DType.RGBA   != 0) {
+		if (type & DisplaylistType.RGBA   != 0) {
 			buffFull.write_1_UInt( rgba1 ); // RGBA START
 			buffFull.write_1_UInt( rgba2 ); // RGBA END
 		}
-		if (type & DType.ROTATION != 0) {
+		if (type & DisplaylistType.ROTATION != 0) {
 			buffFull.write_2_Float( rotation1, rotation2 ); // Rotation START/END
 			buffFull.write_2_Short( pivot_x1, pivot_y1 ); // PIVOT START
 			buffFull.write_2_Short( pivot_x2, pivot_y2 ); // PIVOT END
 		}
-		if (type & DType.PICKING != 0) {
+		if (type & DisplaylistType.PICKING != 0) {
 			buffFull.write_1_UInt( param.element ); // ELEMENT
 		}
 		buffFull.write_2_Float( t1, t2   ); // TIME
@@ -311,18 +311,18 @@ class ElementAnimBuffer implements I_ElementBuffer
 		
 		buffFull.write_2_Short( xw1, y1 );	// VERTEX_POSITION_START
 		buffFull.write_2_Short( xw2, y2 );	// VERTEX_POSITION_END
-		if (type & DType.ZINDEX != 0)
+		if (type & DisplaylistType.ZINDEX != 0)
 			buffFull.write_1_Float( z );	// Z INDEX
-		if (type & DType.RGBA   != 0) {
+		if (type & DisplaylistType.RGBA   != 0) {
 			buffFull.write_1_UInt( rgba1 ); // RGBA START
 			buffFull.write_1_UInt( rgba2 ); // RGBA END
 		}
-		if (type & DType.ROTATION != 0) {
+		if (type & DisplaylistType.ROTATION != 0) {
 			buffFull.write_2_Float( rotation1, rotation2 ); // Rotation START/END
 			buffFull.write_2_Short( pivot_x1, pivot_y1 ); // PIVOT START
 			buffFull.write_2_Short( pivot_x2, pivot_y2 ); // PIVOT END
 		}
-		if (type & DType.PICKING != 0) {
+		if (type & DisplaylistType.PICKING != 0) {
 			buffFull.write_1_UInt( param.element ); // ELEMENT
 		}
 		buffFull.write_2_Float( t1, t2   ); // TIME
@@ -332,18 +332,18 @@ class ElementAnimBuffer implements I_ElementBuffer
 		
 		buffFull.write_2_Short( x1, y1 );	// VERTEX_POSITION_START
 		buffFull.write_2_Short( x2, y2 );	// VERTEX_POSITION_END
-		if (type & DType.ZINDEX != 0)
+		if (type & DisplaylistType.ZINDEX != 0)
 			buffFull.write_1_Float( z );	// Z INDEX
-		if (type & DType.RGBA   != 0) {
+		if (type & DisplaylistType.RGBA   != 0) {
 			buffFull.write_1_UInt( rgba1 ); // RGBA START
 			buffFull.write_1_UInt( rgba2 ); // RGBA END
 		}
-		if (type & DType.ROTATION != 0) {
+		if (type & DisplaylistType.ROTATION != 0) {
 			buffFull.write_2_Float( rotation1, rotation2 ); // Rotation START/END
 			buffFull.write_2_Short( pivot_x1, pivot_y1 ); // PIVOT START
 			buffFull.write_2_Short( pivot_x2, pivot_y2 ); // PIVOT END
 		}
-		if (type & DType.PICKING != 0) {
+		if (type & DisplaylistType.PICKING != 0) {
 			buffFull.write_1_UInt( param.element ); // ELEMENT
 		}
 		buffFull.write_2_Float( t1, t2   ); // TIME
@@ -353,18 +353,18 @@ class ElementAnimBuffer implements I_ElementBuffer
 		
 		buffFull.write_2_Short( x1, y1 );	// VERTEX_POSITION_START
 		buffFull.write_2_Short( x2, y2 );	// VERTEX_POSITION_END
-		if (type & DType.ZINDEX != 0)
+		if (type & DisplaylistType.ZINDEX != 0)
 			buffFull.write_1_Float( z );	// Z INDEX
-		if (type & DType.RGBA   != 0) {
+		if (type & DisplaylistType.RGBA   != 0) {
 			buffFull.write_1_UInt( rgba1 ); // RGBA START
 			buffFull.write_1_UInt( rgba2 ); // RGBA END
 		}
-		if (type & DType.ROTATION != 0) {
+		if (type & DisplaylistType.ROTATION != 0) {
 			buffFull.write_2_Float( rotation1, rotation2 ); // Rotation START/END
 			buffFull.write_2_Short( pivot_x1, pivot_y1 ); // PIVOT START
 			buffFull.write_2_Short( pivot_x2, pivot_y2 ); // PIVOT END
 		}
-		if (type & DType.PICKING != 0) {
+		if (type & DisplaylistType.PICKING != 0) {
 			buffFull.write_1_UInt( param.element ); // ELEMENT
 		}
 		buffFull.write_2_Float( t1, t2   ); // TIME
@@ -513,7 +513,7 @@ class ElementAnimBuffer implements I_ElementBuffer
 			gl_Position = mat4 (
 				vec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),
 				vec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),
-				vec4(0.0, 0.0, -0.001, 0.0),
+				vec4(0.0, 0.0, -1.0, 0.0), // TODO
 				vec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)
 			)
 			* vec4( VertexPosStart + floor( 
@@ -528,12 +528,12 @@ class ElementAnimBuffer implements I_ElementBuffer
 				, 1.0
 			)
 			// rotate displaylist
-			/** mat4 (
-				vec4(cos(winkel), -sin(winkel), 0.0, 0.0),
-				vec4(sin(winkel),  cos(winkel), 0.0, 0.0),
-				vec4(        0.0,          1.0, 0.0, 0.0),
-				vec4(        0.0,          0.0, 0.0, 1.0)
-			)*/
+			// *mat4 (
+			//	vec4(cos(winkel), -sin(winkel), 0.0, 0.0),
+			//	vec4(sin(winkel),  cos(winkel), 0.0, 0.0),
+			//	vec4(        0.0,          1.0, 0.0, 0.0),
+			//	vec4(        0.0,          0.0, 0.0, 1.0)
+			//)
 			;
 		}
 	";
@@ -549,19 +549,38 @@ class ElementAnimBuffer implements I_ElementBuffer
 			#end_PICKING
 		#end_RGBA
 		
-		uniform sampler2D uImage;
-		
 		#if_PICKING
 		uniform vec2 uResolution;
 		#end_PICKING
 		
+		
+		#if_TEXTURE0
+		uniform sampler2D uTexture0;
+		#end_TEXTURE0
+		
+		#if_TEXTURE1
+		uniform sampler2D uTexture1;
+		#end_TEXTURE1
+		
 		void main(void)
 		{
-			vec4 texel = texture2D(uImage, vTexCoord / #MAX_TEXTURE_SIZE);
-			if(texel.a < 0.5) discard; // TODO (z-order/blend mode!!!)
+			#if_TEXTURE0
+			vec4 texel = texture2D(uTexture0, vTexCoord / #MAX_TEXTURE0);
+			#else_TEXTURE0
+			vec4 texel = vec4(1.0, 1.0, 1.0, 1.0);
+			#end_TEXTURE0
+			
+			// if use more than one texture unit to combine or do something crazy here:)
+			#if_TEXTURE1
+			texel = texel * texture2D(uTexture1, vTexCoord / #MAX_TEXTURE0);
+			#end_TEXTURE1
+			// ... TEXTURE2 ...TEXTURE3 ...			
+			
+			if (texel.a < 0.5) discard; // TODO (z-order/blend mode!!!)
+			
 			#if_PICKING
 			if (uResolution.x == 1.0) { 
-				gl_FragColor = vRGBA; //vec4(1.0, 1.0, 1.0, 1.0);
+				gl_FragColor = vRGBA; // vRGBA color defines element-number for gl-picking;
 			}
 			else {
 				#if_RGBA

@@ -30,6 +30,7 @@ package de.peote.view;
 
 import de.peote.view.displaylist.*;
 import de.peote.view.element.*;
+import de.peote.view.texture.Texture;
 
 import haxe.ds.Vector;
 import haxe.ds.IntMap;
@@ -40,18 +41,35 @@ class ProgramCache
 {
 	public var fragmentShaderSrc:Vector<String>;
 	public var vertexShaderSrc:Vector<String>;
+	
 	public var program:Vector<IntMap<Program>>;
+	public var programTextures:Vector<ActiveTextures>;
+	
+	//public var defaultprogramTexture:ActiveTextures;
 	
 	public var defaultProgram:IntMap<Program>;
 	public var attr:IntMap<Vector<Int>> = null;
 	
-	public inline function new(max_programs:Int)
+	public var textures:Vector<Texture>;
+	
+	public inline function new(max_programs:Int, textures:Vector<Texture>)
 	{
+		this.textures = textures;
+		
 		fragmentShaderSrc = new Vector<String>(max_programs);
 		vertexShaderSrc = new Vector<String>(max_programs);
 		
 		program = new Vector<IntMap<Program>>(max_programs);
-		for (i in 0...max_programs) program.set(i, new IntMap<Program>() );
+		programTextures = new Vector<ActiveTextures>(max_programs); // array of texture-numbers to use
+
+		for (i in 0...max_programs) {
+			program.set(i, new IntMap<Program>() );
+			programTextures.set(i, new ActiveTextures() );
+		}
+		
+		// TODO: better set default-program together with avtivetextures to some slot (last one)
+		//defaultprogramTexture = new ActiveTextures();
+		//defaultprogramTexture.texture.push( textures.get(0) ); // TODO TODO (default texture?)
 		
 		defaultProgram = new IntMap<Program>();
 		attr = new IntMap<Vector<Int>>();
@@ -65,7 +83,7 @@ class ProgramCache
 		if ( ! defaultProgram.exists(type) )
 		{
 			var p = new Program();
-			p.compile( elemBuff, type,
+			p.compile( elemBuff, type, null, //defaultprogramTexture, // TODO: fuer alles defaultS
 						elemBuff.getDefaultFragmentShaderSrc(),
 						elemBuff.getDefaultVertexShaderSrc(),
 						onerror
@@ -88,13 +106,15 @@ class ProgramCache
 		{
 			var fs:String = fragmentShaderSrc.get(nr);
 			var vs:String = vertexShaderSrc.get(nr);
-			if (fs != null || vs != null)
+			var textureUnits:ActiveTextures = programTextures.get(nr);
+			
+			if (fs != null || vs != null || textureUnits.texture.length > 0 )
 			{
 				p = new Program();
 				if (fs == null ) fs = elemBuff.getDefaultFragmentShaderSrc();
 				if (vs == null ) vs = elemBuff.getDefaultVertexShaderSrc();
 
-				p.compile(elemBuff, type, fs, vs, onerror);
+				p.compile(elemBuff, type, textureUnits, fs, vs, onerror);
 			}
 			else
 			{
@@ -105,17 +125,49 @@ class ProgramCache
 		return(p);
 	}
 
-	public inline function setShaderSrc(nr:Int, fs:String, vs:String):Void
+	public inline function setProgram(param:ProgramParam):Void
 	{
-		if (fs != '' || vs != '')
+		// assign Textures
+		var textureUnits:ActiveTextures = programTextures.get(param.program);
+		if (param.texture != null || param.textures != null)
 		{
-			var pmap:IntMap<Program> = program.get(nr);
+			if (param.textures == null) param.textures = new Array<Int>();
+			if (param.texture != null) param.textures.push( param.texture);
+			
+			var len:Int = Math.floor(Math.max(param.textures.length, textureUnits.texture.length ));
+			for (i in 0...len )
+			{
+				if (i >= param.textures.length)
+				{
+					textureUnits.texture.pop();
+				}
+				else
+				{
+					var t = textures.get( param.textures[i] );
+					if (t != null)
+					{
+						if (i >= textureUnits.texture.length) textureUnits.texture.push( t );
+						else textureUnits.texture[i] = t ;
+					}
+					else
+					{
+						trace("ERROR: texture "+param.textures[i]+" is not defined");
+					}
+				}
+			}
+			// TODO:  re compile shader if changed
+		}
+		
+		// set Shaders if changed
+		if (param.fshadersrc != null || param.vshadersrc != null)
+		{
+			var pmap:IntMap<Program> = program.get(param.program);
 			var default_fs:String;
 			var default_vs:String;
 			
 			for (type in pmap.keys())
 			{
-				if (type & DType.ANIM != 0) 
+				if (type & DisplaylistType.ANIM != 0) 
 				{
 					default_fs = ElementAnimBuffer.defaultFragmentShaderSrc;
 					default_vs = ElementAnimBuffer.defaultVertexShaderSrc;
@@ -128,56 +180,33 @@ class ProgramCache
 				}
 				trace("setShaderSrc:" + type);
 				
-				if (fs == '' )
-					pmap.get(type).compile(null, type, default_fs, vs, onerror);
-				else if (vs == '' )
-					pmap.get(type).compile(null, type, fs, default_vs, onerror);
+				if (param.fshadersrc == '' )
+					pmap.get(type).compile(null, type, textureUnits, default_fs, param.vshadersrc, onerror);
+				else if (param.vshadersrc == '' )
+					pmap.get(type).compile(null, type, textureUnits, param.fshadersrc, default_vs, onerror);
 				else
-					pmap.get(type).compile(null, type, fs, vs, onerror);
+					pmap.get(type).compile(null, type, textureUnits, param.fshadersrc, param.vshadersrc, onerror);
 				
 			}
 			
-			if (fs != '' ) fragmentShaderSrc.set(nr, fs);
-			if (vs != '' ) vertexShaderSrc.set(nr, vs);	
+			if (param.fshadersrc != '' ) fragmentShaderSrc.set(param.program, param.fshadersrc);
+			if (param.vshadersrc != '' ) vertexShaderSrc.set(param.program, param.vshadersrc);	
 		}
 	}
 
-	public inline function loadShaderSrc(nr:Int, fsUrl:String, vsUrl:String):Void
+	public inline function loadShader(url:String):String
 	{
-		//var fsSrc:String = (fsUrl == '') ? Shader.default_fsSrc : Assets.getText(fsUrl);
-		//var vsSrc:String = (vsUrl == '') ? Shader.default_vsSrc : Assets.getText(vsUrl);
-		//var fsSrc:String = (fsUrl == '') ? Shader.default_fsSrc :  Http.requestUrl(fsUrl);
-		//var vsSrc:String = (vsUrl == '') ? Shader.default_vsSrc : Http.requestUrl(vsUrl);
-
-		// TODO: doesnt work yet with assets.gettext on html5 target (with http.requestUrl sandbox prbl. for easy testing)
-		var fsSrc:String = '';
-		if (fsUrl != '') 
-		{
-			#if js
-			var req = js.Browser.createXMLHttpRequest();
-			req.open('GET', fsUrl, false);
-			req.send();
-			fsSrc = req.responseText;
-			#else
-			fsSrc = Assets.getText(fsUrl);
-			//fsSrc = Assets.getBytes(fsUrl).asString(); // TODO: getText dont work with windows-target
-			#end
-		}
-		var vsSrc:String = '';
-		if (vsUrl != '') 
-		{
-			#if js
-			var req = js.Browser.createXMLHttpRequest();
-			req.open('GET', vsUrl, false);
-			req.send();
-			vsSrc = req.responseText;
-			#else
-			vsSrc = Assets.getText(vsUrl);
-			//vsSrc = Assets.getBytes(vsUrl).asString(); // TODO: getText dont work with windows-target;
-			#end
-		}
-		
-		setShaderSrc( nr, fsSrc, vsSrc);
+		var shadersrc:String = '';
+		#if js
+		var req = js.Browser.createXMLHttpRequest();
+		req.open('GET', url, false);
+		req.send();
+		shadersrc = req.responseText;
+		#else
+		shadersrc = Assets.getText(url);
+		//shadersrc = Assets.getBytes(url).asString(); // TODO: getText dont work with windows-target
+		#end
+		return(shadersrc);
 	}
 
 

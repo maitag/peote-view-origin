@@ -26,15 +26,16 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package;
+package samples;
 
+import samples.Sample;
 import de.peote.view.PeoteView;
-import de.peote.view.displaylist.DType;
+import de.peote.view.displaylist.DisplaylistType;
 import haxe.Timer;
 
 import lime.ui.Window;
 
-class ExamplePicking extends Example
+class Picking extends samples.Sample
 {
 	public override function run() 
 	{
@@ -42,26 +43,52 @@ class ExamplePicking extends Example
 		startTime = Timer.stamp();
 		var t:Float = Timer.stamp() - startTime;
 		
-		peoteView = new PeoteView(10, 1000); // max_displaylists, max_programs (for all displaylists)
+		peoteView = new PeoteView({
+			maxDisplaylists:    1,
+			maxPrograms:        1,
+			maxTextures:        1,
+			maxImages:          1
+		});
 		
-		// PICKING
-		peoteView.createFramebuffer();
+
+		// --------------------- TEXTURECACHES -----------------
 		
-		// -----------------------------------------------------
-		// ---------------- PROGRAM SHADER ---------------------
-		// -----------------------------------------------------
-		//peoteView.setProgram(0, "assets/lyapunov_01.frag");
-		
-		// -----------------------------------------------------
+		peoteView.setTexture( {  texture: 0,
+			
+			w:   512,        // Texture width
+			h:   512,        // Texture height
+			
+			iw:  512,         // Image-Slot width
+			ih:  512,         // Image-Slot height
+								  
+			//type: RGBA  // not implemented yes (allways RGBA)
+		});
+
 		// ------------------- IMAGES --------------------------
-		// -----------------------------------------------------
-		peoteView.setImage(0, "assets/peote_tiles.png", 512, 512);
+
+		peoteView.setImage({
+			image: 0,
+			texture: 0,
+			filename: "assets/peote_tiles.png",
+			w: 512,
+			h: 512
+		});
 		
-		// -----------------------------------------------------
+		// ---------------- PROGRAM SHADER ---------------------
+
+		peoteView.setProgram( {
+			program: 0,
+			texture: 0
+		});
+		
 		// ---------------- DISPLAYLISTS -----------------------
-		// -----------------------------------------------------
-		peoteView.setDisplaylist( { displaylist:0, type:DType.ANIM|DType.RGBA|DType.ROTATION|DType.PICKING, //|DType.ZINDEX
-			elements:1000, programs:1, segments:10, // for low-end devices better max_elements < 100 000
+		
+		peoteView.setDisplaylist( {
+			displaylist:0,
+			type:DType.ANIM|DType.RGBA|DType.ROTATION|DType.PICKING, //|DType.ZINDEX
+			maxElements:1000,
+			maxPrograms:1,
+			bufferSegments:10,
 			x:0, y:0,
 			w:512, h:512,
 			z:0,
@@ -71,9 +98,8 @@ class ExamplePicking extends Example
 		});
 
 		
-		// -----------------------------------------------------
 		// ---------------- ELEMENTS ---------------------------
-		// -----------------------------------------------------
+		
 		peoteView.setElementDefaults( { displaylist:0, image:0, w:100, h:100 } );
 		
 		peoteView.setElement( { element:0,
@@ -87,22 +113,23 @@ class ExamplePicking extends Example
 				time: Timer.stamp() - startTime + 20,
 				rgba:0x00ffffff
 			},
+			program: 0,
 			image:0,
 			tile:1
 		});
 		peoteView.setElement( { element:1,
 			x:100, y:100,
-			w:100, h:100,
 			pivotX:50, pivotY:50,
-			rotation:-90,
+			rotation: -90,
+			program: 0,
 			image:0,
 			tile:2
 		});
 		peoteView.setElement( { element:2,
 			x:150, y:100,
-			w:100, h:100,
 			pivotX:50, pivotY:50,
 			rotation:135,
+			program: 0,
 			image:0,
 			tile:3
 		});

@@ -27,8 +27,8 @@
  */
 
 package de.peote.view.element;
-import de.peote.view.Param;
-import de.peote.view.texture.TextureCache;
+import de.peote.view.element.ElementParam;
+import de.peote.view.texture.ImageCache;
 
 //import de.peote.view.ActiveProgram;
 @:keep
@@ -62,7 +62,7 @@ class ElementSimple implements I_Element
 		//tile = PeoteView.elementDefaults.tile;	
 	}
 	
-	public inline function set(elemBuff:I_ElementBuffer, param:Param, texturecache:TextureCache):Void
+	public inline function set(elemBuff:I_ElementBuffer, param:ElementParam, imageCache:ImageCache):Void
 	{	
 		
 		// TODO: nur bestimmte buffer-werte aendern
@@ -87,15 +87,15 @@ class ElementSimple implements I_Element
 		if (param.image == null && PeoteView.elementDefaults.image != null ) param.image = PeoteView.elementDefaults.image;
 		if (param.image!= null && param.image != image)
 		{
-			if (image != -1) texturecache.unUseImage(image);
-			if (texturecache.useImage(param.image) != null)
+			if (image != -1) imageCache.unUseImage(image);
+			if (imageCache.useImage(param.image) != null)
 			{
 				image = param.image;
 			}
 		}
 		if (image != -1)
 		{	
-			var img = texturecache.getImage(image);
+			var img = imageCache.getImage(image);
 			if (param.tx == null) param.tx = img.tx;
 			if (param.ty == null) param.ty = img.ty;
 			if (param.tw == null) param.tw = img.tw;
@@ -125,7 +125,7 @@ class ElementSimple implements I_Element
 		
 	}
 	
-	public inline function get():Param
+	public inline function get():ElementParam
 	{
 		return {
 			x: x,
@@ -144,10 +144,10 @@ class ElementSimple implements I_Element
 		buf_pos = b;		
 	}
 	
-	public inline function del(elemBuff:I_ElementBuffer, texturecache:TextureCache):Void
+	public inline function del(elemBuff:I_ElementBuffer, imageCache:ImageCache):Void
 	{	
 		elemBuff.del(this);
-		if (image != -1) texturecache.unUseImage(image);
+		if (image != -1) imageCache.unUseImage(image);
 	}
 	/*	
 	public inline function setTexCoord(elemBuff:I_elemBuff, param:Param):Void

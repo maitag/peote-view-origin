@@ -26,7 +26,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package;
+package samples;
 
 import haxe.Timer;
 import lime.graphics.Renderer;
@@ -35,9 +35,9 @@ import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 
 import de.peote.view.PeoteView;
-import de.peote.view.displaylist.DType;
+import de.peote.view.displaylist.DisplaylistType;
 
-class ExampleBunnysGPU extends Example
+class Bunnys extends samples.Sample
 {
 		
 	var frames:Int = 0;
@@ -47,15 +47,15 @@ class ExampleBunnysGPU extends Example
 	var timer:Timer;
 	var bunny_nr:Int = 0;
 	#if android
-	var max_bunnys:Int = 10000;
-	var max_spawn:Int = 100; 
-	var spawn_time:Int = 10;
-	var tile_size:Int = 18;
+	var max_bunnys:Int = 80000;
+	var max_spawn:Int  = 1; 
+	var spawn_time:Int = 24; // spawns per second
+	var tile_size:Int  = 64;
 	#else
 	var max_bunnys:Int = 1000000;
-	var max_spawn:Int = 1000; 
-	var spawn_time:Int = 10;
-	var tile_size:Int = 18;
+	var max_spawn:Int  = 2; 
+	var spawn_time:Int = 48; // spawns per second
+	var tile_size:Int  = 96;
 	#end
 	
 	var pause:Bool = false;
@@ -63,72 +63,131 @@ class ExampleBunnysGPU extends Example
 	var spawn_x:Int;
 	var spawn_y:Int;
 	
+	var sprite:Int = 0;
+	
 	public override function run()
 	{
 		// set Time
 		startTime = Timer.stamp();
 
-		peoteView = new PeoteView(10, 2); // max_displaylists, max_programs(for all displaylists -> TODO)
+		peoteView = new PeoteView({
+			maxDisplaylists:     6,
+			maxPrograms:         3,
+			maxTextures:         2,
+			maxImages:           4
+		});
 		
-		// set shaders
-		//peoteView.setProgram(0, '', 'assets/ping-pong.vert'); // custom vertex shader for gpu-animation
-		peoteView.setProgram(0, '', 'assets/ping-pong_android.vert'); // custom vertex shader for gpu-animation
-		//peoteView.setProgram(0, '', 'assets/ping-pong_raspi.vert'); // custom vertex shader for gpu-animation
-		//peoteView.setProgram(0); // default image shader
-		peoteView.setProgram(1); // default image shader
+		// ------------------------------------------------------
+		// ----------------------- FONT  ------------------------
+		// ------------------------------------------------------
 		
-		// set images
-		peoteView.setImage(0, "assets/peote_tiles_flowers_alpha.png", 512, 512);
-		peoteView.setImage(1, "assets/peote_font_white.png", 512, 512);
 		
+		// --------------------- TEXTURE (font) -----------------
+		peoteView.setTexture( {
+			texture: 0,
+			w:   512,        // Texture width
+			h:   512,        // Texture height
+			
+			iw:  512,         // Image-Slot width  ----> TODO: optimize PeoteView API (here)
+			ih:  512,         // Image-Slot height
+								  
+			//type: RGBA  // not implemented yes (allways RGBA)
+		});
+
+		// ------------------- IMAGE (font) --------------------------
+
+		peoteView.setImage({ image:0, texture:0, filename:"assets/peote_font_white.png", w:512, h:512 });
+		
+		// ---------------- PROGRAM SHADER (font) ---------------------
+		peoteView.setProgram({
+			program:0,
+			texture:0
+		});
+
+		
+		
+		// ------------------------------------------------------
+		// ----------------------- TILES ------------------------
+		// ------------------------------------------------------
+		
+
+		// --------------------- TEXTURE (flowers, bunnys or letters ;) -----------------
+		peoteView.setTexture({
+			texture: 1,
+			w:   1024,        // Texture width
+			h:   1024,        // Texture height
+			
+			iw:  512,         // Image-Slot width  ----> TODO: optimize PeoteView API (here)
+			ih:  512,         // Image-Slot height
+								  
+			//type: RGBA  // not implemented yes (allways RGBA)
+		});
+
+		// ------------------- IMAGE (flowers, bunnys or letters ;) --------------------------
+		peoteView.setImage({ image:1, texture:1, filename:"assets/peote_tiles_flowers_alpha.png", w:512, h:512 });
+		peoteView.setImage({ image:2, texture:1, filename:"assets/peote_tiles_bunnys.png", w:512, h:512 });
+		peoteView.setImage({ image:3, texture:1, filename:"assets/peote_font_white.png", w:512, h:512 });
+		
+
+		
+		// ---------------- PROGRAM SHADER (custom "ping pong" vertex position calculation [over {time]] )------
+		peoteView.setProgram({
+			program:1,
+			texture:1,
+			//vshader:'assets/ping-pong.vert'
+			vshader:'assets/ping-pong_android.vert'
+			//vshader:'assets/ping-pong_raspi.vert'
+		});
+		
+		// -----------------------------------------------------
+		// ---------------- DISPLAYLISTS -----------------------
+		// -----------------------------------------------------
+
 		// Displaylist for massive tiles
 		peoteView.setDisplaylist( { displaylist:0, type:DType.ANIM|DType.ROTATION|DType.RGBA,
-			enable:true,
-			elements:max_bunnys,
-			//w:1920, h:1280,
+			maxElements:max_bunnys,
 			z:0
 		});
 
 		// Displaylist for FPS
 		peoteView.setDisplaylist( { displaylist:1, type:DType.SIMPLE|DType.RGBA,
-			enable:true,
-			elements:8,
+			maxElements:8,
 			x:310, y:4, w:1, h:1,
 			renderBackground:true, a:0.8, r:0.3, g:0.2,
 			z:1
 		});
 		// Displaylist for tile-ammount
 		peoteView.setDisplaylist( { displaylist:2, type:DType.SIMPLE|DType.RGBA,
-			enable:true,
-			elements:7,
+			maxElements:7,
 			x:190, y:4, w:1, h:1,
 			renderBackground:true, a:0.75, r:0.25,
 			z:1
 		});
 		// Displaylist for max_spawn
 		peoteView.setDisplaylist( { displaylist:3, type:DType.SIMPLE|DType.RGBA,
-			enable:true,
-			elements:33,
+			maxElements:33,
 			x:8, y:34, w:1, h:1,
 			renderBackground:true, a:0.75, r:0.2,
 			z:1
 		});
 		// Displaylist for info-text
 		peoteView.setDisplaylist( { displaylist:4, type:DType.SIMPLE|DType.RGBA,
-			enable:true,
-			elements:200,
+			maxElements:200,
 			x:460, y:0, w:1, h:1,
 			renderBackground:true, a:0.8,r:0.25,
 			z:1
 		});
 		// Displaylist for tile-size
 		peoteView.setDisplaylist( { displaylist:5, type:DType.SIMPLE|DType.RGBA,
-			enable:true,
-			elements:12,
+			maxElements:12,
 			x:8, y:4, w:1, h:1,
 			renderBackground:true, a:0.75, r:0.25,
 			z:1
 		});
+		
+		// -----------------------------------------------------
+		// -----------------------------------------------------
+		// -----------------------------------------------------
 		
 		spawn_x = Math.floor(width  / 2);
 		spawn_y = Math.floor(height / 2);
@@ -144,7 +203,7 @@ class ExampleBunnysGPU extends Example
 			"left/right: spawn-time\n" +
 			"space:      stop/resume\n" +
 			"n/m:        tile size\n" +
-			"1-3:        tilesheed image\n" +
+			"i:          next tilesheet\n" +
 			"a:          alpha on/off\n" +
 			"mouse-wheel:zoom in/out",
 			0xbbaa77dd, 14, -6
@@ -171,13 +230,13 @@ class ExampleBunnysGPU extends Example
 				}
 				peoteView.setElement( {
 					element: bunny_nr++,
-					program:0,
+					program:1,
 					displaylist:0,
 					w: tile_size,
 					h: tile_size,
 					pivotX: Math.floor(tile_size/2),
 					pivotY: Math.floor(tile_size/2),
-					image:0,
+					image: 1+sprite,
 					tile:1 + random(31),
 					//rgba: random(256) << 24 | random(256) << 16 | random(256) << 8 | 128+random(128),
 					start: {
@@ -253,8 +312,6 @@ class ExampleBunnysGPU extends Example
 					pause = true;
 					peoteView.setDisplaylist( { displaylist:3, enable:false } );
 				}
-			case KeyCode.F:
-				window.fullscreen = !window.fullscreen;
 			case KeyCode.UP:
 				max_spawn += 10;
 				updateMaxSpawn();
@@ -276,18 +333,19 @@ class ExampleBunnysGPU extends Example
 			case KeyCode.N:
 				if (tile_size > 1) {tile_size--; txtOutput(5, tile_size+"x" + tile_size+"-tiles:"); }
 			case KeyCode.M:
-				if (tile_size<32) { tile_size++; txtOutput(5, tile_size+"x" + tile_size+"-tiles:"); }
+				if (tile_size<384) { tile_size++; txtOutput(5, tile_size+"x" + tile_size+"-tiles:"); }
 				
 			case KeyCode.A:
 				if ( peoteView.getDisplaylist( { displaylist:0 } ).blend == 1)
 				     {peoteView.setDisplaylist( { displaylist:0, blend:0 } ); trace("BLEND MODE 0");}
 				else {peoteView.setDisplaylist( { displaylist:0, blend:1 } ); trace("BLEND MODE 1");}
 				
-			case KeyCode.NUMBER_1: peoteView.setImage(0, "assets/peote_tiles_flowers_alpha.png", 512, 512);
-			case KeyCode.NUMBER_2: peoteView.setImage(0, "assets/peote_tiles_bunnys.png", 512, 512);
-			case KeyCode.NUMBER_3: peoteView.setImage(0, "assets/peote_font_white.png", 512, 512);
+			case KeyCode.I: sprite = (sprite+1) % 3; // switch sprite image
+			//case KeyCode.T: // shift textures -> not YET -> see BunnysTextureSwitch
+				
 			default:
 		}
+		super.onKeyDown(window, keyCode, modifier);
 	}
 	
 	public function updateMaxSpawn():Void {
@@ -324,13 +382,13 @@ class ExampleBunnysGPU extends Example
 			else {
 				peoteView.setElement( {
 					element: i,
-					program:1,
+					program:0,
 					displaylist:d,
 					x:4 + px,
 					y:3 + py,
 					w: size,
 					h: size,
-					image:1,
+					image:0,
 					tile:letter,
 					rgba:color
 				});

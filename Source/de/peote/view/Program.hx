@@ -29,9 +29,9 @@
 package de.peote.view;
 
 import de.peote.view.displaylist.Displaylist;
-import de.peote.view.displaylist.DType;
+import de.peote.view.displaylist.DisplaylistType;
 import de.peote.view.element.I_ElementBuffer;
-import de.peote.view.texture.TextureCache;
+import de.peote.view.texture.Texture;
 
 import haxe.ds.Vector;
 import lime.graphics.opengl.GL;
@@ -51,14 +51,12 @@ class Program
 	public static inline var aTIME:Int      = 7;
 	public static inline var aELEMENT:Int   = 8;
 	
-	public static inline var uMODELVIEWMATRIX:Int = 0;
-	public static inline var uPROJECTIONMATRIX:Int = 1;
-	public static inline var uIMAGE:Int = 2;
-	public static inline var uMOUSE:Int = 3;
-	public static inline var uRESOLUTION:Int = 4;
-	public static inline var uTIME:Int = 5;
-	public static inline var uZOOM:Int = 6;
-	public static inline var uDELTA:Int = 7;
+	public static inline var uMOUSE:Int = 0;
+	public static inline var uRESOLUTION:Int = 1;
+	public static inline var uTIME:Int = 2;
+	public static inline var uZOOM:Int = 3;
+	public static inline var uDELTA:Int = 4;
+	public static var uTEXTURE:Array<Int> = [5,6,7,8,9,10,11,12];
 	
 	public static var rComment:EReg = new EReg("//.*?$","gm");
 	public static var rNewline:EReg = new EReg("\r?\n", "g");
@@ -77,8 +75,17 @@ class Program
 	public static var rPICKINGstart:   EReg = new EReg("#else_PICKING(.*?)#end_PICKING","ig");
 	public static var rPICKINGend:     EReg = new EReg("#if_PICKING(.*?)#end_PICKING","ig");
 	
+	// to parse Texture-Slots
+	public static var rMAX_TEXTURE0:	EReg = new EReg("#MAX_TEXTURE0", "g");
+	public static var rTEXTURE0start:   EReg = new EReg("#else_TEXTURE0(.*?)#end_TEXTURE0","ig");
+	public static var rTEXTURE0end:     EReg = new EReg("#if_TEXTURE0(.*?)#end_TEXTURE0", "ig");
 	
-	public static var rMAX_TEXTURE_SIZE:EReg = new EReg("#MAX_TEXTURE_SIZE","g");
+	public static var rMAX_TEXTURE1:	EReg = new EReg("#MAX_TEXTURE1","g");
+	public static var rTEXTURE1start:   EReg = new EReg("#else_TEXTURE1(.*?)#end_TEXTURE1","ig");
+	public static var rTEXTURE1end:     EReg = new EReg("#if_TEXTURE1(.*?)#end_TEXTURE1","ig");
+
+	
+	//public static var rSOMETHING_TO_REPLACE:EReg = new EReg("#SOMETHING_TO_REPLACE","g");
 		
 
 	public var glProgram:GLProgram = null;
@@ -95,14 +102,14 @@ class Program
 		}
 	}
 	
-	public inline function parseType(type:Int, s:String):String
+	public inline function parseType(type:Int, textureUnits:ActiveTextures, s:String):String
 	{
 		// regexp shader parsing
 		s = rComment.replace(s, "");
 		s = rNewline.replace(s, "");
 		s = rSpaces.replace(s, "");
 		
-		if (type & DType.ZINDEX != 0) {
+		if (type & DisplaylistType.ZINDEX != 0) {
 			//s = rZINDEXstart.replace(s, "$1"); s = rZINDEXend.replace(s, "$1");
 			s = rZINDEXstart.replace(s, "#end_ZINDEX"); s = rZINDEXend.replace(s, "$1");
 		} else {
@@ -110,40 +117,58 @@ class Program
 			s = rZINDEXstart.replace(s, "#end_ZINDEX$1"); s = rZINDEXend.replace(s, "");
 		}
 		
-		if (type & DType.RGBA != 0) {
+		if (type & DisplaylistType.RGBA != 0) {
 			s = rRGBAstart.replace(s, "#end_RGBA"); s = rRGBAend.replace(s, "$1");
 		} else {
 			s = rRGBAstart.replace(s, "#end_RGBA$1"); s = rRGBAend.replace(s, "");
 		}
 		
-		if (type & DType.ROTATION != 0) {
+		if (type & DisplaylistType.ROTATION != 0) {
 			s = rROTATIONstart.replace(s, "#end_ROTATION"); s = rROTATIONend.replace(s, "$1");
 		} else {
 			s = rROTATIONstart.replace(s, "#end_ROTATION$1"); s = rROTATIONend.replace(s, "");
 		}
 		
-		if (type & DType.PICKING != 0) {
+		if (type & DisplaylistType.PICKING != 0) {
 			s = rPICKINGstart.replace(s, "#end_PICKING"); s = rPICKINGend.replace(s, "$1");
 		} else {
 			s = rPICKINGstart.replace(s, "#end_PICKING$1"); s = rPICKINGend.replace(s, "");
 		}
 		
+		// used Texture-Slots
+		var slots:Int = 0;
+		if (textureUnits != null) slots = textureUnits.texture.length;
+		
+		if (slots > 0) {
+			s = rMAX_TEXTURE0.replace(s, "vec2(" + textureUnits.texture[0].max_texture_width + ".0," + textureUnits.texture[0].max_texture_height + ".0)" );
+			s = rTEXTURE0start.replace(s, "#end_TEXTURE0"); s = rTEXTURE0end.replace(s, "$1");
+		} else {
+			s = rTEXTURE0start.replace(s, "#end_TEXTURE0$1"); s = rTEXTURE0end.replace(s, "");
+		}
+		
+		if (slots > 1) {
+			s = rMAX_TEXTURE1.replace(s, "vec2(" + textureUnits.texture[1].max_texture_width + ".0," + textureUnits.texture[1].max_texture_height + ".0)" );
+			s = rTEXTURE1start.replace(s, "#end_TEXTURE1"); s = rTEXTURE1end.replace(s, "$1");
+		} else {
+			s = rTEXTURE1start.replace(s, "#end_TEXTURE1$1"); s = rTEXTURE1end.replace(s, "");
+		}
+		
 		// replace template variables
-		s = rMAX_TEXTURE_SIZE.replace(s, TextureCache.max_texture_size+".0");
+		//s = rSOMETHING_TO_REPLACE.replace(s, ???what??? );
 		
 		return s;
 	}
 	
-	public inline function compile(elemBuff:I_ElementBuffer, type:Int,
+	public inline function compile(elemBuff:I_ElementBuffer, type:Int, textureUnits:ActiveTextures,
 								fragmentShaderSrc:String, vertexShaderSrc:String,
 								onerror:String->Void):Void
 	{
-		vertexShaderSrc = parseType(type, vertexShaderSrc);
+		vertexShaderSrc = parseType(type, textureUnits, vertexShaderSrc);
 		#if peote_vert_medium_precision
 		vertexShaderSrc = "precision mediump float;" + vertexShaderSrc;
 		#end
 		
-		fragmentShaderSrc = parseType(type, fragmentShaderSrc);
+		fragmentShaderSrc = parseType(type, textureUnits, fragmentShaderSrc);
 		#if peote_frag_medium_precision
 		fragmentShaderSrc = "precision mediump float;" + fragmentShaderSrc;
 		#end
@@ -168,14 +193,20 @@ class Program
 		else
 		{
 			glProgram = GL.createProgram();
+
 			GL.attachShader(glProgram, vs);
 			GL.attachShader(glProgram, fs);
 			
 			GL.deleteShader(vs);
 			GL.deleteShader(fs);
-			GL.linkProgram(glProgram);
 			
-			if (GL.getProgramParameter(glProgram, GL.LINK_STATUS) == 0)
+			// TODO: set ALL manual depending on dispalylist-type ??
+			// set manual (for windows glsl-compiler!!)
+			GL.bindAttribLocation(glProgram, aTEXTCOORD, "aTexCoord");
+			
+			GL.linkProgram(glProgram);
+
+			if (GL.getProgramParameter(glProgram, GL.LINK_STATUS) == 0) // glsl compile error
 			{
 				onerror(GL.getProgramInfoLog(glProgram)
 					+ "VALIDATE_STATUS: " + GL.getProgramParameter(glProgram, GL.VALIDATE_STATUS)
@@ -191,7 +222,13 @@ class Program
 				{	if (elemBuff.attr == null)
 					{
 						trace( "ANZAHL " + GL.getProgramParameter(glProgram, GL.ACTIVE_ATTRIBUTES) );
-						elemBuff.attr = new Vector<Int>(GL.getProgramParameter(glProgram, GL.ACTIVE_ATTRIBUTES));
+						//elemBuff.attr = new Vector<Int>(GL.getProgramParameter(glProgram, GL.ACTIVE_ATTRIBUTES));
+						elemBuff.attr = new Vector<Int>(12); // <- TODO!!! (optimize)
+						
+						// TODO: set ALL manual depending on dispalylist-type ??
+						elemBuff.attr.set(aTEXTCOORD, aTEXTCOORD ); // set manual (for windows glsl-compiler!!)
+						
+						// TODO: only for CUSTOM Shader and CUSTOM attributes
 						for (i in 0 ... GL.getProgramParameter(glProgram, GL.ACTIVE_ATTRIBUTES))
 						{	
 							name = GL.getActiveAttrib(glProgram, i).name;
@@ -199,7 +236,7 @@ class Program
 							switch (name)
 							{
 								case "aPosition":	elemBuff.attr.set(aPOSITION,  GL.getAttribLocation(glProgram, name) );
-								case "aTexCoord":	elemBuff.attr.set(aTEXTCOORD, GL.getAttribLocation(glProgram, name) );
+								//case "aTexCoord":	elemBuff.attr.set(aTEXTCOORD, GL.getAttribLocation(glProgram, name) );
 								case "aZindex":		elemBuff.attr.set(aZINDEX,    GL.getAttribLocation(glProgram, name) );
 								case "aRGBA":		elemBuff.attr.set(aRGBA,      GL.getAttribLocation(glProgram, name) );
 								case "aRGBA_END":	elemBuff.attr.set(aRGBA_END,  GL.getAttribLocation(glProgram, name) );
@@ -218,16 +255,22 @@ class Program
 				{	
 					name = GL.getActiveUniform(glProgram, i).name;
 					//trace( name + ":" + (GL.getActiveUniform(glProgram, i).type == GL.FLOAT_VEC2) );
+					trace( name + ":" + GL.getUniformLocation(glProgram, name) );
 					switch (name)
 					{
-						case "uModelViewMatrix":	uniforms.set(uMODELVIEWMATRIX,  GL.getUniformLocation(glProgram, name) );
-						case "uProjectionMatrix":	uniforms.set(uPROJECTIONMATRIX, GL.getUniformLocation(glProgram, name) );
-						case "uImage":				uniforms.set(uIMAGE,            GL.getUniformLocation(glProgram, name) );
 						case "uMouse":				uniforms.set(uMOUSE,            GL.getUniformLocation(glProgram, name) );
 						case "uResolution":			uniforms.set(uRESOLUTION,       GL.getUniformLocation(glProgram, name) );
 						case "uTime":				uniforms.set(uTIME,             GL.getUniformLocation(glProgram, name) );
 						case "uZoom":				uniforms.set(uZOOM,             GL.getUniformLocation(glProgram, name) );
 						case "uDelta":				uniforms.set(uDELTA,            GL.getUniformLocation(glProgram, name) );
+						case "uTexture0":			uniforms.set(uTEXTURE[0],       GL.getUniformLocation(glProgram, name) );
+						case "uTexture1":			uniforms.set(uTEXTURE[1],       GL.getUniformLocation(glProgram, name) );
+						case "uTexture2":			uniforms.set(uTEXTURE[2],       GL.getUniformLocation(glProgram, name) );
+						case "uTexture3":			uniforms.set(uTEXTURE[3],       GL.getUniformLocation(glProgram, name) );
+						case "uTexture4":			uniforms.set(uTEXTURE[4],       GL.getUniformLocation(glProgram, name) );
+						case "uTexture5":			uniforms.set(uTEXTURE[5],       GL.getUniformLocation(glProgram, name) );
+						case "uTexture6":			uniforms.set(uTEXTURE[6],       GL.getUniformLocation(glProgram, name) );
+						case "uTexture7":			uniforms.set(uTEXTURE[7],       GL.getUniformLocation(glProgram, name) );
 					}
 				}
 			}

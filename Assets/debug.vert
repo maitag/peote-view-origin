@@ -108,7 +108,7 @@ void main(void) {
 	gl_Position = mat4 (
 		vec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),
 		vec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),
-		vec4(0.0, 0.0, -0.001, 0.0),
+		vec4(0.0, 0.0, -1.0, 0.0),
 		vec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)
 	)
 	* vec4( VertexPosStart + floor( 
@@ -123,11 +123,11 @@ void main(void) {
 		, 1.0
 	)
 	// rotate displaylist
-	/** mat4 (
-		vec4(cos(winkel), -sin(winkel), 0.0, 0.0),
-		vec4(sin(winkel),  cos(winkel), 0.0, 0.0),
-		vec4(        0.0,          1.0, 0.0, 0.0),
-		vec4(        0.0,          0.0, 0.0, 1.0)
-	)*/
+	// *mat4 (
+	//	vec4(cos(winkel), -sin(winkel), 0.0, 0.0),
+	//	vec4(sin(winkel),  cos(winkel), 0.0, 0.0),
+	//	vec4(        0.0,          1.0, 0.0, 0.0),
+	//	vec4(        0.0,          0.0, 0.0, 1.0)
+	//)
 	;
 }

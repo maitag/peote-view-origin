@@ -26,7 +26,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package;
+package samples;
 
 import haxe.Timer;
 import lime.ui.KeyCode;
@@ -40,9 +40,9 @@ import lime.ui.Window;
 import lime.graphics.Renderer;
 
 import de.peote.view.PeoteView;
-import de.peote.view.displaylist.DType;
+import de.peote.view.displaylist.DisplaylistType;
 
-class Example extends Application {
+class Sample extends Application {
 	
     public var width: Int;
     public var height: Int;
@@ -75,38 +75,71 @@ class Example extends Application {
 		startTime = Timer.stamp();
 		var t:Float = Timer.stamp() - startTime;
 		
-		peoteView = new PeoteView(10, 1000); // max_displaylists, max_programs (for all displaylists)
+		peoteView = new PeoteView({
+			maxDisplaylists:    10,
+			maxPrograms:       100,
+			maxTextures:         8,
+			maxImages:        1000
+		});
 		
 		// -----------------------------------------------------
 		// ---------------- PROGRAM SHADER ---------------------
 		// -----------------------------------------------------
-		peoteView.setProgram(0, "assets/lyapunov_01.frag");
+		peoteView.setProgram({
+			program: 0,
+			fshader: "assets/lyapunov_01.frag"
+		});
 		
 		// -----------------------------------------------------
 		// ------------------- IMAGES --------------------------
 		// -----------------------------------------------------
-		peoteView.setImage(0, "assets/peote_font_white.png", 512, 512);
-		peoteView.setImage(1, "assets/peote_tiles.png", 512, 512);
+		peoteView.setImage({
+			image: 0,
+			filename: "assets/peote_font_white.png",
+			w: 512,
+			h: 512
+		});
+		peoteView.setImage({
+			image: 1,
+			filename: "assets/peote_tiles.png",
+			w: 512,
+			h: 512
+		});
 		
 		
 		// -----------------------------------------------------
 		// ---------------- DISPLAYLISTS -----------------------
 		// -----------------------------------------------------
-		peoteView.setDisplaylist( { displaylist:0, type:DType.RGBA,
-			elements:100, programs:10, segments:10,
+		peoteView.setDisplaylist({
+			displaylist:0,
+			type:DisplaylistType.RGBA,
+			
+			maxElements:100,
+			maxPrograms:10,
+			bufferSegments:10,
+			
 			x:150, y:50,
 			w:1000, h:1000,
 			z:0,
+			
 			enable:true
 		});
 		
-		peoteView.setDisplaylist( { displaylist:1, type:DType.ANIM,
-			elements:1000, programs:10, segments:10,
+		peoteView.setDisplaylist({
+			displaylist:1,
+			type:DisplaylistType.ANIM,
+			
+			maxElements:1000,
+			maxPrograms:10,
+			bufferSegments:10,
+			
 			x:100, y:70,
 			w:350, h:150,
 			z:1,
+			
 			renderBackground:true,
-			r:0.1,g:0.5,b:0.8, a:0.8,
+			r:0.1, g:0.5, b:0.8, a:0.8,
+			
 			enable:true
 		});
 		
@@ -232,7 +265,28 @@ class Example extends Application {
 	{
 		switch (keyCode) {
 			case KeyCode.F:
+				#if html5
+				var e:Dynamic = untyped __js__("document.getElementById('content').getElementsByTagName('canvas')[0]");
+				var noFullscreen:Dynamic = untyped __js__("(!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement)");
+				
+				if ( noFullscreen)
+				{	// enter fullscreen
+					if (e.requestFullScreen) e.requestFullScreen();
+					else if (e.msRequestFullScreen) e.msRequestFullScreen();
+					else if (e.mozRequestFullScreen) e.mozRequestFullScreen();
+					else if (e.webkitRequestFullScreen) e.webkitRequestFullScreen();
+				}
+				else
+				{	// leave fullscreen
+					var d:Dynamic = untyped __js__("document");
+					if (d.exitFullscreen) d.exitFullscreen();
+					else if (d.msExitFullscreen) d.msExitFullscreen();
+					else if (d.mozCancelFullScreen) d.mozCancelFullScreen();
+					else if (d.webkitExitFullscreen) d.webkitExitFullscreen();					
+				}
+				#else
 				window.fullscreen = !window.fullscreen;
+				#end				
 			default:
 		}
 	}

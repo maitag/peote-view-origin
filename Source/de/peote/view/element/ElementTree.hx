@@ -47,7 +47,7 @@ class ElementTree implements I_Element
 	public var sx:Float;
 	public var sy:Float;
 	
-	public inline function new(param:Param, parent:ElementTree = null)
+	public inline function new(param:ElementParam, parent:ElementTree = null)
 	{
 		if (param.image != null) image_nr = param.image;
 		
@@ -70,7 +70,7 @@ class ElementTree implements I_Element
 		// TODO: deleta all childs
 	}
 	
-	public inline function animElement(param:Param):Void
+	public inline function animElement(param:ElementParam):Void
 	{	
 		switch_anim = ! switch_anim;
 		

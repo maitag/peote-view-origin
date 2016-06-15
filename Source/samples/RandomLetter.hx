@@ -26,40 +26,61 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package;
+package samples;
 
+import samples.Sample;
 import haxe.Timer;
 
 import de.peote.view.PeoteView;
-import de.peote.view.displaylist.DType;
+import de.peote.view.displaylist.DisplaylistType;
 
-class ExampleRandomLetter extends Example
+class RandomLetter extends samples.Sample
 {
 	
 	public override function run() 
 	{
 		startTime = Timer.stamp();
 		
-		peoteView = new PeoteView(1, 1); // max_displaylists, max_programs (for all displaylists)
+		peoteView = new PeoteView({
+			maxImages: 2
+		});
 		
-		var w:Int = 162;
-		var h:Int = 110;
-		var s:Int = 12;
+		var w:Int = 34;// 162;
+		var h:Int = 20;// 110;
+		var s:Int = 30;//12;
 	
-		// ---------------- PROGRAM SHADER ---------------------
-		
-		//peoteView.setProgram(0, "assets/lyapunov_01.frag");
 			
+		// --------------------- TEXTURECACHES -----------------
+		
+		peoteView.setTexture( {  texture: 0,
+			
+			w:   1024,        // Texture width
+			h:   512,         // Texture height
+			
+			iw:  512,         // Image-Slot width
+			ih:  512,         // Image-Slot height
+								  
+			//type: RGBA  // not implemented yes (allways RGBA)
+		});
 		// ------------------- IMAGES --------------------------
 		
-		peoteView.setImage(0, "assets/peote_font_white.png", 512, 512);
-		peoteView.setImage(1, "assets/peote_tiles.png", 512, 512);
+		peoteView.setImage({image:0, texture:0, w:512, h:512, filename:"assets/peote_font_white.png"});
+		peoteView.setImage({image:1, texture:0, w:512, h:512, filename:"assets/peote_tiles.png"});
+		
+		// ---------------- PROGRAM SHADER ---------------------
+		
+		peoteView.setProgram( {
+			program: 0,
+			texture: 0,
+		});
 		
 		// ---------------- DISPLAYLISTS -----------------------
 		
-		peoteView.setDisplaylist( { displaylist:0, type:DType.RGBA,
-			elements:w*h, programs:1, segments:1,
-			w:1920, h:1280,
+		peoteView.setDisplaylist( { displaylist:0, type:DisplaylistType.RGBA,
+			maxElements:w * h,
+			maxPrograms:1,
+			bufferSegments:1,
+			//w:1920, h:1280,
 			z:0,
 			enable:true
 		});
@@ -96,6 +117,7 @@ class ExampleRandomLetter extends Example
 						y: y*s - s,
 						w:s,
 						h:s,
+						program: 0,
 						image:0,
 						tile:random(256),
 						rgba: random(34) << 24 | random(55) << 16 | random(256) << 8 | 128+random(128)

@@ -5,7 +5,7 @@ package de.peote.view.displaylist;
  */
 
 import de.peote.view.element.I_ElementBuffer;
-import de.peote.view.Param;
+import de.peote.view.element.ElementParam;
 @:keep
 interface I_Displaylist 
 {
@@ -44,11 +44,11 @@ interface I_Displaylist
 	public var elemBuff:I_ElementBuffer;
 	
 
-	public function set(param:DParam):Void;
+	public function set(param:DisplaylistParam):Void;
 	public function delete():Void;
 	
-	public function setElement(param:Param):Void;
-	public function getElement(element_nr:Int):Param;
+	public function setElement(param:ElementParam):Void;
+	public function getElement(element_nr:Int):ElementParam;
 	public function hasElement(element_nr:Int):Bool;
 	public function delElement(element_nr:Int):Void;
 	public function delAllElement():Void;

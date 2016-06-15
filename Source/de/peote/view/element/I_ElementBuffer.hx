@@ -21,7 +21,7 @@ interface I_ElementBuffer
 	public function setVertexAttributes():Void;
 	
 	//public function setTexCoord( e:I_Element, param:Param):Void;
-	public function set( e:I_Element, param:Param ):Void;
+	public function set( e:I_Element, param:ElementParam ):Void;
 	public function del( e:I_Element ):Void;
 	public function delete():Void;
 }

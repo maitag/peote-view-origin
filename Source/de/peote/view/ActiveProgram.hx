@@ -29,6 +29,7 @@
 package de.peote.view;
 
 import de.peote.tools.Holes;
+import lime.graphics.opengl.GLTexture;
 
 class ActiveProgram
 {
@@ -36,6 +37,7 @@ class ActiveProgram
 	public var program:Program;
 	public var program_nr:Int;
 	
+	public var textures:ActiveTextures;
 	
 	public var buf_start:Int;
 	
@@ -44,10 +46,11 @@ class ActiveProgram
 	
 	public var element_holes:Holes;
 	
-	public inline function new(program:Program, program_nr:Int, segment_size:Int, buf_start:Int)
+	public inline function new(program:Program, program_nr:Int, programTextures:ActiveTextures, segment_size:Int, buf_start:Int)
 	{
 		this.program = program;
 		this.program_nr = program_nr;
+		this.textures = programTextures;
 		
 		this.buf_start = buf_start * segment_size;
 		element_holes = new Holes(segment_size);

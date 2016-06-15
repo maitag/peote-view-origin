@@ -30,6 +30,7 @@ package de.peote.view.texture;
 
 import format.png.Reader;
 import format.png.Tools;
+import lime.graphics.opengl.GLTexture;
 
 import haxe.io.BytesInput;
 import haxe.io.Bytes;
@@ -46,6 +47,7 @@ class Image
 {
 	
 	public var url:String="";
+	public var texture:Texture;
 	public var holePos:Int = -1;
 	
 	public var used:Int = 0;
@@ -56,9 +58,10 @@ class Image
 	public var tw:Int;
 	public var th:Int;
 	
-	public function new(image_url:String, w:Int, h:Int) 
+	public function new(image_url:String, texture:Texture, w:Int, h:Int) 
 	{
 		url = image_url;
+		this.texture = texture;
 		tw = w;
 		th = h;
 	}

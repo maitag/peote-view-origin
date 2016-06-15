@@ -91,7 +91,7 @@ class Buffer
 			
 	}
 
-	public function addElement(e:I_Element, program:Program, program_nr:Int, slot:Int = 0	 ):Void
+	public function addElement(e:I_Element, program:Program, program_nr:Int, programTextures:ActiveTextures, slot:Int = 0	 ):Void
 	{
 		// TODO:
 		// var i:Int = program.activeProgram_index[slot];
@@ -105,7 +105,7 @@ class Buffer
 		{
 			//trace("NEUES SEGMENT: ");
 			                                          // CHECK
-			act_program = new ActiveProgram(program, program_nr, segment_size, segment_holes.getHole() * VERTEX_COUNT);
+			act_program = new ActiveProgram(program, program_nr, programTextures, segment_size, segment_holes.getHole() * VERTEX_COUNT);
 			
 			// CHECK
 			//program.activeProgramArray.push(act_program);
@@ -123,7 +123,7 @@ class Buffer
 		if (act_program.element_holes.is_full()) // TODO: PROBLEM!!!!
 		{
 			//trace("SEGMENT full");
-			addElement(e, program, program_nr, slot+1);
+			addElement(e, program, program_nr, programTextures, slot+1);
 		}
 		else
 		{

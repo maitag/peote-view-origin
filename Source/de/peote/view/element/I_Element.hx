@@ -1,6 +1,6 @@
 package de.peote.view.element;
-import de.peote.view.Param;
-import de.peote.view.texture.TextureCache;
+import de.peote.view.element.ElementParam;
+import de.peote.view.texture.ImageCache;
 
 /**
  * @author Sylvio Sell
@@ -11,9 +11,9 @@ interface I_Element
 	public var act_program:ActiveProgram;
 	public var buf_pos:Int;
 
-	public function del(bufferElement:I_ElementBuffer, texturecache:TextureCache):Void;
-	public function set(bufferElement:I_ElementBuffer, param:Param, texturecache:TextureCache):Void;
-	public function get():Param;
+	public function del(bufferElement:I_ElementBuffer, imageCache:ImageCache):Void;
+	public function set(bufferElement:I_ElementBuffer, param:ElementParam, imageCache:ImageCache):Void;
+	public function get():ElementParam;
 
 	public function bufferUpdate(a:ActiveProgram, b:Int):Void;
 }
