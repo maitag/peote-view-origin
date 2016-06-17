@@ -20,14 +20,6 @@ To use with javascript inside webbrowser look [here](https://github.com/maitag/p
 - power of haxe-lime multiplatform code generation ( haxe -> cpp+js+java+.. )
 
 
-####Todo
-
-- tilesheet-animations
-- render to texture
-- more simple samples, usability tests, api improvement, optimization
-- documentation
-
-
 ####How to use
 
 PeoteViews is a collection of Displaylists, Programs, Textures and Images.
@@ -91,7 +83,7 @@ if some element use an image, it's Data will be load into free Image-Slot of ass
 		texture: 0,                   // texture to store image-data inside
 		                              // (will be scaled if not fit into texture-slot)
 									  
-		filename: "assets/font.png",  // image url of filename 
+		filename: "assets/font.png",  // image filename or url to load image from
 									  
 		preload: true                 // load images into texture, no matter of usage 
 									  // default behaivor: Image is loaded on first use
@@ -185,6 +177,15 @@ little Graphic inside Displaylist-Area (like a c64-sprite)
 - elements with same program will be drawn fastest (throught opengl drawarray)
 - to stream Elements In/Out fast,  use only 1 bufferSegment in Displaylist
 
+
+
+####Todo
+
+- add more image-encoding (for native targetd, only png-images can be loaded per http)
+- more simple samples and demos, usability and platform tests, api improvement, optimization
+- render to texture
+- tilesheet-animations
+- documentation
 
 
 
