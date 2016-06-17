@@ -97,25 +97,19 @@ class Multitexture extends samples.Sample
 		
 			texture:0,
 			//filename: "assets/peote_font_green.png",
-			filename: "assets/peote_font_white.png",
-			w: 512,
-			h: 512
+			filename: "assets/peote_font_white.png"
 		});
 		
 		peoteView.setImage( {  image: 1,
 		
 			texture:1,
-			filename: "assets/peote_tiles.png",
-			w: 512,
-			h: 512
+			filename: "assets/peote_tiles.png"
 		});
 		
 		peoteView.setImage( {  image: 2,
 		
 			texture:2,
 			filename: "assets/peote_tiles_bunnys.png",
-			w: 512,
-			h: 512,
 			preload:true
 		});
 		

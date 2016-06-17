@@ -96,7 +96,7 @@ class Bunnys extends samples.Sample
 
 		// ------------------- IMAGE (font) --------------------------
 
-		peoteView.setImage({ image:0, texture:0, filename:"assets/peote_font_white.png", w:512, h:512 });
+		peoteView.setImage({ image:0, texture:0, filename:"assets/peote_font_white.png" });
 		
 		// ---------------- PROGRAM SHADER (font) ---------------------
 		peoteView.setProgram({
@@ -124,9 +124,9 @@ class Bunnys extends samples.Sample
 		});
 
 		// ------------------- IMAGE (flowers, bunnys or letters ;) --------------------------
-		peoteView.setImage({ image:1, texture:1, filename:"assets/peote_tiles_flowers_alpha.png", w:512, h:512 });
-		peoteView.setImage({ image:2, texture:1, filename:"assets/peote_tiles_bunnys.png", w:512, h:512 });
-		peoteView.setImage({ image:3, texture:1, filename:"assets/peote_font_white.png", w:512, h:512 });
+		peoteView.setImage({ image:1, texture:1, filename:"assets/peote_tiles_flowers_alpha.png" });
+		peoteView.setImage({ image:2, texture:1, filename:"assets/peote_tiles_bunnys.png" });
+		peoteView.setImage({ image:3, texture:1, filename:"assets/peote_font_white.png" });
 		
 
 		

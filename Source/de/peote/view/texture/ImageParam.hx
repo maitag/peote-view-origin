@@ -11,7 +11,7 @@ typedef ImageParam =
 	?texture:Int,
 	filename:String,
 	//?bitmap:Bitmap,
-	?w:Int,
-	?h:Int,
+	//?w:Int,
+	//?h:Int,
 	?preload:Bool
 }

@@ -64,8 +64,8 @@ class RandomLetter extends samples.Sample
 		});
 		// ------------------- IMAGES --------------------------
 		
-		peoteView.setImage({image:0, texture:0, w:512, h:512, filename:"assets/peote_font_white.png"});
-		peoteView.setImage({image:1, texture:0, w:512, h:512, filename:"assets/peote_tiles.png"});
+		peoteView.setImage({image:0, texture:0, filename:"assets/peote_font_white.png"});
+		peoteView.setImage({image:1, texture:0, filename:"assets/peote_tiles.png"});
 		
 		// ---------------- PROGRAM SHADER ---------------------
 		

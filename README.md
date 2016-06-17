@@ -64,14 +64,13 @@ A Texture reserves space on GPU-Ram for storing many (same sized) Imagedata.
 ```
 	// --------------------- TEXTURE -------------------- //
 	
-	peoteView.setTexture({  texture: 0,
+	peoteView.setTexture({   texture: 0,
+	
 		w:   2048,        // Texture width
 		h:   2048,        // Texture height
 		
 		iw:  512,         // Image-Slot width
 		ih:  512,         // Image-Slot height
-		
-		//type: RGBA      // not implemented yes (allways RGBA)
 	}); 
 ```	
 	
@@ -87,17 +86,15 @@ if some element use an image, it's Data will be load into free Image-Slot of ass
 ```
 	// --------------------- IMAGE ----------------------- //
 	
-	peoteView.setImage({   image: 0,
+	peoteView.setImage({     image: 0,
 	
 		texture: 0,                   // texture to store image-data inside
+		                              // (will be scaled if not fit into texture-slot)
 									  
 		filename: "assets/font.png",  // image url of filename 
 									  
-		preload: true,                // load images into texture, no matter of usage 
+		preload: true                 // load images into texture, no matter of usage 
 									  // default behaivor: Image is loaded on first use
-									  
-		w: 512,                       // optional Image width and height 
-		h: 512                        // if it's smaller than reserved in texture
 	});
 ```
 
@@ -134,16 +131,16 @@ rectangular screen-areas to display lots of elements
 
 	peoteView.setDisplaylist({   displaylist: 0,
 		
-		type:DisplaylistType.RGBA,        // can be combination of .PICKING  .ANIM   .ROTATION  ...
+		type:DisplaylistType.RGBA,  // can be combination of .PICKING  .ANIM   .ROTATION  ...
 		
 		maxElements:    100,	// maximum elements to display
 		maxPrograms:     10,	// maximum different shader-programs
 		bufferSegments:  10,	// gpu-buffer segmentation (can be result in better performance for I/O)
 		
-		x:150,	            // pixels from left border
-		y:50,	            // pixels from top border
-		w:1000,	            // width
-		h:1000,	            // height
+		x:150,	                // pixels from left border
+		y:50,	                // pixels from top border
+		w:1000,	                // width
+		h:1000,	                // height
 		z:0,
 		
 		enable: true

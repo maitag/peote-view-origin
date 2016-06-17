@@ -68,11 +68,12 @@ class ImageCache
 			
 			if (texture != null)
 			{
-				if (param.w == null) param.w = texture.segment_width;
-				if (param.h == null) param.h = texture.segment_height;
+				//if (param.w == null) param.w = texture.segment_width;
+				//if (param.h == null) param.h = texture.segment_height;
 				// TODO: load into defined texture-slot
 				
-				images.set(param.image, new Image(param.filename, texture , param.w, param.h) );
+				//images.set(param.image, new Image(param.filename, texture , param.w, param.h) );
+				images.set(param.image, new Image(param.filename, texture , texture.segment_width, texture.segment_height) );
 				
 				// preload
 				if (param.preload) useImage(param.image); // TODO: optimize so useImage dont need to get again from vector

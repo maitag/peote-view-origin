@@ -96,14 +96,10 @@ class Sample extends Application {
 		peoteView.setImage({
 			image: 0,
 			filename: "assets/peote_font_white.png",
-			w: 512,
-			h: 512
 		});
 		peoteView.setImage({
 			image: 1,
 			filename: "assets/peote_tiles.png",
-			w: 512,
-			h: 512
 		});
 		
 		

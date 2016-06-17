@@ -75,8 +75,8 @@ class MassAnim extends samples.Sample
 		peoteView.setTexture({ texture:0, w:1024, h:1024, iw:512, ih:512 });
 
 		// set images
-		peoteView.setImage({ image:0, texture:0, w:512, h:512, filename:"assets/peote_font_green.png" });
-		peoteView.setImage({ image:1, texture:0, w:512, h:512, filename:"assets/peote_tiles.png" });
+		peoteView.setImage({ image:0, texture:0, filename:"assets/peote_font_green.png" });
+		peoteView.setImage({ image:1, texture:0, filename:"assets/peote_tiles.png" });
 		
 		// set shaders
 		peoteView.setProgram( {
@@ -91,7 +91,7 @@ class MassAnim extends samples.Sample
 		// new Displaylist
 		peoteView.setDisplaylist( {
 			displaylist: 0,
-			type: DisplaylistType.SIMPLE,
+			type: DisplaylistType.ANIM,
 			maxElements: 1,
 			maxPrograms:1,
 			bufferSegments:1,
