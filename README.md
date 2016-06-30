@@ -135,7 +135,7 @@ rectangular screen-areas to display lots of elements
 
 	peoteView.setDisplaylist({   displaylist: 0,
 		
-		type:DisplaylistType.RGBA,  // can be combination of .PICKING  .ANIM   .ROTATION  if ANIM -> .TEXTURESHIFT .TEXTURESIZE...
+		type:DisplaylistType.RGBA,  // can be combination of .PICKING  .ANIM   .ROTATION...
 		
 		maxElements:    100,	// maximum elements to display
 		maxPrograms:     10,	// maximum different shader-programs
@@ -165,13 +165,9 @@ little Graphic inside Displaylist-Area (like a c64-sprite)
 		displaylist: 0,
 		
 		program: 0,
-		
-		image: 0,       // image number
-		// TODO: if no image number is defined
-		// slot: 0,     // texture slot (when not defined, all texturespace will be used)
-		
-		tile:  0,       // 0..255 (texture coordinates will be splittet into 16x16 tiles)
-		
+		image: 0,       // image number if program use texture
+
+		// tile:  0,       // 0..255 (texture coordinates will be splittet into 16x16 tiles)
 		// tx, ty, -> manual setting texture-coordinates shifting
 		// tw ,th  -> manual setting texture-coordinates size
 		
