@@ -102,6 +102,13 @@ class Program
 		}
 	}
 	
+	public inline function clear():Void
+	{
+		uniforms = null;
+		GL.deleteProgram(glProgram);
+		glProgram = null;
+	}
+	
 	public inline function parseType(type:Int, textureUnits:ActiveTextures, s:String):String
 	{
 		// regexp shader parsing
@@ -179,7 +186,6 @@ class Program
 		trace("FRAGMENTSHADER:\n"+r.replace(fragmentShaderSrc, ";\n"));
 		
 		// -----------------------------------------------------------------------
-		
 		var fs = GL.createShader(GL.FRAGMENT_SHADER);
 		GL.shaderSource(fs, fragmentShaderSrc);
 		GL.compileShader(fs);

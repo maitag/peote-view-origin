@@ -75,6 +75,17 @@ class ProgramCache
 		attr = new IntMap<Vector<Int>>();
 	}
 	
+	public inline function clear(nr:Int):Void
+	{
+		var pmap:IntMap<Program> = program.get(nr);
+		for (type in pmap.keys())
+		{
+			pmap.get(type).clear();
+			pmap.set(type, null);
+		}
+		programTextures.get(nr).clear();
+	}
+	
 	public inline function onerror(msg:String):Void { trace(msg); }
 	
 	public inline function addDisplaylist(type:Int, elemBuff:I_ElementBuffer):Void

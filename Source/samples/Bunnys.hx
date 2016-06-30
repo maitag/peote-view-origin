@@ -87,11 +87,6 @@ class Bunnys extends samples.Sample
 			texture: 0,
 			w:   512,        // Texture width
 			h:   512,        // Texture height
-			
-			iw:  512,         // Image-Slot width  ----> TODO: optimize PeoteView API (here)
-			ih:  512,         // Image-Slot height
-								  
-			//type: RGBA  // not implemented yes (allways RGBA)
 		});
 
 		// ------------------- IMAGE (font) --------------------------
@@ -114,13 +109,9 @@ class Bunnys extends samples.Sample
 		// --------------------- TEXTURE (flowers, bunnys or letters ;) -----------------
 		peoteView.setTexture({
 			texture: 1,
-			w:   1024,        // Texture width
-			h:   1024,        // Texture height
-			
-			iw:  512,         // Image-Slot width  ----> TODO: optimize PeoteView API (here)
-			ih:  512,         // Image-Slot height
-								  
-			//type: RGBA  // not implemented yes (allways RGBA)
+			slots: 4,
+			w:   512,        // Texture slot width
+			h:   512,        // Texture slot height
 		});
 
 		// ------------------- IMAGE (flowers, bunnys or letters ;) --------------------------

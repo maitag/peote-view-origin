@@ -26,7 +26,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package samples;
+package;
 
 import samples.Sample;
 import de.peote.view.PeoteView;
@@ -35,7 +35,7 @@ import haxe.Timer;
 
 import lime.ui.Window;
 
-class Multitexture extends samples.Sample
+class Testing extends samples.Sample
 {
 	public override function run() 
 	{
@@ -58,56 +58,52 @@ class Multitexture extends samples.Sample
 		// -----------------------------------------------------
 		
 		peoteView.setTexture( {  texture: 0,
-			w:   512,        // Texture width
-			h:   512,        // Texture height
-		});
-		
-		peoteView.setTexture( {  texture: 1,
-			w:   512,        // Texture width
-			h:   512,        // Texture height
-		});
-		
-		peoteView.setTexture( {  texture: 2,
-			w:   512,        // Texture width
-			h:   512,        // Texture height
+			slots: 5,
+			w:   512,        // slot width
+			h:   512,        // slot height
+			//type: RGBA  // not implemented yes (allways RGBA)
 		});
 		
 		// -----------------------------------------------------
 		// ------------------- IMAGES --------------------------
 		// -----------------------------------------------------
 		peoteView.setImage( {  image: 0,
+		
 			texture:0,
-			//filename: "assets/peote_font_green.png",
-			filename: "assets/peote_font_white.png"
+			filename: "assets/peote_font_green.png",
+			//filename: "assets/peote_tiles.png",
+			//filename: "http://maitag.de/semmi/blender/blenderconsole-telnet.png",
+			//filename: "http://maitag.de/semmi/haxelime/peote-view-font/assets/peote_font_white.png",
+			//filename: "http://maitag.de/semmi/blender/lyapunov/example_images/blechrad_next.blend.png",
+			//filename: "http://maitag.de/semmi/blender/lyapunov/example_images/displace-FOSSIL-03.blend.jpg",
+			//filename: "http://maitag.de/semmi/blender/lyap_maitag_03.blend.png",
+			//filename: "https://s14-eu5.ixquick.com/cgi-bin/serveimage?url=http:%2F%2Fcdn.theatlanticwire.com%2Fimg%2Fupload%2F2012%2F05%2F02%2FAP12032008617.jpg&sp=f35f35281c402174f869216418276069",
+
+			x:10,y:10,w:220,h:150 // Position and size inside texture slot area
 		});
-		
-		peoteView.setImage( {  image: 1,
-			texture:1,
-			filename: "assets/peote_tiles.png"
-		});
-		
-		peoteView.setImage( {  image: 2,
-			texture:2,
-			filename: "assets/peote_tiles_bunnys.png",
-			preload:true
-		});
-		
+		/*
+		// change image after 2 seconds
+		var timer = new Timer(2000);
+		timer.run = function() {
+			
+			timer.stop();
+			peoteView.setImage( {  image: 0,
+			
+				texture:0,
+				filename: "assets/peote_tiles_bunnys.png",
+			});
+			
+		}
+		*/
 		// -----------------------------------------------------
 		// ---------------- PROGRAM SHADER ---------------------
 		// -----------------------------------------------------
 		peoteView.setProgram( {	program: 0,
-			textures: [0,1]
+			texture: 0
 			//vshader: "assets/debug.vert",
 			//fshader: "assets/debug.frag"
 		});
 		
-		var timer = new Timer(2000);
-		timer.run = function() {
-			timer.stop();
-			peoteView.setProgram( {	program: 0,
-				textures: [0,2]
-			});
-		}
 		
 		
 		// -----------------------------------------------------
@@ -116,10 +112,10 @@ class Multitexture extends samples.Sample
 		peoteView.setDisplaylist( {	displaylist: 0,
 			
 			type: //DisplaylistType.ANIM |
-			      DisplaylistType.RGBA |
-				  DisplaylistType.ROTATION |
-				  DisplaylistType.PICKING |
-				  DisplaylistType.ZINDEX
+			      DType.RGBA |
+				  DType.ROTATION |
+				  DType.PICKING |
+				  DType.ZINDEX
 				,
 			
 			maxElements:    10000,
@@ -151,25 +147,25 @@ class Multitexture extends samples.Sample
 		peoteView.setElementDefaults( { displaylist:0 } );
 		
 		peoteView.setElement( { element:0,
-			x:100, y:100,
-			w:100, h:100,
-			pivotX:50, pivotY:50,
-			rotation:-90,
+			x:0, y:0,
+			w:512, h:512,
 			program:0,
 			image:0,
-			tile:2
+			//tile:1
 		});
-		
+		/*
 		peoteView.setElement( { element:1,
 			x:200, y:100,
 			w:100, h:100,
 			pivotX:50, pivotY:50,
 			rotation:135,
 			program:0,
-			image:1,
-			tile:1
+			image:0,
+			tile:2
 		});
-
+		*/
+		
+		
 		/*
 		peoteView.setElement( { element:2,
 			x:0, y:0,

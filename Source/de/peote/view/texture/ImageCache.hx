@@ -73,7 +73,7 @@ class ImageCache
 				// TODO: load into defined texture-slot
 				
 				//images.set(param.image, new Image(param.filename, texture , param.w, param.h) );
-				images.set(param.image, new Image(param.filename, texture , texture.segment_width, texture.segment_height) );
+				images.set(param.image, new Image(param.filename, texture , texture.slotWidth, texture.slotHeight) );
 				
 				// preload
 				if (param.preload) useImage(param.image); // TODO: optimize so useImage dont need to get again from vector
@@ -97,12 +97,12 @@ class ImageCache
 					// if some element using this image , there will be PROBLEM
 					if (img.used > 0)
 					{
-						trace ("ERROR: texture-changing while image-usage-by-element not implemented yet");
+						trace ("ERROR: texture-changing while image is in usage by element not implemented yet");
 						// TODO
 					}
 					else
 					{
-						if (img.holePos > -1 ) // not loaded into GL Texture yet
+						if (img.slot > -1 ) // not loaded into GL Texture yet
 						{
 							// TODO: copy from one texture to another
 						}
@@ -141,7 +141,7 @@ class ImageCache
 			if (img.used++ == 0) // first use
 			{	
 				//trace(" first use");
-				if (img.holePos == -1) // not loaded into GL Texture yet
+				if (img.slot == -1) // not loaded into GL Texture yet
 				{
 					var success:Bool = true;
 					if ( img.texture.isFull() )
@@ -152,6 +152,7 @@ class ImageCache
 							trace(" ============ ERROR: Texture Space can't be cleaned and is FULL of used Images ==========");
 							// TODO: create new Texture and store that number inside images
 							success = false;
+							// TODO: return null at end!
 						}
 					}
 					if (success)
@@ -198,8 +199,8 @@ class ImageCache
 	
 	private function onImageLoad(img:Image, w:Int, h:Int, data:UInt8Array):Void
 	{
-		trace("onImageLoad: "+img.url+" gl-texture: "+img.texture+" to holePos:"+img.holePos+" ----"+ "("+Math.random()+")");
-		if (img.holePos > -1)
+		trace("onImageLoad: "+img.url+" gl-texture: "+img.texture+" to holePos:"+img.slot+" ----"+ "("+Math.random()+")");
+		if (img.slot > -1)
 		{
 			img.texture.storeImage(img, w, h, data);
 		}
@@ -221,7 +222,7 @@ class ImageCache
 			if (unusedImg.used == 0)
 			{	//trace("    at holePos:"+unusedImg.holePos);
 				unusedImg.texture.freeImage( unusedImg );
-				unusedImg.holePos = -1;
+				unusedImg.slot = -1;
 				numCleaned++;
 			}
 		}

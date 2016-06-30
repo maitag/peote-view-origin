@@ -45,7 +45,7 @@ class Holes // amount of manysized cheese-holes may grow up (memory-consume-temp
 	
 	public function addHole(pos:Int):Void
 	{
-		// TODO: optimize with haxe sugar
+		// TODO: optimize with haxe sugar and recursivley starting at midle
 		var len:Int = hole.length; //hoisted (performance)
 		for (i in 0...len)
 		{	//trace("addHoleLoop i="+i+" start:"+hole[i].start+" end:"+hole[i].end);
@@ -102,6 +102,31 @@ class Holes // amount of manysized cheese-holes may grow up (memory-consume-temp
 		}
 		//trace("getHole: mid="+mid+" "+ hole);
 		return(hole[mid].start++);
+	}
+	
+	public function getHoleAt(pos:Int):Bool
+	{
+		var len:Int = hole.length; //hoisted (performance)
+		for (i in 0...len)
+		{
+			if ( pos >= hole[i].start && pos <= hole[i].end) // is inside hole
+			{
+				if (hole[i].start == hole[i].end)
+					hole.splice(i,1);
+				else if (pos == hole[i].start)
+					hole[i].start++;
+				else if (pos == hole[i].end)
+					hole[i].end--;
+				else {
+					hole.insert(i, new Hole(hole[i].start));
+					hole[i].end = pos - 1;
+					hole[i + 1].start = pos + 1;
+				}
+				
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public inline function first():Int

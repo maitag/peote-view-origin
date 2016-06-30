@@ -72,6 +72,8 @@ class PeoteView
 			pivotY:0
 		};
 
+	public static var MAX_TEXTURE_SIZE:Int;
+		
 	var displaylist:Vector<I_Displaylist>;
 	var startDisplaylist:I_Displaylist; // first index with lowest z value
 	
@@ -96,6 +98,8 @@ class PeoteView
 		if (param.maxPrograms == null) param.maxPrograms = 1;
 		if (param.maxTextures == null) param.maxTextures = 1;
 		if (param.maxImages == null) param.maxImages = 1;
+		
+		MAX_TEXTURE_SIZE = GL.getParameter(GL.MAX_TEXTURE_SIZE);
 
 		trace("GL.MAX_TEXTURE_IMAGE_UNITS:" + GL.getParameter(GL.MAX_TEXTURE_IMAGE_UNITS));
 		trace("GL.MAX_COMBINED_TEXTURE_IMAGE_UNITS:" + GL.getParameter(GL.MAX_TEXTURE_IMAGE_UNITS));
@@ -123,7 +127,7 @@ class PeoteView
 	}
 	
 	// ------------------------------------------------------------------------------------------------------
-	// -------------------------------- DISPLAYLIST ---------------------------------------------------------
+	// ---------------------------------- TEXTURE -----------------------------------------------------------
 	// ------------------------------------------------------------------------------------------------------
 	public inline function setTexture(param:TextureParam):Void
 	{
@@ -131,7 +135,19 @@ class PeoteView
 		{
 			textures.set(param.texture, new Texture(param) );
 		}
-		else trace("SORRY: re-set Texture ist not implementet yet");
+		else trace("re-set Texture ist not implemented yet");
+	}
+	
+	public inline function delTexture(param:TextureParam):Void
+	{
+		trace("not fully implemented yet");
+		/*var t:Texture = textures.get(param.texture);
+		if (t != null)
+		{
+			t.clear();
+			textures.set(param.texture, null );
+		}
+		else trace("texture already deleted");*/
 	}
 	// ------------------------------------------------------------------------------------------------------
 	// -------------------------------- DISPLAYLIST ---------------------------------------------------------
@@ -260,6 +276,12 @@ class PeoteView
 	public inline function setImage(param:ImageParam):Void
 	{
 		imageCache.setImage(param);
+	}
+	
+	public inline function delImage(param:ImageParam):Void
+	{
+		// TODO
+		trace("not implemented yet");
 	}
 	
 	// TODO: custom mapping

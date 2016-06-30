@@ -53,10 +53,10 @@ class Image
 	
 	public var url:String="";
 	public var texture:Texture;
-	public var holePos:Int = -1;
+	public var slot:Int = -1;
 	
+	// TODO: priority of how much used over time
 	public var used:Int = 0;
-	// TODO: priority 
 	
 	public var tx:Int;
 	public var ty:Int;

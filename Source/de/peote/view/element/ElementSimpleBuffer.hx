@@ -194,7 +194,9 @@ class ElementSimpleBuffer implements I_ElementBuffer
 		var txw:Int = tx + param.tw;
 		var tyh:Int = ty + param.th;
 		
-		param.element+=1;
+		param.element+=1; // picking
+		
+		// TODO: Optimize -> write only changed values to buffer ( start / end counter ) -> Array of pre-sized buffers!
 		
 		buffFull.setByteOffset( 0 );
 		

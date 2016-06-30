@@ -40,6 +40,8 @@ class ElementSimple implements I_Element
 	public var image:Int = -1;
 	public var tile:Int = -1;
 	
+	// TODO: mem-test if storing param here directly (to store slot, tx, ty, tw, th)
+	
 	// stored
 	public var x:Int;
 	public var y:Int;
@@ -65,15 +67,6 @@ class ElementSimple implements I_Element
 	public inline function set(elemBuff:I_ElementBuffer, param:ElementParam, imageCache:ImageCache):Void
 	{	
 		
-		// TODO: nur bestimmte buffer-werte aendern
-		// z und tex werte separat
-		
-		/*
-		if (param.sx1 != null) param.w1 = Math.round(param.w1 * param.sx1);
-		if (param.sy1 != null) param.h1 = Math.round(param.h1 * param.sy1);
-		if (param.sx2 != null) param.w2 = Math.round(param.w2 * param.sx2);
-		if (param.sy2 != null) param.h2 = Math.round(param.h2 * param.sy2);
-		*/
 		if (param.x == null) param.x = x; else x = param.x;
 		if (param.y == null) param.y = y; else y = param.y;
 		if (param.w == null) param.w = w; else w = param.w;

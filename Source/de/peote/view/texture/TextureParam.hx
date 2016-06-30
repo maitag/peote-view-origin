@@ -8,8 +8,10 @@ package de.peote.view.texture;
 typedef TextureParam =
 {
 	texture:   Int,
-	?w:        Int,
-	?h:        Int,
-	?iw:        Int,
-	?ih:        Int
+
+	w:         Int,
+	h:         Int,
+	
+	?slots:    Int,
+	?cache:    Bool
 }

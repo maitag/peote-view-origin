@@ -89,11 +89,6 @@ class BunnysTextureSwitch extends samples.Sample
 			texture: 0,
 			w:   512,        // Texture width
 			h:   512,        // Texture height
-			
-			iw:  512,         // Image-Slot width  ----> TODO: optimize PeoteView API (here)
-			ih:  512,         // Image-Slot height
-								  
-			//type: RGBA  // not implemented yes (allways RGBA)
 		});
 
 		// ------------------- IMAGE (font) --------------------------
@@ -120,11 +115,6 @@ class BunnysTextureSwitch extends samples.Sample
 			texture: 1,
 			w:   512,        // Texture width
 			h:   512,        // Texture height
-			
-			iw:  512,         // Image-Slot width  ----> TODO: optimize PeoteView API (here)
-			ih:  512,         // Image-Slot height
-								  
-			//type: RGBA  // not implemented yes (allways RGBA)
 		});
 
 		peoteView.setImage( { image:1, texture:1, preload:true, filename:"assets/peote_tiles_flowers_alpha.png" } );
@@ -143,11 +133,6 @@ class BunnysTextureSwitch extends samples.Sample
 			texture: 2,
 			w:   512,        // Texture width
 			h:   512,        // Texture height
-			
-			iw:  512,         // Image-Slot width  ----> TODO: optimize PeoteView API (here)
-			ih:  512,         // Image-Slot height
-								  
-			//type: RGBA  // not implemented yes (allways RGBA)
 		});
 
 		peoteView.setImage( { image:2, texture:2, preload:true, filename:"assets/peote_tiles_bunnys.png" } );
@@ -166,11 +151,6 @@ class BunnysTextureSwitch extends samples.Sample
 			texture: 3,
 			w:   512,        // Texture width
 			h:   512,        // Texture height
-			
-			iw:  512,         // Image-Slot width  ----> TODO: optimize PeoteView API (here)
-			ih:  512,         // Image-Slot height
-								  
-			//type: RGBA  // not implemented yes (allways RGBA)
 		});
 		peoteView.setImage({ image:3, texture:3, preload:true, filename:"assets/peote_font_white.png" });
 		peoteView.setProgram({

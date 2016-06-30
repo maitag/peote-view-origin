@@ -1,23 +1,26 @@
 ###Peote View - 2D OpenGL Render Library
 
-This library is coded in [Haxe](http://haxe.org) programming language with [Lime](https://github.com/openfl/lime),  
-and much use of [flashdevelop](http://www.flashdevelop.org/) tool.
+This library is coded in [Haxe](http://haxe.org) programming language sugar 
+together with pure stable [Lime](https://github.com/openfl/lime) haxelib.
 
-To use with javascript inside webbrowser look [here](https://github.com/maitag/peoteView.js). 
+-> to use inside "webbrowser" look [here](https://github.com/maitag/peoteView.js). 
+
+
 
 ####Build [Samples (^_^)](http://maitag.github.io/peote-view/)
 
-- edit sample and check [peoteView.lime](https://github.com/maitag/peote-view/blob/master/peoteView.lime#L10)  
+- check [peoteView.lime](https://github.com/maitag/peote-view/blob/master/peoteView.lime#L10) to see what will be compiled
 - build with: `lime build peoteView.lime linux` ( | html5 | windows | android | raspi | rpi | ...)
+- start new sample and play around
 
 
-####Why this lib ?
+####Why this tool ?
 
-- simple API to scroll and zoom into massive gfx-2d-tiles
-- handle imagedata and procedural shadercode simple and easy
-- better sync over network by element-indices (to avoid deep object-serialization)
-- transition-rendering by gpu-shader to reduce cpu->gpu datatransfer (more time for game-logic on cpu)
+- handle imagedata and procedural shadercode equal
 - power of haxe-lime multiplatform code generation ( haxe -> cpp+js+java+.. )
+- better sync over network by element-indices (to avoid deep object-serialization)
+- simplify opengl-usage (using power of 3d accelerated hardware in other Dimensions;)
+- transition-rendering by gpu-shader to reduce cpu->gpu datatransfer (more time for game-logic on cpu)
 
 
 ####How to use
@@ -33,7 +36,7 @@ That Items will be reserved in a "static way" to get best performance.
 		maxPrograms:        50,
 		maxTextures:        50,
 		maxImages:         100
-		
+		// TODO: onError:    function(errorcode, msg) {}
 	});
 ```
 
@@ -51,23 +54,24 @@ step by step:
 
 #####1) Textures
 
-A Texture reserves space on GPU-Ram for storing many (same sized) Imagedata.
+A Texture reserves space on GPU-Ram for storing Images into same sized Slots.
 
 ```
 	// --------------------- TEXTURE -------------------- //
 	
 	peoteView.setTexture({   texture: 0,
 	
-		w:   2048,        // Texture width
-		h:   2048,        // Texture height
+		slots: 16,        // How much slots, images can be stored in
+		w:  512,          // Slot width
+		h:  512,          // Slot height
 		
-		iw:  512,         // Image-Slot width
-		ih:  512,         // Image-Slot height
-	}); 
+		cache: false,    // images uses free slots automatically
+		                 // false:  all images needs defined slot number
+	});
 ```	
 	
-Texturesize depends on Hardware (2048 up to 16384), should be a power of 2 and can
-be checked throught: peoteView.MAX_TEXTURE_SIZE
+Created Texturesize depends on Hardware (2048 up to 16384) and will be power of 2.
+Check peoteView.MAX_TEXTURE_SIZE to see whats possible on your hardware.
 
 
 
@@ -82,12 +86,20 @@ if some element use an image, it's Data will be load into free Image-Slot of ass
 	
 		texture: 0,                   // texture to store image-data inside
 		                              // (will be scaled if not fit into texture-slot)
-									  
+		
 		filename: "assets/font.png",  // image filename or url to load image from
 									  
-		preload: true                 // load images into texture, no matter of usage 
+		preload: true ,               // load images into texture, no matter of usage 
 									  // default behaivor: Image is loaded on first use
+
+		onCacheIsFull:  function() {} ,    // callback if texture cache is full
+									  
+		// TODO: -------------
+		onLoad:     function(w,h) {},	  // callback if image is loaded
+		onProgress: function(p) {},	      // callback while image loads
+		onError:    function(msg) {},	  // callback on loading error		
 	});
+	
 ```
 
 		
@@ -108,6 +120,7 @@ opengl-shadercode and textures that can be use
 
 		// OR - combine multiple textures with shadercode
 		// textures:[0,2,1,4]   // max 7 aditional textures available per program-shader
+		
 	});
 ```		
 		
@@ -123,7 +136,7 @@ rectangular screen-areas to display lots of elements
 
 	peoteView.setDisplaylist({   displaylist: 0,
 		
-		type:DisplaylistType.RGBA,  // can be combination of .PICKING  .ANIM   .ROTATION  ...
+		type:DisplaylistType.RGBA,  // can be combination of .PICKING  .ANIM   .ROTATION  if ANIM -> .TEXTURESHIFT .TEXTURESIZE...
 		
 		maxElements:    100,	// maximum elements to display
 		maxPrograms:     10,	// maximum different shader-programs
@@ -153,11 +166,19 @@ little Graphic inside Displaylist-Area (like a c64-sprite)
 		displaylist: 0,
 		
 		program: 0,
-		image: 0,
 		
-		// Position and rectangular Dimensions
-		x: 10,	// pixels from left border
-		y: 10,	// pixels from top border
+		image: 0,       // image number
+		// TODO: if no image number is defined
+		// slot: 0,     // texture slot (when not defined, all texturespace will be used)
+		
+		tile:  0,       // 0..255 (texture coordinates will be splittet into 16x16 tiles)
+		
+		// tx, ty, -> manual setting texture-coordinates shifting
+		// tw ,th  -> manual setting texture-coordinates size
+		
+		// Position and Size
+		x: 10,	// pixels from left displaylist border
+		y: 10,	// pixels from top displaylist border
 		w: 100,	// width
 		h: 100,	// height
 		z: 0    // z-order   ( 0 <= z <= 32767 )
@@ -170,20 +191,21 @@ little Graphic inside Displaylist-Area (like a c64-sprite)
 
 #####How to optimize render-loop:
 
-- order displaylists functionally, like:
+- order Displaylists like:
 	1) game-gfx 
 	2) user-interface (DisplaylistType.PICK to interact with Elements)
 	
-- elements with same program will be drawn fastest (throught opengl drawarray)
+- Elements with same program will be drawn fastest (throught opengl drawarray)
 - to stream Elements In/Out fast,  use only 1 bufferSegment in Displaylist
 
 
 
 ####Todo
 
-- add more image-encoding (for native targetd, only png-images can be loaded per http)
-- more simple samples and demos, usability and platform tests, api improvement, optimization
 - render to texture
+- image alignment inside texture-slot
+- add more image-encoding (for native targetd, only png-images can be loaded per http)
+- more demos
 - tilesheet-animations
 - documentation
 

@@ -8,10 +8,21 @@ package de.peote.view.texture;
 typedef ImageParam =
 {
 	image:Int,
+
 	?texture:Int,
+	
 	filename:String,
 	//?bitmap:Bitmap,
-	//?w:Int,
-	//?h:Int,
-	?preload:Bool
+	
+	?preload:Bool,
+
+	?x:Int,
+	//?l:Int,
+	//?r:Int,
+	?h:Int,
+	
+	?y:Int,
+	//?t:Int,
+	//?b:Int,
+	?w:Int,	
 }

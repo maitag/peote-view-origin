@@ -53,14 +53,9 @@ class RandomLetter extends samples.Sample
 		// --------------------- TEXTURECACHES -----------------
 		
 		peoteView.setTexture( {  texture: 0,
-			
-			w:   1024,        // Texture width
-			h:   512,         // Texture height
-			
-			iw:  512,         // Image-Slot width
-			ih:  512,         // Image-Slot height
-								  
-			//type: RGBA  // not implemented yes (allways RGBA)
+			slots: 2,
+			w:   512,         // Texture slot width
+			h:   512,         // Texture slot height
 		});
 		// ------------------- IMAGES --------------------------
 		

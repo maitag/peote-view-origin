@@ -41,10 +41,8 @@ class ActiveTextures
 	{
 		texture = new Array<Texture>();
 	}
-	/*
-	public inline function get(nr:Int):Int
+	public inline function clear()
 	{
-		return();
+		texture.splice(0, texture.length);
 	}
-	*/
 }
