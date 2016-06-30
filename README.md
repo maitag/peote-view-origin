@@ -91,12 +91,11 @@ if some element use an image, it's Data will be load into free Image-Slot of ass
 		preload: true ,               // load images into texture, no matter of usage 
 									  // default behaivor: Image is loaded on first use
 
-		onCacheIsFull:  function() {} ,    // callback if texture cache is full
-									  
 		// TODO: -------------
-		onLoad:     function(w,h) {},	  // callback if image is loaded
-		onProgress: function(p) {},	      // callback while image loads
-		onError:    function(msg) {},	  // callback on loading error		
+		onFull:     function() {} ,      // all texture slots full of images
+		onLoad:     function(w,h) {},    // image is loaded
+		onProgress: function(p) {},	     // while image loads
+		onError:    function(msg) {},    // loading error		
 	});
 	
 ```
@@ -117,7 +116,7 @@ opengl-shadercode and textures that can be use
 		
 		texture: 0,  // only images stored inside this texture can be used
 
-		// OR - combine multiple textures with shadercode
+		// OR - give pixelshader acces to combine multiple textures
 		// textures:[0,2,1,4]   // max 7 aditional textures available per program-shader
 		
 	});
