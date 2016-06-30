@@ -1,7 +1,6 @@
 ###Peote View - 2D OpenGL Render Library
 
-This library is coded in [Haxe](http://haxe.org) programming language sugar 
-together with pure stable [Lime](https://github.com/openfl/lime) haxelib.
+This is a [Haxe](http://haxe.org) library with [Lime](https://github.com/openfl/lime) sugar.
 
 -> to use inside "webbrowser" look [here](https://github.com/maitag/peoteView.js). 
 
@@ -204,9 +203,9 @@ little Graphic inside Displaylist-Area (like a c64-sprite)
 
 - render to texture
 - image alignment inside texture-slot
-- add more image-encoding (for native targetd, only png-images can be loaded per http)
 - more demos
-- tilesheet-animations
+- more image-encodings (for cpp only png per http)
+- tile-animations on gpu (for simple walkcyle sprite-demo)
 - documentation
 
 
