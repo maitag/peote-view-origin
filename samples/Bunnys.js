@@ -11,13 +11,47 @@ var ApplicationMain = function() { };
 ApplicationMain.__name__ = true;
 ApplicationMain.create = function() {
 	ApplicationMain.preloader = new lime_app_Preloader();
-	ApplicationMain.app = new samples_BunnysTextureSwitch();
+	ApplicationMain.app = new samples_Bunnys();
 	ApplicationMain.app.setPreloader(ApplicationMain.preloader);
 	ApplicationMain.app.create(ApplicationMain.config);
 	ApplicationMain.preloader.onComplete.add(ApplicationMain.start);
 	ApplicationMain.preloader.create(ApplicationMain.config);
 	var urls = [];
 	var types = [];
+	urls.push("assets/debug.frag");
+	types.push("TEXT");
+	urls.push("assets/debug.vert");
+	types.push("TEXT");
+	urls.push("assets/DejavuSans.dat");
+	types.push("BINARY");
+	urls.push("assets/DejavuSans.png");
+	types.push("IMAGE");
+	urls.push("assets/gl3font.frag");
+	types.push("TEXT");
+	urls.push("assets/HerokuShaders/nebula.frag");
+	types.push("TEXT");
+	urls.push("assets/HerokuShaders/README.txt");
+	types.push("TEXT");
+	urls.push("assets/LiberationSans-Regular.dat");
+	types.push("BINARY");
+	urls.push("assets/LiberationSans-Regular.png");
+	types.push("IMAGE");
+	urls.push("assets/lyapunov.frag");
+	types.push("TEXT");
+	urls.push("assets/lyapunov_01.frag");
+	types.push("BINARY");
+	urls.push("assets/lyapunov_02.frag");
+	types.push("BINARY");
+	urls.push("assets/lyapunov_test.frag");
+	types.push("TEXT");
+	urls.push("assets/openfl.png");
+	types.push("IMAGE");
+	urls.push("assets/openfl.svg");
+	types.push("TEXT");
+	urls.push("assets/peote_font.png");
+	types.push("IMAGE");
+	urls.push("assets/peote_font_green.png");
+	types.push("IMAGE");
 	urls.push("assets/peote_font_white.png");
 	types.push("IMAGE");
 	urls.push("assets/peote_tiles.png");
@@ -43,7 +77,7 @@ ApplicationMain.create = function() {
 	ApplicationMain.preloader.load(urls,types);
 };
 ApplicationMain.main = function() {
-	ApplicationMain.config = { build : "385", company : "Sylvio Sell - maitag", file : "BunnysTextureSwitch", fps : 60, name : "PeoteView", orientation : "", packageName : "de.peote.view", version : "0.2.1", windows : [{ antialiasing : 0, background : 16777215, borderless : false, depthBuffer : true, display : 0, fullscreen : false, hardware : true, height : 0, parameters : "{}", resizable : true, stencilBuffer : false, title : "PeoteView", vsync : true, width : 0, x : null, y : null}]};
+	ApplicationMain.config = { build : "1182", company : "Sylvio Sell - maitag", file : "Bunnys", fps : 60, name : "PeoteView", orientation : "", packageName : "de.peote.view", version : "0.2.3", windows : [{ antialiasing : 0, background : 16777215, borderless : false, depthBuffer : true, display : 0, fullscreen : false, hardware : true, height : 0, parameters : "{}", resizable : true, stencilBuffer : false, title : "PeoteView", vsync : true, width : 0, x : null, y : null}]};
 };
 ApplicationMain.start = function() {
 	var result = ApplicationMain.app.exec();
@@ -300,13 +334,7 @@ var de_peote_view_PeoteView = function(param) {
 	if(param.maxPrograms == null) param.maxPrograms = 1;
 	if(param.maxTextures == null) param.maxTextures = 1;
 	if(param.maxImages == null) param.maxImages = 1;
-	console.log("GL.MAX_TEXTURE_IMAGE_UNITS:" + Std.string(lime_graphics_opengl_GL.context.getParameter(34930)));
-	console.log("GL.MAX_COMBINED_TEXTURE_IMAGE_UNITS:" + Std.string(lime_graphics_opengl_GL.context.getParameter(34930)));
-	console.log("GL.MAX_VERTEX_TEXTURE_IMAGE_UNITS:" + Std.string(lime_graphics_opengl_GL.context.getParameter(35660)));
-	console.log("GL.MAX_TEXTURE_SIZE:" + Std.string(lime_graphics_opengl_GL.context.getParameter(3379)));
-	console.log("GL.MAX_VERTEX_ATTRIBS:" + Std.string(lime_graphics_opengl_GL.context.getParameter(34921)));
-	console.log("GL.MAX_VERTEX_UNIFORM_VECTORS:" + Std.string(lime_graphics_opengl_GL.context.getParameter(36347)));
-	console.log("GL.MAX_FRAGMENT_UNIFORM_VECTORS:" + Std.string(lime_graphics_opengl_GL.context.getParameter(36349)));
+	de_peote_view_PeoteView.MAX_TEXTURE_SIZE = lime_graphics_opengl_GL.context.getParameter(3379);
 	var this1;
 	this1 = new Array(param.maxTextures);
 	this.textures = this1;
@@ -327,7 +355,10 @@ de_peote_view_PeoteView.prototype = {
 		if(this.textures[param.texture] == null) {
 			var val = new de_peote_view_texture_Texture(param);
 			this.textures[param.texture] = val;
-		} else console.log("SORRY: re-set Texture ist not implementet yet");
+		} else null;
+	}
+	,delTexture: function(param) {
+		null;
 	}
 	,setDisplaylist: function(param) {
 		var d = this.displaylist[param.displaylist];
@@ -405,19 +436,22 @@ de_peote_view_PeoteView.prototype = {
 	,setImage: function(param) {
 		this.imageCache.setImage(param);
 	}
+	,delImage: function(param) {
+		null;
+	}
 	,setElement: function(param) {
-		if(param.element != null) this.displaylist[param.displaylist != null?param.displaylist:de_peote_view_PeoteView.elementDefaults.displaylist].setElement(param); else console.log("ERROR: no element specified");
+		if(param.element != null) this.displaylist[param.displaylist != null?param.displaylist:de_peote_view_PeoteView.elementDefaults.displaylist].setElement(param); else null;
 	}
 	,getElement: function(param) {
 		var p = { };
-		if(param.element != null) p = this.displaylist[param.displaylist != null?param.displaylist:de_peote_view_PeoteView.elementDefaults.displaylist].getElement(param.element); else console.log("ERROR: no element specified");
+		if(param.element != null) p = this.displaylist[param.displaylist != null?param.displaylist:de_peote_view_PeoteView.elementDefaults.displaylist].getElement(param.element); else null;
 		return p;
 	}
 	,hasElement: function(param) {
 		if(param.element == null) return false; else return this.displaylist[param.displaylist != null?param.displaylist:de_peote_view_PeoteView.elementDefaults.displaylist].hasElement(param.element);
 	}
 	,delElement: function(param) {
-		if(param.element != null) this.displaylist[param.displaylist != null?param.displaylist:de_peote_view_PeoteView.elementDefaults.displaylist].delElement(param.element); else console.log("ERROR: no element specified");
+		if(param.element != null) this.displaylist[param.displaylist != null?param.displaylist:de_peote_view_PeoteView.elementDefaults.displaylist].delElement(param.element); else null;
 	}
 	,delAllElement: function(param) {
 		this.displaylist[param.displaylist != null?param.displaylist:de_peote_view_PeoteView.elementDefaults.displaylist].delAllElement();
@@ -597,7 +631,7 @@ de_peote_view_PeoteView.prototype = {
 		lime_graphics_opengl_GL.context.bindBuffer(34962,null);
 		lime_graphics_opengl_GL.context.bindTexture(3553,null);
 		lime_graphics_opengl_GL.context.useProgram(null);
-		if(lime_graphics_opengl_GL.context.checkFramebufferStatus(36160) == 36053) lime_graphics_opengl_GL.context.readPixels(0,0,width,height,6408,5121,this.picked); else console.log("PICKING ERROR: Framebuffer not complete");
+		if(lime_graphics_opengl_GL.context.checkFramebufferStatus(36160) == 36053) lime_graphics_opengl_GL.context.readPixels(0,0,width,height,6408,5121,this.picked); else null;
 		lime_graphics_opengl_GL.context.bindFramebuffer(36160,null);
 		return this.picked[3] << 24 | this.picked[2] << 16 | this.picked[1] << 8 | this.picked[0] - 1;
 	}
@@ -670,8 +704,6 @@ de_peote_view_Program.prototype = {
 		fragmentShaderSrc = this.parseType(type,textureUnits,fragmentShaderSrc);
 		fragmentShaderSrc = "precision mediump float;" + fragmentShaderSrc;
 		var r = new EReg(";","g");
-		console.log("VERTEXSHADER:\n" + r.replace(vertexShaderSrc,";\n"));
-		console.log("FRAGMENTSHADER:\n" + r.replace(fragmentShaderSrc,";\n"));
 		var fs = lime_graphics_opengl_GL.context.createShader(35632);
 		lime_graphics_opengl_GL.context.shaderSource(fs,fragmentShaderSrc);
 		lime_graphics_opengl_GL.context.compileShader(fs);
@@ -690,7 +722,6 @@ de_peote_view_Program.prototype = {
 				var name;
 				if(elemBuff != null) {
 					if(elemBuff.attr == null) {
-						console.log("ANZAHL " + lime_graphics_opengl_GL.context.getProgramParameter(this.glProgram,35721));
 						var this1;
 						this1 = new Array(12);
 						elemBuff.attr = this1;
@@ -700,7 +731,6 @@ de_peote_view_Program.prototype = {
 						while(_g1 < _g) {
 							var i = _g1++;
 							name = lime_graphics_opengl_GL.context.getActiveAttrib(this.glProgram,i).name;
-							console.log(name + ":" + lime_graphics_opengl_GL.context.getAttribLocation(this.glProgram,name));
 							switch(name) {
 							case "aPosition":
 								var val = lime_graphics_opengl_GL.context.getAttribLocation(this.glProgram,name);
@@ -747,7 +777,6 @@ de_peote_view_Program.prototype = {
 				while(_g11 < _g2) {
 					var i1 = _g11++;
 					name = lime_graphics_opengl_GL.context.getActiveUniform(this.glProgram,i1).name;
-					console.log(name + ":" + Std.string(lime_graphics_opengl_GL.context.getUniformLocation(this.glProgram,name)));
 					switch(name) {
 					case "uMouse":
 						var val8 = lime_graphics_opengl_GL.context.getUniformLocation(this.glProgram,name);
@@ -837,10 +866,9 @@ var de_peote_view_ProgramCache = function(max_programs,textures) {
 de_peote_view_ProgramCache.__name__ = true;
 de_peote_view_ProgramCache.prototype = {
 	onerror: function(msg) {
-		console.log(msg);
+		null;
 	}
 	,addDisplaylist: function(type,elemBuff) {
-		console.log("addDisplaylist:" + type);
 		if(!this.defaultProgram.h.hasOwnProperty(type)) {
 			var p = new de_peote_view_Program();
 			p.compile(elemBuff,type,null,elemBuff.getDefaultFragmentShaderSrc(),elemBuff.getDefaultVertexShaderSrc(),$bind(this,this.onerror));
@@ -877,7 +905,7 @@ de_peote_view_ProgramCache.prototype = {
 					var t = this.textures[param.textures[i]];
 					if(t != null) {
 						if(i >= textureUnits.texture.length) textureUnits.texture.push(t); else textureUnits.texture[i] = t;
-					} else console.log("ERROR: texture " + param.textures[i] + " is not defined");
+					} else null;
 				}
 			}
 		}
@@ -895,7 +923,6 @@ de_peote_view_ProgramCache.prototype = {
 					default_fs = "\tvarying vec2 vTexCoord;\r\n\t\t#if_RGBA\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#else_RGBA\r\n\t\t\t#if_PICKING\r\n\t\t\tvarying vec4 vRGBA;\r\n\t\t\t#end_PICKING\r\n\t\t#end_RGBA\r\n\t\t\r\n\t\t#if_PICKING\r\n\t\tuniform vec2 uResolution;\r\n\t\t#end_PICKING\r\n\t\t\r\n\t\t\r\n\t\t#if_TEXTURE0\r\n\t\tuniform sampler2D uTexture0;\r\n\t\t#end_TEXTURE0\r\n\t\t\r\n\t\t#if_TEXTURE1\r\n\t\tuniform sampler2D uTexture1;\r\n\t\t#end_TEXTURE1\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\t\r\n\t\t\t#if_TEXTURE0\r\n\t\t\tvec4 texel = texture2D(uTexture0, vTexCoord / #MAX_TEXTURE0);\r\n\t\t\t#else_TEXTURE0\r\n\t\t\tvec4 texel = vec4(1.0, 1.0, 1.0, 1.0);\r\n\t\t\t#end_TEXTURE0\r\n\t\t\t\r\n\t\t\t// if use more than one texture unit to combine or do something crazy here:)\r\n\t\t\t#if_TEXTURE1\r\n\t\t\ttexel = texel * texture2D(uTexture1, vTexCoord / #MAX_TEXTURE0);\r\n\t\t\t#end_TEXTURE1\r\n\t\t\t// ... TEXTURE2 ...TEXTURE3 ...\r\n\t\t\t\r\n\t\t\tif (texel.a < 0.5) discard; // TODO (z-order/blend mode!!!)\r\n\t\t\t\r\n\t\t\t#if_PICKING\r\n\t\t\tif (uResolution.x == 1.0) { \r\n\t\t\t\tgl_FragColor = vRGBA; // vRGBA color defines element-number for gl-picking;\r\n\t\t\t}\r\n\t\t\telse {\r\n\t\t\t\t#if_RGBA\r\n\t\t\t\tgl_FragColor = texel * vRGBA;\r\n\t\t\t\t#else_RGBA\r\n\t\t\t\tgl_FragColor = texel;\r\n\t\t\t\t#end_RGBA\t\t\t\t\r\n\t\t\t}\r\n\t\t\t#else_PICKING\r\n\t\t\t\t#if_RGBA\r\n\t\t\t\tgl_FragColor = texel * vRGBA;\r\n\t\t\t\t#else_RGBA\r\n\t\t\t\tgl_FragColor = texel;\r\n\t\t\t\t#end_RGBA\r\n\t\t\t#end_PICKING\r\n\t\t}\r\n\t";
 					default_vs = "\tattribute vec2 aPosition;\r\n\t\t\r\n\t\t#if_ZINDEX\r\n\t\tattribute float aZindex;\r\n\t\t#end_ZINDEX\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\t#if_PICKING\r\n\t\tattribute vec4 aElement;\r\n\t\t\t#if_RGBA\r\n\t\t\t#else_RGBA\r\n\t\t\tvarying vec4 vRGBA;\r\n\t\t\t#end_RGBA\r\n\t\t#end_PICKING\r\n\t\t\t\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = aRGBA.wzyx;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\t#if_PICKING\r\n\t\t\tif (uResolution.x == 1.0) {\r\n\t\t\t\tvRGBA = aElement;\r\n\t\t\t}\r\n\t\t\t#end_PICKING\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -1.0, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (aPosition ,\r\n\t\t\t\t#if_ZINDEX\r\n\t\t\t\taZindex\r\n\t\t\t\t#else_ZINDEX\r\n\t\t\t\t0.0\r\n\t\t\t\t#end_ZINDEX\r\n\t\t\t\t, 1.0\r\n\t\t\t\t);\r\n\t\t}\r\n\t";
 				}
-				console.log("setShaderSrc:" + type);
 				if(param.fshadersrc == "") pmap.h[type].compile(null,type,textureUnits,default_fs,param.vshadersrc,$bind(this,this.onerror)); else if(param.vshadersrc == "") pmap.h[type].compile(null,type,textureUnits,param.fshadersrc,default_vs,$bind(this,this.onerror)); else pmap.h[type].compile(null,type,textureUnits,param.fshadersrc,param.vshadersrc,$bind(this,this.onerror));
 			}
 			if(param.fshadersrc != "") this.fragmentShaderSrc[param.program] = param.fshadersrc;
@@ -1668,7 +1695,7 @@ de_peote_view_element_ElementSimpleBuffer.prototype = {
 };
 var de_peote_view_texture_Image = function(image_url,texture,w,h) {
 	this.used = 0;
-	this.holePos = -1;
+	this.slot = -1;
 	this.url = "";
 	this.url = image_url;
 	this.texture = texture;
@@ -1687,11 +1714,14 @@ de_peote_view_texture_Image.prototype = {
 				var tmp_canvas;
 				var _this1 = window.document;
 				tmp_canvas = _this1.createElement("canvas");
-				tmp_canvas.width = image.width;
-				tmp_canvas.height = image.height;
+				tmp_canvas.width = _g.tw;
+				tmp_canvas.height = _g.th;
+				var dx = 0;
+				var dy = 0;
+				if(image.width / image.height < _g.tw / _g.th) dx = Math.floor((_g.tw - _g.th * image.width / image.height) / 2); else dy = Math.floor((_g.th - _g.tw * image.height / image.width) / 2);
 				var tmp_context = tmp_canvas.getContext("2d",null);
 				tmp_context.clearRect(0,0,tmp_canvas.width,tmp_canvas.height);
-				tmp_context.drawImage(image,0,0,image.width,image.height);
+				tmp_context.drawImage(image,0,0,image.width,image.height,dx,dy,tmp_canvas.width - dx * 2,tmp_canvas.height - dy * 2);
 				var image_bytes = tmp_context.getImageData(0,0,tmp_canvas.width,tmp_canvas.height);
 				var imageData;
 				var view = image_bytes.data;
@@ -1701,13 +1731,27 @@ de_peote_view_texture_Image.prototype = {
 				tmp_canvas = null;
 				tmp_context = null;
 				image_bytes = null;
-				onload(_g,image.width,image.height,imageData);
+				onload(_g,_g.tw,_g.th,imageData);
+				imageData = null;
 			} catch( e ) {
 				if (e instanceof js__$Boot_HaxeError) e = e.val;
 				onerror(e);
 			}
 		};
-		image.src = this.url;
+		if(this.url.indexOf("http://") == 0 || this.url.indexOf("https://") == 0) {
+			var x = js_Browser.createXMLHttpRequest();
+			x.open("GET","//cors-anywhere.herokuapp.com/" + this.url);
+			x.responseType = "blob";
+			x.onload = function() {
+				var blob = x.response;
+				var fr = new FileReader();
+				fr.onloadend = function() {
+					image.src = fr.result;
+				};
+				fr.readAsDataURL(blob);
+			};
+			x.send();
+		} else image.src = this.url;
 	}
 	,__class__: de_peote_view_texture_Image
 };
@@ -1723,7 +1767,7 @@ var de_peote_view_texture_ImageCache = function(max_imagess,textures) {
 de_peote_view_texture_ImageCache.__name__ = true;
 de_peote_view_texture_ImageCache.prototype = {
 	onerror: function(msg) {
-		console.log(msg);
+		null;
 	}
 	,setImage: function(param) {
 		if(param.texture == null) param.texture = 0;
@@ -1731,16 +1775,14 @@ de_peote_view_texture_ImageCache.prototype = {
 		var img = this.images[param.image];
 		if(img == null) {
 			if(texture != null) {
-				if(param.w == null) param.w = texture.segment_width;
-				if(param.h == null) param.h = texture.segment_height;
-				var val = new de_peote_view_texture_Image(param.filename,texture,param.w,param.h);
+				var val = new de_peote_view_texture_Image(param.filename,texture,texture.slotWidth,texture.slotHeight);
 				this.images[param.image] = val;
 				if(param.preload) this.useImage(param.image);
-			} else console.log("Error: no texture specified to put images in");
+			} else null;
 		} else {
 			if(texture != null && texture != img.texture) {
 				if(img.url == param.filename) {
-				} else if(img.used > 0) console.log("ERROR: texture-changing while image-usage-by-element not implemented yet"); else if(img.holePos > -1) {
+				} else if(img.used > 0) null; else if(img.slot > -1) {
 				}
 			}
 			if(img.url != param.filename) {
@@ -1754,25 +1796,21 @@ de_peote_view_texture_ImageCache.prototype = {
 		var img = this.images[image_nr];
 		if(img != null) {
 			if(img.used++ == 0) {
-				if(img.holePos == -1) {
+				if(img.slot == -1) {
 					var success = true;
-					if(img.texture.segment_holes.hole.length == 0) {
-						console.log("Texture is FULL OF IMAGES :) .. try to clear() ");
-						if(this.clear() == 0) {
-							console.log(" ============ ERROR: Texture Space can't be cleaned and is FULL of used Images ==========");
-							success = false;
-						}
+					if(img.texture.slotHoles.hole.length == 0) {
+						if(this.clear() == 0) success = false;
 					}
 					if(success) {
 						img.texture.reserveImageSlot(img);
 						if(img.url != "") {
 							this.imgLoadQueue.push(img);
 							if(this.isLoading++ == 0) this.imgLoadQueue.shift().load($bind(this,this.onImageLoad),$bind(this,this.onerror));
-						} else console.log("ERROR: no image filename (or url) specified");
+						} else null;
 					}
 				}
 			}
-		} else console.log("Error: image-number " + image_nr + " did not exist");
+		} else null;
 		return img;
 	}
 	,unUseImage: function(image_nr) {
@@ -1780,12 +1818,10 @@ de_peote_view_texture_ImageCache.prototype = {
 		if(--img.used == 0) this.unusedImages.h[image_nr] = true;
 	}
 	,onImageLoad: function(img,w,h,data) {
-		console.log("onImageLoad: " + img.url + " gl-texture: " + Std.string(img.texture) + " to holePos:" + img.holePos + " ----" + "(" + Math.random() + ")");
-		if(img.holePos > -1) img.texture.storeImage(img,w,h,data);
+		if(img.slot > -1) img.texture.storeImage(img,w,h,data);
 		if(this.imgLoadQueue.length == 0) this.isLoading = 0; else this.imgLoadQueue.shift().load($bind(this,this.onImageLoad),$bind(this,this.onerror));
 	}
 	,clear: function() {
-		console.log("delete unused Images from Cache");
 		var numCleaned = 0;
 		var unusedImg;
 		var $it0 = this.unusedImages.keys();
@@ -1794,8 +1830,8 @@ de_peote_view_texture_ImageCache.prototype = {
 			this.unusedImages.remove(i);
 			unusedImg = this.images[i];
 			if(unusedImg.used == 0) {
-				unusedImg.texture.segment_holes.addHole(unusedImg.holePos);
-				unusedImg.holePos = -1;
+				unusedImg.texture.slotHoles.addHole(unusedImg.slot);
+				unusedImg.slot = -1;
 				numCleaned++;
 			}
 		}
@@ -1804,15 +1840,20 @@ de_peote_view_texture_ImageCache.prototype = {
 	,__class__: de_peote_view_texture_ImageCache
 };
 var de_peote_view_texture_Texture = function(param) {
-	this.segment_width = param.iw;
-	this.segment_height = param.ih;
-	this.max_texture_width = param.w;
-	this.max_texture_height = param.h;
-	this.max_h_segments = Math.floor(this.max_texture_width / this.segment_width);
-	this.max_v_segments = Math.floor(this.max_texture_height / this.segment_height);
-	this.segment_holes = new de_peote_tools_Holes(this.max_h_segments * this.max_v_segments);
-	console.log("TextureCache: max_h_segments=" + this.max_h_segments + " segment_width=" + this.segment_width + " max_v_segments=" + this.max_v_segments + " segment_height=" + this.segment_height);
-	this.texture = de_peote_view_texture_Texture.createEmptyTexture(this.max_h_segments * this.segment_width,this.max_v_segments * this.segment_height);
+	this.slots = 1;
+	this.slotWidth = param.w;
+	this.slotHeight = param.h;
+	if(param.slots == null) param.slots = 1;
+	var p = this.optimalTextureSize(param.slots,param.w,param.h,null);
+	if(p != null) {
+		this.slots = p.slots;
+		this.slotsX = p.sx;
+		this.slotsY = p.sy;
+		this.max_texture_width = p.w;
+		this.max_texture_height = p.h;
+		this.slotHoles = new de_peote_tools_Holes(this.slotsX * this.slotsY);
+		this.texture = de_peote_view_texture_Texture.createEmptyTexture(this.slotsX * this.slotWidth,this.slotsY * this.slotHeight);
+	} else null;
 };
 de_peote_view_texture_Texture.__name__ = true;
 de_peote_view_texture_Texture.createEmptyTexture = function(width,height) {
@@ -1821,22 +1862,75 @@ de_peote_view_texture_Texture.createEmptyTexture = function(width,height) {
 	lime_graphics_opengl_GL.context.texImage2D(3553,0,6408,width,height,0,6408,5121,null);
 	lime_graphics_opengl_GL.context.texParameteri(3553,10240,9729);
 	lime_graphics_opengl_GL.context.texParameteri(3553,10241,9729);
+	lime_graphics_opengl_GL.context.texParameteri(3553,10242,33071);
+	lime_graphics_opengl_GL.context.texParameteri(3553,10243,33071);
 	lime_graphics_opengl_GL.context.bindTexture(3553,null);
 	return t;
 };
 de_peote_view_texture_Texture.prototype = {
 	reserveImageSlot: function(img) {
-		img.holePos = this.segment_holes.getHole();
-		img.tx = img.holePos % this.max_h_segments * this.segment_width;
-		img.ty = Math.floor(img.holePos / this.max_h_segments) * this.segment_height;
+		img.slot = this.slotHoles.getHole();
+		img.tx = img.slot % this.slotsX * this.slotWidth;
+		img.ty = Math.floor(img.slot / this.slotsX) * this.slotHeight;
 	}
 	,storeImage: function(img,w,h,data) {
-		this.createSubTexture(this.texture,img.holePos % this.max_h_segments * this.segment_width,Math.floor(img.holePos / this.max_h_segments) * this.segment_height,w,h,data);
+		this.createSubTexture(this.texture,img.slot % this.slotsX * this.slotWidth,Math.floor(img.slot / this.slotsX) * this.slotHeight,w,h,data);
 	}
 	,createSubTexture: function(t,x,y,w,h,data) {
 		lime_graphics_opengl_GL.context.bindTexture(3553,t);
 		lime_graphics_opengl_GL.context.texSubImage2D(3553,0,x,y,w,h,6408,5121,data);
 		lime_graphics_opengl_GL.context.bindTexture(3553,null);
+	}
+	,optimalTextureSize: function(slots,slotWidth,slotHeight,maxTextureSize) {
+		if(maxTextureSize == null) maxTextureSize = lime_graphics_opengl_GL.context.getParameter(3379);
+		maxTextureSize = Math.ceil(Math.log(maxTextureSize) / Math.log(2));
+		var a = Math.ceil(Math.log(slots * slotWidth * slotHeight) / Math.log(2));
+		var r;
+		var w = 1;
+		var h = a - 1;
+		var delta = Math.floor(Math.abs(w - h));
+		var rmin = (1 << maxTextureSize) * (1 << maxTextureSize);
+		var found = false;
+		var n = Math.floor(Math.min(maxTextureSize,a));
+		var m;
+		while(1 << n >= slotWidth) {
+			m = Math.floor(Math.min(maxTextureSize,a - n + 1));
+			while(1 << m >= slotHeight) {
+				if(Math.floor((1 << n) / slotWidth) * Math.floor((1 << m) / slotHeight) < slots) break;
+				r = (1 << n) * (1 << m) - slots * slotWidth * slotHeight;
+				if(r < 0) break;
+				if(r <= rmin) {
+					if(r == rmin) {
+						if(Math.abs(n - m) < delta) {
+							delta = Math.floor(Math.abs(n - m));
+							w = n;
+							h = m;
+							found = true;
+						}
+					} else {
+						w = n;
+						h = m;
+						rmin = r;
+						found = true;
+					}
+				}
+				m--;
+			}
+			n--;
+		}
+		var param = { };
+		if(found) {
+			param.sx = Math.floor((1 << w) / slotWidth);
+			param.sy = Math.floor((1 << h) / slotHeight);
+			param.slots = param.sx * param.sy;
+			param.w = 1 << w;
+			param.h = 1 << h;
+			null;
+		} else {
+			param = null;
+			null;
+		}
+		return param;
 	}
 	,__class__: de_peote_view_texture_Texture
 };
@@ -3119,7 +3213,7 @@ lime_app_Module.prototype = {
 	,onGamepadButtonUp: function(gamepad,button) {
 	}
 	,onGamepadConnect: function(gamepad) {
-		console.log("onGamepadConnect (module)");
+		null;
 	}
 	,onGamepadDisconnect: function(gamepad) {
 	}
@@ -5169,29 +5263,16 @@ samples_Sample.prototype = $extend(lime_app_Application.prototype,{
 				this.height = window.__height;
 				break;
 			default:
-				console.log("only opengl supported");
+				null;
 			}
 		}
 	}
 	,run: function() {
-		this.startTime = haxe_Timer.stamp();
-		var t = haxe_Timer.stamp() - this.startTime;
-		this.peoteView = new de_peote_view_PeoteView({ maxDisplaylists : 10, maxPrograms : 100, maxTextures : 8, maxImages : 1000});
-		this.peoteView.setProgram({ program : 0, fshader : "assets/lyapunov_01.frag"});
-		this.peoteView.imageCache.setImage({ image : 0, filename : "assets/peote_font_white.png", w : 512, h : 512});
-		this.peoteView.imageCache.setImage({ image : 1, filename : "assets/peote_tiles.png", w : 512, h : 512});
-		this.peoteView.setDisplaylist({ displaylist : 0, type : 8, maxElements : 100, maxPrograms : 10, bufferSegments : 10, x : 150, y : 50, w : 1000, h : 1000, z : 0, enable : true});
-		this.peoteView.setDisplaylist({ displaylist : 1, type : 1, maxElements : 1000, maxPrograms : 10, bufferSegments : 10, x : 100, y : 70, w : 350, h : 150, z : 1, renderBackground : true, r : 0.1, g : 0.5, b : 0.8, a : 0.8, enable : true});
-		this.peoteView.setElementDefaults({ displaylist : 0, z : 1, image : 1, tile : 2});
-		this.peoteView.setElement({ element : 0, x : -50000, y : -50000, w : 100000, h : 100000, tw : 10000000, th : 10000000, program : 0});
-		this.peoteView.setElement({ element : 1, image : 0, tile : 65, x : 211, y : 0, w : 222, h : 222, rgba : Math.floor(Math.random() * 256) << 24 | Math.floor(Math.random() * 256) << 16 | Math.floor(Math.random() * 256) << 8 | Math.floor(Math.random() * 256)});
-		this.peoteView.setElement({ element : 0, displaylist : 1, x : 0, y : 0, end : { x : 100, time : haxe_Timer.stamp() - this.startTime + 10}, w : 100, h : 100, tile : 1});
 	}
 	,render: function(renderer) {
 		this.peoteView.render(haxe_Timer.stamp() - this.startTime,this.width,this.height,this.mouse_x,this.mouse_y,this.zoom,this.xOffset,this.yOffset);
 	}
 	,onWindowResize: function(window,width,height) {
-		console.log("onWindowResize:" + window.__width + "," + window.__height);
 		this.width = window.__width;
 		this.height = window.__height;
 	}
@@ -5201,35 +5282,31 @@ samples_Sample.prototype = $extend(lime_app_Application.prototype,{
 		this.setOffsets();
 	}
 	,onTouchMove: function(touch) {
-		console.log("onTouchMove: " + touch.x + "," + touch.y);
 		this.mouse_x = touch.x | 0;
 		this.mouse_y = touch.y | 0;
 		this.setOffsets();
 	}
 	,onMouseDown: function(window,x,y,button) {
-		console.log("onMouseDown: x=" + x + " y=" + y);
 		if(button == 0) this.zoom++; else if(button == 1 && this.zoom > 1) this.zoom--;
 		this.setOffsets();
 	}
 	,onMouseUp: function(window,x,y,button) {
-		console.log("onmouseup: " + button + " x=" + x + " y=" + y);
+		null;
 	}
 	,onMouseWheel: function(window,deltaX,deltaY) {
-		console.log("onmousewheel: " + deltaX + "," + deltaY);
 		if(deltaY > 0) this.zoom++; else if(this.zoom > 1) this.zoom--;
 		this.setOffsets();
 	}
 	,onRenderContextLost: function(renderer) {
-		console.log(" --------- ERROR :  LOST RENDERCONTEXT ----------- ");
+		null;
 	}
 	,onRenderContextRestored: function(renderer,context) {
-		console.log(" --------- onRenderContextRestored ----------- ");
+		null;
 	}
 	,onPreloadProgress: function(loaded,total) {
-		console.log(" --------- onPreloadProgress ----------- ");
+		null;
 	}
 	,onPreloadComplete: function() {
-		console.log(" --------- onPreload Complete ----------- ");
 		this.run();
 	}
 	,onKeyDown: function(window,keyCode,modifier) {
@@ -5253,38 +5330,32 @@ samples_Sample.prototype = $extend(lime_app_Application.prototype,{
 	}
 	,__class__: samples_Sample
 });
-var samples_BunnysTextureSwitch = function() {
-	this.z_next = 0;
-	this.texture_shift = 0;
+var samples_Bunnys = function() {
 	this.sprite = 0;
 	this.pause = false;
-	this.tile_size = 64;
-	this.spawn_time = 32;
+	this.tile_size = 96;
+	this.spawn_time = 48;
 	this.max_spawn = 2;
 	this.max_bunnys = 1000000;
 	this.bunny_nr = 0;
 	this.frames = 0;
 	samples_Sample.call(this);
 };
-samples_BunnysTextureSwitch.__name__ = true;
-samples_BunnysTextureSwitch.__super__ = samples_Sample;
-samples_BunnysTextureSwitch.prototype = $extend(samples_Sample.prototype,{
+samples_Bunnys.__name__ = true;
+samples_Bunnys.__super__ = samples_Sample;
+samples_Bunnys.prototype = $extend(samples_Sample.prototype,{
 	run: function() {
 		this.startTime = haxe_Timer.stamp();
-		this.peoteView = new de_peote_view_PeoteView({ maxDisplaylists : 10, maxPrograms : 10, maxTextures : 10, maxImages : 10});
-		this.peoteView.setTexture({ texture : 0, w : 512, h : 512, iw : 512, ih : 512});
-		this.peoteView.imageCache.setImage({ image : 0, texture : 0, filename : "assets/peote_font_white.png", w : 512, h : 512});
+		this.peoteView = new de_peote_view_PeoteView({ maxDisplaylists : 6, maxPrograms : 3, maxTextures : 2, maxImages : 4});
+		this.peoteView.setTexture({ texture : 0, w : 512, h : 512});
+		this.peoteView.imageCache.setImage({ image : 0, texture : 0, filename : "assets/peote_font_white.png"});
 		this.peoteView.setProgram({ program : 0, texture : 0});
-		this.peoteView.setTexture({ texture : 1, w : 512, h : 512, iw : 512, ih : 512});
-		this.peoteView.imageCache.setImage({ image : 1, texture : 1, preload : true, filename : "assets/peote_tiles_flowers_alpha.png", w : 512, h : 512});
+		this.peoteView.setTexture({ texture : 1, slots : 4, w : 512, h : 512});
+		this.peoteView.imageCache.setImage({ image : 1, texture : 1, filename : "assets/peote_tiles_flowers_alpha.png"});
+		this.peoteView.imageCache.setImage({ image : 2, texture : 1, filename : "assets/peote_tiles_bunnys.png"});
+		this.peoteView.imageCache.setImage({ image : 3, texture : 1, filename : "assets/peote_font_white.png"});
 		this.peoteView.setProgram({ program : 1, texture : 1, vshader : "assets/ping-pong_android.vert"});
-		this.peoteView.setTexture({ texture : 2, w : 512, h : 512, iw : 512, ih : 512});
-		this.peoteView.imageCache.setImage({ image : 2, texture : 2, preload : true, filename : "assets/peote_tiles_bunnys.png", w : 512, h : 512});
-		this.peoteView.setProgram({ program : 2, texture : 2, vshader : "assets/ping-pong_android.vert"});
-		this.peoteView.setTexture({ texture : 3, w : 512, h : 512, iw : 512, ih : 512});
-		this.peoteView.imageCache.setImage({ image : 3, texture : 3, preload : true, filename : "assets/peote_font_white.png", w : 512, h : 512});
-		this.peoteView.setProgram({ program : 3, texture : 3, vshader : "assets/ping-pong_android.vert"});
-		this.peoteView.setDisplaylist({ displaylist : 0, type : 29, maxElements : this.max_bunnys, maxPrograms : 10, z : 0});
+		this.peoteView.setDisplaylist({ displaylist : 0, type : 25, maxElements : this.max_bunnys, z : 0});
 		this.peoteView.setDisplaylist({ displaylist : 1, type : 8, maxElements : 8, x : 310, y : 4, w : 1, h : 1, renderBackground : true, a : 0.8, r : 0.3, g : 0.2, z : 1});
 		this.peoteView.setDisplaylist({ displaylist : 2, type : 8, maxElements : 7, x : 190, y : 4, w : 1, h : 1, renderBackground : true, a : 0.75, r : 0.25, z : 1});
 		this.peoteView.setDisplaylist({ displaylist : 3, type : 8, maxElements : 33, x : 8, y : 34, w : 1, h : 1, renderBackground : true, a : 0.75, r : 0.2, z : 1});
@@ -5296,7 +5367,7 @@ samples_BunnysTextureSwitch.prototype = $extend(samples_Sample.prototype,{
 		this.spawnBunnys();
 		var fps_timer = new haxe_Timer(1000);
 		fps_timer.run = $bind(this,this.refreshFPS);
-		this.txtOutput(4,"up/down:    amount of tiles\n" + "left/right: spawn-time\n" + "space:      stop/resume\n" + "n/m:        tile size\n" + "i:          next tilesheet\n" + "t:          texture shift\n" + "a:          alpha on/off\n" + "mouse-wheel:zoom in/out",-1146456099,14,-6);
+		this.txtOutput(4,"up/down:    amount of tiles\n" + "left/right: spawn-time\n" + "space:      stop/resume\n" + "n/m:        tile size\n" + "i:          next tilesheet\n" + "a:          alpha on/off\n" + "mouse-wheel:zoom in/out",-1146456099,14,-6);
 		this.txtOutput(5,this.tile_size + "x" + this.tile_size + "-tiles:");
 	}
 	,spawnBunnys: function() {
@@ -5312,7 +5383,7 @@ samples_BunnysTextureSwitch.prototype = $extend(samples_Sample.prototype,{
 					this.updateMaxSpawn();
 					break;
 				}
-				this.peoteView.setElement({ element : this.bunny_nr++, program : 1 + this.sprite, displaylist : 0, w : this.tile_size, h : this.tile_size, z : this.z_next, pivotX : Math.floor(this.tile_size / 2), pivotY : Math.floor(this.tile_size / 2), image : 1 + this.sprite, tile : 1 + Math.floor(Math.random() * 31), start : { x : this.spawn_x, y : this.spawn_y, rgba : Math.floor(Math.random() * 256) << 24 | Math.floor(Math.random() * 256) << 16 | Math.floor(Math.random() * 256) << 8 | 128 + Math.floor(Math.random() * 128), rotation : Math.floor(Math.random() * 1280), time : t}, end : { x : Math.floor(Math.random() * this.width), y : Math.floor(Math.random() * this.height), rgba : Math.floor(Math.random() * 256) << 24 | Math.floor(Math.random() * 256) << 16 | Math.floor(Math.random() * 256) << 8 | 128 + Math.floor(Math.random() * 128), rotation : Math.floor(Math.random() * 1280), time : t + 5 + Math.floor(Math.random() * 10)}});
+				this.peoteView.setElement({ element : this.bunny_nr++, program : 1, displaylist : 0, w : this.tile_size, h : this.tile_size, pivotX : Math.floor(this.tile_size / 2), pivotY : Math.floor(this.tile_size / 2), image : 1 + this.sprite, tile : 1 + Math.floor(Math.random() * 31), start : { x : this.spawn_x, y : this.spawn_y, rgba : Math.floor(Math.random() * 256) << 24 | Math.floor(Math.random() * 256) << 16 | Math.floor(Math.random() * 256) << 8 | 128 + Math.floor(Math.random() * 128), rotation : Math.floor(Math.random() * 1280), time : t}, end : { x : Math.floor(Math.random() * this.width), y : Math.floor(Math.random() * this.height), rgba : Math.floor(Math.random() * 256) << 24 | Math.floor(Math.random() * 256) << 16 | Math.floor(Math.random() * 256) << 8 | 128 + Math.floor(Math.random() * 128), rotation : Math.floor(Math.random() * 1280), time : t + 5 + Math.floor(Math.random() * 10)}});
 			}
 		} else if(this.max_spawn < 0) {
 			var _g2 = this.max_spawn;
@@ -5321,7 +5392,6 @@ samples_BunnysTextureSwitch.prototype = $extend(samples_Sample.prototype,{
 				if(this.bunny_nr <= 0) {
 					this.pause = true;
 					this.max_spawn = 0;
-					this.z_next = 0;
 					this.updateMaxSpawn();
 					break;
 				}
@@ -5403,22 +5473,14 @@ samples_BunnysTextureSwitch.prototype = $extend(samples_Sample.prototype,{
 		case 97:
 			if(this.peoteView.getDisplaylist({ displaylist : 0}).blend == 1) {
 				this.peoteView.setDisplaylist({ displaylist : 0, blend : 0});
-				console.log("BLEND MODE 0");
+				null;
 			} else {
 				this.peoteView.setDisplaylist({ displaylist : 0, blend : 1});
-				console.log("BLEND MODE 1");
+				null;
 			}
 			break;
 		case 105:
 			this.sprite = (this.sprite + 1) % 3;
-			this.z_next = (this.z_next + 1) % 32767;
-			console.log(this.z_next);
-			break;
-		case 116:
-			this.texture_shift++;
-			this.peoteView.setProgram({ program : 1, texture : 1 + this.texture_shift % 3});
-			this.peoteView.setProgram({ program : 2, texture : 1 + (this.texture_shift + 1) % 3});
-			this.peoteView.setProgram({ program : 3, texture : 1 + (this.texture_shift + 2) % 3});
 			break;
 		default:
 		}
@@ -5455,7 +5517,7 @@ samples_BunnysTextureSwitch.prototype = $extend(samples_Sample.prototype,{
 		}
 		this.peoteView.setDisplaylist({ displaylist : d, enable : true, w : xmax - gap + 8, h : py + size + 6});
 	}
-	,__class__: samples_BunnysTextureSwitch
+	,__class__: samples_Bunnys
 });
 var $_, $fid = 0;
 function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; }
