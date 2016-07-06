@@ -37,7 +37,7 @@ import lime.ui.KeyModifier;
 import de.peote.view.PeoteView;
 import de.peote.view.displaylist.DisplaylistType;
 
-class Bunnys extends samples.Sample
+class Bunnys extends Sample
 {
 		
 	var frames:Int = 0;

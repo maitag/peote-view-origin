@@ -177,7 +177,9 @@ little Graphic inside Displaylist-Area (like a c64-sprite)
 		h: 100,	// height
 		z: 0    // z-order   ( 0 <= z <= 32767 )
 		
-		// (rotation, animation, coloring ...)
+		// rotation:90, pivotX:5, pivotY:5,
+		// rgba:0xFF4422FF,
+		// ( to animate by gpu -> see samples!)
 	});
 ```
 

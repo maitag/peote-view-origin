@@ -1,31 +1,3 @@
-/*
- *        o-o    o-o  o-o-o  o-o     
- *       o   o  o        o      o    
- *      o-o-o  o-o   o    o    o-o   
- *     o      o     (_)    o      o  
- *    o      o-o    / \     o    o-o 
- * 
- * PEOTE VIEW - haxe 2D OpenGL Render Library
- * Copyright (c) 2014 Sylvio Sell, http://maitag.de
- * 
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-
 package samples;
 
 import haxe.Timer;
@@ -42,6 +14,7 @@ import lime.graphics.Renderer;
 import de.peote.view.PeoteView;
 import de.peote.view.displaylist.DisplaylistType;
 
+// parent class for all samples
 class Sample extends Application {
 	
     public var width: Int;
@@ -70,102 +43,8 @@ class Sample extends Application {
 		}
 	}
 	
-	public function run() //start Example
+	public function run() //override in Samples
 	{
-		startTime = Timer.stamp();
-		var t:Float = Timer.stamp() - startTime;
-		
-		peoteView = new PeoteView({
-			maxDisplaylists:    10,
-			maxPrograms:       100,
-			maxTextures:         8,
-			maxImages:        1000
-		});
-		
-		// -----------------------------------------------------
-		// ---------------- PROGRAM SHADER ---------------------
-		// -----------------------------------------------------
-		peoteView.setProgram({
-			program: 0,
-			fshader: "assets/lyapunov_01.frag"
-		});
-		
-		// -----------------------------------------------------
-		// ------------------- IMAGES --------------------------
-		// -----------------------------------------------------
-		peoteView.setImage({
-			image: 0,
-			filename: "assets/peote_font_white.png",
-		});
-		peoteView.setImage({
-			image: 1,
-			filename: "assets/peote_tiles.png",
-		});
-		
-		
-		// -----------------------------------------------------
-		// ---------------- DISPLAYLISTS -----------------------
-		// -----------------------------------------------------
-		peoteView.setDisplaylist({
-			displaylist:0,
-			type:DisplaylistType.RGBA,
-			
-			maxElements:100,
-			maxPrograms:10,
-			bufferSegments:10,
-			
-			x:150, y:50,
-			w:1000, h:1000,
-			z:0,
-			
-			enable:true
-		});
-		
-		peoteView.setDisplaylist({
-			displaylist:1,
-			type:DisplaylistType.ANIM,
-			
-			maxElements:1000,
-			maxPrograms:10,
-			bufferSegments:10,
-			
-			x:100, y:70,
-			w:350, h:150,
-			z:1,
-			
-			renderBackground:true,
-			r:0.1, g:0.5, b:0.8, a:0.8,
-			
-			enable:true
-		});
-		
-		// -----------------------------------------------------
-		// ---------------- ELEMENTS ---------------------------
-		// -----------------------------------------------------
-		
-		peoteView.setElementDefaults({ displaylist:0, z:1, image:1, tile:2 });
-		
-		peoteView.setElement( { element:0,
-			x: -50000,
-			y: -50000,
-			w:100000, h:100000,
-			tw: 10000000, th:10000000,
-			program:0
-		});
-		
-		peoteView.setElement( { element:1, image:0, tile:65,
-			x: 211, y: 0,
-			w:222, h:222,
-			rgba: random(256) << 24 | random(256) << 16 | random(256) << 8 | random(256)
-		});
-		
-		// ----new element of displaylist 1 with animation
-		peoteView.setElement( { element:0, displaylist:1,
-			x:0, y:0,
-			end:{x:100, time: Timer.stamp() - startTime +10},
-			w:100, h:100,
-			tile:1
-		});
 	}
 	/*
 	public override function update (deltaTime:Int):Void {

@@ -117,7 +117,7 @@ class Image
 		if (url.indexOf('http://') == 0 || url.indexOf('https://') == 0) // load throught proxy
 		{
 			var x = js.Browser.createXMLHttpRequest();
-			x.open('GET', '//cors-anywhere.herokuapp.com/'+url); // TODO: custom cors-server
+			x.open('GET', '//cors-anywhere.herokuapp.com/'+url); // TODO: custom cors-server and same-domain-handling
 			x.responseType = XMLHttpRequestResponseType.BLOB;
 			x.onload = function() {
 				var blob = x.response;

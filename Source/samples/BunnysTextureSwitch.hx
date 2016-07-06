@@ -37,7 +37,7 @@ import lime.ui.KeyModifier;
 import de.peote.view.PeoteView;
 import de.peote.view.displaylist.DisplaylistType;
 
-class BunnysTextureSwitch extends samples.Sample
+class BunnysTextureSwitch extends Sample
 {
 		
 	var frames:Int = 0;

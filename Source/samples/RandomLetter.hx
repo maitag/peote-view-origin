@@ -28,13 +28,12 @@
 
 package samples;
 
-import samples.Sample;
 import haxe.Timer;
 
 import de.peote.view.PeoteView;
 import de.peote.view.displaylist.DisplaylistType;
 
-class RandomLetter extends samples.Sample
+class RandomLetter extends Sample
 {
 	
 	public override function run() 
