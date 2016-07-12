@@ -43,7 +43,16 @@ attribute vec2 aRotation;
 attribute vec4 aPivot;
 #end_ROTATION
 
+#if_PICKING
+attribute vec4 aElement;
+	#if_RGBA
+	#else_RGBA
+	varying vec4 vRGBA;
+	#end_RGBA
+#end_PICKING
+	
 attribute vec2 aTime;
+
 attribute vec2 aTexCoord;
 
 varying vec2 vTexCoord;
@@ -55,17 +64,22 @@ uniform vec2 uDelta;
 
 void main(void) {
 	#if_RGBA
-	//vRGBA = mix(aRGBA.wzyx, aRGBA_END.wzyx, clamp( (uTime-aTime.x)/(aTime.y - aTime.x), 0.0, 1.0) );
-	vRGBA = aRGBA.wzyx + (aRGBA_END.wzyx - aRGBA.wzyx) * clamp( (uTime-aTime.x)/(aTime.y - aTime.x), 0.0, 1.0);
+	vRGBA = mix(aRGBA.wzyx, aRGBA_END.wzyx, clamp( (uTime-aTime.x)/(aTime.y - aTime.x), 0.0, 1.0) );	
 	#end_RGBA
+	
+	#if_PICKING
+	if (uResolution.x == 1.0) {
+		vRGBA = aElement;
+	}
+	#end_PICKING
 	
 	vTexCoord = aTexCoord;
 	
-	vec2 VertexPosStart = vec2( aPosition );
-	vec2 VertexPosEnd   = vec2 (aPosition.z, aPosition.w);
+	vec2 VertexPosStart = vec2 ( aPosition ); //vec2 (aPosition.x, aPosition.y);
+	vec2 VertexPosEnd   = vec2 ( aPosition.z, aPosition.w);
 	
 	#if_ROTATION
-	float alpha = aRotation.x + (aRotation.y - aRotation.x)	* (uTime-aTime.x) / (aTime.y - aTime.x);
+	float alpha = mix(aRotation.x, aRotation.y, clamp( (uTime-aTime.x)/(aTime.y - aTime.x), 0.0, 1.0));
 						
 	VertexPosStart = (VertexPosStart - vec2(aPivot))
 					* mat2 (
@@ -79,7 +93,7 @@ void main(void) {
 						vec2(sin(alpha),  cos(alpha))
 					) + vec2(aPivot.z, aPivot.w);
 	#end_ROTATION
-	
+		
 	float zoom = uZoom;
 	float width = uResolution.x;
 	float height = uResolution.y;
@@ -90,38 +104,27 @@ void main(void) {
 	float left = -deltaX*zoom;
 	float bottom = height-deltaY*zoom;
 	float top = -deltaY * zoom;
-	
-	float x = VertexPosStart.x + floor( 
-						(VertexPosEnd.x - VertexPosStart.x)
-						* max( (uTime-aTime.x) / (aTime.y - aTime.x), 0.0 )
-						* zoom) / zoom;
-						
-	float signx = sign(-x);
-    float swapX = mod(floor(signx*x / width), 2.0);
-
-	float y = VertexPosStart.y + floor( 
-						(VertexPosEnd.y - VertexPosStart.y)
-						* max( (uTime-aTime.x) / (aTime.y - aTime.x), 0.0 )
-						* zoom) / zoom;
-						
-	float signy = sign(-y);
-	float swapY = mod(floor(signy*y / height), 2.0);
-
-	
+				
 	gl_Position = mat4 (
 		vec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),
 		vec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),
 		vec4(0.0, 0.0, -1.0, 0.0),
 		vec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)
 	)
-	* vec4 (
-		swapX * (width - mod(signx*x, width)) + (1.0 - swapX) * mod(signx*x, width),
-		swapY * (height - mod(signy*y, height)) + (1.0 - swapY) * mod(signy*y, height),
+	* vec4( VertexPosStart + (VertexPosEnd - VertexPosStart) * clamp( (uTime-aTime.x)/(aTime.y - aTime.x), 0.0, 1.0),
 		#if_ZINDEX
 		aZindex
 		#else_ZINDEX
 		0.0
 		#end_ZINDEX
 		, 1.0
-	);
+	)
+	// rotate displaylist
+	// *mat4 (
+	//	vec4(cos(winkel), -sin(winkel), 0.0, 0.0),
+	//	vec4(sin(winkel),  cos(winkel), 0.0, 0.0),
+	//	vec4(        0.0,          1.0, 0.0, 0.0),
+	//	vec4(        0.0,          0.0, 0.0, 1.0)
+	//)
+	;
 }
