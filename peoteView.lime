@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 	
-	<meta title="PeoteView" package="de.peote.view" version="0.2.4" company="Sylvio Sell - maitag" />
+	<meta title="PeoteView" package="de.peote.view" version="0.2.5" company="Sylvio Sell - maitag" />
 	
 	<!-- choose sample to build: -->
          <app main="samples.StartNewSample"      path="Export" file="NewSample" />
+	<!-- <app main="samples.GlyphUnicodeTextRendering"  path="Export" file="GlyphUnicodeTextRendering" /> -->         
 	<!-- <app main="samples.GlyphTextRendering"  path="Export" file="GlyphTextRendering" /> -->         
 	<!-- <app main="samples.MassAnim"            path="Export" file="MassAnim" /> -->
 	<!-- <app main="samples.Bunnys"              path="Export" file="Bunnys" /> -->

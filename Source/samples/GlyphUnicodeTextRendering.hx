@@ -30,6 +30,7 @@ package samples;
 
 import haxe.Timer;
 import haxe.Utf8;
+import haxe.io.StringInput;
 import lime.ui.Window;
 import lime.Assets;
 import lime.utils.Bytes;
@@ -37,7 +38,7 @@ import lime.utils.Bytes;
 import de.peote.view.PeoteView;
 import de.peote.view.displaylist.DisplaylistType;
 
-class GlyphTextRendering extends Sample
+class GlyphUnicodeTextRendering extends Sample
 {
 	var element_nr:Int = 0;
 	public override function run() 
@@ -58,10 +59,8 @@ class GlyphTextRendering extends Sample
 		
 		peoteView.setTexture( {
 			texture: 0,
-			w:   600,        // Texture width
-			h:   591,        // Texture height
-			//w:   2048,        // Texture width
-			//h:   1994,        // Texture height
+			w:   2048,        // Texture width
+			h:   1994,        // Texture height
 		});
 		
 		// -----------------------------------------------------
@@ -71,8 +70,7 @@ class GlyphTextRendering extends Sample
 		peoteView.setImage( {
 			image: 0,
 			texture:0,
-			filename: "assets/DejavuSans.png",
-			//filename: "assets/unifont/unifont_0000.png",
+			filename: "assets/unifont/unifont_0000.png",
 			preload:true
 		});
 		
@@ -82,8 +80,8 @@ class GlyphTextRendering extends Sample
 		peoteView.setProgram( {
 			program: 0,
 			texture: 0,
-			fshader:'assets/gl3font.frag'
-			//fshader:'assets/unifont/gl3font.frag'
+			fshader:'assets/gl3font.frag',
+			//vshader:'assets/unifont/smooth.vert'
 		});
 		
 		
@@ -98,12 +96,12 @@ class GlyphTextRendering extends Sample
 			maxPrograms:        1,
 			bufferSegments:     1,
 			
-			x: 0, y: 0,	w: 1024, h: 512,
+			x: 0, y: 0,
 
 			renderBackground:true,
 
 			// TODO: more alternatives like -> backgroundColor:[0.1, 0.5, 0.8, 0.8]
-			r:0.7, g:0.8, b:0.9, //a:0.8,
+			r:0.2, g:0, b:0, //a:0.8,
 			blend:1 // alpha blending
 		});
 		
@@ -111,29 +109,32 @@ class GlyphTextRendering extends Sample
 		// ---------------- ELEMENTS ---------------------------
 		// -----------------------------------------------------		
 
-		var fontinfo:FontInfo = new FontInfo("assets/DejavuSans.dat", function(info:FontInfo) {
-		//var fontinfo:FontInfo = new FontInfo("assets/unifont/unifont_0000.dat", function(info:FontInfo) {
+		//var fontinfo:FontInfo = new FontInfo("assets/DejavuSans.dat", function(info:FontInfo) {
+		var fontinfo:FontInfo = new FontInfo("assets/unifont/unifont_0000.dat", function(info:FontInfo) {
 			trace ("Loaded Fontdata complete");
-			var ts:Int = 1024;
-			//var ts:Int = 2048;
+			//var ts:Int = 1024;
+			var ts:Int = 2048;
 			
-			renderTextLine("PeoteView glyph textrendering with ttfcompiled font (thx deltaluca's great gl3font \\o/)", info, 18, 10, 20, ts, ts); 
-			renderTextLine("-----------------------------------------------------------------------------------------------------------------", info, 18, 26, 20, ts, ts); 
-			renderTextLine("\t!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ", info, 18, 60, 20, ts, ts); 
-			renderTextLine("[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ", info, 18, 90, 20, ts, ts); 
-			renderTextLine("¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×Ø", info, 18, 120, 20, ts, ts); 
-			renderTextLine("ÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ", info, 18, 150, 20, ts, ts); 
-			renderTextLine("‘’₯―΄΅ΆΈΉΊΌΎΏΐΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩΪΫάέήίΰαβγδεζηθικλμνξοπρςστυφχψωϊϋόύώ", info, 18, 180, 20, ts, ts); 
+			renderTextLine("PeoteView glyph textrendering with ttfcompiled Unifont", info, 18, 0, 20, ts, ts); 
+			renderTextLine("--------------------------------------------------------------------", info, 18, 20, 16, ts, ts); 
 			
-			//renderTextLine(" .PagwWzo", info, 10, 180, 20, ts, ts); 
-			
+			var i:Int = 0;
+			var l:Int = 40;
+			var s:String = "";
+			for (char in info.idmap) {
+				s += String.fromCharCode(char);
+				i++;
+				if (i > 100) {
+					renderTextLine(s, info, 20, l, 30, ts, ts); 
+					i = 0; s = ""; l += 32;
+				}
+			}		
 			
 		});
 		
 	}
 	public function renderTextLine(s:String, info:FontInfo, x:Int, y:Int, scale:Float, texturewidth:Int, textureheight:Int):Void
 	{	
-		var t:Float = Timer.stamp() - startTime;
 
 		var first:Bool = true;
 		var penX:Int = x;
@@ -143,6 +144,7 @@ class GlyphTextRendering extends Sample
 		
 		Utf8.iter(s, function(charcode)	{
 			
+			var t:Float = Timer.stamp() - startTime;
 			var id:Null<Int> = info.idmap.get(charcode);
 			
 			if (id != null) {
@@ -159,32 +161,33 @@ class GlyphTextRendering extends Sample
 				var tx:Float = info.metrics[id].u * texturewidth ;
 				var ty:Float = info.metrics[id].v * textureheight;
 				var tw:Float = info.metrics[id].w * texturewidth ;
-				var th:Float = info.metrics[id].h * textureheight; // trace(charcode, "h:"+info.metrics[id].height, "t:"+info.metrics[id].top );
+				var th:Float = info.metrics[id].h * textureheight;  trace(charcode, "h:"+info.metrics[id].height, "t:"+info.metrics[id].top );
+				
+				var startx:Int = random(2000) - 800;
+				var starty:Int = random(1000) - 400;
 				peoteView.setElement({
 					element:element_nr++,
-					/*x:random(1024),
-					y:random(480),
-					w:Math.ceil(w*3),
-					h:Math.ceil(h*3),
+					x:startx,
+					y:starty,
+					w:Math.ceil(w*4),
+					h:Math.ceil(h*4),
 					rgba:random(256) << 24 | random(256) << 16 | random(256) << 8 | 128+random(128),
 					rotation:2000-random(4000),
-					pivotX:Math.ceil(w*1.5),
-					pivotY:Math.ceil(h*1.5),
-					time:t+3,
-					*/
-					//end: {
+					pivotX:Math.ceil(w*2),
+					pivotY:Math.ceil(h*2),
+					time:t,
+					end: {
 						x:penX + Math.floor(info.metrics[id].left * scale),
-						//y: penY +  Math.floor(( info.height - info.metrics[id].height + info.metrics[id].top ) * scale),
-						y: penY +  Math.floor(( info.height - info.metrics[id].top ) * scale),
+						y:penY +  Math.floor(( info.height - info.metrics[id].top ) * scale),
 						
 						w:Math.ceil(w),
 						h:Math.ceil(h),
-						rgba:0x000000FF,
-						//rotation:0,
-						//pivotX:Math.ceil(w / 2),
-						//pivotY:Math.ceil(h / 2),
-						//time:t+6
-					//},
+						rgba:0xFEFD12FF,
+						rotation:0,
+						pivotX:Math.ceil(w / 2),
+						pivotY:Math.ceil(h / 2),
+						time:t + 1 + (startx+starty)/2000
+					},
 					program:0,
 					tx:Math.round(tx)-1,
 					ty:Math.round(ty)-1,

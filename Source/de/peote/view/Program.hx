@@ -174,12 +174,17 @@ class Program
 		#if peote_vert_medium_precision
 		vertexShaderSrc = "precision mediump float;" + vertexShaderSrc;
 		#end
-		
+	
 		fragmentShaderSrc = parseType(type, textureUnits, fragmentShaderSrc);
 		#if peote_frag_medium_precision
 		fragmentShaderSrc = "precision mediump float;" + fragmentShaderSrc;
 		#end
  
+		// TODO:
+		fragmentShaderSrc = "#extension GL_OES_standard_derivatives : enable\n"+fragmentShaderSrc;
+		GL.getExtension('OES_standard_derivatives');
+
+		
 		// reformat to debug
 		var r:EReg = new EReg(";", "g");
 		trace("VERTEXSHADER:\n"+r.replace(vertexShaderSrc, ";\n"));

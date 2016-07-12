@@ -36,16 +36,8 @@ void main(void)
 	#end_TEXTURE1
 	// ... TEXTURE2 ...TEXTURE3 ...
 	
-	//if (texel.a < 0.5) discard;
-	// simmulates fwidth()
-	float current = texel.r;
-	float delta = uZoom*uZoom;
-	float dfdx = texture2D(uTexture0, (vTexCoord + vec2(delta,0.0)) / #MAX_TEXTURE0).r - current;
-	float dfdy = texture2D(uTexture0, (vTexCoord + vec2(0.0,delta)) / #MAX_TEXTURE0).r - current;
-	float E = abs(dfdx/delta)+abs(dfdy/delta);
-	
+	float E = fwidth(texel.r);// * 0.87;
 	texel.a = smoothstep(0.5-E,0.5+E, texel.r);
-	
 
 	#if_PICKING
 	if (uResolution.x == 1.0) { 
