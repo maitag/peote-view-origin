@@ -24,8 +24,12 @@ ApplicationMain.create = function() {
 	types.push("TEXT");
 	urls.push("assets/DejavuSans.dat");
 	types.push("BINARY");
+	urls.push("assets/DejavuSans.dat1");
+	types.push("BINARY");
 	urls.push("assets/DejavuSans.png");
 	types.push("IMAGE");
+	urls.push("assets/DejavuSans.png1");
+	types.push("BINARY");
 	urls.push("assets/gl3font.frag");
 	types.push("TEXT");
 	urls.push("assets/HerokuShaders/nebula.frag");
@@ -66,6 +70,14 @@ ApplicationMain.create = function() {
 	types.push("TEXT");
 	urls.push("assets/ping-pong_raspi.vert");
 	types.push("TEXT");
+	urls.push("assets/unifont/gl3font.frag_OLD_WITHOUT_EXTENSION");
+	types.push("TEXT");
+	urls.push("assets/unifont/smooth.vert");
+	types.push("TEXT");
+	urls.push("assets/unifont/unifont_0000.dat");
+	types.push("BINARY");
+	urls.push("assets/unifont/unifont_0000.png");
+	types.push("IMAGE");
 	if(ApplicationMain.config.assetsPrefix != null) {
 		var _g1 = 0;
 		var _g = urls.length;
@@ -77,7 +89,7 @@ ApplicationMain.create = function() {
 	ApplicationMain.preloader.load(urls,types);
 };
 ApplicationMain.main = function() {
-	ApplicationMain.config = { build : "1180", company : "Sylvio Sell - maitag", file : "GlyphTextRendering", fps : 60, name : "PeoteView", orientation : "", packageName : "de.peote.view", version : "0.2.3", windows : [{ antialiasing : 0, background : 16777215, borderless : false, depthBuffer : true, display : 0, fullscreen : false, hardware : true, height : 0, parameters : "{}", resizable : true, stencilBuffer : false, title : "PeoteView", vsync : true, width : 0, x : null, y : null}]};
+	ApplicationMain.config = { build : "1651", company : "Sylvio Sell - maitag", file : "GlyphTextRendering", fps : 60, name : "PeoteView", orientation : "", packageName : "de.peote.view", version : "0.2.5", windows : [{ antialiasing : 0, background : 16777215, borderless : false, depthBuffer : true, display : 0, fullscreen : false, hardware : true, height : 0, parameters : "{}", resizable : true, stencilBuffer : false, title : "PeoteView", vsync : true, width : 0, x : null, y : null}]};
 };
 ApplicationMain.start = function() {
 	var result = ApplicationMain.app.exec();
@@ -117,9 +129,15 @@ var DefaultAssetLibrary = function() {
 	id = "assets/DejavuSans.dat";
 	this.path.set(id,id);
 	this.type.set(id,"BINARY");
+	id = "assets/DejavuSans.dat1";
+	this.path.set(id,id);
+	this.type.set(id,"BINARY");
 	id = "assets/DejavuSans.png";
 	this.path.set(id,id);
 	this.type.set(id,"IMAGE");
+	id = "assets/DejavuSans.png1";
+	this.path.set(id,id);
+	this.type.set(id,"BINARY");
 	id = "assets/gl3font.frag";
 	this.path.set(id,id);
 	this.type.set(id,"TEXT");
@@ -180,6 +198,18 @@ var DefaultAssetLibrary = function() {
 	id = "assets/ping-pong_raspi.vert";
 	this.path.set(id,id);
 	this.type.set(id,"TEXT");
+	id = "assets/unifont/gl3font.frag_OLD_WITHOUT_EXTENSION";
+	this.path.set(id,id);
+	this.type.set(id,"TEXT");
+	id = "assets/unifont/smooth.vert";
+	this.path.set(id,id);
+	this.type.set(id,"TEXT");
+	id = "assets/unifont/unifont_0000.dat";
+	this.path.set(id,id);
+	this.type.set(id,"BINARY");
+	id = "assets/unifont/unifont_0000.png";
+	this.path.set(id,id);
+	this.type.set(id,"IMAGE");
 	var assetsPrefix = null;
 	if(ApplicationMain.config != null && Object.prototype.hasOwnProperty.call(ApplicationMain.config,"assetsPrefix")) assetsPrefix = ApplicationMain.config.assetsPrefix;
 	if(assetsPrefix != null) {
@@ -487,6 +517,13 @@ var de_peote_view_PeoteView = function(param) {
 	if(param.maxTextures == null) param.maxTextures = 1;
 	if(param.maxImages == null) param.maxImages = 1;
 	de_peote_view_PeoteView.MAX_TEXTURE_SIZE = lime_graphics_opengl_GL.context.getParameter(3379);
+	console.log("GL.MAX_TEXTURE_IMAGE_UNITS:" + Std.string(lime_graphics_opengl_GL.context.getParameter(34930)));
+	console.log("GL.MAX_COMBINED_TEXTURE_IMAGE_UNITS:" + Std.string(lime_graphics_opengl_GL.context.getParameter(34930)));
+	console.log("GL.MAX_VERTEX_TEXTURE_IMAGE_UNITS:" + Std.string(lime_graphics_opengl_GL.context.getParameter(35660)));
+	console.log("GL.MAX_TEXTURE_SIZE:" + Std.string(lime_graphics_opengl_GL.context.getParameter(3379)));
+	console.log("GL.MAX_VERTEX_ATTRIBS:" + Std.string(lime_graphics_opengl_GL.context.getParameter(34921)));
+	console.log("GL.MAX_VERTEX_UNIFORM_VECTORS:" + Std.string(lime_graphics_opengl_GL.context.getParameter(36347)));
+	console.log("GL.MAX_FRAGMENT_UNIFORM_VECTORS:" + Std.string(lime_graphics_opengl_GL.context.getParameter(36349)));
 	var this1;
 	this1 = new Array(param.maxTextures);
 	this.textures = this1;
@@ -507,10 +544,10 @@ de_peote_view_PeoteView.prototype = {
 		if(this.textures[param.texture] == null) {
 			var val = new de_peote_view_texture_Texture(param);
 			this.textures[param.texture] = val;
-		} else null;
+		} else console.log("re-set Texture ist not implemented yet");
 	}
 	,delTexture: function(param) {
-		null;
+		console.log("not fully implemented yet");
 	}
 	,setDisplaylist: function(param) {
 		var d = this.displaylist[param.displaylist];
@@ -589,21 +626,21 @@ de_peote_view_PeoteView.prototype = {
 		this.imageCache.setImage(param);
 	}
 	,delImage: function(param) {
-		null;
+		console.log("not implemented yet");
 	}
 	,setElement: function(param) {
-		if(param.element != null) this.displaylist[param.displaylist != null?param.displaylist:de_peote_view_PeoteView.elementDefaults.displaylist].setElement(param); else null;
+		if(param.element != null) this.displaylist[param.displaylist != null?param.displaylist:de_peote_view_PeoteView.elementDefaults.displaylist].setElement(param); else console.log("ERROR: no element specified");
 	}
 	,getElement: function(param) {
 		var p = { };
-		if(param.element != null) p = this.displaylist[param.displaylist != null?param.displaylist:de_peote_view_PeoteView.elementDefaults.displaylist].getElement(param.element); else null;
+		if(param.element != null) p = this.displaylist[param.displaylist != null?param.displaylist:de_peote_view_PeoteView.elementDefaults.displaylist].getElement(param.element); else console.log("ERROR: no element specified");
 		return p;
 	}
 	,hasElement: function(param) {
 		if(param.element == null) return false; else return this.displaylist[param.displaylist != null?param.displaylist:de_peote_view_PeoteView.elementDefaults.displaylist].hasElement(param.element);
 	}
 	,delElement: function(param) {
-		if(param.element != null) this.displaylist[param.displaylist != null?param.displaylist:de_peote_view_PeoteView.elementDefaults.displaylist].delElement(param.element); else null;
+		if(param.element != null) this.displaylist[param.displaylist != null?param.displaylist:de_peote_view_PeoteView.elementDefaults.displaylist].delElement(param.element); else console.log("ERROR: no element specified");
 	}
 	,delAllElement: function(param) {
 		this.displaylist[param.displaylist != null?param.displaylist:de_peote_view_PeoteView.elementDefaults.displaylist].delAllElement();
@@ -783,7 +820,7 @@ de_peote_view_PeoteView.prototype = {
 		lime_graphics_opengl_GL.context.bindBuffer(34962,null);
 		lime_graphics_opengl_GL.context.bindTexture(3553,null);
 		lime_graphics_opengl_GL.context.useProgram(null);
-		if(lime_graphics_opengl_GL.context.checkFramebufferStatus(36160) == 36053) lime_graphics_opengl_GL.context.readPixels(0,0,width,height,6408,5121,this.picked); else null;
+		if(lime_graphics_opengl_GL.context.checkFramebufferStatus(36160) == 36053) lime_graphics_opengl_GL.context.readPixels(0,0,width,height,6408,5121,this.picked); else console.log("PICKING ERROR: Framebuffer not complete");
 		lime_graphics_opengl_GL.context.bindFramebuffer(36160,null);
 		return this.picked[3] << 24 | this.picked[2] << 16 | this.picked[1] << 8 | this.picked[0] - 1;
 	}
@@ -855,7 +892,11 @@ de_peote_view_Program.prototype = {
 		vertexShaderSrc = "precision mediump float;" + vertexShaderSrc;
 		fragmentShaderSrc = this.parseType(type,textureUnits,fragmentShaderSrc);
 		fragmentShaderSrc = "precision mediump float;" + fragmentShaderSrc;
+		fragmentShaderSrc = "#extension GL_OES_standard_derivatives : enable\n" + fragmentShaderSrc;
+		lime_graphics_opengl_GL.context.getExtension("OES_standard_derivatives");
 		var r = new EReg(";","g");
+		console.log("VERTEXSHADER:\n" + r.replace(vertexShaderSrc,";\n"));
+		console.log("FRAGMENTSHADER:\n" + r.replace(fragmentShaderSrc,";\n"));
 		var fs = lime_graphics_opengl_GL.context.createShader(35632);
 		lime_graphics_opengl_GL.context.shaderSource(fs,fragmentShaderSrc);
 		lime_graphics_opengl_GL.context.compileShader(fs);
@@ -874,6 +915,7 @@ de_peote_view_Program.prototype = {
 				var name;
 				if(elemBuff != null) {
 					if(elemBuff.attr == null) {
+						console.log("ANZAHL " + lime_graphics_opengl_GL.context.getProgramParameter(this.glProgram,35721));
 						var this1;
 						this1 = new Array(12);
 						elemBuff.attr = this1;
@@ -883,6 +925,7 @@ de_peote_view_Program.prototype = {
 						while(_g1 < _g) {
 							var i = _g1++;
 							name = lime_graphics_opengl_GL.context.getActiveAttrib(this.glProgram,i).name;
+							console.log(name + ":" + lime_graphics_opengl_GL.context.getAttribLocation(this.glProgram,name));
 							switch(name) {
 							case "aPosition":
 								var val = lime_graphics_opengl_GL.context.getAttribLocation(this.glProgram,name);
@@ -929,6 +972,7 @@ de_peote_view_Program.prototype = {
 				while(_g11 < _g2) {
 					var i1 = _g11++;
 					name = lime_graphics_opengl_GL.context.getActiveUniform(this.glProgram,i1).name;
+					console.log(name + ":" + Std.string(lime_graphics_opengl_GL.context.getUniformLocation(this.glProgram,name)));
 					switch(name) {
 					case "uMouse":
 						var val8 = lime_graphics_opengl_GL.context.getUniformLocation(this.glProgram,name);
@@ -1018,9 +1062,10 @@ var de_peote_view_ProgramCache = function(max_programs,textures) {
 de_peote_view_ProgramCache.__name__ = true;
 de_peote_view_ProgramCache.prototype = {
 	onerror: function(msg) {
-		null;
+		console.log(msg);
 	}
 	,addDisplaylist: function(type,elemBuff) {
+		console.log("addDisplaylist:" + type);
 		if(!this.defaultProgram.h.hasOwnProperty(type)) {
 			var p = new de_peote_view_Program();
 			p.compile(elemBuff,type,null,elemBuff.getDefaultFragmentShaderSrc(),elemBuff.getDefaultVertexShaderSrc(),$bind(this,this.onerror));
@@ -1057,7 +1102,7 @@ de_peote_view_ProgramCache.prototype = {
 					var t = this.textures[param.textures[i]];
 					if(t != null) {
 						if(i >= textureUnits.texture.length) textureUnits.texture.push(t); else textureUnits.texture[i] = t;
-					} else null;
+					} else console.log("ERROR: texture " + param.textures[i] + " is not defined");
 				}
 			}
 		}
@@ -1075,6 +1120,7 @@ de_peote_view_ProgramCache.prototype = {
 					default_fs = "\tvarying vec2 vTexCoord;\r\n\t\t#if_RGBA\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#else_RGBA\r\n\t\t\t#if_PICKING\r\n\t\t\tvarying vec4 vRGBA;\r\n\t\t\t#end_PICKING\r\n\t\t#end_RGBA\r\n\t\t\r\n\t\t#if_PICKING\r\n\t\tuniform vec2 uResolution;\r\n\t\t#end_PICKING\r\n\t\t\r\n\t\t\r\n\t\t#if_TEXTURE0\r\n\t\tuniform sampler2D uTexture0;\r\n\t\t#end_TEXTURE0\r\n\t\t\r\n\t\t#if_TEXTURE1\r\n\t\tuniform sampler2D uTexture1;\r\n\t\t#end_TEXTURE1\r\n\t\t\r\n\t\tvoid main(void)\r\n\t\t{\t\r\n\t\t\t#if_TEXTURE0\r\n\t\t\tvec4 texel = texture2D(uTexture0, vTexCoord / #MAX_TEXTURE0);\r\n\t\t\t#else_TEXTURE0\r\n\t\t\tvec4 texel = vec4(1.0, 1.0, 1.0, 1.0);\r\n\t\t\t#end_TEXTURE0\r\n\t\t\t\r\n\t\t\t// if use more than one texture unit to combine or do something crazy here:)\r\n\t\t\t#if_TEXTURE1\r\n\t\t\ttexel = texel * texture2D(uTexture1, vTexCoord / #MAX_TEXTURE0);\r\n\t\t\t#end_TEXTURE1\r\n\t\t\t// ... TEXTURE2 ...TEXTURE3 ...\r\n\t\t\t\r\n\t\t\tif (texel.a < 0.5) discard; // TODO (z-order/blend mode!!!)\r\n\t\t\t\r\n\t\t\t#if_PICKING\r\n\t\t\tif (uResolution.x == 1.0) { \r\n\t\t\t\tgl_FragColor = vRGBA; // vRGBA color defines element-number for gl-picking;\r\n\t\t\t}\r\n\t\t\telse {\r\n\t\t\t\t#if_RGBA\r\n\t\t\t\tgl_FragColor = texel * vRGBA;\r\n\t\t\t\t#else_RGBA\r\n\t\t\t\tgl_FragColor = texel;\r\n\t\t\t\t#end_RGBA\t\t\t\t\r\n\t\t\t}\r\n\t\t\t#else_PICKING\r\n\t\t\t\t#if_RGBA\r\n\t\t\t\tgl_FragColor = texel * vRGBA;\r\n\t\t\t\t#else_RGBA\r\n\t\t\t\tgl_FragColor = texel;\r\n\t\t\t\t#end_RGBA\r\n\t\t\t#end_PICKING\r\n\t\t}\r\n\t";
 					default_vs = "\tattribute vec2 aPosition;\r\n\t\t\r\n\t\t#if_ZINDEX\r\n\t\tattribute float aZindex;\r\n\t\t#end_ZINDEX\r\n\t\t\r\n\t\t#if_RGBA\r\n\t\tattribute vec4 aRGBA;\r\n\t\tvarying vec4 vRGBA;\r\n\t\t#end_RGBA\r\n\r\n\t\t#if_PICKING\r\n\t\tattribute vec4 aElement;\r\n\t\t\t#if_RGBA\r\n\t\t\t#else_RGBA\r\n\t\t\tvarying vec4 vRGBA;\r\n\t\t\t#end_RGBA\r\n\t\t#end_PICKING\r\n\t\t\t\r\n\t\tattribute vec2 aTexCoord;\r\n\t\t\r\n\t\tvarying vec2 vTexCoord;\r\n\t\t\r\n\t\tuniform float uTime;\r\n\t\tuniform float uZoom;\r\n\t\tuniform vec2 uResolution;\r\n\t\tuniform vec2 uDelta;\r\n\t\t\r\n\t\tvoid main(void) {\r\n\t\t\t#if_RGBA\r\n\t\t\tvRGBA = aRGBA.wzyx;\r\n\t\t\t#end_RGBA\r\n\t\t\t\r\n\t\t\t#if_PICKING\r\n\t\t\tif (uResolution.x == 1.0) {\r\n\t\t\t\tvRGBA = aElement;\r\n\t\t\t}\r\n\t\t\t#end_PICKING\r\n\t\t\t\r\n\t\t\tvTexCoord = aTexCoord;\r\n\t\t\t\t\t\t\r\n\t\t\tfloat zoom = uZoom;\r\n\t\t\tfloat width = uResolution.x;\r\n\t\t\tfloat height = uResolution.y;\r\n\t\t\tfloat deltaX = floor(uDelta.x);\r\n\t\t\tfloat deltaY = floor(uDelta.y);\r\n\t\t\t\r\n\t\t\tfloat right = width-deltaX*zoom;\r\n\t\t\tfloat left = -deltaX*zoom;\r\n\t\t\tfloat bottom = height-deltaY*zoom;\r\n\t\t\tfloat top = -deltaY * zoom;\r\n\t\t\t\r\n\t\t\tgl_Position = mat4 (\r\n\t\t\t\tvec4(2.0 / (right - left)*zoom, 0.0, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 2.0 / (top - bottom)*zoom, 0.0, 0.0),\r\n\t\t\t\tvec4(0.0, 0.0, -1.0, 0.0),\r\n\t\t\t\tvec4(-(right + left) / (right - left), -(top + bottom) / (top - bottom), 0.0, 1.0)\r\n\t\t\t)\r\n\t\t\t* vec4 (aPosition ,\r\n\t\t\t\t#if_ZINDEX\r\n\t\t\t\taZindex\r\n\t\t\t\t#else_ZINDEX\r\n\t\t\t\t0.0\r\n\t\t\t\t#end_ZINDEX\r\n\t\t\t\t, 1.0\r\n\t\t\t\t);\r\n\t\t}\r\n\t";
 				}
+				console.log("setShaderSrc:" + type);
 				if(param.fshadersrc == "") pmap.h[type].compile(null,type,textureUnits,default_fs,param.vshadersrc,$bind(this,this.onerror)); else if(param.vshadersrc == "") pmap.h[type].compile(null,type,textureUnits,param.fshadersrc,default_vs,$bind(this,this.onerror)); else pmap.h[type].compile(null,type,textureUnits,param.fshadersrc,param.vshadersrc,$bind(this,this.onerror));
 			}
 			if(param.fshadersrc != "") this.fragmentShaderSrc[param.program] = param.fshadersrc;
@@ -1919,7 +1965,7 @@ var de_peote_view_texture_ImageCache = function(max_imagess,textures) {
 de_peote_view_texture_ImageCache.__name__ = true;
 de_peote_view_texture_ImageCache.prototype = {
 	onerror: function(msg) {
-		null;
+		console.log(msg);
 	}
 	,setImage: function(param) {
 		if(param.texture == null) param.texture = 0;
@@ -1930,11 +1976,11 @@ de_peote_view_texture_ImageCache.prototype = {
 				var val = new de_peote_view_texture_Image(param.filename,texture,texture.slotWidth,texture.slotHeight);
 				this.images[param.image] = val;
 				if(param.preload) this.useImage(param.image);
-			} else null;
+			} else console.log("Error: no texture specified to put images in");
 		} else {
 			if(texture != null && texture != img.texture) {
 				if(img.url == param.filename) {
-				} else if(img.used > 0) null; else if(img.slot > -1) {
+				} else if(img.used > 0) console.log("ERROR: texture-changing while image is in usage by element not implemented yet"); else if(img.slot > -1) {
 				}
 			}
 			if(img.url != param.filename) {
@@ -1951,18 +1997,22 @@ de_peote_view_texture_ImageCache.prototype = {
 				if(img.slot == -1) {
 					var success = true;
 					if(img.texture.slotHoles.hole.length == 0) {
-						if(this.clear() == 0) success = false;
+						console.log("Texture is FULL OF IMAGES :) .. try to clear() ");
+						if(this.clear() == 0) {
+							console.log(" ============ ERROR: Texture Space can't be cleaned and is FULL of used Images ==========");
+							success = false;
+						}
 					}
 					if(success) {
 						img.texture.reserveImageSlot(img);
 						if(img.url != "") {
 							this.imgLoadQueue.push(img);
 							if(this.isLoading++ == 0) this.imgLoadQueue.shift().load($bind(this,this.onImageLoad),$bind(this,this.onerror));
-						} else null;
+						} else console.log("ERROR: no image filename (or url) specified");
 					}
 				}
 			}
-		} else null;
+		} else console.log("Error: image-number " + image_nr + " did not exist");
 		return img;
 	}
 	,unUseImage: function(image_nr) {
@@ -1970,10 +2020,12 @@ de_peote_view_texture_ImageCache.prototype = {
 		if(--img.used == 0) this.unusedImages.h[image_nr] = true;
 	}
 	,onImageLoad: function(img,w,h,data) {
+		console.log("onImageLoad: " + img.url + " gl-texture: " + Std.string(img.texture) + " to holePos:" + img.slot + " ----" + "(" + Math.random() + ")");
 		if(img.slot > -1) img.texture.storeImage(img,w,h,data);
 		if(this.imgLoadQueue.length == 0) this.isLoading = 0; else this.imgLoadQueue.shift().load($bind(this,this.onImageLoad),$bind(this,this.onerror));
 	}
 	,clear: function() {
+		console.log("delete unused Images from Cache");
 		var numCleaned = 0;
 		var unusedImg;
 		var $it0 = this.unusedImages.keys();
@@ -2004,8 +2056,9 @@ var de_peote_view_texture_Texture = function(param) {
 		this.max_texture_width = p.w;
 		this.max_texture_height = p.h;
 		this.slotHoles = new de_peote_tools_Holes(this.slotsX * this.slotsY);
+		console.log("TextureCache: slotsX=" + this.slotsX + " slotWidth=" + this.slotWidth + " slotsY=" + this.slotsY + " slotHeight=" + this.slotHeight);
 		this.texture = de_peote_view_texture_Texture.createEmptyTexture(this.slotsX * this.slotWidth,this.slotsY * this.slotHeight);
-	} else null;
+	} else console.log("Error: can't create Texture ${param.texture}");
 };
 de_peote_view_texture_Texture.__name__ = true;
 de_peote_view_texture_Texture.createEmptyTexture = function(width,height) {
@@ -2036,6 +2089,10 @@ de_peote_view_texture_Texture.prototype = {
 	,optimalTextureSize: function(slots,slotWidth,slotHeight,maxTextureSize) {
 		if(maxTextureSize == null) maxTextureSize = lime_graphics_opengl_GL.context.getParameter(3379);
 		maxTextureSize = Math.ceil(Math.log(maxTextureSize) / Math.log(2));
+		console.log("maxTextureSize: " + (1 << maxTextureSize));
+		console.log("Texture-slots:" + slots);
+		console.log("slot width : " + slotWidth);
+		console.log("slot height: " + slotHeight);
 		var a = Math.ceil(Math.log(slots * slotWidth * slotHeight) / Math.log(2));
 		var r;
 		var w = 1;
@@ -2077,10 +2134,10 @@ de_peote_view_texture_Texture.prototype = {
 			param.slots = param.sx * param.sy;
 			param.w = 1 << w;
 			param.h = 1 << h;
-			null;
+			console.log("" + param.sx * param.sy + " Slots (" + Std.string(param.sx) + " * " + Std.string(param.sy) + ") on " + (1 << w) + " x " + (1 << h) + " Texture");
 		} else {
 			param = null;
-			null;
+			console.log("Error: no possible texture size");
 		}
 		return param;
 	}
@@ -2131,6 +2188,14 @@ haxe_ds_IntMap.prototype = {
 		if(this.h.hasOwnProperty(key)) a.push(key | 0);
 		}
 		return HxOverrides.iter(a);
+	}
+	,iterator: function() {
+		return { ref : this.h, it : this.keys(), hasNext : function() {
+			return this.it.hasNext();
+		}, next : function() {
+			var i = this.it.next();
+			return this.ref[i];
+		}};
 	}
 	,__class__: haxe_ds_IntMap
 };
@@ -2633,7 +2698,7 @@ var lime_AssetCache = function() {
 	this.audio = new haxe_ds_StringMap();
 	this.font = new haxe_ds_StringMap();
 	this.image = new haxe_ds_StringMap();
-	this.version = Std["int"](Math.random() * 1000000);
+	this.version = 649075;
 };
 lime_AssetCache.__name__ = true;
 lime_AssetCache.prototype = {
@@ -2906,9 +2971,9 @@ lime__$backend_html5_HTML5Application.prototype = {
 		if(this.currentUpdate >= this.nextUpdate) {
 			this.deltaTime = this.currentUpdate - this.lastUpdate;
 			this.parent.onUpdate.dispatch(this.deltaTime | 0);
-			if(this.parent.renderers[0] != null) {
-				this.parent.renderers[0].onRender.dispatch();
-				this.parent.renderers[0].flip();
+			if(this.parent.__renderers[0] != null) {
+				this.parent.__renderers[0].onRender.dispatch();
+				this.parent.__renderers[0].flip();
 			}
 			if(this.framePeriod < 0) {
 				this.nextUpdate = this.currentUpdate;
@@ -2919,39 +2984,39 @@ lime__$backend_html5_HTML5Application.prototype = {
 		window.requestAnimationFrame($bind(this,this.handleApplicationEvent));
 	}
 	,handleKeyEvent: function(event) {
-		if(this.parent.windows[0] != null) {
+		if(this.parent.__windows[0] != null) {
 			var keyCode = this.convertKeyCode(event.keyCode != null?event.keyCode:event.which);
 			var modifier;
 			modifier = (event.shiftKey?3:0) | (event.ctrlKey?192:0) | (event.altKey?768:0) | (event.metaKey?3072:0);
 			if(event.type == "keydown") {
-				this.parent.windows[0].onKeyDown.dispatch(keyCode,modifier);
-				if(this.parent.windows[0].onKeyDown.canceled) event.preventDefault();
+				this.parent.__windows[0].onKeyDown.dispatch(keyCode,modifier);
+				if(this.parent.__windows[0].onKeyDown.canceled) event.preventDefault();
 			} else {
-				this.parent.windows[0].onKeyUp.dispatch(keyCode,modifier);
-				if(this.parent.windows[0].onKeyUp.canceled) event.preventDefault();
+				this.parent.__windows[0].onKeyUp.dispatch(keyCode,modifier);
+				if(this.parent.__windows[0].onKeyUp.canceled) event.preventDefault();
 			}
 		}
 	}
 	,handleWindowEvent: function(event) {
-		if(this.parent.windows[0] != null) {
+		if(this.parent.__windows[0] != null) {
 			var _g = event.type;
 			switch(_g) {
 			case "focus":
-				this.parent.windows[0].onFocusIn.dispatch();
-				this.parent.windows[0].onActivate.dispatch();
+				this.parent.__windows[0].onFocusIn.dispatch();
+				this.parent.__windows[0].onActivate.dispatch();
 				break;
 			case "blur":
-				this.parent.windows[0].onFocusOut.dispatch();
-				this.parent.windows[0].onDeactivate.dispatch();
+				this.parent.__windows[0].onFocusOut.dispatch();
+				this.parent.__windows[0].onDeactivate.dispatch();
 				break;
 			case "resize":
-				var cacheWidth = this.parent.windows[0].__width;
-				var cacheHeight = this.parent.windows[0].__height;
-				this.parent.windows[0].backend.handleResize();
-				if(this.parent.windows[0].__width != cacheWidth || this.parent.windows[0].__height != cacheHeight) this.parent.windows[0].onResize.dispatch(this.parent.windows[0].__width,this.parent.windows[0].__height);
+				var cacheWidth = this.parent.__windows[0].__width;
+				var cacheHeight = this.parent.__windows[0].__height;
+				this.parent.__windows[0].backend.handleResize();
+				if(this.parent.__windows[0].__width != cacheWidth || this.parent.__windows[0].__height != cacheHeight) this.parent.__windows[0].onResize.dispatch(this.parent.__windows[0].__width,this.parent.__windows[0].__height);
 				break;
 			case "beforeunload":
-				this.parent.windows[0].onClose.dispatch();
+				this.parent.__windows[0].onClose.dispatch();
 				break;
 			}
 		}
@@ -3127,7 +3192,7 @@ lime__$backend_html5_HTML5Renderer.prototype = {
 		} else if(this.parent.window.backend.canvas != null) {
 			var webgl = null;
 			if(!Object.prototype.hasOwnProperty.call(this.parent.window.config,"hardware") || this.parent.window.config.hardware) {
-				var options = { alpha : false, antialias : Object.prototype.hasOwnProperty.call(this.parent.window.config,"antialiasing")?this.parent.window.config.antialiasing > 0:false, depth : Object.prototype.hasOwnProperty.call(this.parent.window.config,"depthBuffer")?this.parent.window.config.depthBuffer:true, premultipliedAlpha : false, stencil : Object.prototype.hasOwnProperty.call(this.parent.window.config,"stencilBuffer")?this.parent.window.config.stencilBuffer:false, preserveDrawingBuffer : false};
+				var options = { alpha : Object.prototype.hasOwnProperty.call(this.parent.window.config,"background") && this.parent.window.config.background == null?true:false, antialias : Object.prototype.hasOwnProperty.call(this.parent.window.config,"antialiasing")?this.parent.window.config.antialiasing > 0:false, depth : Object.prototype.hasOwnProperty.call(this.parent.window.config,"depthBuffer")?this.parent.window.config.depthBuffer:true, premultipliedAlpha : true, stencil : Object.prototype.hasOwnProperty.call(this.parent.window.config,"stencilBuffer")?this.parent.window.config.stencilBuffer:false, preserveDrawingBuffer : false};
 				webgl = js_html__$CanvasElement_CanvasUtil.getContextWebGL(this.parent.window.backend.canvas,options);
 			}
 			if(webgl == null) {
@@ -3308,22 +3373,33 @@ lime__$backend_html5_HTML5Window.prototype = {
 					}
 				}
 			} else {
-				var scaleX = this.element.clientWidth / this.setWidth;
-				var scaleY = this.element.clientHeight / this.setHeight;
-				var currentRatio = scaleX / scaleY;
-				var targetRatio = Math.min(scaleX,scaleY);
+				var scaleX;
+				if(this.setWidth != 0) scaleX = this.element.clientWidth / this.setWidth; else scaleX = 1;
+				var scaleY;
+				if(this.setHeight != 0) scaleY = this.element.clientHeight / this.setHeight; else scaleY = 1;
+				var targetW = this.element.clientWidth;
+				var targetH = this.element.clientHeight;
+				var marginLeft = 0;
+				var marginTop = 0;
+				if(scaleX < scaleY) {
+					targetH = Math.floor(this.setHeight * scaleX);
+					marginTop = Math.floor((this.element.clientHeight - targetH) / 2);
+				} else {
+					targetW = Math.floor(this.setWidth * scaleY);
+					marginLeft = Math.floor((this.element.clientWidth - targetW) / 2);
+				}
 				if(this.canvas != null) {
 					if(this.element != this.canvas) {
-						this.canvas.style.width = this.setWidth * targetRatio + "px";
-						this.canvas.style.height = this.setHeight * targetRatio + "px";
-						this.canvas.style.marginLeft = (this.element.clientWidth - this.setWidth * targetRatio) / 2 + "px";
-						this.canvas.style.marginTop = (this.element.clientHeight - this.setHeight * targetRatio) / 2 + "px";
+						this.canvas.style.width = targetW + "px";
+						this.canvas.style.height = targetH + "px";
+						this.canvas.style.marginLeft = marginLeft + "px";
+						this.canvas.style.marginTop = marginTop + "px";
 					}
 				} else {
-					this.div.style.width = this.setWidth * targetRatio + "px";
-					this.div.style.height = this.setHeight * targetRatio + "px";
-					this.div.style.marginLeft = (this.element.clientWidth - this.setWidth * targetRatio) / 2 + "px";
-					this.div.style.marginTop = (this.element.clientHeight - this.setHeight * targetRatio) / 2 + "px";
+					this.div.style.width = targetW + "px";
+					this.div.style.height = targetH + "px";
+					this.div.style.marginLeft = marginLeft + "px";
+					this.div.style.marginTop = marginTop + "px";
 				}
 			}
 		}
@@ -3428,123 +3504,12 @@ lime_app_IModule.prototype = {
 };
 var lime_app_Module = function() {
 	this.onExit = new lime_app_Event_$Int_$Void();
+	this.__renderers = [];
+	this.__windows = [];
 };
 lime_app_Module.__name__ = true;
 lime_app_Module.__interfaces__ = [lime_app_IModule];
 lime_app_Module.prototype = {
-	onGamepadAxisMove: function(gamepad,axis,value) {
-	}
-	,onGamepadButtonDown: function(gamepad,button) {
-	}
-	,onGamepadButtonUp: function(gamepad,button) {
-	}
-	,onGamepadConnect: function(gamepad) {
-		null;
-	}
-	,onGamepadDisconnect: function(gamepad) {
-	}
-	,onJoystickAxisMove: function(joystick,axis,value) {
-	}
-	,onJoystickButtonDown: function(joystick,button) {
-	}
-	,onJoystickButtonUp: function(joystick,button) {
-	}
-	,onJoystickConnect: function(joystick) {
-	}
-	,onJoystickDisconnect: function(joystick) {
-	}
-	,onJoystickHatMove: function(joystick,hat,position) {
-	}
-	,onJoystickTrackballMove: function(joystick,trackball,value) {
-	}
-	,onKeyDown: function(window,keyCode,modifier) {
-	}
-	,onKeyUp: function(window,keyCode,modifier) {
-	}
-	,onModuleExit: function(code) {
-	}
-	,onMouseDown: function(window,x,y,button) {
-	}
-	,onMouseMove: function(window,x,y) {
-	}
-	,onMouseMoveRelative: function(window,x,y) {
-	}
-	,onMouseUp: function(window,x,y,button) {
-	}
-	,onMouseWheel: function(window,deltaX,deltaY) {
-	}
-	,onPreloadComplete: function() {
-	}
-	,onPreloadProgress: function(loaded,total) {
-	}
-	,onRenderContextLost: function(renderer) {
-	}
-	,onRenderContextRestored: function(renderer,context) {
-	}
-	,onTextEdit: function(window,text,start,length) {
-	}
-	,onTextInput: function(window,text) {
-	}
-	,onTouchEnd: function(touch) {
-	}
-	,onTouchMove: function(touch) {
-	}
-	,onTouchStart: function(touch) {
-	}
-	,onWindowActivate: function(window) {
-	}
-	,onWindowClose: function(window) {
-	}
-	,onWindowCreate: function(window) {
-	}
-	,onWindowDeactivate: function(window) {
-	}
-	,onWindowDropFile: function(window,file) {
-	}
-	,onWindowEnter: function(window) {
-	}
-	,onWindowFocusIn: function(window) {
-	}
-	,onWindowFocusOut: function(window) {
-	}
-	,onWindowFullscreen: function(window) {
-	}
-	,onWindowLeave: function(window) {
-	}
-	,onWindowMove: function(window,x,y) {
-	}
-	,onWindowMinimize: function(window) {
-	}
-	,onWindowResize: function(window,width,height) {
-	}
-	,onWindowRestore: function(window) {
-	}
-	,render: function(renderer) {
-	}
-	,update: function(deltaTime) {
-	}
-	,__class__: lime_app_Module
-};
-var lime_app_Application = function() {
-	this.onUpdate = new lime_app_Event_$Int_$Void();
-	lime_app_Module.call(this);
-	if(lime_app_Application.current == null) lime_app_Application.current = this;
-	this.modules = [];
-	this.renderers = [];
-	this.windows = [];
-	this.windowByID = new haxe_ds_IntMap();
-	this.backend = new lime__$backend_html5_HTML5Application(this);
-	this.onExit.add($bind(this,this.onModuleExit));
-	this.onUpdate.add($bind(this,this.update));
-	lime_ui_Gamepad.onConnect.add($bind(this,this.__onGamepadConnect));
-	lime_ui_Joystick.onConnect.add($bind(this,this.__onJoystickConnect));
-	lime_ui_Touch.onStart.add($bind(this,this.onTouchStart));
-	lime_ui_Touch.onMove.add($bind(this,this.onTouchMove));
-	lime_ui_Touch.onEnd.add($bind(this,this.onTouchEnd));
-};
-lime_app_Application.__name__ = true;
-lime_app_Application.__super__ = lime_app_Module;
-lime_app_Application.prototype = $extend(lime_app_Module.prototype,{
 	addRenderer: function(renderer) {
 		renderer.onRender.add((function(f,a1) {
 			return function() {
@@ -3561,28 +3526,9 @@ lime_app_Application.prototype = $extend(lime_app_Module.prototype,{
 				f2(a12,a2);
 			};
 		})($bind(this,this.onRenderContextRestored),renderer));
-		this.renderers.push(renderer);
+		this.__renderers.push(renderer);
 	}
-	,create: function(config) {
-		this.config = config;
-		this.backend.create(config);
-		if(config != null) {
-			if(Object.prototype.hasOwnProperty.call(config,"fps")) this.backend.setFrameRate(config.fps);
-			if(Object.prototype.hasOwnProperty.call(config,"windows")) {
-				var _g = 0;
-				var _g1 = config.windows;
-				while(_g < _g1.length) {
-					var windowConfig = _g1[_g];
-					++_g;
-					var $window = new lime_ui_Window(windowConfig);
-					this.createWindow($window);
-					break;
-				}
-			}
-			if(this.preloader == null || this.preloader.complete) this.onPreloadComplete();
-		}
-	}
-	,createWindow: function(window) {
+	,addWindow: function(window) {
 		window.onActivate.add((function(f,a1) {
 			return function() {
 				f(a1);
@@ -3592,7 +3538,7 @@ lime_app_Application.prototype = $extend(lime_app_Module.prototype,{
 			return function() {
 				f1(a11);
 			};
-		})($bind(this,this.onWindowClose),window));
+		})($bind(this,this.__onWindowClose),window));
 		window.onCreate.add((function(f2,a12) {
 			return function() {
 				f2(a12);
@@ -3698,444 +3644,130 @@ lime_app_Application.prototype = $extend(lime_app_Module.prototype,{
 				f22(a122,a28);
 			};
 		})($bind(this,this.onTextInput),window));
-		if(window.renderer == null) {
-			var renderer = new lime_graphics_Renderer(window);
-			this.addRenderer(renderer);
-		}
-		window.create(this);
-		this.windows.push(window);
-		this.windowByID.h[window.id] = window;
-		window.onCreate.dispatch();
+		if(window.id > -1) this.onWindowCreate(window);
+		this.__windows.push(window);
 	}
-	,exec: function() {
-		lime_app_Application.current = this;
-		return this.backend.exec();
-	}
-	,onGamepadAxisMove: function(gamepad,axis,value) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onGamepadAxisMove(gamepad,axis,value);
+	,registerModule: function(application) {
+		this.__application = application;
+		application.onExit.add($bind(this,this.onModuleExit),false,0);
+		application.onUpdate.add($bind(this,this.update));
+		var $it0 = lime_ui_Gamepad.devices.iterator();
+		while( $it0.hasNext() ) {
+			var gamepad = $it0.next();
+			this.__onGamepadConnect(gamepad);
 		}
-	}
-	,onGamepadButtonDown: function(gamepad,button) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onGamepadButtonDown(gamepad,button);
+		lime_ui_Gamepad.onConnect.add($bind(this,this.__onGamepadConnect));
+		var $it1 = lime_ui_Joystick.devices.iterator();
+		while( $it1.hasNext() ) {
+			var joystick = $it1.next();
+			this.__onJoystickConnect(joystick);
 		}
-	}
-	,onGamepadButtonUp: function(gamepad,button) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onGamepadButtonUp(gamepad,button);
-		}
-	}
-	,onGamepadConnect: function(gamepad) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onGamepadConnect(gamepad);
-		}
-	}
-	,onGamepadDisconnect: function(gamepad) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onGamepadDisconnect(gamepad);
-		}
-	}
-	,onJoystickAxisMove: function(joystick,axis,value) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onJoystickAxisMove(joystick,axis,value);
-		}
-	}
-	,onJoystickButtonDown: function(joystick,button) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onJoystickButtonDown(joystick,button);
-		}
-	}
-	,onJoystickButtonUp: function(joystick,button) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onJoystickButtonUp(joystick,button);
-		}
-	}
-	,onJoystickConnect: function(joystick) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onJoystickConnect(joystick);
-		}
-	}
-	,onJoystickDisconnect: function(joystick) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onJoystickDisconnect(joystick);
-		}
-	}
-	,onJoystickHatMove: function(joystick,hat,position) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onJoystickHatMove(joystick,hat,position);
-		}
-	}
-	,onJoystickTrackballMove: function(joystick,trackball,value) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onJoystickTrackballMove(joystick,trackball,value);
-		}
-	}
-	,onKeyDown: function(window,keyCode,modifier) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onKeyDown(window,keyCode,modifier);
-		}
-	}
-	,onKeyUp: function(window,keyCode,modifier) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onKeyUp(window,keyCode,modifier);
-		}
-	}
-	,onModuleExit: function(code) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onModuleExit(code);
-		}
-		this.backend.exit();
-	}
-	,onMouseDown: function(window,x,y,button) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onMouseDown(window,x,y,button);
-		}
-	}
-	,onMouseMove: function(window,x,y) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onMouseMove(window,x,y);
-		}
-	}
-	,onMouseMoveRelative: function(window,x,y) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onMouseMoveRelative(window,x,y);
-		}
-	}
-	,onMouseUp: function(window,x,y,button) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onMouseUp(window,x,y,button);
-		}
-	}
-	,onMouseWheel: function(window,deltaX,deltaY) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onMouseWheel(window,deltaX,deltaY);
-		}
-	}
-	,onPreloadComplete: function() {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onPreloadComplete();
-		}
-	}
-	,onPreloadProgress: function(loaded,total) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onPreloadProgress(loaded,total);
-		}
-	}
-	,onRenderContextLost: function(renderer) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onRenderContextLost(renderer);
-		}
-	}
-	,onRenderContextRestored: function(renderer,context) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onRenderContextRestored(renderer,context);
-		}
-	}
-	,onTextEdit: function(window,text,start,length) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onTextEdit(window,text,start,length);
-		}
-	}
-	,onTextInput: function(window,text) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onTextInput(window,text);
-		}
-	}
-	,onTouchEnd: function(touch) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onTouchEnd(touch);
-		}
-	}
-	,onTouchMove: function(touch) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onTouchMove(touch);
-		}
-	}
-	,onTouchStart: function(touch) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onTouchStart(touch);
-		}
-	}
-	,onWindowActivate: function(window) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onWindowActivate(window);
-		}
-	}
-	,onWindowClose: function(window) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onWindowClose(window);
-		}
-		this.removeWindow(window);
-	}
-	,onWindowCreate: function(window) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onWindowCreate(window);
-		}
-	}
-	,onWindowDeactivate: function(window) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onWindowDeactivate(window);
-		}
-	}
-	,onWindowDropFile: function(window,file) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onWindowDropFile(window,file);
-		}
-	}
-	,onWindowEnter: function(window) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onWindowEnter(window);
-		}
-	}
-	,onWindowFocusIn: function(window) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onWindowFocusIn(window);
-		}
-	}
-	,onWindowFocusOut: function(window) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onWindowFocusOut(window);
-		}
-	}
-	,onWindowFullscreen: function(window) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onWindowFullscreen(window);
-		}
-	}
-	,onWindowLeave: function(window) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onWindowLeave(window);
-		}
-	}
-	,onWindowMinimize: function(window) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onWindowMinimize(window);
-		}
-	}
-	,onWindowMove: function(window,x,y) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onWindowMove(window,x,y);
-		}
-	}
-	,onWindowResize: function(window,width,height) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onWindowResize(window,width,height);
-		}
-	}
-	,onWindowRestore: function(window) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.onWindowRestore(window);
-		}
-	}
-	,removeWindow: function(window) {
-		if(window != null && this.windowByID.h.hasOwnProperty(window.id)) {
-			HxOverrides.remove(this.windows,window);
-			this.windowByID.remove(window.id);
-			window.close();
-			if(this.windows[0] == window) this.window = null;
-		}
-	}
-	,render: function(renderer) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.render(renderer);
-		}
+		lime_ui_Joystick.onConnect.add($bind(this,this.__onJoystickConnect));
+		lime_ui_Touch.onStart.add($bind(this,this.onTouchStart));
+		lime_ui_Touch.onMove.add($bind(this,this.onTouchMove));
+		lime_ui_Touch.onEnd.add($bind(this,this.onTouchEnd));
 	}
 	,setPreloader: function(preloader) {
-		if(this.preloader != null) {
-			this.preloader.onProgress.remove($bind(this,this.onPreloadProgress));
-			this.preloader.onComplete.remove($bind(this,this.onPreloadComplete));
+		if(this.__preloader != null) {
+			this.__preloader.onProgress.remove($bind(this,this.onPreloadProgress));
+			this.__preloader.onComplete.remove($bind(this,this.onPreloadComplete));
 		}
-		this.preloader = preloader;
-		if(preloader.complete) this.onPreloadComplete(); else {
+		this.__preloader = preloader;
+		if(preloader == null || preloader.complete) this.onPreloadComplete(); else {
 			preloader.onProgress.add($bind(this,this.onPreloadProgress));
 			preloader.onComplete.add($bind(this,this.onPreloadComplete));
 		}
 	}
+	,onGamepadAxisMove: function(gamepad,axis,value) {
+	}
+	,onGamepadButtonDown: function(gamepad,button) {
+	}
+	,onGamepadButtonUp: function(gamepad,button) {
+	}
+	,onGamepadConnect: function(gamepad) {
+		console.log("onGamepadConnect (module)");
+	}
+	,onGamepadDisconnect: function(gamepad) {
+	}
+	,onJoystickAxisMove: function(joystick,axis,value) {
+	}
+	,onJoystickButtonDown: function(joystick,button) {
+	}
+	,onJoystickButtonUp: function(joystick,button) {
+	}
+	,onJoystickConnect: function(joystick) {
+	}
+	,onJoystickDisconnect: function(joystick) {
+	}
+	,onJoystickHatMove: function(joystick,hat,position) {
+	}
+	,onJoystickTrackballMove: function(joystick,trackball,value) {
+	}
+	,onKeyDown: function(window,keyCode,modifier) {
+	}
+	,onKeyUp: function(window,keyCode,modifier) {
+	}
+	,onModuleExit: function(code) {
+	}
+	,onMouseDown: function(window,x,y,button) {
+	}
+	,onMouseMove: function(window,x,y) {
+	}
+	,onMouseMoveRelative: function(window,x,y) {
+	}
+	,onMouseUp: function(window,x,y,button) {
+	}
+	,onMouseWheel: function(window,deltaX,deltaY) {
+	}
+	,onPreloadComplete: function() {
+	}
+	,onPreloadProgress: function(loaded,total) {
+	}
+	,onRenderContextLost: function(renderer) {
+	}
+	,onRenderContextRestored: function(renderer,context) {
+	}
+	,onTextEdit: function(window,text,start,length) {
+	}
+	,onTextInput: function(window,text) {
+	}
+	,onTouchEnd: function(touch) {
+	}
+	,onTouchMove: function(touch) {
+	}
+	,onTouchStart: function(touch) {
+	}
+	,onWindowActivate: function(window) {
+	}
+	,onWindowClose: function(window) {
+	}
+	,onWindowCreate: function(window) {
+	}
+	,onWindowDeactivate: function(window) {
+	}
+	,onWindowDropFile: function(window,file) {
+	}
+	,onWindowEnter: function(window) {
+	}
+	,onWindowFocusIn: function(window) {
+	}
+	,onWindowFocusOut: function(window) {
+	}
+	,onWindowFullscreen: function(window) {
+	}
+	,onWindowLeave: function(window) {
+	}
+	,onWindowMove: function(window,x,y) {
+	}
+	,onWindowMinimize: function(window) {
+	}
+	,onWindowResize: function(window,width,height) {
+	}
+	,onWindowRestore: function(window) {
+	}
+	,render: function(renderer) {
+	}
 	,update: function(deltaTime) {
-		var _g = 0;
-		var _g1 = this.modules;
-		while(_g < _g1.length) {
-			var module = _g1[_g];
-			++_g;
-			module.update(deltaTime);
-		}
 	}
 	,__onGamepadConnect: function(gamepad) {
 		this.onGamepadConnect(gamepad);
@@ -4192,6 +3824,108 @@ lime_app_Application.prototype = $extend(lime_app_Module.prototype,{
 				f5(a15,a24,a32);
 			};
 		})($bind(this,this.onJoystickTrackballMove),joystick));
+	}
+	,__onWindowClose: function(window) {
+		this.onWindowClose(window);
+		HxOverrides.remove(this.__windows,window);
+	}
+	,__class__: lime_app_Module
+};
+var lime_app_Application = function() {
+	this.onUpdate = new lime_app_Event_$Int_$Void();
+	lime_app_Module.call(this);
+	if(lime_app_Application.current == null) lime_app_Application.current = this;
+	this.modules = [];
+	this.windowByID = new haxe_ds_IntMap();
+	this.backend = new lime__$backend_html5_HTML5Application(this);
+	this.registerModule(this);
+};
+lime_app_Application.__name__ = true;
+lime_app_Application.__super__ = lime_app_Module;
+lime_app_Application.prototype = $extend(lime_app_Module.prototype,{
+	addRenderer: function(renderer) {
+		lime_app_Module.prototype.addRenderer.call(this,renderer);
+		var _g = 0;
+		var _g1 = this.modules;
+		while(_g < _g1.length) {
+			var module = _g1[_g];
+			++_g;
+			module.addRenderer(renderer);
+		}
+	}
+	,create: function(config) {
+		this.config = config;
+		this.backend.create(config);
+		if(config != null) {
+			if(Object.prototype.hasOwnProperty.call(config,"fps")) this.backend.setFrameRate(config.fps);
+			if(Object.prototype.hasOwnProperty.call(config,"windows")) {
+				var _g = 0;
+				var _g1 = config.windows;
+				while(_g < _g1.length) {
+					var windowConfig = _g1[_g];
+					++_g;
+					var $window = new lime_ui_Window(windowConfig);
+					this.createWindow($window);
+					break;
+				}
+			}
+			if(this.__preloader == null || this.__preloader.complete) {
+				this.setPreloader(this.__preloader);
+				var _g2 = 0;
+				var _g11 = this.modules;
+				while(_g2 < _g11.length) {
+					var module = _g11[_g2];
+					++_g2;
+					this.setPreloader(this.__preloader);
+				}
+			}
+		}
+	}
+	,createWindow: function(window) {
+		lime_app_Module.prototype.addWindow.call(this,window);
+		var _g = 0;
+		var _g1 = this.modules;
+		while(_g < _g1.length) {
+			var module = _g1[_g];
+			++_g;
+			module.addWindow(window);
+		}
+		if(window.renderer == null) {
+			var renderer = new lime_graphics_Renderer(window);
+			this.addRenderer(renderer);
+		}
+		window.create(this);
+		this.__windows.push(window);
+		this.windowByID.h[window.id] = window;
+		window.onCreate.dispatch();
+	}
+	,exec: function() {
+		lime_app_Application.current = this;
+		return this.backend.exec();
+	}
+	,onModuleExit: function(code) {
+		this.backend.exit();
+	}
+	,onWindowClose: function(window) {
+		this.removeWindow(window);
+	}
+	,removeWindow: function(window) {
+		if(window != null && this.windowByID.h.hasOwnProperty(window.id)) {
+			HxOverrides.remove(this.__windows,window);
+			this.windowByID.remove(window.id);
+			window.close();
+			if(this.__windows[0] == window) this.window = null;
+		}
+	}
+	,setPreloader: function(preloader) {
+		lime_app_Module.prototype.setPreloader.call(this,preloader);
+		var _g = 0;
+		var _g1 = this.modules;
+		while(_g < _g1.length) {
+			var module = _g1[_g];
+			++_g;
+			module.setPreloader(preloader);
+		}
 	}
 	,__class__: lime_app_Application
 });
@@ -5239,6 +4973,8 @@ var lime_math_Matrix3 = function() { };
 lime_math_Matrix3.__name__ = true;
 var lime_math_Vector2 = function() { };
 lime_math_Vector2.__name__ = true;
+var lime_math_Vector4 = function() { };
+lime_math_Vector4.__name__ = true;
 var lime_net_HTTPRequest = function() {
 	this.promise = new lime_app_Promise();
 };
@@ -5273,7 +5009,7 @@ lime_system_System.embed = $hx_exports.lime.embed = function(element,width,heigh
 	var htmlElement = null;
 	if(typeof(element) == "string") htmlElement = window.document.getElementById(js_Boot.__cast(element , String)); else if(element == null) htmlElement = window.document.createElement("div"); else htmlElement = element;
 	var color = null;
-	if(background != null) {
+	if(background != null && background != "") {
 		background = StringTools.replace(background,"#","");
 		if(background.indexOf("0x") > -1) color = Std.parseInt(background); else color = Std.parseInt("0x" + background);
 	}
@@ -5511,7 +5247,7 @@ samples_Sample.prototype = $extend(lime_app_Application.prototype,{
 				this.height = window.__height;
 				break;
 			default:
-				null;
+				console.log("only opengl supported");
 			}
 		}
 	}
@@ -5521,6 +5257,7 @@ samples_Sample.prototype = $extend(lime_app_Application.prototype,{
 		this.peoteView.render(haxe_Timer.stamp() - this.startTime,this.width,this.height,this.mouse_x,this.mouse_y,this.zoom,this.xOffset,this.yOffset);
 	}
 	,onWindowResize: function(window,width,height) {
+		console.log("onWindowResize:" + window.__width + "," + window.__height);
 		this.width = window.__width;
 		this.height = window.__height;
 	}
@@ -5530,31 +5267,35 @@ samples_Sample.prototype = $extend(lime_app_Application.prototype,{
 		this.setOffsets();
 	}
 	,onTouchMove: function(touch) {
+		console.log("onTouchMove: " + touch.x + "," + touch.y);
 		this.mouse_x = touch.x | 0;
 		this.mouse_y = touch.y | 0;
 		this.setOffsets();
 	}
 	,onMouseDown: function(window,x,y,button) {
+		console.log("onMouseDown: x=" + x + " y=" + y);
 		if(button == 0) this.zoom++; else if(button == 1 && this.zoom > 1) this.zoom--;
 		this.setOffsets();
 	}
 	,onMouseUp: function(window,x,y,button) {
-		null;
+		console.log("onmouseup: " + button + " x=" + x + " y=" + y);
 	}
 	,onMouseWheel: function(window,deltaX,deltaY) {
+		console.log("onmousewheel: " + deltaX + "," + deltaY);
 		if(deltaY > 0) this.zoom++; else if(this.zoom > 1) this.zoom--;
 		this.setOffsets();
 	}
 	,onRenderContextLost: function(renderer) {
-		null;
+		console.log(" --------- ERROR :  LOST RENDERCONTEXT ----------- ");
 	}
 	,onRenderContextRestored: function(renderer,context) {
-		null;
+		console.log(" --------- onRenderContextRestored ----------- ");
 	}
 	,onPreloadProgress: function(loaded,total) {
-		null;
+		console.log(" --------- onPreloadProgress ----------- ");
 	}
 	,onPreloadComplete: function() {
+		console.log(" --------- onPreload Complete ----------- ");
 		this.run();
 	}
 	,onKeyDown: function(window,keyCode,modifier) {
@@ -5594,13 +5335,15 @@ samples_GlyphTextRendering.prototype = $extend(samples_Sample.prototype,{
 		this.peoteView.setProgram({ program : 0, texture : 0, fshader : "assets/gl3font.frag"});
 		this.peoteView.setDisplaylist({ displaylist : 0, type : 25, maxElements : 10000, maxPrograms : 1, bufferSegments : 1, x : 0, y : 0, w : 1024, h : 512, renderBackground : true, r : 0.7, g : 0.8, b : 0.9, blend : 1});
 		var fontinfo = new samples_FontInfo("assets/DejavuSans.dat",function(info) {
-			_g.renderTextLine("PeoteView glyph textrendering with ttfcompiled font (thx deltaluca's great gl3font \\o/)",info,18,10,20,1024,1024);
-			_g.renderTextLine("-----------------------------------------------------------------------------------------------------------------",info,18,26,20,1024,1024);
-			_g.renderTextLine("\t!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ",info,18,60,20,1024,1024);
-			_g.renderTextLine("[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ",info,18,90,20,1024,1024);
-			_g.renderTextLine("¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×Ø",info,18,120,20,1024,1024);
-			_g.renderTextLine("ÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ",info,18,150,20,1024,1024);
-			_g.renderTextLine("‘’₯―΄΅ΆΈΉΊΌΎΏΐΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩΪΫάέήίΰαβγδεζηθικλμνξοπρςστυφχψωϊϋόύώ",info,18,180,20,1024,1024);
+			console.log("Loaded Fontdata complete");
+			var ts = 1024;
+			_g.renderTextLine("PeoteView glyph textrendering with ttfcompiled font (thx deltaluca's great gl3font \\o/)",info,18,10,20,ts,ts);
+			_g.renderTextLine("-----------------------------------------------------------------------------------------------------------------",info,18,26,20,ts,ts);
+			_g.renderTextLine("\t!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ",info,18,60,20,ts,ts);
+			_g.renderTextLine("[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ",info,18,90,20,ts,ts);
+			_g.renderTextLine("¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×Ø",info,18,120,20,ts,ts);
+			_g.renderTextLine("ÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ",info,18,150,20,ts,ts);
+			_g.renderTextLine("‘’₯―΄΅ΆΈΉΊΌΎΏΐΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩΪΫάέήίΰαβγδεζηθικλμνξοπρςστυφχψωϊϋόύώ",info,18,180,20,ts,ts);
 		});
 	}
 	,renderTextLine: function(s,info,x,y,scale,texturewidth,textureheight) {
@@ -5618,7 +5361,11 @@ samples_GlyphTextRendering.prototype = $extend(samples_Sample.prototype,{
 				prev_id = id;
 				var w = info.metrics[id].width * scale1;
 				var h = info.metrics[id].height * scale1;
-				_g.peoteView.setElement({ element : _g.element_nr++, x : Math.floor(Math.random() * 1024), y : Math.floor(Math.random() * 480), w : Math.ceil(w * 3), h : Math.ceil(h * 3), rgba : Math.floor(Math.random() * 256) << 24 | Math.floor(Math.random() * 256) << 16 | Math.floor(Math.random() * 256) << 8 | 128 + Math.floor(Math.random() * 128), rotation : 2000 - Math.floor(Math.random() * 4000), pivotX : Math.ceil(w * 1.5), pivotY : Math.ceil(h * 1.5), time : t + 3, end : { x : penX + Math.floor(info.metrics[id].left * scale1), y : penY + Math.floor((info.metrics[id].top - info.metrics[id].height) * scale1), w : Math.ceil(w), h : Math.ceil(h), rgba : 255, pivotX : Math.ceil(w / 2), pivotY : Math.ceil(h / 2), rotation : 0, time : t + 6}, program : 0, tx : Math.round(info.metrics[id].u * texturewidth) - 1, ty : Math.round(info.metrics[id].v * textureheight) - 1, tw : Math.round(info.metrics[id].w * texturewidth) + 1, th : Math.round(info.metrics[id].h * textureheight) + 1, image : 0});
+				var tx = info.metrics[id].u * texturewidth;
+				var ty = info.metrics[id].v * textureheight;
+				var tw = info.metrics[id].w * texturewidth;
+				var th = info.metrics[id].h * textureheight;
+				_g.peoteView.setElement({ element : _g.element_nr++, x : Math.floor(Math.random() * 1024), y : Math.floor(Math.random() * 480), w : Math.ceil(w * 3), h : Math.ceil(h * 3), rgba : Math.floor(Math.random() * 256) << 24 | Math.floor(Math.random() * 256) << 16 | Math.floor(Math.random() * 256) << 8 | 128 + Math.floor(Math.random() * 128), rotation : 2000 - Math.floor(Math.random() * 4000), pivotX : Math.ceil(w * 1.5), pivotY : Math.ceil(h * 1.5), time : t + 1, end : { x : penX + Math.floor(info.metrics[id].left * scale1), y : penY + Math.floor((info.height - info.metrics[id].top) * scale1), w : Math.ceil(w), h : Math.ceil(h), rgba : 255, rotation : 0, pivotX : Math.ceil(w / 2), pivotY : Math.ceil(h / 2), time : t + 4}, program : 0, tx : Math.round(tx) - 1, ty : Math.round(ty) - 1, tw : Math.round(tw) + 1, th : Math.round(th) + 1, image : 0});
 				penX += Math.ceil(info.metrics[id].advance * scale1);
 			}
 		});
@@ -5629,21 +5376,25 @@ var samples_FontInfo = function(file,onload) {
 	var _g = this;
 	var future = lime_Assets.loadBytes(file);
 	future.onProgress(function(progress) {
-		null;
+		console.log("Loading Fontdata Progress: " + progress);
 	});
 	future.onError(function(msg) {
-		null;
+		console.log("Loading Fontdata Error: " + msg);
 	});
 	future.onComplete(function(f) {
 		var pos = 0;
 		var N = f.getInt32(pos);
 		pos += 4;
+		console.log("number of glyphes: " + N);
 		_g.height = f.getFloat(pos);
 		pos += 4;
+		console.log("height: " + _g.height);
 		_g.ascender = f.getFloat(pos);
 		pos += 4;
+		console.log("ascender: " + _g.ascender);
 		_g.descender = f.getFloat(pos);
 		pos += 4;
+		console.log("descender: " + _g.descender);
 		_g.idmap = new haxe_ds_IntMap();
 		var _g1 = [];
 		var _g2 = 0;
