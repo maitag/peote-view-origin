@@ -59,7 +59,27 @@ class ImageCache
 		
 		// TODO: onLoad callback
 		
+		
 		var texture:Texture = textures.get(param.texture);
+
+		// set autoSlots on first image ---------------
+		if (texture.autoSlots == null)
+		{
+			if (param.slot == null && texture.slots > 1) texture.autoSlots = true;
+			else texture.autoSlots = false;
+		}
+
+		if (texture.autoSlots == true )
+		{
+			if (param.slot != null) trace("Error, slot cant be set manually on autoSlots texture");
+		}
+		else // texture.autoSlots == false
+		{
+			if (param.slot == null && texture.slots == 1) param.slot = 0;
+			if (param.slot == null) trace("Error, Image cant be inserted automatically into texture-slot. (autoslot-insert is on)");				
+		}
+		
+		// -----------------------------------------------
 		
 		var img:Image = images.get(param.image);
 		
@@ -72,11 +92,10 @@ class ImageCache
 				//if (param.h == null) param.h = texture.segment_height;
 				// TODO: load into defined texture-slot
 				
-				//images.set(param.image, new Image(param.filename, texture , param.w, param.h) );
-				images.set(param.image, new Image(param.filename, texture , texture.slotWidth, texture.slotHeight) );
+				images.set(param.image, new Image(param, texture) );
 				
 				// preload
-				if (param.preload) useImage(param.image); // TODO: optimize so useImage dont need to get again from vector
+				if (param.preload || !texture.autoSlots) useImage(param.image); // TODO: optimize so useImage dont need to get again from vector
 			}
 			else trace ("Error: no texture specified to put images in");
 			
@@ -118,7 +137,7 @@ class ImageCache
 			{
 				img.url = param.filename;
 				imgLoadQueue.push(img);
-				startLoadQueue(); // queue loading to avoid problems ;)
+				startLoadQueue();
 			}
 		}
 			
@@ -134,36 +153,36 @@ class ImageCache
 	{
 		
 		var img:Image = images.get(image_nr);
-		//trace("useImage: "+image_nr+" img.used= "+(img.used+1)+" ---");
 
 		if (img != null)
 		{
+			//trace("useImage: "+image_nr+" img.used= "+(img.used+1)+" ---");
 			if (img.used++ == 0) // first use
 			{	
 				//trace(" first use");
-				if (img.slot == -1) // not loaded into GL Texture yet
+				if (img.slot == -1 || !img.texture.autoSlots) // not loaded into GL Texture yet
 				{
 					var success:Bool = true;
-					if ( img.texture.isFull() )
+					if (img.texture.autoSlots)
 					{
-						trace("Texture is FULL OF IMAGES :) .. try to clear() ");
-						if (clear() == 0) // try to clean up texture
+						if ( img.texture.isFull() )
 						{
-							trace(" ============ ERROR: Texture Space can't be cleaned and is FULL of used Images ==========");
-							// TODO: create new Texture and store that number inside images
-							success = false;
-							// TODO: return null at end!
+							trace("Texture is FULL OF IMAGES :) .. try to clear() ");
+							if (clear() == 0) // try to clean up texture
+							{
+								trace(" ============ ERROR: Texture Space can't be cleaned and is FULL of used Images ==========");
+								// TODO: create new Texture and store that number inside images
+								success = false;
+								// TODO: return null at end!
+							}
 						}
 					}
+					
 					if (success)
 					{
 						img.texture.reserveImageSlot(img);
-						if (img.url != "") 
-						{
-							imgLoadQueue.push(img);
-							startLoadQueue(); // queue loading to avoid problems ;)
-						}
-						else { trace("ERROR: no image filename (or url) specified"); } // TODO -> may reserve SLOT for "render2texture"-FEATURE ?
+						imgLoadQueue.push(img);
+						startLoadQueue();
 					}
 				}
 			}
@@ -199,7 +218,7 @@ class ImageCache
 	
 	private function onImageLoad(img:Image, w:Int, h:Int, data:UInt8Array):Void
 	{
-		trace("onImageLoad: "+img.url+" gl-texture: "+img.texture+" to holePos:"+img.slot+" ----"+ "("+Math.random()+")");
+		trace("onImageLoad: " + img.url + " gl-texture: " + img.texture+" to holePos:" + img.slot + " ----" + "(" + Math.random() + ")");
 		if (img.slot > -1)
 		{
 			img.texture.storeImage(img, w, h, data);

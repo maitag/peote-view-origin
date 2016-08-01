@@ -37,6 +37,7 @@ class ElementAnim implements I_Element
 	public var act_program:ActiveProgram;
 	public var buf_pos:Int;
 	
+	public var slot:Int = -1;
 	public var image:Int = -1;
 	public var tile:Int = -1;
 	
@@ -73,7 +74,7 @@ class ElementAnim implements I_Element
 		//tile = PeoteView.elementDefaults.tile;	
 	}
 	
-	public inline function set(elemBuff:I_ElementBuffer, param:ElementParam, imageCache:ImageCache):Void
+	public inline function set(elemBuff:I_ElementBuffer, param:ElementParam, imageCache:ImageCache, programCache:ProgramCache):Void
 	{	
 		
 		// TODO: nur bestimmte buffer-werte aendern
@@ -122,6 +123,16 @@ class ElementAnim implements I_Element
 		
 		if (param.z == null) param.z = z;
 		
+		// SLOT
+		if (param.slot == null && PeoteView.elementDefaults.slot != null ) param.slot = PeoteView.elementDefaults.slot;
+		if (param.slot!= null && param.slot != slot)
+		{
+			if (programCache.textures.get(act_program.program_nr) != null)
+			{
+				slot = param.slot;
+			}
+		}
+
 		// IMAGE
 		if (param.image == null && PeoteView.elementDefaults.image != null ) param.image = PeoteView.elementDefaults.image;
 		if (param.image != null && param.image != image)
@@ -132,21 +143,40 @@ class ElementAnim implements I_Element
 				image = param.image;
 			}
 		}
-		if (image != -1)
+		
+		if (slot != -1)
+		{	
+			var texture = programCache.textures.get(act_program.program_nr);
+			param.tx = (slot % texture.slotsX) * texture.slotWidth - ( (param.tx == null) ? 0 : param.tx);
+			param.ty = Math.floor(slot / texture.slotsX) * texture.slotHeight - ((param.ty == null) ? 0 : param.ty);
+			if (param.tw == null) param.tw = texture.slotWidth;
+			if (param.th == null) param.th = texture.slotHeight;
+		}
+		else 		if (image != -1)
 		{	
 			var img = imageCache.getImage(image);
-			if (param.tx == null) param.tx = img.tx;
-			if (param.ty == null) param.ty = img.ty;
+			param.tx = img.tx - ((param.tx == null) ? 0 : param.tx);
+			param.ty = img.ty - ((param.ty == null) ? 0 : param.ty);
 			if (param.tw == null) param.tw = img.tw;
 			if (param.th == null) param.th = img.th;
 		}
 		else 
 		{
+			var texture = programCache.textures.get(act_program.program_nr);
 			if (param.tx == null) param.tx = 0;
 			if (param.ty == null) param.ty = 0;
-			if (param.tw == null) param.tw = param.w;
-			if (param.th == null) param.th = param.h;
+			if (texture != null)
+			{
+				if (param.tw == null) param.tw = texture.max_texture_width;
+				if (param.th == null) param.th = texture.max_texture_height;
+			}
+			else
+			{
+				if (param.tw == null) param.tw = param.w;
+				if (param.th == null) param.th = param.h;
+			}
 		}
+		
 		// TILING IMAGE
 		if (param.tile != null) tile = param.tile;
 		else if (PeoteView.elementDefaults.tile != null) tile = PeoteView.elementDefaults.tile;

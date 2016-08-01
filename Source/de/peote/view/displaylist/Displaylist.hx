@@ -162,7 +162,7 @@ class Displaylist<ELEMENT:{function new():Void;}, BUFFER:{function new(t:Int, b:
 		}
 		//else trace("set element "+param.element+"--------- buf_pos :"+e.buf_pos);
 		
-		e.set(elemBuff, param, imageCache);
+		e.set(elemBuff, param, imageCache, programCache);
 	}
 
 			

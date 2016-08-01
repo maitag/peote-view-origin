@@ -56,6 +56,7 @@ class PeoteView
 			displaylist:0,
 			program:null,
 		
+			slot:null,
 			image:null,
 			tile:null,
 			
@@ -100,7 +101,7 @@ class PeoteView
 		if (param.maxImages == null) param.maxImages = 1;
 		
 		MAX_TEXTURE_SIZE = GL.getParameter(GL.MAX_TEXTURE_SIZE);
-
+		#if debugshader
 		trace("GL.MAX_TEXTURE_IMAGE_UNITS:" + GL.getParameter(GL.MAX_TEXTURE_IMAGE_UNITS));
 		trace("GL.MAX_COMBINED_TEXTURE_IMAGE_UNITS:" + GL.getParameter(GL.MAX_TEXTURE_IMAGE_UNITS));
 		trace("GL.MAX_VERTEX_TEXTURE_IMAGE_UNITS:" + GL.getParameter(GL.MAX_VERTEX_TEXTURE_IMAGE_UNITS));
@@ -108,7 +109,7 @@ class PeoteView
 		trace("GL.MAX_VERTEX_ATTRIBS:" + GL.getParameter(GL.MAX_VERTEX_ATTRIBS));
 		trace("GL.MAX_VERTEX_UNIFORM_VECTORS:" + GL.getParameter(GL.MAX_VERTEX_UNIFORM_VECTORS));
 		trace("GL.MAX_FRAGMENT_UNIFORM_VECTORS:" + GL.getParameter(GL.MAX_FRAGMENT_UNIFORM_VECTORS));
-		
+		#end
 		
 		textures = new Vector<Texture>(param.maxTextures);
 		imageCache = new ImageCache(param.maxImages, textures);

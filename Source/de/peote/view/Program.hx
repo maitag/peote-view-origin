@@ -187,9 +187,10 @@ class Program
 		
 		// reformat to debug
 		var r:EReg = new EReg(";", "g");
+		#if debugshader
 		trace("VERTEXSHADER:\n"+r.replace(vertexShaderSrc, ";\n"));
 		trace("FRAGMENTSHADER:\n"+r.replace(fragmentShaderSrc, ";\n"));
-		
+		#end
 		// -----------------------------------------------------------------------
 		var fs = GL.createShader(GL.FRAGMENT_SHADER);
 		GL.shaderSource(fs, fragmentShaderSrc);
@@ -232,7 +233,9 @@ class Program
 				if (elemBuff != null)
 				{	if (elemBuff.attr == null)
 					{
+						#if debugshader
 						trace( "ANZAHL " + GL.getProgramParameter(glProgram, GL.ACTIVE_ATTRIBUTES) );
+						#end
 						//elemBuff.attr = new Vector<Int>(GL.getProgramParameter(glProgram, GL.ACTIVE_ATTRIBUTES));
 						elemBuff.attr = new Vector<Int>(12); // <- TODO!!! (optimize)
 						
@@ -243,7 +246,9 @@ class Program
 						for (i in 0 ... GL.getProgramParameter(glProgram, GL.ACTIVE_ATTRIBUTES))
 						{	
 							name = GL.getActiveAttrib(glProgram, i).name;
+							#if debugshader
 							trace( name + ":" + GL.getAttribLocation(glProgram, name) );
+							#end
 							switch (name)
 							{
 								case "aPosition":	elemBuff.attr.set(aPOSITION,  GL.getAttribLocation(glProgram, name) );
@@ -265,8 +270,10 @@ class Program
 				for (i in 0 ... GL.getProgramParameter(glProgram, GL.ACTIVE_UNIFORMS))
 				{	
 					name = GL.getActiveUniform(glProgram, i).name;
+					#if debugshader
 					//trace( name + ":" + (GL.getActiveUniform(glProgram, i).type == GL.FLOAT_VEC2) );
 					trace( name + ":" + GL.getUniformLocation(glProgram, name) );
+					#end
 					switch (name)
 					{
 						case "uMouse":				uniforms.set(uMOUSE,            GL.getUniformLocation(glProgram, name) );

@@ -10,6 +10,7 @@ typedef ImageParam =
 	image:Int,
 
 	?texture:Int,
+	?slot:Int,
 	
 	filename:String,
 	//?bitmap:Bitmap,

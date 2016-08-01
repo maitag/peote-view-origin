@@ -53,6 +53,8 @@ class Texture
 	
 	public var slots:Int = 1;
 	
+	public var autoSlots:Null<Bool> = null;
+	
 	public function new(param:TextureParam) 
 	{
 		
@@ -107,7 +109,7 @@ class Texture
 		
 	public inline function reserveImageSlot(img:Image):Void
 	{
-		img.slot = slotHoles.getHole();
+		if (autoSlots) img.slot = slotHoles.getHole();
 		img.tx = (img.slot % slotsX) * slotWidth;
 		img.ty = Math.floor(img.slot / slotsX) * slotHeight;
 	}

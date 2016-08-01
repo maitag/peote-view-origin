@@ -162,7 +162,7 @@ class GlyphTextRendering extends Sample
 				var th:Float = info.metrics[id].h * textureheight; // trace(charcode, "h:"+info.metrics[id].height, "t:"+info.metrics[id].top );
 				peoteView.setElement({
 					element:element_nr++,
-					/*x:random(1024),
+					x:random(1024),
 					y:random(480),
 					w:Math.ceil(w*3),
 					h:Math.ceil(h*3),
@@ -170,9 +170,9 @@ class GlyphTextRendering extends Sample
 					rotation:2000-random(4000),
 					pivotX:Math.ceil(w*1.5),
 					pivotY:Math.ceil(h*1.5),
-					time:t+3,
-					*/
-					//end: {
+					time:t+1,
+					
+					end: {
 						x:penX + Math.floor(info.metrics[id].left * scale),
 						//y: penY +  Math.floor(( info.height - info.metrics[id].height + info.metrics[id].top ) * scale),
 						y: penY +  Math.floor(( info.height - info.metrics[id].top ) * scale),
@@ -180,11 +180,11 @@ class GlyphTextRendering extends Sample
 						w:Math.ceil(w),
 						h:Math.ceil(h),
 						rgba:0x000000FF,
-						//rotation:0,
-						//pivotX:Math.ceil(w / 2),
-						//pivotY:Math.ceil(h / 2),
-						//time:t+6
-					//},
+						rotation:0,
+						pivotX:Math.ceil(w / 2),
+						pivotY:Math.ceil(h / 2),
+						time:t+4
+					},
 					program:0,
 					tx:Math.round(tx)-1,
 					ty:Math.round(ty)-1,

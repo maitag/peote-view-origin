@@ -1,31 +1,35 @@
 ###Peote View - 2D OpenGL Render Library
 
-This is a [Haxe](http://haxe.org) library with [Lime](https://github.com/openfl/lime) sugar.
+This library is written in [Haxe](http://haxe.org) programming language sugar,  
+together with power of great [Lime](https://github.com/openfl/lime) multiplatform work.  
 
--> to use inside "webbrowser" look [here](https://github.com/maitag/peoteView.js). 
+To use as simple js-lib (for stupid webbrowsers) look [here](https://github.com/maitag/peoteView.js)!  
 
+####Build [Samples (^_^) <-](http://maitag.github.io/peote-view/)
 
-
-####Build [Samples (^_^)](http://maitag.github.io/peote-view/)
-
-- check [peoteView.lime](https://github.com/maitag/peote-view/blob/master/peoteView.lime#L10) to see what will be compiled
-- build with: `lime build peoteView.lime linux` ( | html5 | windows | android | raspi | rpi | ...)
+- check: [peoteView.lime](https://github.com/maitag/peote-view/blob/master/peoteView.lime#L10) to see what will be compiled
+- build: `lime build peoteView.lime linux` ( | html5 | windows | android | raspi | rpi | ...)
 - start new sample and play around
 
 
 ####Why this tool ?
 
 - handle imagedata and procedural shadercode equal
-- power of haxe-lime multiplatform code generation ( haxe -> cpp+js+java+.. )
+- power of haxe-lime multiplatform code generation ( haxe -> cpp+js+.+..+... )
 - better sync over network by element-indices (to avoid deep object-serialization)
-- simplify opengl-usage (using power of 3d accelerated hardware in other Dimensions;)
-- transition-rendering by gpu-shader to reduce cpu->gpu datatransfer (more time for game-logic on cpu)
+- simplifying opengl-usage (using power of 3d accelerated hardware in other Dimensions;)
+- transition-rendering by gpu to reduce datatransfer (more time for game-logic on cpu)
 
 
 ####How to use
 
-PeoteViews is a collection of Displaylists, Programs, Textures and Images.
-That Items will be reserved in a "static way" to get best performance.
+```
+"Displaylist"  contains much "Element"  
+"Element"      is defined by "Program"  
+"Program"      "Texture" and Shadercode
+"Texture"      acts as image-cache
+"Image"        to load into "Texture"-Slot  
+```
 
 #####0) Initialize
 ```
@@ -60,12 +64,9 @@ A Texture reserves space on GPU-Ram for storing Images into same sized Slots.
 	
 	peoteView.setTexture({   texture: 0,
 	
-		slots: 16,        // How much slots, images can be stored in
-		w:  512,          // Slot width
-		h:  512,          // Slot height
-		
-		cache: false,    // images uses free slots automatically
-		                 // false:  all images needs defined slot number
+		slots: 16,        // How much Images can be saved into ( default is 1 )
+		w:     512,       // Slot width
+		h:     512,       // Slot height
 	});
 ```	
 	
@@ -77,7 +78,7 @@ Check peoteView.MAX_TEXTURE_SIZE to see whats possible on your hardware.
 #####2) Image-Data
 
 Images holds url- or file-referenz, where imagedata will be "load on demand", so
-if some element use an image, it's Data will be load into free Image-Slot of assigned Texture.
+if some element use an image, it's data will be load into free Image-Slot of assigned Texture.
 ```
 	// --------------------- IMAGE ----------------------- //
 	
@@ -85,17 +86,48 @@ if some element use an image, it's Data will be load into free Image-Slot of ass
 	
 		texture: 0,                   // texture to store image-data inside
 		                              // (will be scaled if not fit into texture-slot)
+
+		// cache: true,               // TODO: loaded imagedata will be cached (outside texture)
 		
 		filename: "assets/font.png",  // image filename or url to load image from
 									  
+		
 		preload: true ,               // load images into texture, no matter of usage 
-									  // default behaivor: Image is loaded on first use
+		                              // default behaivor: Image is loaded on first use of element
 
-		// TODO: -------------
-		onFull:     function() {} ,      // all texture slots full of images
-		onLoad:     function(w,h) {},    // image is loaded
-		onProgress: function(p) {},	     // while image loads
-		onError:    function(msg) {},    // loading error		
+		
+		// to disable automatic insert into free texture-slot:
+		
+		slot: 0,					  // manual set Texture-Slot to load Image in
+                                      // all Images of same Texture should define or not define this parameter
+		
+		
+		// TODO in next milestone:
+		
+		// Callback Events ------------------------------------------
+		onLoad:     function(w,h) {},	  // callback if image is loaded
+		onProgress: function(p) {},	      // callback while image loads
+		onError:    function(error, msg) {},	  // callback on loading error -> eorror==0 -> no free texture slot
+		
+		// How image will be fitted and aligned after loading inside texture-slot
+		// ----------------------------------------------------------------------
+		
+		alignX : "center",
+		alignY : "top",
+		scale  :  true,	   // add "scaleUp:false" to disable upscaling
+		fit    : "in",     // "in", "out" ot "exact"
+		
+		bg: 0xff0022ff;    // background color for border if not exactly fit
+		
+		// or posit directly inside texture-slot
+		x:  10,   	        // Position from left
+		y:  10,             // Position from right
+		w:100,              // new image width
+		h:100,              // new image height
+
+		// together with this to create your own texture-atlas
+		overwrite: false   // dont override existing pixels with background-color
+		
 	});
 	
 ```
@@ -114,9 +146,9 @@ opengl-shadercode and textures that can be use
 		vshader: "assets/lyapunov_01.vert",   // optional, no need of custom shader here,
 		fshader: "assets/lyapunov_01.frag",   // if displaying images only
 		
-		texture: 0,  // only images stored inside this texture can be used
+		texture: 0,  // all images stored inside this texture can be used
 
-		// OR - give pixelshader acces to combine multiple textures
+		// alternatively you can combine multiple textures with own shadercode
 		// textures:[0,2,1,4]   // max 7 aditional textures available per program-shader
 		
 	});
@@ -146,6 +178,8 @@ rectangular screen-areas to display lots of elements
 		h:1000,	                // height
 		z:0,
 		
+		renderToTexture: 0, // TODO: texture to render content in
+		
 		enable: true
 	});
 ```
@@ -163,23 +197,26 @@ little Graphic inside Displaylist-Area (like a c64-sprite)
 
 		displaylist: 0,
 		
-		program: 0,
-		image: 0,       // image number if program use texture
-
-		// tile:  0,       // 0..255 (texture coordinates will be splittet into 16x16 tiles)
+		program: 0,      // here is texture defined to
+		
+		// Texture Mapping ---------------
+		image: 0,        // image number from texture
+		// slot: 0,      // or set texture-slot manual
+		                 // without image+slot parameter -> full texturespace
+		
+		tile:  0,        // (0..255) texture coordinates will be splittet into 16x16 tiles
+		
 		// tx, ty, -> manual setting texture-coordinates shifting
 		// tw ,th  -> manual setting texture-coordinates size
 		
-		// Position and Size
+		// Position and Size ---------------
 		x: 10,	// pixels from left displaylist border
 		y: 10,	// pixels from top displaylist border
 		w: 100,	// width
 		h: 100,	// height
 		z: 0    // z-order   ( 0 <= z <= 32767 )
 		
-		// rotation:90, pivotX:5, pivotY:5,
-		// rgba:0xFF4422FF,
-		// ( to animate by gpu -> see samples!)
+		// (rotation, animation, coloring ... -> see samples)
 	});
 ```
 
@@ -187,22 +224,22 @@ little Graphic inside Displaylist-Area (like a c64-sprite)
 
 #####How to optimize render-loop:
 
-- order Displaylists like:
+- order displaylists functional:
 	1) game-gfx 
 	2) user-interface (DisplaylistType.PICK to interact with Elements)
 	
-- Elements with same program will be drawn fastest (throught opengl drawarray)
-- to stream Elements In/Out fast,  use only 1 bufferSegment in Displaylist
+- elements with same program will be drawn fastest (throught opengl drawarray)
+- use only 1 bufferSegment in Displaylist if there is only one program ;)
 
 
 
 ####Todo
 
-- render to texture
 - image alignment inside texture-slot
-- more demos
-- more image-encodings (for cpp only png per http)
-- tile-animations on gpu (for simple walkcyle sprite-demo)
+- render to texture
+- more simple samples, usability and platform tests, api improvement, optimization
+- tile animation on gpu
+- more demos ;)
 - documentation
 
 

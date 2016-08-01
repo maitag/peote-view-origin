@@ -17,7 +17,7 @@ typedef ElementParam =
 	?time:Float,
 	
 	?tx:Int, ?ty:Int, ?tw:Int, ?th:Int,
-	?z:Int, ?program:Int, ?image:Int, ?tile:Int,
+	?z:Int, ?program:Int, ?slot:Int, ?image:Int, ?tile:Int,
 	
 	?rgba:Int, // UInt doesnt work in cpp
 
