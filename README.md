@@ -1,6 +1,6 @@
 ###Peote View - 2D OpenGL Render Library
 
-This library is written in [Haxe](http://haxe.org) programming language sugar,  
+This library is written with the syntactic sugar of [Haxe](http://haxe.org),  
 together with power of great [Lime](https://github.com/openfl/lime) multiplatform work.  
 
 To use as simple js-lib (for stupid webbrowsers) look [here](https://github.com/maitag/peoteView.js)!  
@@ -14,8 +14,8 @@ To use as simple js-lib (for stupid webbrowsers) look [here](https://github.com/
 
 ####Why this tool ?
 
-- handle imagedata and procedural shadercode equal
-- power of haxe-lime multiplatform code generation ( haxe -> cpp+js+.+..+... )
+- handle imagedata and procedural shadercode equally
+- the power of haxe-lime multiplatform code generation ( haxe -> cpp+js+.+..+... )
 - better sync over network by element-indices (to avoid deep object-serialization)
 - simplifying opengl-usage (using power of 3d accelerated hardware in other Dimensions;)
 - transition-rendering by gpu to reduce datatransfer (more time for game-logic on cpu)
