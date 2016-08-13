@@ -34,6 +34,7 @@ import de.peote.view.texture.Texture;
 
 import haxe.ds.Vector;
 import haxe.ds.IntMap;
+import haxe.ds.StringMap;
 
 import lime.Assets;
 
@@ -44,6 +45,7 @@ class ProgramCache
 	
 	public var program:Vector<IntMap<Program>>;
 	public var programTextures:Vector<ActiveTextures>;
+	public var programUniforms:Vector<Uniforms>;
 	
 	//public var defaultprogramTexture:ActiveTextures;
 	
@@ -61,6 +63,7 @@ class ProgramCache
 		
 		program = new Vector<IntMap<Program>>(max_programs);
 		programTextures = new Vector<ActiveTextures>(max_programs); // array of texture-numbers to use
+		programUniforms = new Vector<Uniforms>(max_programs); // array of custom Uniforms
 
 		for (i in 0...max_programs) {
 			program.set(i, new IntMap<Program>() );
@@ -95,6 +98,7 @@ class ProgramCache
 		{
 			var p = new Program();
 			p.compile( elemBuff, type, null, //defaultprogramTexture, // TODO: fuer alles defaultS
+						null,  // no custom uniform vars
 						elemBuff.getDefaultFragmentShaderSrc(),
 						elemBuff.getDefaultVertexShaderSrc(),
 						onerror
@@ -125,12 +129,13 @@ class ProgramCache
 				if (fs == null ) fs = elemBuff.getDefaultFragmentShaderSrc();
 				if (vs == null ) vs = elemBuff.getDefaultVertexShaderSrc();
 
-				p.compile(elemBuff, type, textureUnits, fs, vs, onerror);
+				p.compile(elemBuff, type, textureUnits, programUniforms.get(nr), fs, vs, onerror);
 			}
 			else
 			{
 				p = new Program(defaultProgram.get(type));
 			}
+			
 			program.get(nr).set(type, p );
 		}
 		return(p);
@@ -170,11 +175,19 @@ class ProgramCache
 		}
 		
 		// set Shaders if changed
-		if (param.fshadersrc != null || param.vshadersrc != null)
+		if (param.fshaderSrc != null || param.vshaderSrc != null)
 		{
 			var pmap:IntMap<Program> = program.get(param.program);
 			var default_fs:String;
 			var default_vs:String;
+			
+			// custom uniform vars
+			var customUniforms:Uniforms = null;
+			if (param.vars != null)	
+			{
+				customUniforms = new Uniforms(param.vars);
+				programUniforms.set(param.program, customUniforms );
+			}
 			
 			for (type in pmap.keys())
 			{
@@ -191,17 +204,17 @@ class ProgramCache
 				}
 				trace("setShaderSrc:" + type);
 				
-				if (param.fshadersrc == '' )
-					pmap.get(type).compile(null, type, textureUnits, default_fs, param.vshadersrc, onerror);
-				else if (param.vshadersrc == '' )
-					pmap.get(type).compile(null, type, textureUnits, param.fshadersrc, default_vs, onerror);
+				if (param.fshaderSrc == '' )
+					pmap.get(type).compile(null, type, textureUnits, customUniforms, default_fs, param.vshaderSrc, onerror);
+				else if (param.vshaderSrc == '' )
+					pmap.get(type).compile(null, type, textureUnits, customUniforms, param.fshaderSrc, default_vs, onerror);
 				else
-					pmap.get(type).compile(null, type, textureUnits, param.fshadersrc, param.vshadersrc, onerror);
+					pmap.get(type).compile(null, type, textureUnits, customUniforms, param.fshaderSrc, param.vshaderSrc, onerror);
 				
 			}
 			
-			if (param.fshadersrc != '' ) fragmentShaderSrc.set(param.program, param.fshadersrc);
-			if (param.vshadersrc != '' ) vertexShaderSrc.set(param.program, param.vshadersrc);	
+			if (param.fshaderSrc != '' ) fragmentShaderSrc.set(param.program, param.fshaderSrc);
+			if (param.vshaderSrc != '' ) vertexShaderSrc.set(param.program, param.vshaderSrc);	
 		}
 	}
 

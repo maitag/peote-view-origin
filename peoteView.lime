@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 	
-	<meta title="PeoteView" package="de.peote.view" version="0.2.5" company="Sylvio Sell - maitag" />
+	<meta title="PeoteView" package="de.peote.view" version="0.5.5" company="Sylvio Sell - maitag" />
 	
 	<!-- choose sample to build: -->
-         <app main="samples.StartNewSample"      path="Export" file="NewSample" />
+    <app main="samples.StartNewSample"      path="Export" file="NewSample" />
 	<!-- <app main="samples.GlyphUnicodeTextRendering"  path="Export" file="GlyphUnicodeTextRendering" /> -->         
 	<!-- <app main="samples.GlyphTextRendering"  path="Export" file="GlyphTextRendering" /> -->         
 	<!-- <app main="samples.MassAnim"            path="Export" file="MassAnim" /> -->
@@ -32,21 +32,21 @@
 	<!-- shader float precision for html5 and raspberry pi and android -->
 	<haxedef name="peote_vert_medium_precision" if="html5||rpi||android" />
 	<haxedef name="peote_frag_medium_precision" if="html5||rpi||android" /><!-- midestens -->
+	<!-- <haxedef name="debugshader" /> -->
 
 	<!-- -Dwebgl -debug -->
 	
-	<haxeflag name="-dce" value="full" if="cpp||android" />
-	<!-- <haxedef name="dce-debug" if="cpp" /> ->
+	<!-- <haxedef name="dce-debug" if="cpp" /> -->
 	<!-- <haxedef name="absolute-path" if="cpp" /> -->
 	<!-- <haxedef name="no-inline" if="cpp" /> -->
-	<!-- <haxedef name="no-opt"  if="cpp" />-->
+	<!-- <haxedef name="no-opt"  if="cpp" /> -->
 	
-	<!--<haxedef name="no-traces" />-->
+	<!-- <haxedef name="no-traces" /> -->
 	
-	<!--<haxedef name="HXCPP_M64" if="cpp" />-->
+	<!-- <haxedef name="HXCPP_M64" if="cpp" /> -->
 	
-	<!-- cool... full dead code elimination on html5 reduces js-code (default dce is std only) -->
-	<haxeflag name="-dce" value="full" if="html5" />
+	<!-- full dead code elimination on html5 reduces js-code (default dce is std only) -->
+	<haxeflag name="-dce" value="full" if="cpp||android||html5" />
 	
 	<assets path="Assets" rename="assets" exclude="lime.svg" />
 	<icon path="Assets/lime.svg" />

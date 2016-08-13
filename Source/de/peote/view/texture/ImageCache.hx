@@ -218,10 +218,10 @@ class ImageCache
 	
 	private function onImageLoad(img:Image, w:Int, h:Int, data:UInt8Array):Void
 	{
-		trace("onImageLoad: " + img.url + " gl-texture: " + img.texture+" to holePos:" + img.slot + " ----" + "(" + Math.random() + ")");
+		trace("onImageLoad: " + img.url + " gl-texture: " + img.texture+" to holePos:" + img.slot + " w:" + w +" h:"+h);
 		if (img.slot > -1)
 		{
-			img.texture.storeImage(img, w, h, data);
+			img.texture.storeImage(img, data);
 		}
 		loadNextImage();
 	}

@@ -141,6 +141,7 @@ class ElementAnim implements I_Element
 			if (imageCache.useImage(param.image) != null)
 			{
 				image = param.image;
+				if (param.slot == null) slot = -1;
 			}
 		}
 		
@@ -152,7 +153,7 @@ class ElementAnim implements I_Element
 			if (param.tw == null) param.tw = texture.slotWidth;
 			if (param.th == null) param.th = texture.slotHeight;
 		}
-		else 		if (image != -1)
+		else if (image != -1)
 		{	
 			var img = imageCache.getImage(image);
 			param.tx = img.tx - ((param.tx == null) ? 0 : param.tx);

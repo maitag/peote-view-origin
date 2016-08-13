@@ -75,8 +75,10 @@ class Texture
 				slots = p.slots;
 				slotsX = p.sx;
 				slotsY = p.sy;
-				max_texture_width = p.w;
-				max_texture_height = p.h;
+				//max_texture_width = p.w;
+				//max_texture_height = p.h;
+				max_texture_width = slotsX*slotWidth;
+				max_texture_height = slotsY*slotHeight;
 				
 				slotHoles = new Holes(slotsX*slotsY);
 				trace("TextureCache: slotsX=" + slotsX + " slotWidth=" + slotWidth
@@ -110,16 +112,18 @@ class Texture
 	public inline function reserveImageSlot(img:Image):Void
 	{
 		if (autoSlots) img.slot = slotHoles.getHole();
-		img.tx = (img.slot % slotsX) * slotWidth;
-		img.ty = Math.floor(img.slot / slotsX) * slotHeight;
+		//img.tx += (img.slot % slotsX) * slotWidth;
+		//img.ty += Math.floor(img.slot / slotsX) * slotHeight;
 	}
 		
-	public inline function storeImage(img:Image, w:Int, h:Int, data:UInt8Array):Void
+	public inline function storeImage(img:Image, data:UInt8Array):Void
 	{
 		createSubTexture( texture,
-			(img.slot % slotsX) * slotWidth,
-			Math.floor(img.slot / slotsX) * slotHeight,
-			w, h, data
+			//(img.slot % slotsX) * slotWidth + img.tx,
+			img.tx,
+			//Math.floor(img.slot / slotsX) * slotHeight +img.ty,
+			img.ty,
+			img.tw, img.th, data
 		);
 	}
 	

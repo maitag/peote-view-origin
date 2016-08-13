@@ -1,17 +1,13 @@
 package de.peote.view;
-
-/**
- * ...
- * @author Sylvio Sell
- */
-
+import haxe.ds.StringMap;
 typedef ProgramParam =
 {
 	program:Int,
 	?fshader:String,
 	?vshader:String,
-	?fshadersrc:String,
-	?vshadersrc:String,
+	?fshaderSrc:String,
+	?vshaderSrc:String,
 	?texture:Int,
-	?textures:Array<Int>
+	?textures:Array<Int>,
+	?vars:StringMap<Array<Dynamic>>
 }

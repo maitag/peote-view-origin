@@ -96,6 +96,7 @@ class ElementSimple implements I_Element
 			if (imageCache.useImage(param.image) != null)
 			{
 				image = param.image;
+				if (param.slot == null) slot = -1;
 			}
 		}
 		

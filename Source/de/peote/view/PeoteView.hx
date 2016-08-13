@@ -262,11 +262,11 @@ class PeoteView
 	// ------------------------------------------------------------------------------------------------------
 	public inline function setProgram(param:ProgramParam):Void
 	{	
-		if (param.fshadersrc == null && param.fshader != null) {
-			param.fshadersrc = programCache.loadShader(param.fshader);
+		if (param.fshaderSrc == null && param.fshader != null) {
+			param.fshaderSrc = programCache.loadShader(param.fshader);
 		}
-		if (param.vshadersrc == null && param.vshader != null) {
-			param.vshadersrc = programCache.loadShader(param.vshader);
+		if (param.vshaderSrc == null && param.vshader != null) {
+			param.vshaderSrc = programCache.loadShader(param.vshader);
 		}
 		programCache.setProgram(param);
 	}
@@ -425,12 +425,15 @@ class PeoteView
 				}
 				
 				// UNIFORMS
-				GL.uniform2f (ap.program.uniforms.get(Program.uMOUSE),(mouseX / width) * 2 - 1,(mouseY / height) * 2 - 1); // remap from -1 to +1
+				//GL.uniform2f (ap.program.uniforms.get(Program.uMOUSE),(mouseX / width) * 2 - 1,(mouseY / height) * 2 - 1); // remap from -1 to +1
 				//GL.uniform2f (ap.program.uniforms.get(Program.uRESOLUTION), (dl.w!=0) ? dl.w : width, (dl.h != 0) ? dl.h : height);
 				GL.uniform2f (ap.program.uniforms.get(Program.uRESOLUTION), width, height);
 				GL.uniform1f (ap.program.uniforms.get(Program.uTIME),  time);
 				GL.uniform1f (ap.program.uniforms.get(Program.uZOOM),  dl.zoom * zoom);
 				GL.uniform2f (ap.program.uniforms.get(Program.uDELTA), dl.x + dl.xOffset + xOffset, dl.y + dl.yOffset + yOffset);
+				
+				if (ap.program.customUniforms != null) ap.program.customUniforms.update();
+				
 				//draw
 				GL.drawArrays (GL.TRIANGLE_STRIP,  ap.start,  ap.size);
 				
@@ -620,6 +623,9 @@ class PeoteView
 			GL.uniform1f (ap.program.uniforms.get(Program.uTIME),  time);
 			GL.uniform1f (ap.program.uniforms.get(Program.uZOOM),  dl.zoom * zoom);
 			GL.uniform2f (ap.program.uniforms.get(Program.uDELTA), dl.x + dl.xOffset + xOffset, dl.y + dl.yOffset + yOffset);
+
+			if (ap.program.customUniforms != null) ap.program.customUniforms.update();
+			
 			//draw
 			GL.drawArrays (GL.TRIANGLE_STRIP,  ap.start,  ap.size);
 			

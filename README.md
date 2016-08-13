@@ -3,7 +3,7 @@
 This library is written with the syntactic sugar of [Haxe](http://haxe.org),  
 together with power of great [Lime](https://github.com/openfl/lime) multiplatform work.  
 
-To use as simple js-lib (for stupid webbrowsers) look [here](https://github.com/maitag/peoteView.js)!  
+To use from javascript look here -> [peoteView.js](https://github.com/maitag/peoteView.js).  
 
 ####Build [Samples (^_^) <-](http://maitag.github.io/peote-view/)
 
@@ -62,11 +62,14 @@ A Texture reserves space on GPU-Ram for storing Images into same sized Slots.
 ```
 	// --------------------- TEXTURE -------------------- //
 	
-	peoteView.setTexture({   texture: 0,
+	peoteView.setTexture({ 
+
+		texture: 0,       // texture index
 	
-		slots: 16,        // How much Images can be saved into ( default is 1 )
-		w:     512,       // Slot width
-		h:     512,       // Slot height
+		slots: 16,        // minimum amount of slots to reserve ( default is 1 )
+
+		w:     512,       // slot width
+		h:     512,       // slot height
 	});
 ```	
 	
@@ -82,80 +85,85 @@ if some element use an image, it's data will be load into free Image-Slot of ass
 ```
 	// --------------------- IMAGE ----------------------- //
 	
-	peoteView.setImage({     image: 0,
+	peoteView.setImage({
+
+		image:   0,                    // image index
 	
-		texture: 0,                   // texture to store image-data inside
-		                              // (will be scaled if not fit into texture-slot)
+		texture: 0,                    // texture to store image-data inside
 
-		// cache: true,               // TODO: loaded imagedata will be cached (outside texture)
-		
-		filename: "assets/font.png",  // image filename or url to load image from
-									  
-		
-		preload: true ,               // load images into texture, no matter of usage 
-		                              // default behaivor: Image is loaded on first use of element
+		filename: "assets/font.png",   // image filename or url to load image from
 
+		preload: true ,                // load images into texture, no matter of usage 
+		                               // default behaivor: Image is loaded on first use of element
+		
+		// cache: true,                // (TODO) loaded imagedata will be cached (outside gpu-texture-ram)
+		
 		
 		// to disable automatic insert into free texture-slot:
+		// ---------------------------------------------------
 		
-		slot: 0,					  // manual set Texture-Slot to load Image in
-                                      // all Images of same Texture should define or not define this parameter
+		slot: 0,                      // manual set texture-slot to load image in
+                                      // all images of same texture should define or not define this parameter
 		
 		
-		// TODO in next milestone:
+		// image fitting and aligning inside texture-slot:
+		// -----------------------------------------------
 		
-		// Callback Events ------------------------------------------
-		onLoad:     function(w,h) {},	  // callback if image is loaded
-		onProgress: function(p) {},	      // callback while image loads
-		onError:    function(error, msg) {},	  // callback on loading error -> eorror==0 -> no free texture slot
+		fit: "in",               // "in", "out" or "exact" fitting loaded image into slot size
+		// align: "top"          // (TODO) "top left" and such things
+		// scaleUp  :  false,    // (TODO) only scale down (images smaller than size of texture-slot dont scale up) 
+		// rgba: 0xff0022ff;     // (TODO) background color for border if not exactly fit
 		
-		// How image will be fitted and aligned after loading inside texture-slot
-		// ----------------------------------------------------------------------
 		
-		alignX : "center",
-		alignY : "top",
-		scale  :  true,	   // add "scaleUp:false" to disable upscaling
-		fit    : "in",     // "in", "out" ot "exact"
+		// posit directly inside texture-slot to create own texture-atlas:
+		// ---------------------------------------------------------------
 		
-		bg: 0xff0022ff;    // background color for border if not exactly fit
-		
-		// or posit directly inside texture-slot
-		x:  10,   	        // Position from left
+		keep: true,         // keep existing pixels in slot if image is smaller that slot-size
+		x:  10,             // Position from left
 		y:  10,             // Position from right
-		w:100,              // new image width
-		h:100,              // new image height
+		w: 100,             // new image width
+		h: 100,             // new image height
 
-		// together with this to create your own texture-atlas
-		overwrite: false   // dont override existing pixels with background-color
+		// callbacks (TODO)
+		onLoad:     function(w,h) {},         // callback if image is loaded
+		onProgress: function(p) {},           // callback while image loads
+		onError:    function(error, msg) {},  // callback on loading error -> eorror==0 -> no free texture slot
 		
 	});
 	
 ```
 
-		
+
 
 #####3) Program (GPU-Shader)
 
 opengl-shadercode and textures that can be use
 
 ```
-	// --------------------- PROGRAM --------------------- //
+	var iteration  = [10];
+	var somefloats = [2.0, 3.14, 4.1];
 	
-	peoteView.setProgram({   program: 0,
-	
-		vshader: "assets/lyapunov_01.vert",   // optional, no need of custom shader here,
-		fshader: "assets/lyapunov_01.frag",   // if displaying images only
-		
-		texture: 0,  // all images stored inside this texture can be used
+	// --------------------- PROGRAM --------------------------- //
+	peoteView.setProgram({
 
-		// alternatively you can combine multiple textures with own shadercode
-		// textures:[0,2,1,4]   // max 7 aditional textures available per program-shader
+		program: 0,                           // program index
+	
+		vshader: "assets/lyapunov_01.vert",   // custom vertex shader
+		fshader: "assets/lyapunov_01.frag",   // custom fragment shader
 		
+		texture: 0,                           // all images stored inside this texture can be used
+
+		// textures:[0,2,1,4]                 // to combine multiple textures with own shadercode
+		                                      // max 7 aditional textures available per program
+		
+		vars: [ "iteration" => iteration,     // custom uniform variable bindings for this program
+		        "somefloat" => somefloats
+		      ]
 	});
-```		
-		
+```
 
-		
+
+
 
 #####4) Displaylist
 
@@ -164,19 +172,21 @@ rectangular screen-areas to display lots of elements
 ```
 	// ------------------------- DISPLAYLIST -------------- //
 
-	peoteView.setDisplaylist({   displaylist: 0,
+	peoteView.setDisplaylist({
+
+		displaylist: 0,                          // displaylist index
 		
-		type:DisplaylistType.RGBA,  // can be combination of .PICKING  .ANIM   .ROTATION...
+		type:DisplaylistType.RGBA,               // can be combination of .PICKING  .ANIM   .ROTATION...
 		
-		maxElements:    100,	// maximum elements to display
-		maxPrograms:     10,	// maximum different shader-programs
-		bufferSegments:  10,	// gpu-buffer segmentation (can be result in better performance for I/O)
+		maxElements:    100,                     // maximum elements to display
+		maxPrograms:     10,                     // maximum different shader-programs
+		bufferSegments:  10,                     // gpu-buffer segmentation (can be result in better performance for I/O)
 		
-		x:150,	                // pixels from left border
-		y:50,	                // pixels from top border
-		w:1000,	                // width
-		h:1000,	                // height
-		z:0,
+		x: 150,                                  // pixels from left border
+		y: 50,                                   // pixels from top border
+		w: 1000,                                 // width
+		h: 1000,                                 // height
+		z: 0,
 		
 		renderToTexture: 0, // TODO: texture to render content in
 		
@@ -193,13 +203,16 @@ little Graphic inside Displaylist-Area (like a c64-sprite)
 ```
 	// ----------------------- ELEMENT --------------------- //
 	
-	peoteView.setElement({     element: 0,
+	peoteView.setElement({
 
-		displaylist: 0,
+		element: 0,      // element index
+
+		displaylist: 0,  // displaylist to put in
 		
-		program: 0,      // here is texture defined to
+		program: 0,      // shader (+texture) to use
 		
 		// Texture Mapping ---------------
+		
 		image: 0,        // image number from texture
 		// slot: 0,      // or set texture-slot manual
 		                 // without image+slot parameter -> full texturespace
@@ -210,17 +223,18 @@ little Graphic inside Displaylist-Area (like a c64-sprite)
 		// tw ,th  -> manual setting texture-coordinates size
 		
 		// Position and Size ---------------
-		x: 10,	// pixels from left displaylist border
-		y: 10,	// pixels from top displaylist border
-		w: 100,	// width
-		h: 100,	// height
+		
+		x: 10,  // pixels from left displaylist border
+		y: 10,  // pixels from top displaylist border
+		w: 100, // width
+		h: 100, // height
 		z: 0    // z-order   ( 0 <= z <= 32767 )
 		
 		// (rotation, animation, coloring ... -> see samples)
 	});
 ```
 
-	
+
 
 #####How to optimize render-loop:
 

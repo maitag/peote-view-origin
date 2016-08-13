@@ -17,6 +17,10 @@ typedef ImageParam =
 	
 	?preload:Bool,
 
+	?scaleUp:Bool,
+	?fit:String,
+	?keep:Bool,
+	
 	?x:Int,
 	//?l:Int,
 	//?r:Int,

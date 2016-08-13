@@ -32,6 +32,7 @@ import de.peote.view.displaylist.Displaylist;
 import de.peote.view.displaylist.DisplaylistType;
 import de.peote.view.element.I_ElementBuffer;
 import de.peote.view.texture.Texture;
+import lime.graphics.opengl.GLActiveInfo;
 
 import haxe.ds.Vector;
 import lime.graphics.opengl.GL;
@@ -57,6 +58,7 @@ class Program
 	public static inline var uZOOM:Int = 3;
 	public static inline var uDELTA:Int = 4;
 	public static var uTEXTURE:Array<Int> = [5,6,7,8,9,10,11,12];
+	
 	
 	public static var rComment:EReg = new EReg("//.*?$","gm");
 	public static var rNewline:EReg = new EReg("\r?\n", "g");
@@ -86,10 +88,11 @@ class Program
 
 	
 	//public static var rSOMETHING_TO_REPLACE:EReg = new EReg("#SOMETHING_TO_REPLACE","g");
-		
 
 	public var glProgram:GLProgram = null;
 	public var uniforms:Vector<GLUniformLocation>;
+	
+	public var customUniforms:Uniforms;
 	
 	// -----------------------------------------------------------------------
 
@@ -166,18 +169,24 @@ class Program
 		return s;
 	}
 	
-	public inline function compile(elemBuff:I_ElementBuffer, type:Int, textureUnits:ActiveTextures,
+	public inline function compile(elemBuff:I_ElementBuffer, type:Int, textureUnits:ActiveTextures, programUniforms:Uniforms,
 								fragmentShaderSrc:String, vertexShaderSrc:String,
 								onerror:String->Void):Void
 	{
+		customUniforms = programUniforms;
+		
 		vertexShaderSrc = parseType(type, textureUnits, vertexShaderSrc);
 		#if peote_vert_medium_precision
 		vertexShaderSrc = "precision mediump float;" + vertexShaderSrc;
+		#else
+		vertexShaderSrc = "precision highp float;" + vertexShaderSrc;
 		#end
 	
 		fragmentShaderSrc = parseType(type, textureUnits, fragmentShaderSrc);
 		#if peote_frag_medium_precision
 		fragmentShaderSrc = "precision mediump float;" + fragmentShaderSrc;
+		#else
+		fragmentShaderSrc = "precision highp float;" + fragmentShaderSrc;
 		#end
  
 		// TODO:
@@ -216,6 +225,8 @@ class Program
 			// set manual (for windows glsl-compiler!!)
 			GL.bindAttribLocation(glProgram, aTEXTCOORD, "aTexCoord");
 			
+		
+			// LINK PROGRAM			
 			GL.linkProgram(glProgram);
 
 			if (GL.getProgramParameter(glProgram, GL.LINK_STATUS) == 0) // glsl compile error
@@ -265,15 +276,22 @@ class Program
 						
 					}
 				}
+				
 				// set uniforms
 				uniforms = new Vector<GLUniformLocation>(GL.getProgramParameter(glProgram, GL.ACTIVE_UNIFORMS));
+				
+				var activeUniform:GLActiveInfo;
+				
 				for (i in 0 ... GL.getProgramParameter(glProgram, GL.ACTIVE_UNIFORMS))
 				{	
-					name = GL.getActiveUniform(glProgram, i).name;
+					activeUniform = GL.getActiveUniform(glProgram, i);
+					name = activeUniform.name;
+					
 					#if debugshader
 					//trace( name + ":" + (GL.getActiveUniform(glProgram, i).type == GL.FLOAT_VEC2) );
 					trace( name + ":" + GL.getUniformLocation(glProgram, name) );
 					#end
+					
 					switch (name)
 					{
 						case "uMouse":				uniforms.set(uMOUSE,            GL.getUniformLocation(glProgram, name) );
@@ -289,10 +307,13 @@ class Program
 						case "uTexture5":			uniforms.set(uTEXTURE[5],       GL.getUniformLocation(glProgram, name) );
 						case "uTexture6":			uniforms.set(uTEXTURE[6],       GL.getUniformLocation(glProgram, name) );
 						case "uTexture7":			uniforms.set(uTEXTURE[7],       GL.getUniformLocation(glProgram, name) );
+						default: if (customUniforms != null) customUniforms.setUniformLocation(activeUniform, glProgram);
 					}
 				}
+				if (customUniforms != null) customUniforms.removeUnused();
 			}
 		}
 	}
 
 }
+
