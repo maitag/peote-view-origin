@@ -31,8 +31,6 @@ To use from javascript look here -> [peoteView.js](https://github.com/maitag/peo
 "Image"        pixels ;)
 ```
 
-To be near OpenGl, all that items are numbered by index to speed up rendering.
-
 You will be able to display "massive" graphic elements and use your own shadercode
 for variation, animation or combining Imagedata!
 
@@ -40,6 +38,9 @@ for variation, animation or combining Imagedata!
 ###How to use
 
 ####Steps ( TODO: more defaults to display simple image only )
+
+To be near OpenGl, all that items are numbered by index to speed up rendering.
+
 ```
 	peoteView = new PeoteView();
 
