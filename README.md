@@ -21,15 +21,55 @@ To use from javascript look here -> [peoteView.js](https://github.com/maitag/peo
 - transition-rendering by gpu to reduce datatransfer (more time for game-logic on cpu)
 
 
-####How to use
+###How to use
+
+####name space
 
 ```
-"Displaylist"  contains much "Element"  
-"Element"      is defined by "Program"  
-"Program"      "Texture" and Shadercode
-"Texture"      acts as image-cache
-"Image"        to load into "Texture"-Slot  
+"Displaylist"  contains "Element"s
+"Element"      use of "Program" / "Image"
+"Program"      use of "Texture" / custom shader code
+"Texture"      contains "Image"s
+"Image"        pixels ;)
 ```
+
+
+####simple usage
+```
+	peoteView = new PeoteView();
+
+	peoteView.setTexture({
+		texture:  0,          // texture index
+		slots:   16,          // minimum slots to store images
+		w:      512,          // slot width
+		h:      512           // slot height
+	});
+
+	peoteView.setImage({
+		image:    0,           // image index
+		texture:  0,           // texture to store image-data inside
+		filename: "pixel.png"  // image filename or url to load image from
+	});
+
+	peoteView.setProgram({
+		program:  0,           // program index
+		texture:  0            // images stored here can be used by element
+	});
+
+	peoteView.setDisplaylist({
+		displaylist:   0,      // displaylist index
+		maxElements: 100       // maximum elements to display
+	});
+
+	peoteView.setElement({
+		element:      0,       // element index
+		displaylist:  0,       // displaylist to put in
+		program:      0,       // shader (+texture) to use
+		image:        0        // image number
+	});
+```
+
+####Parameters in Detail
 
 #####0) Initialize
 ```
@@ -211,17 +251,6 @@ little Graphic inside Displaylist-Area (like a c64-sprite)
 		
 		program: 0,      // shader (+texture) to use
 		
-		// Texture Mapping ---------------
-		
-		image: 0,        // image number from texture
-		// slot: 0,      // or set texture-slot manual
-		                 // without image+slot parameter -> full texturespace
-		
-		tile:  0,        // (0..255) texture coordinates will be splittet into 16x16 tiles
-		
-		// tx, ty, -> manual setting texture-coordinates shifting
-		// tw ,th  -> manual setting texture-coordinates size
-		
 		// Position and Size ---------------
 		
 		x: 10,  // pixels from left displaylist border
@@ -231,6 +260,17 @@ little Graphic inside Displaylist-Area (like a c64-sprite)
 		z: 0    // z-order   ( 0 <= z <= 32767 )
 		
 		// (rotation, animation, coloring ... -> see samples)
+		
+		// Texture Mapping ---------------
+		
+		image: 0,        // image number
+		// slot: 0,      // or set texture-slot manual
+		                 // without image+slot parameter -> full texturespace
+		
+		tile:  0,        // (0..255) texture coordinates will be splittet into 16x16 tiles
+		
+		// tx, ty,       // manual setting texture-coordinate (todo:shifting)
+		// tw ,th        // manual setting texture-coordinates size
 	});
 ```
 
