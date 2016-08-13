@@ -21,9 +21,7 @@ To use from javascript look here -> [peoteView.js](https://github.com/maitag/peo
 - transition-rendering by gpu to reduce datatransfer (more time for game-logic on cpu)
 
 
-###How to use
-
-####name space
+####Names to wrapp around opengl
 
 ```
 "Displaylist"  contains "Element"s
@@ -33,8 +31,15 @@ To use from javascript look here -> [peoteView.js](https://github.com/maitag/peo
 "Image"        pixels ;)
 ```
 
+To be near OpenGl, all that items are numbered by index to speed up rendering.
 
-####simple usage
+You will be able to display "massive" graphic elements and use your own shadercode
+for variation, animation or combining Imagedata!
+
+
+###How to use
+
+####Steps ( TODO: more defaults to display simple image only )
 ```
 	peoteView = new PeoteView();
 
@@ -82,17 +87,6 @@ To use from javascript look here -> [peoteView.js](https://github.com/maitag/peo
 		// TODO: onError:    function(errorcode, msg) {}
 	});
 ```
-
-
-
-You will be able to display "massive" graphic elements and use your own shadercode
-for variation, animation or combining Imagedata!
-
-To be near OpenGl - all items are numbered - to speed up rendering.
-
-
-step by step:
-
 	
 
 #####1) Textures
@@ -175,7 +169,7 @@ if some element use an image, it's data will be load into free Image-Slot of ass
 
 
 
-#####3) Program (GPU-Shader)
+#####3) Program
 
 opengl-shadercode and textures that can be use
 
