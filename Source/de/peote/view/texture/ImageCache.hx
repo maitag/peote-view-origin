@@ -153,7 +153,7 @@ class ImageCache
 	{
 		
 		var img:Image = images.get(image_nr);
-
+		
 		if (img != null)
 		{
 			//trace("useImage: "+image_nr+" img.used= "+(img.used+1)+" ---");
@@ -161,7 +161,7 @@ class ImageCache
 			{	
 				//trace(" first use");
 				if (img.slot == -1 || !img.texture.autoSlots) // not loaded into GL Texture yet
-				{
+				{	
 					var success:Bool = true;
 					if (img.texture.autoSlots)
 					{
@@ -216,9 +216,9 @@ class ImageCache
 			imgLoadQueue.shift().load(onImageLoad, onerror);
 	}
 	
-	private function onImageLoad(img:Image, w:Int, h:Int, data:UInt8Array):Void
+	private function onImageLoad(img:Image, data:UInt8Array):Void
 	{
-		trace("onImageLoad: " + img.url + " gl-texture: " + img.texture+" to holePos:" + img.slot + " w:" + w +" h:"+h);
+		trace("onImageLoad: " + img.url + " gl-texture: " + img.texture+" to holePos:" + img.slot);
 		if (img.slot > -1)
 		{
 			img.texture.storeImage(img, data);

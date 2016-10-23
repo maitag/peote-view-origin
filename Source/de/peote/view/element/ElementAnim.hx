@@ -132,7 +132,7 @@ class ElementAnim implements I_Element
 				slot = param.slot;
 			}
 		}
-
+		
 		// IMAGE
 		if (param.image == null && PeoteView.elementDefaults.image != null ) param.image = PeoteView.elementDefaults.image;
 		if (param.image != null && param.image != image)
@@ -156,10 +156,14 @@ class ElementAnim implements I_Element
 		else if (image != -1)
 		{	
 			var img = imageCache.getImage(image);
-			param.tx = img.tx - ((param.tx == null) ? 0 : param.tx);
-			param.ty = img.ty - ((param.ty == null) ? 0 : param.ty);
-			if (param.tw == null) param.tw = img.tw;
-			if (param.th == null) param.th = img.th;
+			//param.tx = img.tx + img.x + ((param.tx == null) ? 0 : param.tx);
+			//param.ty = img.ty + img.y + ((param.ty == null) ? 0 : param.ty);
+			param.tx = (img.slot % img.texture.slotsX) * img.texture.slotWidth  + img.x + ((param.tx == null) ? 0 : param.tx);
+			param.ty = Math.floor(img.slot / img.texture.slotsX) * img.texture.slotHeight + img.y + ((param.ty == null) ? 0 : param.ty);
+			//if (param.tw == null) param.tw = img.w;
+			//if (param.th == null) param.th = img.h;
+			if (param.tw == null) param.tw = ( (img.w != 0) ? img.w : img.texture.slotWidth);
+			if (param.th == null) param.th = ( (img.h != 0) ? img.h : img.texture.slotHeight);
 		}
 		else 
 		{

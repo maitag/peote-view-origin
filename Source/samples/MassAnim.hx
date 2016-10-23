@@ -8,9 +8,9 @@ import de.peote.view.displaylist.DisplaylistType;
 
 class MassAnim extends Sample
 {
-	var w:Int = 400;
-	var h:Int = 400;
-	var s:Int = 5;
+	var w:Int = 100;
+	var h:Int = 100;
+	var s:Int = 22;
 	var last_y:Int;
 	var switchBGanim:Int = 1;
 	var speed:Float = 1;
@@ -46,13 +46,12 @@ class MassAnim extends Sample
 		peoteView.setTexture( {
 			texture:0,
 			slots:2,
-			w:512,
-			h:512		
+			w:512,h:512
 		});
 
 		// set images
-		peoteView.setImage({ image:0, texture:0, filename:"assets/peote_font_green.png" });
-		peoteView.setImage({ image:1, texture:0, filename:"assets/peote_tiles.png" });
+		peoteView.setImage({ w:512,h:512, image:0, texture:0, filename:"assets/peote_font_green.png" });
+		peoteView.setImage({ w:512,h:512, image:1, texture:0, filename:"assets/peote_tiles.png" });
 		
 		// set shaders
 		peoteView.setProgram( {
@@ -64,6 +63,7 @@ class MassAnim extends Sample
 			program: 1,
 			texture: 0,
 		});
+		
 		// new Displaylist
 		peoteView.setDisplaylist( {
 			displaylist: 0,
@@ -73,11 +73,14 @@ class MassAnim extends Sample
 			bufferSegments:1,
 			z: 0
 		});
+		
 		// new Displaylist
 		peoteView.setDisplaylist( {
 			displaylist:1,
 			type:DisplaylistType.ANIM,
 			maxElements: w * h,
+			//renderBackground:true,
+			//r:.5,
 			maxPrograms:1,
 			bufferSegments:1,
 			z: 1
@@ -90,25 +93,26 @@ class MassAnim extends Sample
 			//z: -2,
 			program:0, tw:1000, th:1000,
 			end: {
-				x: -1500, y: -1500, w:11000, h:11000,
+				x: -5500, y: -5500, w:20000, h:20000,
 				time:t+h/speed
 			}
 		});
 		
 		update_time = Timer.stamp();
-		// tiles
 		
-		
+		// tiles		
 		for (x in 0...w)
 			for (y in 0...h)
+			{
 				peoteView.setElement( {
 					element: y * w +x,
 					displaylist:1,
 					start: {
 						x: x*s, y: y*s-s,
 						w:s, h:s,
-						time:t
+						time:t,
 					},
+					
 					end: {
 						x: x*s, y: y*s-s+h*s,
 						w:s, h:s,
@@ -119,6 +123,7 @@ class MassAnim extends Sample
 					image: random(2),
 					tile: 1+random(255)
 				});
+			}	
 		
 		// Timer every second  - TODO: may own Timer inside RenderLoop
 		timer = new Timer(Math.floor(1000/speed));
@@ -185,7 +190,7 @@ class MassAnim extends Sample
 					element:0,
 					displaylist:0,
 					end: {
-						x: -1500, y: -1500, w:11000, h:11000,
+						x: -5500, y: -5500, w:20000, h:20000,
 						time:t+h/speed
 					},
 					tw:1000, th:1000

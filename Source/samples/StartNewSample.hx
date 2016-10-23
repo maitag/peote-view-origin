@@ -55,8 +55,8 @@ class StartNewSample extends Sample
 		
 		peoteView.setTexture( {  texture: 0,
 			
-			w:   2048,        // Texture width
-			h:   2048,        // Texture height	
+			w:   512,        // Texture width
+			h:   512,        // Texture height	
 			slots: 16
 			//type: RGBA  // not implemented yes (allways RGBA)
 		});
@@ -109,7 +109,6 @@ class StartNewSample extends Sample
 			
 			renderBackground:true,
 
-			// TODO: better backgroundColor:[0.1, 0.5, 0.8, 0.8]
 			r:0.1,
 			g:0.5,
 			b:0.8,
@@ -126,7 +125,7 @@ class StartNewSample extends Sample
 		// ---------------- ELEMENTS ---------------------------
 		// -----------------------------------------------------
 		//peoteView.setElementDefaults( { displaylist:0 } );
-		
+		/*
 		peoteView.setElement({
 			element:0,
 			x:100, y:100,
@@ -152,6 +151,14 @@ class StartNewSample extends Sample
 			program:0,
 			image:1,
 			tile:2
+		});
+		*/
+		peoteView.setElement({
+			element:3,
+			x:200, y:100,
+			w:100, h:100,
+			program:0,
+			image:0,
 		});
 	}
 

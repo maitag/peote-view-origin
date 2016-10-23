@@ -229,7 +229,7 @@ class Bunnys extends Sample
 					pivotY: Math.floor(tile_size/2),
 					image: 1+sprite,
 					tile:1 + random(31),
-					//rgba: random(256) << 24 | random(256) << 16 | random(256) << 8 | 128+random(128),
+					
 					start: {
 						x: spawn_x,
 						y: spawn_y,
@@ -303,10 +303,12 @@ class Bunnys extends Sample
 					pause = true;
 					peoteView.setDisplaylist( { displaylist:3, enable:false } );
 				}
+				
 			case KeyCode.UP:
 				max_spawn += 10;
 				updateMaxSpawn();
-				if (pause) {pause = false; spawnBunnys();}
+				if (pause) { pause = false; spawnBunnys(); }
+				
 			case KeyCode.DOWN:
 				max_spawn -= 10;
 				updateMaxSpawn();
@@ -315,7 +317,8 @@ class Bunnys extends Sample
 			case KeyCode.RIGHT:
 				if (spawn_time<60) spawn_time++;
 				updateMaxSpawn();
-				if (pause) {pause = false; spawnBunnys();}
+				if (pause) { pause = false; spawnBunnys(); }
+				
 			case KeyCode.LEFT:
 				if (spawn_time>1) spawn_time--;
 				updateMaxSpawn();
@@ -323,6 +326,7 @@ class Bunnys extends Sample
 				
 			case KeyCode.N:
 				if (tile_size > 1) {tile_size--; txtOutput(5, tile_size+"x" + tile_size+"-tiles:"); }
+			
 			case KeyCode.M:
 				if (tile_size<384) { tile_size++; txtOutput(5, tile_size+"x" + tile_size+"-tiles:"); }
 				

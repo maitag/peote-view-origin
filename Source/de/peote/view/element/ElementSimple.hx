@@ -111,10 +111,14 @@ class ElementSimple implements I_Element
 		else if (image != -1)
 		{	
 			var img = imageCache.getImage(image);
-			param.tx = img.tx - ((param.tx == null) ? 0 : param.tx);
-			param.ty = img.ty - ((param.ty == null) ? 0 : param.ty);
-			if (param.tw == null) param.tw = img.tw;
-			if (param.th == null) param.th = img.th;
+			//param.tx = img.tx + img.x + ((param.tx == null) ? 0 : param.tx);
+			//param.ty = img.ty + img.y + ((param.ty == null) ? 0 : param.ty);
+			param.tx = (img.slot % img.texture.slotsX) * img.texture.slotWidth  + img.x + ((param.tx == null) ? 0 : param.tx);
+			param.ty = Math.floor(img.slot / img.texture.slotsX) * img.texture.slotHeight + img.y + ((param.ty == null) ? 0 : param.ty);
+			//if (param.tw == null) param.tw = img.w;
+			//if (param.th == null) param.th = img.h;
+			if (param.tw == null) param.tw = ( (img.w != 0) ? img.w : img.texture.slotWidth);
+			if (param.th == null) param.th = ( (img.h != 0) ? img.h : img.texture.slotHeight);
 		}
 		else 
 		{
@@ -132,10 +136,11 @@ class ElementSimple implements I_Element
 				if (param.th == null) param.th = param.h;
 			}
 		}
-		
+		//trace('------------------>: ${param}');
 		// TILING IMAGE
 		if (param.tile != null) tile = param.tile;
 		else if (PeoteView.elementDefaults.tile != null) tile = PeoteView.elementDefaults.tile;
+		
 		
 		if (tile != -1)
 		{	
@@ -145,7 +150,6 @@ class ElementSimple implements I_Element
 			param.th  = Math.floor( param.th/16 );
 		}
 		
-		trace(param.element, param.tx, param.ty, param.tw, param.th);
 		elemBuff.set(this, param);
 		
 	}

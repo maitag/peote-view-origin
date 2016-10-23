@@ -71,6 +71,8 @@ class GlyphUnicodeTextRendering extends Sample
 			image: 0,
 			texture:0,
 			filename: "assets/unifont/unifont_0000.png",
+			w:   2048,        // Texture width
+			h:   1994,        // Texture height
 			preload:true
 		});
 		
@@ -113,10 +115,11 @@ class GlyphUnicodeTextRendering extends Sample
 		var fontinfo:FontInfo = new FontInfo("assets/unifont/unifont_0000.dat", function(info:FontInfo) {
 			trace ("Loaded Fontdata complete");
 			//var ts:Int = 1024;
-			var ts:Int = 2048;
+			var tw:Int = 2048;
+			var th:Int = 1994;
 			
-			renderTextLine("PeoteView glyph textrendering with ttfcompiled Unifont", info, 18, 0, 20, ts, ts); 
-			renderTextLine("--------------------------------------------------------------------", info, 18, 20, 16, ts, ts); 
+			renderTextLine("PeoteView glyph textrendering with ttfcompiled Unifont", info, 18, 0, 20, tw, th); 
+			renderTextLine("--------------------------------------------------------------------", info, 18, 20, 16, tw, th); 
 			
 			var i:Int = 0;
 			var l:Int = 40;
@@ -125,7 +128,7 @@ class GlyphUnicodeTextRendering extends Sample
 				s += String.fromCharCode(char);
 				i++;
 				if (i > 100) {
-					renderTextLine(s, info, 20, l, 30, ts, ts); 
+					renderTextLine(s, info, 20, l, 30, tw, th); 
 					i = 0; s = ""; l += 32;
 				}
 			}		
@@ -189,10 +192,10 @@ class GlyphUnicodeTextRendering extends Sample
 						time:t + 1 + (startx+starty)/2000
 					},
 					program:0,
-					tx:Math.round(tx)-1,
-					ty:Math.round(ty)-1,
-					tw:Math.round(tw)+1,
-					th:Math.round(th)+1,
+					tx:Math.floor(tx),
+					ty:Math.floor(ty),
+					tw:Math.ceil(tw),
+					th:Math.ceil(th),
 					image:0,
 				});
 				penX += Math.ceil(info.metrics[id].advance * scale);

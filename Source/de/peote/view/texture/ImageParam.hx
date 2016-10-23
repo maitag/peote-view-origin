@@ -29,5 +29,10 @@ typedef ImageParam =
 	?y:Int,
 	//?t:Int,
 	//?b:Int,
-	?w:Int,	
+	?w:Int,
+	
+	?r:Float,
+	?g:Float,
+	?b:Float,
+	?a:Float,
 }

@@ -30,7 +30,9 @@ package de.peote.view.texture;
 
 //import format.png.Reader;
 //import format.png.Tools;
+import lime.app.Future;
 import lime.graphics.opengl.GLTexture;
+
 
 import haxe.io.BytesInput;
 import haxe.io.Bytes;
@@ -63,6 +65,16 @@ class Image
 	public var tw:Int=0;
 	public var th:Int=0;
 	
+	public var x:Int=0;
+	public var y:Int=0;
+	public var w:Int=0;
+	public var h:Int=0;
+
+	public var r:Float=0.0;
+	public var g:Float=0.0;
+	public var b:Float=0.0;
+	public var a:Float=0.0;
+	
 	public var fit:String = "none"; // "in", "out", "exact"
 	public var scaleUp:Bool = true;
 	public var keep:Bool = false;
@@ -72,11 +84,20 @@ class Image
 		url = param.filename;
 		this.texture = texture;
 		
-		if (param.x != null) tx = param.x;
-		if (param.y != null) ty = param.y;
+		if (param.x != null) x = param.x;
+		if (param.y != null) y = param.y;
 		
-		if (param.w != null) tw = param.w;
-		if (param.h != null) th = param.h;
+		//if (param.w != null) w = param.w else w = texture.slotWidth;
+		//if (param.h != null) h = param.h else h = texture.slotHeight;
+		if (param.w != null) w = param.w;
+		if (param.h != null) h = param.h;
+
+		if (param.r != null) r = param.r;
+		if (param.g != null) g = param.g;
+		if (param.b != null) b = param.b;
+		if (param.a != null) a = param.a;
+		
+		trace("new IMAGE:",w,h);
 		
 		if (param.slot != null) slot = param.slot;
 		if (param.fit != null)
@@ -95,13 +116,14 @@ class Image
 	
 	// TODO: how to cancel loading ?
 	#if js
-	public function load(onload:Image->Int->Int->UInt8Array->Void, onerror:String->Void):Void
+	public function load(onload:Image->UInt8Array->Void, onerror:String->Void):Void
 	{
 		
 		var image:js.html.ImageElement = js.Browser.document.createImageElement();
 		image.onload = function(a)
 		{
-			onload( this, image.width, image.height,  resize(image) );
+			//onload( this, image.width, image.height,  resize(image) );
+			onload( this, resize(image) );
 		}
 		
 		if (url.indexOf('http://') == 0 || url.indexOf('https://') == 0) // load throught proxy
@@ -127,7 +149,7 @@ class Image
 		
 	}
 	#else
-	public function load(onload:Image->Int->Int->UInt8Array->Void, onerror:String->Void):Void
+	public function load(onload:Image->UInt8Array->Void, onerror:String->Void):Void
 	{
 		
 		if (url.indexOf('http://') == 0 || url.indexOf('https://') == 0) // load throught proxy
@@ -137,7 +159,8 @@ class Image
 			req.onError = onerror;
 			req.onData = function (bytes) {
 				var image:lime.graphics.Image = lime.graphics.Image.fromBytes(Bytes.ofString(bytes));
-				onload( this, image.width, image.height,  resize(image) );
+				//onload( this, image.width, image.height,  resize(image) );
+				onload( this, resize(image) );
 			};
 			req.request(false);
 			
@@ -145,15 +168,16 @@ class Image
 		else
 		{
 			// load from assets
-			var future = Assets.loadImage (url);
+			var future = Assets.loadImage(url); // TODOOOOOO -> WINDOWS CPP -> NULL POINTER
 			future.onProgress (function (progress) trace ("Loading Image Progress: " + progress));
 			future.onError (onerror);
 			
 			future.onComplete (function (image) {
-				onload( this, tw, th,  resize(image) );
+				onload( this, resize(image) );
 			});
 			
 		}
+		
 	}
 	#end
 	
@@ -162,6 +186,9 @@ class Image
 	{
 		var sourceWidth:Int  = image.width;
 		var sourceHeight:Int = image.height;
+		
+		if (w == 0) w = sourceWidth;
+		if (h == 0) h = sourceHeight;
 		
 		var destWidth:Int;
 		var destHeight:Int;
@@ -221,12 +248,11 @@ class Image
 		}
 		else // ----------------------------------------------------------------------------------------
 		{
-			if (tw == 0) tw = image.width;
-			if (th == 0) th = image.height;
-			left = tx;
-			right  = texture.slotWidth - tw  - left;
-			top  = ty;
-			bottom = texture.slotHeight - th - top;
+			left = x;
+			right  = texture.slotWidth - w  - left;
+			top  = y;
+			bottom = texture.slotHeight - h - top;
+			
 			tw = destWidth  = texture.slotWidth;
 			th = destHeight = texture.slotHeight;
 			tx = (slot % texture.slotsX) * texture.slotWidth;
@@ -244,9 +270,11 @@ class Image
 				top = Math.floor(Math.min(0, top));
 				bottom = Math.floor(Math.min(0, bottom));
 			}
+			x = left;
+			y = top;
 		}
 		
-		trace('tx=$tx, ty=$ty - tw=$tw, th=$th');
+		trace('============> tx=$tx, ty=$ty - tw=$tw, th=$th');
 		trace('sourceWidth=$sourceWidth, sourceHeight=$sourceHeight - destWidth=$destWidth, destHeight=$destHeight');
 		trace('left=$left, right=$right - top=$top, bottom=$bottom');
 		// -------------------- Javascript ----------------------
@@ -256,7 +284,10 @@ class Image
 		tmp_canvas.height = destHeight;
 		
 		var tmp_context = tmp_canvas.getContext2d();
+		//tmp_context.globalCompositeOperation = 'source-over';
+		tmp_context.fillStyle = "rgba("+Math.round(r*255)+","+Math.round(g*255)+","+Math.round(b*255)+","+a+")";
 		tmp_context.clearRect( 0, 0, destWidth, destHeight );
+		tmp_context.fillRect( 0, 0, destWidth, destHeight );
 		tmp_context.drawImage( image, 0, 0, sourceWidth, sourceHeight, left, top, destWidth-left-right, destHeight-top-bottom );
 		
 		var destData:UInt8Array = new UInt8Array( tmp_context.getImageData( 0, 0, destWidth, destHeight ).data );

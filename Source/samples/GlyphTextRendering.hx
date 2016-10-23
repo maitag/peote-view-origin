@@ -60,8 +60,8 @@ class GlyphTextRendering extends Sample
 			texture: 0,
 			w:   600,        // Texture width
 			h:   591,        // Texture height
-			//w:   2048,        // Texture width
-			//h:   1994,        // Texture height
+			//w:   1024,        // Texture width
+			//h:   1024,        // Texture height
 		});
 		
 		// -----------------------------------------------------
@@ -71,9 +71,13 @@ class GlyphTextRendering extends Sample
 		peoteView.setImage( {
 			image: 0,
 			texture:0,
+			x:0, y:0,
+			w:   600,  h:   591,
+			r:1,
+			//w:   1024, h:   1024, 
 			filename: "assets/DejavuSans.png",
 			//filename: "assets/unifont/unifont_0000.png",
-			preload:true
+			//preload:true
 		});
 		
 		// -----------------------------------------------------
@@ -114,16 +118,17 @@ class GlyphTextRendering extends Sample
 		var fontinfo:FontInfo = new FontInfo("assets/DejavuSans.dat", function(info:FontInfo) {
 		//var fontinfo:FontInfo = new FontInfo("assets/unifont/unifont_0000.dat", function(info:FontInfo) {
 			trace ("Loaded Fontdata complete");
-			var ts:Int = 1024;
+			var tw:Int = 600;
+			var th:Int = 591;
 			//var ts:Int = 2048;
 			
-			renderTextLine("PeoteView glyph textrendering with ttfcompiled font (thx deltaluca's great gl3font \\o/)", info, 18, 10, 20, ts, ts); 
-			renderTextLine("-----------------------------------------------------------------------------------------------------------------", info, 18, 26, 20, ts, ts); 
-			renderTextLine("\t!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ", info, 18, 60, 20, ts, ts); 
-			renderTextLine("[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ", info, 18, 90, 20, ts, ts); 
-			renderTextLine("¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×Ø", info, 18, 120, 20, ts, ts); 
-			renderTextLine("ÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ", info, 18, 150, 20, ts, ts); 
-			renderTextLine("‘’₯―΄΅ΆΈΉΊΌΎΏΐΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩΪΫάέήίΰαβγδεζηθικλμνξοπρςστυφχψωϊϋόύώ", info, 18, 180, 20, ts, ts); 
+			renderTextLine("PeoteView glyph textrendering with ttfcompiled font (thx deltaluca's great gl3font \\o/)", info, 18, 10, 20, tw, th); 
+			renderTextLine("-----------------------------------------------------------------------------------------------------------------", info, 18, 26, 20, tw, th); 
+			renderTextLine("\t!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ", info, 18, 60, 20, tw, th); 
+			renderTextLine("[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ", info, 18, 90, 20, tw, th); 
+			renderTextLine("¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×Ø", info, 18, 120, 20, tw, th); 
+			renderTextLine("ÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ", info, 18, 150, 20, tw, th); 
+			renderTextLine("‘’₯―΄΅ΆΈΉΊΌΎΏΐΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩΪΫάέήίΰαβγδεζηθικλμνξοπρςστυφχψωϊϋόύώ", info, 18, 180, 20, tw, th); 
 			
 			//renderTextLine(" .PagwWzo", info, 10, 180, 20, ts, ts); 
 			
@@ -186,10 +191,10 @@ class GlyphTextRendering extends Sample
 						time:t+4
 					},
 					program:0,
-					tx:Math.round(tx)-1,
-					ty:Math.round(ty)-1,
-					tw:Math.round(tw)+1,
-					th:Math.round(th)+1,
+					tx:Math.floor(tx),
+					ty:Math.floor(ty),
+					tw:Math.ceil(tw),
+					th:Math.ceil(th),
 					image:0,
 				});
 				penX += Math.ceil(info.metrics[id].advance * scale);

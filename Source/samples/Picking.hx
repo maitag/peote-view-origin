@@ -24,7 +24,8 @@ class Picking extends Sample
 
 		// --------------------- TEXTURECACHES -----------------
 		
-		peoteView.setTexture( {  texture: 0,
+		peoteView.setTexture( {
+			texture: 0,
 			w:   512,        // Texture width
 			h:   512,        // Texture height
 		});
@@ -34,7 +35,8 @@ class Picking extends Sample
 		peoteView.setImage({
 			image: 0,
 			texture: 0,
-			filename: "assets/peote_tiles.png"
+			filename: "assets/peote_tiles.png",
+			//w:512, h:512,
 		});
 		
 		// ---------------- PROGRAM SHADER ---------------------

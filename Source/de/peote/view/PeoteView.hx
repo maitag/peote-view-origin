@@ -344,7 +344,7 @@ class PeoteView
 	// ------------------------------------------------------------------------------------------------------
 	private var dl:I_Displaylist; // actual displaylist inside renderloop
 	private var ap:ActiveProgram; //  actual Program shader inside loop
-	public inline function render(time:Float, width:Int, height:Int, mouseX:Int, mouseY:Int, zoom:Int, xOffset:Int = 0, yOffset:Int = 0):Void
+	public inline function render(time:Float, width:Int, height:Int, mouseX:Int, mouseY:Int, zoom:Int = 1, xOffset:Int = 0, yOffset:Int = 0):Void
 	{	
 		GL.viewport (0, 0, width, height);
 		

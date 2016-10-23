@@ -112,6 +112,7 @@ class Texture
 	public inline function reserveImageSlot(img:Image):Void
 	{
 		if (autoSlots) img.slot = slotHoles.getHole();
+		trace("~~~~~~~~~> reserveImageSlot _>"+img.slot);
 		//img.tx += (img.slot % slotsX) * slotWidth;
 		//img.ty += Math.floor(img.slot / slotsX) * slotHeight;
 	}

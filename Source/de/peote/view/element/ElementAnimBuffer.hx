@@ -576,7 +576,8 @@ class ElementAnimBuffer implements I_ElementBuffer
 			#end_TEXTURE1
 			// ... TEXTURE2 ...TEXTURE3 ...			
 			
-			if (texel.a < 0.5) discard; // TODO (z-order/blend mode!!!)
+			//if (texel.a < 0.5) discard; // TODO (z-order/blend mode!!!)
+			if (texel.a == 0.0) discard; // TODO (z-order/blend mode!!!)
 			
 			#if_PICKING
 			if (uResolution.x == 1.0) { 
