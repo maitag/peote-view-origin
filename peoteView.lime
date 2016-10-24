@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 	
-	<meta title="PeoteView" package="de.peote.view" version="0.5.7" company="Sylvio Sell - maitag" />
+	<meta title="PeoteView" package="de.peote.view" version="0.5.8" company="Sylvio Sell - maitag" />
 	
 	<!-- choose sample to build: -->
     <app main="samples.StartNewSample"      path="Export" file="NewSample" />
@@ -46,7 +46,7 @@
 	<!-- <haxedef name="HXCPP_M64" if="cpp" /> -->
 	
 	<!-- full dead code elimination on html5 reduces js-code (default dce is std only) -->
-	<haxeflag name="-dce" value="full" if="cpp||android||html5" />
+	<haxeflag name="-dce" value="full" if="android||html5" />
 	
 	<assets path="Assets" rename="assets" exclude="lime.svg" />
 	<icon path="Assets/lime.svg" />

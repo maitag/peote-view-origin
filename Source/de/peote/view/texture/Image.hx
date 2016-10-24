@@ -168,7 +168,7 @@ class Image
 		else
 		{
 			// load from assets
-			var future = Assets.loadImage(url); // TODOOOOOO -> WINDOWS CPP -> NULL POINTER
+			var future = Assets.loadImage(url); // TODO -> for dce=full -> WINDOWS CPP -> NULL POINTER
 			future.onProgress (function (progress) trace ("Loading Image Progress: " + progress));
 			future.onError (onerror);
 			
@@ -218,7 +218,6 @@ class Image
 				ty += top;
 				tw = destWidth   = texture.slotWidth  - left - right ;
 				th = destHeight  = texture.slotHeight - top  - bottom ;
-				th = destHeight;
 				left = right = top = bottom = 0;
 			}
 		}
@@ -388,13 +387,82 @@ class Image
 					}
 					
 					pos = (i + j*destWidth) * 4;
-					
-					destData[pos]     = Math.round(red   / color_weight);
+					/*destData[pos]     = Math.round(red   / color_weight);
 					destData[pos + 1] = Math.round(green / color_weight);
 					destData[pos + 2] = Math.round(blue  / color_weight);
 					destData[pos + 3] = Math.round(alpha / alpha_weight);
+					*/
+					var fac:Float = alpha / alpha_weight / 255;
+					if (fac == 0.0)
+					{
+						destData[pos]   = Math.round(r * 255);
+						destData[pos+1] = Math.round(g * 255);
+						destData[pos+2] = Math.round(b * 255);
+						destData[pos+3] = Math.round(a * 255);
+					}
+					else 
+					{
+						// TODO: not same as in JS source-over
+						destData[pos]     = Math.round(Math.max(0,Math.min(255, (red   / color_weight) + r * 255 * (1.0 - fac))));
+						destData[pos + 1] = Math.round(Math.max(0,Math.min(255, (green / color_weight) + g * 255 * (1.0 - fac))));
+						destData[pos + 2] = Math.round(Math.max(0,Math.min(255, (blue  / color_weight) + b * 255 * (1.0 - fac))));
+						destData[pos + 3] = Math.round(Math.max(0,Math.min(255, (alpha / alpha_weight) + a * 255 * (1.0 - fac))));
+						
+						// premultiplied didnt work good
+						//destData[pos]     = Math.round(Math.max(0,Math.min(255, fac * (red   / color_weight) + r * 255 * (1.0 - fac))));
+						//destData[pos + 1] = Math.round(Math.max(0,Math.min(255, fac * (green / color_weight) + g * 255 * (1.0 - fac))));
+						//destData[pos + 2] = Math.round(Math.max(0,Math.min(255, fac * (blue  / color_weight) + b * 255 * (1.0 - fac))));
+						//destData[pos + 3] = Math.round(Math.max(0,Math.min(255,  fac * (alpha / alpha_weight) + a * 255 * (1.0 - fac))));
+					}
 				}
 			}
+			
+			// fill border
+			for (j in 0...Math.floor(Math.max(0,top)) )
+			{
+				for (i in 0...destWidth )
+				{
+					pos = (i + j*destWidth) * 4;
+					destData[pos]   = Math.round(r * 255);
+					destData[pos+1] = Math.round(g * 255);
+					destData[pos+2] = Math.round(b * 255);
+					destData[pos+3] = Math.round(a * 255);
+				}
+			}
+			for (j in destHeight - Math.floor(Math.max(0,bottom))...destHeight )
+			{
+				for (i in 0...destWidth )
+				{
+					pos = (i + j*destWidth) * 4;
+					destData[pos]   = Math.round(r * 255);
+					destData[pos+1] = Math.round(g * 255);
+					destData[pos+2] = Math.round(b * 255);
+					destData[pos+3] = Math.round(a * 255);
+				}
+			}
+			for (j in Math.floor(Math.max(0,top))...destHeight - Math.floor(Math.max(0,bottom)))
+			{
+				for (i in 0...Math.floor(Math.max(0,left)) )
+				{
+					pos = (i + j*destWidth) * 4;
+					destData[pos]   = Math.round(r * 255);
+					destData[pos+1] = Math.round(g * 255);
+					destData[pos+2] = Math.round(b * 255);
+					destData[pos+3] = Math.round(a * 255);
+				}
+			}
+			for (j in Math.floor(Math.max(0,top))...destHeight - Math.floor(Math.max(0,bottom)))
+			{
+				for (i in destWidth - Math.floor(Math.max(0,right))...destWidth )
+				{
+					pos = (i + j*destWidth) * 4;
+					destData[pos]   = Math.round(r * 255);
+					destData[pos+1] = Math.round(g * 255);
+					destData[pos+2] = Math.round(b * 255);
+					destData[pos+3] = Math.round(a * 255);
+				}
+			}
+			
 		}
 		#end
 		return(destData);
