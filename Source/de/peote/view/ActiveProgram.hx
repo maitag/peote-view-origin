@@ -30,6 +30,7 @@ package de.peote.view;
 
 import de.peote.tools.Holes;
 import lime.graphics.opengl.GLTexture;
+import de.peote.view.program.Program;
 
 class ActiveProgram
 {
@@ -55,4 +56,5 @@ class ActiveProgram
 		this.buf_start = buf_start * segment_size;
 		element_holes = new Holes(segment_size);
 	}
+
 }

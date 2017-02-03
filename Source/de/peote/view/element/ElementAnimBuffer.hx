@@ -28,8 +28,9 @@
 
 package de.peote.view.element;
 
-import de.peote.view.ProgramCache;
+import de.peote.view.program.ProgramCache;
 import de.peote.view.displaylist.DisplaylistType;
+import de.peote.view.program.Program;
 
 import lime.graphics.opengl.GL;
 import lime.graphics.opengl.GLBuffer;

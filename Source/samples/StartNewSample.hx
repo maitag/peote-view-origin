@@ -125,7 +125,7 @@ class StartNewSample extends Sample
 		// ---------------- ELEMENTS ---------------------------
 		// -----------------------------------------------------
 		//peoteView.setElementDefaults( { displaylist:0 } );
-		/*
+		
 		peoteView.setElement({
 			element:0,
 			x:100, y:100,
@@ -152,14 +152,8 @@ class StartNewSample extends Sample
 			image:1,
 			tile:2
 		});
-		*/
-		peoteView.setElement({
-			element:3,
-			x:200, y:100,
-			w:100, h:100,
-			program:0,
-			image:0,
-		});
+		
+
 	}
 
 /*	

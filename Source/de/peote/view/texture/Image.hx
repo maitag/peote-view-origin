@@ -169,7 +169,7 @@ class Image
 		{
 			// load from assets
 			var future = Assets.loadImage(url); // TODO -> for dce=full -> WINDOWS CPP -> NULL POINTER
-			future.onProgress (function (progress) trace ("Loading Image Progress: " + progress));
+			//future.onProgress (function (progress) trace ("Loading Image Progress: " + progress));
 			future.onError (onerror);
 			
 			future.onComplete (function (image) {

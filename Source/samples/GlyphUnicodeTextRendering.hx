@@ -221,7 +221,7 @@ class FontInfo {
     public function new(file:String, onload:FontInfo->Void) {
 		
 		var future = Assets.loadBytes(file);
-		future.onProgress (function (progress) trace ("Loading Fontdata Progress: " + progress));
+		//future.onProgress (function (progress) trace ("Loading Fontdata Progress: " + progress));
 		future.onError (function (msg) trace ("Loading Fontdata Error: " + msg));
 		
 		future.onComplete (function (f:Bytes) {

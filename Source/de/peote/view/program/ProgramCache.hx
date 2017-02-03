@@ -26,11 +26,13 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.peote.view;
+package de.peote.view.program;
 
 import de.peote.view.displaylist.*;
 import de.peote.view.element.*;
+import de.peote.view.program.Program;
 import de.peote.view.texture.Texture;
+import de.peote.view.program.ProgramParam;
 
 import haxe.ds.Vector;
 import haxe.ds.IntMap;

@@ -19,16 +19,9 @@ class MassAnim extends Sample
 	var frames:Int = 0;
 	var render_time:Float = 0;
 	var update_time:Float = 0;
-	//var ok:Bool = false;
-	var firstrun:Bool = true;
 	
 	public override function run()
-	{	//peoteView = new PeoteView(10, 10); // max_displaylists, max_programs(for all displaylists -> TODO)
-		//Timer.delay(rundelayed,1000);
-		//ok = true;
-	}
-	public function rundelayed()
-	{
+	{	
 		last_y = h - 1;
 		
 		// set Time
@@ -134,15 +127,8 @@ class MassAnim extends Sample
 	
 	public override function render(renderer:Renderer):Void
 	{
-		//if (ok)
-		if (firstrun)
-		{
-			rundelayed(); firstrun = false;
-		}
-		else
-		{ frames++;
-		  super.render(renderer);
-		}
+		frames++;
+		super.render(renderer);
 	}
 	
 	private inline function moveTilesUp():Void

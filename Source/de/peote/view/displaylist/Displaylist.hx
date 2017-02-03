@@ -28,8 +28,8 @@
 
 package de.peote.view.displaylist;
 
-import de.peote.view.Program;
-import de.peote.view.ProgramCache;
+import de.peote.view.program.Program;
+import de.peote.view.program.ProgramCache;
 import de.peote.view.texture.Image;
 import de.peote.view.texture.ImageCache;
 import de.peote.view.element.ElementParam;
@@ -43,9 +43,15 @@ import lime.graphics.opengl.GL;
 
 import haxe.ds.Vector;
 import haxe.Http;
+
+
 @:keep
 @:generic
+#if (haxe_ver < 3.3)
 class Displaylist<ELEMENT:{function new():Void;}, BUFFER:{function new(t:Int, b:Buffer):Void;}> implements I_Displaylist
+#else
+class Displaylist<ELEMENT:haxe.Constraints.Constructible<Void->Void>, BUFFER:haxe.Constraints.Constructible<Int->Buffer->Void>> implements I_Displaylist
+#end
 {
 	public var type:Int = 0;
 	

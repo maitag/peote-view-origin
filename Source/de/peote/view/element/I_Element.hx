@@ -1,5 +1,6 @@
 package de.peote.view.element;
 import de.peote.view.element.ElementParam;
+import de.peote.view.program.ProgramCache;
 import de.peote.view.texture.ImageCache;
 
 /**

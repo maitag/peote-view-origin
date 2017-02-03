@@ -6,7 +6,7 @@ package de.peote.view.element;
 
 import lime.graphics.opengl.GLBuffer;
 
-import de.peote.view.ProgramCache;
+import de.peote.view.program.ProgramCache;
 import haxe.ds.Vector;
 @:keep
 interface I_ElementBuffer

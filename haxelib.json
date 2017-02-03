@@ -1,0 +1,14 @@
+{
+	"name": "peote-view",
+	"url": "https://github.com/maitag/peote-view",
+	"license": "MIT",
+	"tags": ["peote", "opengl", "2d", "shader", "glsl"],
+	"description": "2D Graphics Library for OpenGl",
+	"version": "0.5.9",
+	"classPath": "Source/",
+	"releasenote": "",
+	"contributors": ["maitag"],
+	"dependencies": {
+		"lime": "3.7.2"
+	}
+}

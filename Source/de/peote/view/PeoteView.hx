@@ -28,10 +28,14 @@
 
 package de.peote.view;
 
+import de.peote.view.program.Program;
+import de.peote.view.program.ProgramCache;
 import de.peote.view.texture.ImageCache;
 import de.peote.view.texture.ImageParam;
 import de.peote.view.texture.Texture;
 import de.peote.view.texture.TextureParam;
+import de.peote.view.program.ProgramParam;
+
 import lime.utils.UInt8Array;
 
 import haxe.ds.Vector;
@@ -260,11 +264,12 @@ class PeoteView
 	// ------------------------------------------------------------------------------------------------------
 	// -------------------------------- SHADER --------------------------------------------------------------
 	// ------------------------------------------------------------------------------------------------------
-	public inline function setProgram(param:ProgramParam):Void
-	{	
+	//public inline function setProgram(param:ProgramParam):Void
+	public function setProgram(param:ProgramParam):Void
+	{
 		if (param.fshaderSrc == null && param.fshader != null) {
 			param.fshaderSrc = programCache.loadShader(param.fshader);
-		}
+		}		
 		if (param.vshaderSrc == null && param.vshader != null) {
 			param.vshaderSrc = programCache.loadShader(param.vshader);
 		}

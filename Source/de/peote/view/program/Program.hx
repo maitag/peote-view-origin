@@ -26,7 +26,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package de.peote.view;
+package de.peote.view.program;
 
 import de.peote.view.displaylist.Displaylist;
 import de.peote.view.displaylist.DisplaylistType;
