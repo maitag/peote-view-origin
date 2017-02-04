@@ -30,18 +30,23 @@ package samples;
 
 import haxe.Timer;
 import haxe.Utf8;
-import lime.ui.Window;
+#if cpp
+import sys.io.File;
+#end
+
 import lime.Assets;
 import lime.utils.Bytes;
 
-import de.peote.view.PeoteView;
-import de.peote.view.displaylist.DisplaylistType;
+import peote.view.PeoteView;
+import peote.view.displaylist.DisplaylistType;
+
 
 class GlyphTextRendering extends Sample
 {
 	var element_nr:Int = 0;
-	public override function run() 
-	{
+
+	public override function run():Void
+	{		
 		// set Time
 		startTime = Timer.stamp();
 					
@@ -75,8 +80,8 @@ class GlyphTextRendering extends Sample
 			w:   600,  h:   591,
 			r:1,
 			//w:   1024, h:   1024, 
-			filename: "assets/DejavuSans.png",
 			//filename: "assets/unifont/unifont_0000.png",
+			filename: "assets/DejavuSans.png",
 			//preload:true
 		});
 		
@@ -86,8 +91,12 @@ class GlyphTextRendering extends Sample
 		peoteView.setProgram( {
 			program: 0,
 			texture: 0,
+			#if cpp
+			fshader:'assets/gl3font_standard_derivates.frag'
+			#else
 			fshader:'assets/gl3font.frag'
-			//fshader:'assets/unifont/gl3font.frag'
+			#end
+			//vshader:'assets/unifont/smooth.vert'
 		});
 		
 		
@@ -111,31 +120,29 @@ class GlyphTextRendering extends Sample
 			blend:1 // alpha blending
 		});
 		
-		// -----------------------------------------------------
-		// ---------------- ELEMENTS ---------------------------
-		// -----------------------------------------------------		
-
-		var fontinfo:FontInfo = new FontInfo("assets/DejavuSans.dat", function(info:FontInfo) {
-		//var fontinfo:FontInfo = new FontInfo("assets/unifont/unifont_0000.dat", function(info:FontInfo) {
-			trace ("Loaded Fontdata complete");
-			var tw:Int = 600;
-			var th:Int = 591;
-			//var ts:Int = 2048;
-			
-			renderTextLine("PeoteView glyph textrendering with ttfcompiled font (thx deltaluca's great gl3font \\o/)", info, 18, 10, 20, tw, th); 
-			renderTextLine("-----------------------------------------------------------------------------------------------------------------", info, 18, 26, 20, tw, th); 
-			renderTextLine("\t!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ", info, 18, 60, 20, tw, th); 
-			renderTextLine("[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ", info, 18, 90, 20, tw, th); 
-			renderTextLine("¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×Ø", info, 18, 120, 20, tw, th); 
-			renderTextLine("ÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ", info, 18, 150, 20, tw, th); 
-			renderTextLine("‘’₯―΄΅ΆΈΉΊΌΎΏΐΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩΪΫάέήίΰαβγδεζηθικλμνξοπρςστυφχψωϊϋόύώ", info, 18, 180, 20, tw, th); 
-			
-			//renderTextLine(" .PagwWzo", info, 10, 180, 20, ts, ts); 
-			
-			
-		});
-		
+		//var fontinfo:FontInfo = new FontInfo("assets/unifont/unifont_0000.dat", onFontInfoLoad);
+		var fontinfo:FontInfo = new FontInfo("assets/DejavuSans.dat", onFontInfoLoad);
 	}
+	
+	public function onFontInfoLoad(info:FontInfo)
+	{
+		trace ("Loaded Fontdata complete");
+		var tw:Int = 600;
+		var th:Int = 591;
+		//var ts:Int = 2048;
+		
+		renderTextLine("PeoteView glyph textrendering with ttfcompiled font (thx deltaluca's great gl3font \\o/)", info, 18, 10, 20, tw, th); 
+		renderTextLine("-----------------------------------------------------------------------------------------------------------------", info, 18, 26, 20, tw, th); 
+		renderTextLine("\t!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ", info, 18, 60, 20, tw, th); 
+		renderTextLine("[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ", info, 18, 90, 20, tw, th); 
+		renderTextLine("¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×Ø", info, 18, 120, 20, tw, th); 
+		renderTextLine("ÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ", info, 18, 150, 20, tw, th); 
+		renderTextLine("‘’₯―΄΅ΆΈΉΊΌΎΏΐΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩΪΫάέήίΰαβγδεζηθικλμνξοπρςστυφχψωϊϋόύώ", info, 18, 180, 20, tw, th); 
+		
+		//renderTextLine(" .PagwWzo", info, 10, 180, 20, ts, ts); 
+	}
+	
+	
 	public function renderTextLine(s:String, info:FontInfo, x:Int, y:Int, scale:Float, texturewidth:Int, textureheight:Int):Void
 	{	
 		var t:Float = Timer.stamp() - startTime;
@@ -190,6 +197,7 @@ class GlyphTextRendering extends Sample
 						pivotY:Math.ceil(h / 2),
 						time:t+4
 					},
+					displaylist:0,
 					program:0,
 					tx:Math.floor(tx),
 					ty:Math.floor(ty),
@@ -217,13 +225,21 @@ class FontInfo {
     public var ascender:Float;
     public var descender:Float;
 
+	var onload: FontInfo->Void;
+	
     public function new(file:String, onload:FontInfo->Void) {
-		
+		this.onload = onload;
+		#if cpp
+		onComplete(File.getBytes(file));
+		#else
 		var future = Assets.loadBytes(file);
-		//future.onProgress (function (progress) trace ("Loading Fontdata Progress: " + progress));
+		//future.onProgress (function (progress,i) trace ("Loading Fontdata Progress: " + progress,i));
 		future.onError (function (msg) trace ("Loading Fontdata Error: " + msg));
-		
-		future.onComplete (function (f:Bytes) {
+		future.onComplete (onComplete);
+		#end
+	}
+	
+	public function onComplete(f:Bytes) {
 			
 			var pos:Int = 0;
 			var N:Int = f.getInt32(pos); pos += 4; trace('number of glyphes: $N');
@@ -263,13 +279,9 @@ class FontInfo {
 				}
 			}
 			onload(this);
-		});
-		
-		
-    }
-
-	
+	}
 }
+
 typedef Metric = {
     advance:Float,
     left:Float,

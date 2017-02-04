@@ -146,8 +146,8 @@ if some element use an image, it's data will be load into free Image-Slot of ass
 		
 		fit: "in",               // "in", "out" or "exact" fitting loaded image into slot size
 		// align: "top"          // (TODO) "top left" and such things
-		// scaleUp  :  false,    // (TODO) only scale down (images smaller than size of texture-slot dont scale up) 
-		// rgba: 0xff0022ff;     // (TODO) background color for border if not exactly fit
+		// noScaleUp  :  false,  // (TODO) only scale down (don't scale images up that smaller than slot size) 
+		r: 0.5, g:0, b:0, a:0.9  // background colors/alpha for border if not exactly fit
 		
 		
 		// posit directly inside texture-slot to create own texture-atlas:
@@ -172,7 +172,7 @@ if some element use an image, it's data will be load into free Image-Slot of ass
 
 #####3) Program
 
-opengl-shadercode and textures that can be use
+opengl-shadercode and textures that can be use in fragment-shader
 
 ```
 	var iteration  = [10];
@@ -222,6 +222,8 @@ rectangular screen-areas to display lots of elements
 		w: 1000,                                 // width
 		h: 1000,                                 // height
 		z: 0,
+		
+		r: 0.5, g:0, b:0, a:0.9      // background colors/alpha
 		
 		renderToTexture: 0, // TODO: texture to render content in
 		

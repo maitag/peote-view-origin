@@ -46,7 +46,7 @@
 	<!-- <haxedef name="HXCPP_M64" if="cpp" /> -->
 	
 	<!-- full dead code elimination on html5 reduces js-code (default dce is std only) -->
-	<haxeflag name="-dce" value="full" if="android||html5" />
+	<!-- <haxeflag name="-dce" value="full" if="android||html5" /> -->
 	
 	<assets path="Assets" rename="assets" exclude="lime.svg" />
 	<icon path="Assets/lime.svg" />

@@ -28,8 +28,8 @@
 
 package samples;
 
-import de.peote.view.PeoteView;
-import de.peote.view.displaylist.DisplaylistType;
+import peote.view.PeoteView;
+import peote.view.displaylist.DisplaylistType;
 import haxe.Timer;
 
 import lime.ui.Window;

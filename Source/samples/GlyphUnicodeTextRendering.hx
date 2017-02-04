@@ -30,13 +30,17 @@ package samples;
 
 import haxe.Timer;
 import haxe.Utf8;
-import haxe.io.StringInput;
-import lime.ui.Window;
-import lime.Assets;
-import lime.utils.Bytes;
+#if cpp
+import sys.io.File;
+#end
 
-import de.peote.view.PeoteView;
-import de.peote.view.displaylist.DisplaylistType;
+import lime.Assets;
+import haxe.io.Bytes;
+
+import peote.view.PeoteView;
+import peote.view.displaylist.DisplaylistType;
+
+import Map;
 
 class GlyphUnicodeTextRendering extends Sample
 {
@@ -73,7 +77,7 @@ class GlyphUnicodeTextRendering extends Sample
 			filename: "assets/unifont/unifont_0000.png",
 			w:   2048,        // Texture width
 			h:   1994,        // Texture height
-			preload:true
+			//preload:true
 		});
 		
 		// -----------------------------------------------------
@@ -82,7 +86,11 @@ class GlyphUnicodeTextRendering extends Sample
 		peoteView.setProgram( {
 			program: 0,
 			texture: 0,
+			#if cpp
+			fshader:'assets/gl3font_standard_derivates.frag',
+			#else
 			fshader:'assets/gl3font.frag',
+			#end
 			//vshader:'assets/unifont/smooth.vert'
 		});
 		
@@ -112,29 +120,31 @@ class GlyphUnicodeTextRendering extends Sample
 		// -----------------------------------------------------		
 
 		//var fontinfo:FontInfo = new FontInfo("assets/DejavuSans.dat", function(info:FontInfo) {
-		var fontinfo:FontInfo = new FontInfo("assets/unifont/unifont_0000.dat", function(info:FontInfo) {
+		var fontinfo:FontInfo = new FontInfo("assets/unifont/unifont_0000.dat", onFontInfoLoad);
+		
+	}
+	public function onFontInfoLoad(info:FontInfo)
+	{
 			trace ("Loaded Fontdata complete");
 			//var ts:Int = 1024;
 			var tw:Int = 2048;
 			var th:Int = 1994;
 			
-			renderTextLine("PeoteView glyph textrendering with ttfcompiled Unifont", info, 18, 0, 20, tw, th); 
-			renderTextLine("--------------------------------------------------------------------", info, 18, 20, 16, tw, th); 
+			//renderTextLine("PeoteView glyph textrendering with ttfcompiled Unifont", info, 18, 0, 20, tw, th); 
+			//renderTextLine("--------------------------------------------------------------------", info, 18, 20, 16, tw, th); 
 			
 			var i:Int = 0;
 			var l:Int = 40;
-			var s:String = "";
-			for (char in info.idmap) {
-				s += String.fromCharCode(char);
+			var s = new haxe.Utf8();
+			for (char in info.idmap)
+			{
+				s.addChar( char );
 				i++;
 				if (i > 100) {
-					renderTextLine(s, info, 20, l, 30, tw, th); 
-					i = 0; s = ""; l += 32;
+					renderTextLine(s.toString(), info, 20, l, 30, tw, th);
+					i = 0; s = new haxe.Utf8(); l += 32;
 				}
 			}		
-			
-		});
-		
 	}
 	public function renderTextLine(s:String, info:FontInfo, x:Int, y:Int, scale:Float, texturewidth:Int, textureheight:Int):Void
 	{	
@@ -164,7 +174,8 @@ class GlyphUnicodeTextRendering extends Sample
 				var tx:Float = info.metrics[id].u * texturewidth ;
 				var ty:Float = info.metrics[id].v * textureheight;
 				var tw:Float = info.metrics[id].w * texturewidth ;
-				var th:Float = info.metrics[id].h * textureheight;  trace(charcode, "h:"+info.metrics[id].height, "t:"+info.metrics[id].top );
+				var th:Float = info.metrics[id].h * textureheight;
+				//trace(charcode, "h:"+info.metrics[id].height, "t:"+info.metrics[id].top );
 				
 				var startx:Int = random(2000) - 800;
 				var starty:Int = random(1000) - 400;
@@ -181,7 +192,7 @@ class GlyphUnicodeTextRendering extends Sample
 					time:t,
 					end: {
 						x:penX + Math.floor(info.metrics[id].left * scale),
-						y:penY +  Math.floor(( info.height - info.metrics[id].top ) * scale),
+						y:penY + Math.floor(( info.height - info.metrics[id].top ) * scale),
 						
 						w:Math.ceil(w),
 						h:Math.ceil(h),
@@ -191,6 +202,7 @@ class GlyphUnicodeTextRendering extends Sample
 						pivotY:Math.ceil(h / 2),
 						time:t + 1 + (startx+starty)/2000
 					},
+					displaylist:0,
 					program:0,
 					tx:Math.floor(tx),
 					ty:Math.floor(ty),
@@ -209,7 +221,7 @@ class GlyphUnicodeTextRendering extends Sample
 // thanks to deltalucas gl3font lib -> https://github.com/deltaluca/gl3font
 
 class FontInfo {
-    public var idmap:Map<Int,Int>; // map glyph to id
+    public var idmap:OrderedMap<Int,Int>; // map glyph to id
 
     public var metrics:Array<Metric>;
     public var kerning:Array<Array<Float>>;
@@ -218,20 +230,28 @@ class FontInfo {
     public var ascender:Float;
     public var descender:Float;
 
+	var onload: FontInfo->Void;
+	
     public function new(file:String, onload:FontInfo->Void) {
-		
+		this.onload = onload;
+		#if cpp
+		onComplete(File.getBytes(file));
+		#else
 		var future = Assets.loadBytes(file);
-		//future.onProgress (function (progress) trace ("Loading Fontdata Progress: " + progress));
+		//future.onProgress (function (progress,i) trace ("Loading Fontdata Progress: " + progress,i));
 		future.onError (function (msg) trace ("Loading Fontdata Error: " + msg));
-		
-		future.onComplete (function (f:Bytes) {
+		future.onComplete (onComplete);
+		#end
+	}
+	
+	public function onComplete(f:Bytes) {
 			
 			var pos:Int = 0;
 			var N:Int = f.getInt32(pos); pos += 4; trace('number of glyphes: $N');
 			height    = f.getFloat(pos); pos += 4; trace('height: $height');
 			ascender  = f.getFloat(pos); pos += 4; trace('ascender: $ascender');
 			descender = f.getFloat(pos); pos += 4; trace('descender: $descender');
-			idmap = new Map<Int,Int>();
+			idmap = new OrderedMap<Int,Int>( new Map<Int,Int>() );
 			metrics = [for (i in 0...N) {
 				idmap.set(f.getInt32(pos), i); pos += 4;
 				var m:Metric = {
@@ -264,13 +284,9 @@ class FontInfo {
 				}
 			}
 			onload(this);
-		});
-		
-		
-    }
-
-	
+	}
 }
+
 typedef Metric = {
     advance:Float,
     left:Float,
@@ -282,3 +298,49 @@ typedef Metric = {
     w:Float,
     h:Float
 }
+
+
+class OrderedMapIterator<K,V> {
+
+    var map : OrderedMap<K,V>;
+    var index : Int = 0;
+
+    public function new(omap:OrderedMap<K,V>)
+        map = omap;
+    public function hasNext() : Bool
+        return index < map._keys.length;
+    public function next() : V
+        return map.get( map._keys[index++] );
+
+} //OrderedMapIterator
+
+class OrderedMap<K, V> implements IMap<K, V> {
+
+    var map:Map<K, V>;
+    @:allow(OrderedMapIterator)
+    public var _keys:Array<K>;
+    var idx = 0;
+
+    public function new(_map) {
+       _keys = [];
+       map = _map;
+    }
+
+    public function set(key, value) {
+        if (!map.exists(key)) _keys.push(key);
+        map[key] = value;
+    }
+
+    public function toString() {
+        var _ret = ''; var _cnt = 0; var _len = _keys.length;
+        for(k in _keys) _ret += '$k => ${map.get(k)}${(_cnt++<_len-1?", ":"")}';
+        return '{$_ret}';
+    }
+
+    public function iterator()          return new OrderedMapIterator<K,V>(this);
+    public function remove(key)         return map.remove(key) && _keys.remove(key);
+    public function exists(key)         return map.exists(key);
+    public function get(key)            return map.get(key);
+    public inline function keys()       return _keys.iterator();
+
+} //OrderedMap

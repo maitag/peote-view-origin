@@ -6,13 +6,14 @@ import lime.ui.KeyModifier;
 
 import lime.app.Application;
 import lime.app.Config;
+import lime.graphics.GLRenderContext;
 import lime.graphics.RenderContext;
 import lime.ui.Touch;
 import lime.ui.Window;
 import lime.graphics.Renderer;
 
-import de.peote.view.PeoteView;
-import de.peote.view.displaylist.DisplaylistType;
+import peote.view.PeoteView;
+import peote.view.displaylist.DisplaylistType;
 
 // parent class for all samples
 class Sample extends Application {

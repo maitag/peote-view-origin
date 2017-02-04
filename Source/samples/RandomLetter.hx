@@ -30,8 +30,8 @@ package samples;
 
 import haxe.Timer;
 
-import de.peote.view.PeoteView;
-import de.peote.view.displaylist.DisplaylistType;
+import peote.view.PeoteView;
+import peote.view.displaylist.DisplaylistType;
 
 class RandomLetter extends Sample
 {

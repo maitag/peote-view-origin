@@ -3,8 +3,8 @@ package samples;
 import haxe.Timer;
 import lime.graphics.Renderer;
 
-import de.peote.view.PeoteView;
-import de.peote.view.displaylist.DisplaylistType;
+import peote.view.PeoteView;
+import peote.view.displaylist.DisplaylistType;
 
 class MassAnim extends Sample
 {
