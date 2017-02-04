@@ -11,9 +11,6 @@ varying vec4 vRGBA;
 uniform vec2 uResolution;
 #end_PICKING
 
-uniform float uZoom;
-
-
 #if_TEXTURE0
 uniform sampler2D uTexture0;
 #end_TEXTURE0
@@ -36,20 +33,8 @@ void main(void)
 	#end_TEXTURE1
 	// ... TEXTURE2 ...TEXTURE3 ...
 	
-	// simmulates fwidth()
-	float current = texel.r;
-	float delta =uZoom*uZoom;
-	//float dfdx = texture2D(uTexture0, (vTexCoord + vec2(delta,0.0)) / #MAX_TEXTURE0).r - current;
-	//float dfdy = texture2D(uTexture0, (vTexCoord + vec2(0.0,delta)) / #MAX_TEXTURE0).r - current;
-	// TODO: store size of tile to do antialiasing
-	float dfdx = texture2D(uTexture0, (vTexCoord + 1.3) / #MAX_TEXTURE0).r - current;
-	float dfdy = texture2D(uTexture0, (vTexCoord + 1.0) / #MAX_TEXTURE0).r - current;
-	float E = abs(dfdx/delta)+abs(dfdy/delta);
-	
+	float E = fwidth(texel.r);// * 0.87;
 	texel.a = smoothstep(0.5-E,0.5+E, texel.r);
-	//if (current < 0.1) discard;
-	//texel.a = current;
-	
 
 	#if_PICKING
 	if (uResolution.x == 1.0) { 
