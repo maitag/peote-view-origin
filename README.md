@@ -3,7 +3,13 @@
 This library is written with the syntactic sugar of [Haxe](http://haxe.org),  
 together with power of great [Lime](https://github.com/openfl/lime) multiplatform work.  
 
+####Installation:
+```
+haxelib git https://github.com/maitag/peote-view
+```
+
 To use from javascript look here -> [peoteView.js](https://github.com/maitag/peoteView.js).  
+
 
 ####Build [Samples (^_^) <-](http://maitag.github.io/peote-view/)
 

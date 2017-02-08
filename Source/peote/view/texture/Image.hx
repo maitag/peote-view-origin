@@ -260,8 +260,8 @@ class Image
 			if (keep) // TODO : optimize
 			{
 				
-				tx = Math.floor(Math.max(0, tx +left));
-				ty = Math.floor(Math.max(0, ty +top));
+				tx = Math.floor(Math.max(tx, tx +left));
+				ty = Math.floor(Math.max(ty, ty +top));
 				tw = destWidth = destWidth - Math.floor(Math.max(0, left)) - Math.floor(Math.max(0, right));
 				th = destHeight = destHeight - Math.floor(Math.max(0, top)) - Math.floor(Math.max(0, bottom));
 				left = Math.floor(Math.min(0, left));
