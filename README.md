@@ -5,7 +5,7 @@ together with power of great [Lime](https://github.com/openfl/lime) multiplatfor
 
 ####Installation:
 ```
-haxelib git https://github.com/maitag/peote-view
+haxelib git peote-view https://github.com/maitag/peote-view
 ```
 
 To use from javascript look here -> [peoteView.js](https://github.com/maitag/peoteView.js).  
