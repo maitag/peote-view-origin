@@ -43,7 +43,7 @@ for variation, animation or combining Imagedata!
 
 ###How to use
 
-####Steps ( TODO: more defaults to display simple image only )
+####Steps
 
 To be near OpenGl, all that items are numbered by index to speed up rendering.
 
@@ -134,11 +134,8 @@ if some element use an image, it's data will be load into free Image-Slot of ass
 
 		filename: "assets/font.png",   // image filename or url to load image from
 
-		preload: true ,                // load images into texture, no matter of usage 
+		preload: true,                 // load images into texture, no matter of usage 
 		                               // default behaivor: Image is loaded on first use of element
-		
-		// cache: true,                // (TODO) loaded imagedata will be cached (outside gpu-texture-ram)
-		
 		
 		// to disable automatic insert into free texture-slot:
 		// ---------------------------------------------------
@@ -146,30 +143,21 @@ if some element use an image, it's data will be load into free Image-Slot of ass
 		slot: 0,                      // manual set texture-slot to load image in
                                       // all images of same texture should define or not define this parameter
 		
-		
 		// image fitting and aligning inside texture-slot:
 		// -----------------------------------------------
 		
 		fit: "in",               // "in", "out" or "exact" fitting loaded image into slot size
-		// align: "top"          // (TODO) "top left" and such things
-		// noScaleUp  :  false,  // (TODO) only scale down (don't scale images up that smaller than slot size) 
-		r: 0.5, g:0, b:0, a:0.9  // background colors/alpha for border if not exactly fit
 		
+		// or posit directly inside texture-slot to create own texture-atlas:
+		// ------------------------------------------------------------------
 		
-		// posit directly inside texture-slot to create own texture-atlas:
-		// ---------------------------------------------------------------
-		
-		keep: true,         // keep existing pixels in slot if image is smaller that slot-size
 		x:  10,             // Position from left
-		y:  10,             // Position from right
+		y:  10,             // Position from top
 		w: 100,             // new image width
 		h: 100,             // new image height
 
-		// callbacks (TODO)
-		onLoad:     function(w,h) {},         // callback if image is loaded
-		onProgress: function(p) {},           // callback while image loads
-		onError:    function(error, msg) {},  // callback on loading error -> eorror==0 -> no free texture slot
-		
+		keep: true,         // keep existing pixels in slot if image is smaller that slot-size
+		r: 0.5, g:0, b:0, a:0.9  // background colors/alpha for border if not exactly fit
 	});
 	
 ```
@@ -292,12 +280,11 @@ little Graphic inside Displaylist-Area (like a c64-sprite)
 
 ####Todo
 
-- image alignment inside texture-slot
 - render to texture
+- more defaults to display simple image only
 - more simple samples, usability and platform tests, api improvement, optimization
 - tile animation on gpu
 - more demos ;)
-- documentation
 
 
 

@@ -35,4 +35,6 @@ typedef ImageParam =
 	?g:Float,
 	?b:Float,
 	?a:Float,
+	
+	?onLoad:Int->Int->Void,
 }

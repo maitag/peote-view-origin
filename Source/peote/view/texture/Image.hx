@@ -57,7 +57,7 @@ class Image
 	public var texture:Texture;
 	public var slot:Int = -1;
 	
-	// TODO: priority of how much used keep time
+	// TODO: priority of how much used over time
 	public var used:Int = 0;
 	
 	public var tx:Int=0;
@@ -76,9 +76,8 @@ class Image
 	public var a:Float=0.0;
 	
 	public var fit:String = "none"; // "in", "out", "exact"
-	public var scaleUp:Bool = true;
 	public var keep:Bool = false;
-	
+
 	public function new(param:ImageParam, texture:Texture) 
 	{
 		url = param.filename;
@@ -96,7 +95,7 @@ class Image
 		if (param.g != null) g = param.g;
 		if (param.b != null) b = param.b;
 		if (param.a != null) a = param.a;
-		
+
 		trace("new IMAGE:",w,h);
 		
 		if (param.slot != null) slot = param.slot;
@@ -108,7 +107,6 @@ class Image
 			}
 			else trace("Error: Image fit parameter can only be 'none|in|out|exact'");
 		}
-		if (param.scaleUp != null) scaleUp = param.scaleUp;
 		if (param.keep != null) keep = param.keep;
 		
 		
@@ -122,24 +120,23 @@ class Image
 		var image:js.html.ImageElement = js.Browser.document.createImageElement();
 		image.onload = function(a)
 		{
-			//onload( this, image.width, image.height,  resize(image) );
 			onload( this, resize(image) );
 		}
 		
 		if (url.indexOf('http://') == 0 || url.indexOf('https://') == 0) // load throught proxy
 		{
-			var x = js.Browser.createXMLHttpRequest();
-			x.open('GET', '//cors-anywhere.herokuapp.com/'+url); // TODO: custom cors-server and same-domain-handling
-			x.responseType = XMLHttpRequestResponseType.BLOB;
-			x.onload = function() {
-				var blob = x.response;
+			var reqest = js.Browser.createXMLHttpRequest();
+			reqest.open('GET', '//cors-anywhere.herokuapp.com/'+url); // TODO: custom cors-server and same-domain-handling
+			reqest.responseType = XMLHttpRequestResponseType.BLOB;
+			reqest.onload = function() {
+				var blob = reqest.response;
 				var fr = new FileReader();
 				fr.onloadend = function() {
 					image.src = fr.result;
 				};
 				fr.readAsDataURL(blob);
 			};
-			x.send();
+			reqest.send();
 		}
 		else
 		{
@@ -159,7 +156,6 @@ class Image
 			req.onError = onerror;
 			req.onData = function (bytes) {
 				var image:lime.graphics.Image = lime.graphics.Image.fromBytes(Bytes.ofString(bytes));
-				//onload( this, image.width, image.height,  resize(image) );
 				onload( this, resize(image) );
 			};
 			req.request(false);
