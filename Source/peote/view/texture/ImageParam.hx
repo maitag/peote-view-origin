@@ -13,7 +13,6 @@ typedef ImageParam =
 	?slot:Int,
 	
 	filename:String,
-	//?bitmap:Bitmap,
 	
 	?preload:Bool,
 
@@ -22,13 +21,9 @@ typedef ImageParam =
 	?keep:Bool,
 	
 	?x:Int,
-	//?l:Int,
-	//?r:Int,
 	?h:Int,
 	
 	?y:Int,
-	//?t:Int,
-	//?b:Int,
 	?w:Int,
 	
 	?r:Float,
@@ -36,5 +31,4 @@ typedef ImageParam =
 	?b:Float,
 	?a:Float,
 	
-	?onLoad:Int->Int->Void,
 }
