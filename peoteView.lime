@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 	
-	<meta title="PeoteView" package="de.peote.view" version="0.5.9" company="Sylvio Sell - maitag" />
+	<meta title="PeoteView" package="de.peote.view" version="0.6.0" company="Sylvio Sell - maitag" />
 	
 	<!-- choose sample to build: -->
     <app main="samples.StartNewSample"      path="Export" file="NewSample" />
@@ -31,7 +31,7 @@
 	
 	<!-- shader float precision for html5 and raspberry pi and android -->
 	<haxedef name="peote_vert_medium_precision" if="html5||rpi||android" />
-	<haxedef name="peote_frag_medium_precision" if="html5||rpi||android" /><!-- midestens -->
+	<haxedef name="peote_frag_medium_precision" if="html5||rpi||android" />
 	<!-- <haxedef name="debugshader" /> -->
 
 	<!-- -Dwebgl -debug -->

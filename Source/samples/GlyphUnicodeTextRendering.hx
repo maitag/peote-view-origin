@@ -130,8 +130,8 @@ class GlyphUnicodeTextRendering extends Sample
 			var tw:Int = 2048;
 			var th:Int = 1994;
 			
-			//renderTextLine("PeoteView glyph textrendering with ttfcompiled Unifont", info, 18, 0, 20, tw, th); 
-			//renderTextLine("--------------------------------------------------------------------", info, 18, 20, 16, tw, th); 
+			renderTextLine("PeoteView glyph textrendering with ttfcompiled Unifont", info, 18, 0, 20, tw, th); 
+			renderTextLine("--------------------------------------------------------------------", info, 18, 20, 16, tw, th); 
 			
 			var i:Int = 0;
 			var l:Int = 40;
