@@ -9,6 +9,6 @@
 	"releasenote": "",
 	"contributors": ["maitag"],
 	"dependencies": {
-		"lime": "3.7.3"
+		"lime": "3.7.4"
 	}
 }

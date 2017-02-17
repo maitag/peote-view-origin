@@ -163,12 +163,12 @@ class Image
 		}
 		else
 		{
-			#if linux
+			
 			
 			var image:lime.graphics.Image = lime.graphics.Image.fromBytes(sys.io.File.getBytes(url));
 			onload( this, resize(image) );
 			
-			#else
+			/*
 			// load from assets
 			var future = Assets.loadImage(url,true);
 			//future.onProgress (function (progress) trace ("Loading Image Progress: " + progress));
@@ -177,7 +177,7 @@ class Image
 			future.onComplete (function (image) {
 				onload( this, resize(image) );
 			});
-			#end
+			*/
 		}
 		
 	}
