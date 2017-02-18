@@ -93,9 +93,9 @@ class Multitexture extends Sample
 				  DisplaylistType.ZINDEX
 				,
 			
-			maxElements:    10000,
-			maxPrograms:       10,
-			bufferSegments:    10,
+			maxElements:       2,
+			bufferSegmentSize: 2,
+			bufferSegments:    1,
 			
 			x: 0,
 			y: 0,
@@ -140,70 +140,6 @@ class Multitexture extends Sample
 			image:1,
 			tile:1
 		});
-
-		/*
-		peoteView.setElement( { element:2,
-			x:0, y:0,
-			rgba:0xff0000ff,
-			pivotX:50,
-			pivotY:50,rotation:360,
-			end: {
-				x:400,
-				rotation:180,
-				time: Timer.stamp() - startTime + 4,
-				rgba:0x0000ffff
-			},
-			w:100, h:100,
-			image:0,
-			tile:65,
-			program:0
-		});
-		*/
-		
-		/*
-		peoteView.setElementDefaults({ displaylist:1, z:0, image:0 });
-		
-		peoteView.setElement( { element:0,
-			x: 25, y: 25,
-			w:100, h:100
-		});
-		*/
-		
-		/*
-		// -----------------------------------------------------
-		
-		peoteView.setElement( { element:0, displaylist:1,
-			x:0, y:0,
-			end:{x:100, time: Timer.stamp() - startTime +100},
-			w:100, h:100,
-			tile:1
-		});
-		
-		
-		var timer = new Timer(2000);
-		timer.run = function() {
-			timer.stop();
-			peoteView.setElement( { element:0, displaylist:1,
-				program:0 // program-wechsel
-			});
-			//peoteView.setProgram(1, "assets/lyapunov_01.frag");
-
-			//peoteView.delDisplaylist( {displaylist:0 } );
-		}
-		*/
-		
-		/*
-		var offset:Int = 50;
-		var timer = new Timer(100);
-		timer.run = function() {
-			//trace("time");
-			var t:Float = Timer.stamp() - startTime;
-			//timer.stop();
-			offset += 10;
-			//peoteView.setDisplaylist( { displaylist:0, yOffset:offset });
-			peoteView.setDisplaylist( { displaylist:1, x:offset });
-		}
-		*/
 		
 
 	}

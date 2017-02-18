@@ -218,7 +218,7 @@ class ImageCache
 	
 	private function onImageLoad(img:Image, data:UInt8Array):Void
 	{
-		trace("onImageLoad: " + img.url + " gl-texture: " + img.texture+" to holePos:" + img.slot);
+		//trace("onImageLoad: " + img.url + " gl-texture: " + img.texture+" to holePos:" + img.slot);
 		if (img.slot > -1)
 		{
 			img.texture.storeImage(img, data);
@@ -228,7 +228,7 @@ class ImageCache
 	
 	public inline function clear():Int 
 	{	
-		trace("delete unused Images from Cache");	
+		//trace("delete unused Images from Cache");	
 		// delete unused Images from Cache
 		var numCleaned:Int = 0;
 		var unusedImg:Image;

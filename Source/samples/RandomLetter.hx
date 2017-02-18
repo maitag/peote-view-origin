@@ -72,8 +72,6 @@ class RandomLetter extends Sample
 		
 		peoteView.setDisplaylist( { displaylist:0, type:DisplaylistType.RGBA,
 			maxElements:w * h,
-			maxPrograms:1,
-			bufferSegments:1,
 			//w:1920, h:1280,
 			z:0,
 			enable:true

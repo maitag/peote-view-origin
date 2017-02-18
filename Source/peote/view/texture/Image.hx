@@ -96,7 +96,7 @@ class Image
 		if (param.b != null) b = param.b;
 		if (param.a != null) a = param.a;
 
-		trace("new IMAGE:",w,h);
+		//trace("new IMAGE:",w,h);
 		
 		if (param.slot != null) slot = param.slot;
 		if (param.fit != null)
@@ -275,9 +275,9 @@ class Image
 			y = top;
 		}
 		
-		trace('============> tx=$tx, ty=$ty - tw=$tw, th=$th');
-		trace('sourceWidth=$sourceWidth, sourceHeight=$sourceHeight - destWidth=$destWidth, destHeight=$destHeight');
-		trace('left=$left, right=$right - top=$top, bottom=$bottom');
+		//trace('============> tx=$tx, ty=$ty - tw=$tw, th=$th');
+		//trace('sourceWidth=$sourceWidth, sourceHeight=$sourceHeight - destWidth=$destWidth, destHeight=$destHeight');
+		//trace('left=$left, right=$right - top=$top, bottom=$bottom');
 		// -------------------- Javascript ----------------------
 		#if js
 		var tmp_canvas = js.Browser.document.createCanvasElement();

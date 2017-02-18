@@ -62,8 +62,6 @@ class MassAnim extends Sample
 			displaylist: 0,
 			type: DisplaylistType.ANIM,
 			maxElements: 1,
-			maxPrograms:1,
-			bufferSegments:1,
 			z: 0
 		});
 		
@@ -74,8 +72,6 @@ class MassAnim extends Sample
 			maxElements: w * h,
 			//renderBackground:true,
 			//r:.5,
-			maxPrograms:1,
-			bufferSegments:1,
 			z: 1
 		});
 		

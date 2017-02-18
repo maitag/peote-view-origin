@@ -128,12 +128,9 @@ class ElementAnim implements I_Element
 		
 		// SLOT
 		if (param.slot == null && PeoteView.elementDefaults.slot != null ) param.slot = PeoteView.elementDefaults.slot;
-		if (param.slot!= null && param.slot != slot)
+		if (param.slot != null && param.slot != slot && programCache.textures.length > act_program.program_nr)
 		{
-			if (programCache.textures.get(act_program.program_nr) != null)
-			{
-				slot = param.slot;
-			}
+			if (programCache.textures.get(act_program.program_nr) != null) slot = param.slot;
 		}
 		
 		// IMAGE
@@ -170,18 +167,18 @@ class ElementAnim implements I_Element
 		}
 		else 
 		{
-			var texture = programCache.textures.get(act_program.program_nr);
 			if (param.tx == null) param.tx = 0;
 			if (param.ty == null) param.ty = 0;
-			if (texture != null)
+			if (param.tw == null) param.tw = param.w;
+			if (param.th == null) param.th = param.h;
+			if (programCache.textures.length > act_program.program_nr)
 			{
-				if (param.tw == null) param.tw = texture.max_texture_width;
-				if (param.th == null) param.th = texture.max_texture_height;
-			}
-			else
-			{
-				if (param.tw == null) param.tw = param.w;
-				if (param.th == null) param.th = param.h;
+				var texture = programCache.textures.get(act_program.program_nr);
+				if (texture != null)
+				{
+					if (param.tw == null) param.tw = texture.max_texture_width;
+					if (param.th == null) param.th = texture.max_texture_height;
+				}
 			}
 		}
 		

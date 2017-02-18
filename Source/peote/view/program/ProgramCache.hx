@@ -99,7 +99,7 @@ class ProgramCache
 	
 	public inline function addDisplaylist(type:Int, elemBuff:I_ElementBuffer):Void
 	{
-		trace("addDisplaylist:" + type);
+		//trace("addDisplaylist:" + type);
 		if ( ! defaultProgram.exists(type) )
 		{
 			var p = new Program();

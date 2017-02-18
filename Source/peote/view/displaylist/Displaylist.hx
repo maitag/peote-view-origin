@@ -56,9 +56,9 @@ class Displaylist<ELEMENT:haxe.Constraints.Constructible<Void->Void>, BUFFER:hax
 {
 	public var type:Int = 0;
 	
-	public var elements:Int; //max number of elements
-	public var programs:Int; //max number of different programs
-	public var segments:Int; //max number of buffer segments (minimum is  max programs)
+	public var maxElements:Int; //max number of elements
+	public var bufferSegmentSize:Int; //max number of different programs
+	public var bufferSegments:Int; //max number of buffer segments (minimum is  max programs)
 	
 	// double linked circular list
 	public var prev:I_Displaylist = this; // pref displaylist (in order)
@@ -106,15 +106,15 @@ class Displaylist<ELEMENT:haxe.Constraints.Constructible<Void->Void>, BUFFER:hax
 		this.programCache = programCache;
 		this.type = param.type;
 		
-		this.elements = (param.maxElements != null) ? param.maxElements : 1;
-		this.programs = (param.maxPrograms!= null) ? param.maxPrograms : 1;
-		this.segments = Math.floor(Math.max( (param.bufferSegments != null) ? param.bufferSegments : 1, programs ));
+		maxElements = (param.maxElements != null) ? param.maxElements : 1;
+		bufferSegmentSize = (param.bufferSegmentSize!= null) ? param.bufferSegmentSize : maxElements;
+		bufferSegments = (param.bufferSegments != null) ? param.bufferSegments : 1;
 		
 		z = (param.z != null) ? param.z : 0;
 		
-		element = new Vector<I_Element>(elements);
+		element = new Vector<I_Element>(maxElements);
 		
-		buffer = new Buffer( Math.floor(elements/segments), segments );
+		buffer = new Buffer( bufferSegmentSize, bufferSegments );
 		
 		elemBuff = cast( new BUFFER(type, buffer), I_ElementBuffer);
 		
@@ -148,28 +148,50 @@ class Displaylist<ELEMENT:haxe.Constraints.Constructible<Void->Void>, BUFFER:hax
 	}
 
 	public inline function setElement(param:ElementParam):Void
-	{		
-		var e:I_Element = element.get(param.element);
-		
-		if (e == null) // create new Element
+	{	
+		if (param.element < maxElements)
 		{
-			e = cast( new ELEMENT(), I_Element);
-			
-			if (param.program == null) param.program = programCache.program.length-1;
+			var e:I_Element = element.get(param.element);
 
-			buffer.addElement( e, programCache.getProgram(param.program, type, elemBuff), param.program, programCache.programTextures.get(param.program) ); // TODO: optimize call
-			element.set( param.element, e );
-			//trace("addElement "+param.element+" displaylist:"+param.displaylist+" buf_pos :"+e.buf_pos + " start" + e.act_program.start+ " size" + e.act_program.size);
+			if (e == null) // create new Element
+			{
+				if (param.program != null)
+				{
+					if( programCache.program.length > param.program)
+					{
+						e = cast( new ELEMENT(), I_Element);				
+						buffer.addElement( e, programCache.getProgram(param.program, type, elemBuff), param.program, programCache.programTextures.get(param.program) ); // TODO: optimize call
+						element.set( param.element, e );
+						//trace("addElement "+param.element+" displaylist:"+param.displaylist+" buf_pos :"+e.buf_pos + " start" + e.act_program.start+ " size" + e.act_program.size);
+						e.set(elemBuff, param, imageCache, programCache);
+					}
+					else trace('ERROR in setElement({element:${param.element}}): program:${param.program} is out of bounds, please check maxPrograms inside Displaylist');
+				}
+				else trace('ERROR in setElement({element:${param.element}}): no program number specified');
+			}
+			else
+			{
+				if (param.program != null)
+				{
+					if (param.program != e.act_program.program_nr ) //change program
+					{
+						if( programCache.program.length > param.program)
+						{
+							elemBuff.del(e);
+							buffer.delElement(e);
+							buffer.addElement( e, programCache.getProgram(param.program, type, elemBuff), param.program, programCache.programTextures.get(param.program) ); // TODO: optimize call
+							e.set(elemBuff, param, imageCache, programCache);
+						}
+						else trace('ERROR in setElement({element:${param.element}}): program:${param.program} is out of bounds, please check maxPrograms inside Displaylist');
+					}
+					else e.set(elemBuff, param, imageCache, programCache);
+				}
+				else e.set(elemBuff, param, imageCache, programCache);
+				// trace("set element "+param.element+"--------- buf_pos :"+e.buf_pos);
+			}
+			
 		}
-		else if (param.program != null && param.program != e.act_program.program_nr ) //change program
-		{
-			elemBuff.del(e);
-			buffer.delElement(e);
-			buffer.addElement( e, programCache.getProgram(param.program, type, elemBuff), param.program, programCache.programTextures.get(param.program) ); // TODO: optimize call
-		}
-		//else trace("set element "+param.element+"--------- buf_pos :"+e.buf_pos);
-		
-		e.set(elemBuff, param, imageCache, programCache);
+		else trace('ERROR in setElement({element:${param.element}}): ${param.element} is out of bounds, please check maxElements inside Displaylist');
 	}
 
 			

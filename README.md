@@ -52,7 +52,7 @@ To be near OpenGl, all that items are numbered by index to speed up rendering.
 
 	peoteView.setTexture({
 		texture:  0,          // texture index
-		slots:   16,          // minimum slots to store images
+		slots:   16,          // amount of image-slots
 		w:      512,          // slot width
 		h:      512           // slot height
 	});
@@ -128,36 +128,36 @@ if some element use an image, it's data will be load into free Image-Slot of ass
 	
 	peoteView.setImage({
 
-		image:   0,                    // image index
-	
-		texture: 0,                    // texture to store image-data inside
-
-		filename: "assets/font.png",   // image filename or url to load image from
-
-		preload: true,                 // load images into texture, no matter of usage 
-		                               // default behaivor: Image is loaded on first use of element
+		image:   0,                  // image index
+	                                 
+		texture: 0,                  // texture to store image-data inside
+                                     
+		filename: "assets/font.png", // image filename or url to load image from
+                                     
+		preload: true,               // load images into texture, no matter of usage 
+		                             // default behaivor: Image is loaded on first use of element
 		
 		// to disable automatic insert into free texture-slot:
 		// ---------------------------------------------------
 		
-		slot: 0,                      // manual set texture-slot to load image in
-                                      // all images of same texture should define or not define this parameter
+		slot: 0,                     // manual set texture-slot to load image in
+                                     // all images of same texture should define or not define this parameter
 		
 		// image fitting and aligning inside texture-slot:
 		// -----------------------------------------------
 		
-		fit: "in",               // "in", "out" or "exact" fitting loaded image into slot size
+		fit: "in",                   // "in", "out" or "exact" fitting loaded image into slot size
 		
 		// or posit directly inside texture-slot to create own texture-atlas:
 		// ------------------------------------------------------------------
 		
-		x:  10,             // Position from left
-		y:  10,             // Position from top
-		w: 100,             // new image width
-		h: 100,             // new image height
-
-		keep: true,         // keep existing pixels in slot if image is smaller that slot-size
-		r: 0.5, g:0, b:0, a:0.9  // background colors/alpha for border if not exactly fit
+		x:  10,                      // Position from left
+		y:  10,                      // Position from top
+		w: 100,                      // new image width
+		h: 100,                      // new image height
+                                     
+		keep: true,                  // keep existing pixels in slot if image is smaller that slot-size
+		r: 0.5, g:0, b:0, a:0.9      // background colors/alpha for border if not exactly fit
 	});
 	
 ```
@@ -203,21 +203,26 @@ rectangular screen-areas to display lots of elements
 
 	peoteView.setDisplaylist({
 
-		displaylist: 0,                          // displaylist index
+		displaylist: 0,                 // displaylist index
 		
-		type:DisplaylistType.RGBA,               // can be combination of .PICKING  .ANIM   .ROTATION...
+		type:DisplaylistType.RGBA,      // can be combination of .PICKING  .ANIM   .ROTATION...
 		
-		maxElements:    100,                     // maximum elements to display
-		maxPrograms:     10,                     // maximum different shader-programs
-		bufferSegments:  10,                     // gpu-buffer segmentation (can be result in better performance for I/O)
+		maxElements:    100,            // maximum elements to set up via setElement()
+
+		// gpu-buffer segmentation (can be potimized for better render performance)
+		// maximum number of displayable elements is product of these values:
 		
-		x: 150,                                  // pixels from left border
-		y: 50,                                   // pixels from top border
-		w: 1000,                                 // width
-		h: 1000,                                 // height
-		z: 0,
+		bufferSegmentSize: 10           // number of elements per segment that shares the same program (one draw-call)
+		bufferSegments:    10,          // how much segments of these size will be reserved
+
 		
-		r: 0.5, g:0, b:0, a:0.9      // background colors/alpha
+		x: 150,                         // pixels from left border
+		y: 50,                          // pixels from top border
+		w: 1000,                        // width
+		h: 1000,                        // height
+		z: 0,                           // z-order
+		
+		r: 0.5, g:0, b:0, a:0.9         // background colors/alpha
 		
 		renderToTexture: 0, // TODO: texture to render content in
 		
@@ -244,11 +249,11 @@ little Graphic inside Displaylist-Area (like a c64-sprite)
 		
 		// Position and Size ---------------
 		
-		x: 10,  // pixels from left displaylist border
-		y: 10,  // pixels from top displaylist border
-		w: 100, // width
-		h: 100, // height
-		z: 0    // z-order   ( 0 <= z <= 32767 )
+		x: 10,           // pixels from left displaylist border
+		y: 10,           // pixels from top displaylist border
+		w: 100,          // width
+		h: 100,          // height
+		z: 0             // z-order   ( 0 <= z <= 32767 )
 		
 		// (rotation, animation, coloring ... -> see samples)
 		

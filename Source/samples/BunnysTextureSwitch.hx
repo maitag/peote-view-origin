@@ -49,13 +49,13 @@ class BunnysTextureSwitch extends Sample
 	#if android
 	var max_bunnys:Int = 80000;
 	var max_spawn:Int  = 1; 
-	var spawn_time:Int = 16; // spawns per second
-	var tile_size:Int  = 48;
+	var spawn_time:Int = 12; // spawns per second
+	var tile_size:Int  = 32;
 	#else
 	var max_bunnys:Int = 1000000;
-	var max_spawn:Int  = 2; 
-	var spawn_time:Int = 32; // spawns per second
-	var tile_size:Int  = 64;
+	var max_spawn:Int  = 20; 
+	var spawn_time:Int = 24; // spawns per second
+	var tile_size:Int  = 48;
 	#end
 	
 	var pause:Bool = false;
@@ -171,7 +171,8 @@ class BunnysTextureSwitch extends Sample
 		// Displaylist for massive tiles
 		peoteView.setDisplaylist( { displaylist:0, type:DType.ANIM|DType.ROTATION|DType.RGBA|DType.ZINDEX,
 			maxElements:max_bunnys,
-			maxPrograms:10,
+			bufferSegmentSize:1000,
+			bufferSegments:Math.floor(max_bunnys/1000)+2,
 			z:0
 		});
 
@@ -409,7 +410,7 @@ class BunnysTextureSwitch extends Sample
 		var py:Int = 0;
 		var xmax:Int = 0;
 		
-		for (i in 0...peoteView.getDisplaylist({displaylist:d}).elements)
+		for (i in 0...peoteView.getDisplaylist({displaylist:d}).maxElements)
 		{
 			if (i < s.length)
 			     letter = s.charCodeAt(i);

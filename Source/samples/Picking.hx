@@ -52,8 +52,6 @@ class Picking extends Sample
 			displaylist:0,
 			type:DType.ANIM|DType.RGBA|DType.ROTATION|DType.PICKING, //|DType.ZINDEX
 			maxElements:1000,
-			maxPrograms:1,
-			bufferSegments:10,
 			x:0, y:0,
 			w:512, h:512,
 			z:0,

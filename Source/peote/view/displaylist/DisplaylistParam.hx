@@ -11,7 +11,7 @@ typedef DisplaylistParam =
 	?enable:Bool,
 	
 	?maxElements:Int,
-	?maxPrograms:Int,
+	?bufferSegmentSize:Int,
 	?bufferSegments:Int,
 	
 	?x:Int,

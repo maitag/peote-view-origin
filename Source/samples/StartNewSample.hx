@@ -97,9 +97,9 @@ class StartNewSample extends Sample
 				  DType.ZINDEX
 				,
 			
-			maxElements:    10000,
-			maxPrograms:       10,
-			bufferSegments:     1,
+			maxElements:       10000,
+			bufferSegmentSize:  5000,
+			bufferSegments:        2,
 			
 			x: 0,
 			y: 0,

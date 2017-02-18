@@ -4,7 +4,7 @@ import haxe.ds.StringMap;
 
 typedef ProgramParam =
 {
-	program:Int,
+	?program:Int,
 	?fshader:String,
 	?vshader:String,
 	?fshaderSrc:String,

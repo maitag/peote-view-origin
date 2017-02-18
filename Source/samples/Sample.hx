@@ -74,7 +74,7 @@ class Sample extends Application {
 	// ----------- EVENT HANDLER ----------------------------------
 	public override function onWindowResize (window:Window, width:Int, height:Int):Void
 	{
-		trace("onWindowResize:"+ window.width+','+ window.height);
+		//trace("onWindowResize:"+ window.width+','+ window.height);
 		this.width = window.width;
 		this.height = window.height;
 	}
@@ -89,7 +89,7 @@ class Sample extends Application {
 	
 	public override function onTouchMove (touch:Touch):Void
 	{
-		trace("onTouchMove: " + touch.x + "," + touch.y );
+		//trace("onTouchMove: " + touch.x + "," + touch.y );
 		mouse_x = Std.int(touch.x); //* window.width;
 		mouse_y = Std.int(touch.y);
 		setOffsets();
@@ -97,7 +97,7 @@ class Sample extends Application {
 	
 	public override function onMouseDown (window:Window, x:Float, y:Float, button:Int):Void
 	{	
-		trace("onMouseDown: x=" + x + " y="+ y);
+		//trace("onMouseDown: x=" + x + " y="+ y);
 		if ( button == 0) zoom++;
 		else if (button == 1 && zoom > 1) zoom--;
 		setOffsets();
@@ -105,12 +105,12 @@ class Sample extends Application {
 	
 	public override function onMouseUp (window:Window, x:Float, y:Float, button:Int):Void
 	{	
-		trace("onmouseup: "+button+" x=" + x + " y="+ y);
+		//trace("onmouseup: "+button+" x=" + x + " y="+ y);
 	}
 	
 	public override function onMouseWheel (window:Window, deltaX:Float, deltaY:Float):Void
 	{	
-		trace("onmousewheel: " + deltaX + ',' + deltaY );
+		//trace("onmousewheel: " + deltaX + ',' + deltaY );
 		if ( deltaY>0 ) zoom++;
 		else if (zoom > 1) zoom--;
 		setOffsets();
@@ -128,12 +128,12 @@ class Sample extends Application {
 	
 	public override function onPreloadProgress (loaded:Int, total:Int):Void
 	{		
-		trace(" --------- onPreloadProgress ----------- ");		
+		//trace(" --------- onPreloadProgress ----------- ");		
 	}
 	
 	public override function onPreloadComplete ():Void
 	{		
-		trace(" --------- onPreload Complete ----------- ");
+		//trace(" --------- onPreload Complete ----------- ");
 	}
 	
 	public override function onKeyDown (window:Window, keyCode:KeyCode, modifier:KeyModifier):Void

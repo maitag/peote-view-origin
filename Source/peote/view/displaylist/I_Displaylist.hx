@@ -11,9 +11,9 @@ import peote.view.Buffer;
 interface I_Displaylist 
 {
 	public var type:Int;
-	public var elements:Int;
-	public var programs:Int;
-	public var segments:Int;
+	public var maxElements:Int;
+	public var bufferSegmentSize:Int;
+	public var bufferSegments:Int;
 	
 	public var prev:I_Displaylist; // pref displaylist (in order)
 	public var next:I_Displaylist; // next displaylist (in order)

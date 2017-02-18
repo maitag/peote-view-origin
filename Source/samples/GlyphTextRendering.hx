@@ -107,9 +107,9 @@ class GlyphTextRendering extends Sample
 			displaylist: 0,
 			type: DType.RGBA | DType.ANIM | DType.ROTATION,
 			
-			maxElements:    10000,
-			maxPrograms:        1,
-			bufferSegments:     1,
+			maxElements:       10000,
+			bufferSegmentSize: 10000,
+			bufferSegments:        1,
 			
 			x: 0, y: 0,	w: 1024, h: 512,
 

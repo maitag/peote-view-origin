@@ -57,7 +57,6 @@ class Texture
 	
 	public function new(param:TextureParam) 
 	{
-		
 		slotWidth = param.w;
 		slotHeight = param.h;
 		/*
@@ -81,8 +80,7 @@ class Texture
 				max_texture_height = slotsY*slotHeight;
 				
 				slotHoles = new Holes(slotsX*slotsY);
-				trace("TextureCache: slotsX=" + slotsX + " slotWidth=" + slotWidth
-					+ " slotsY="+slotsY+" slotHeight=" + slotHeight);
+				//trace('TextureCache: slotsX=$slotsX, slotWidth=$slotWidth, slotsY=$slotsY, slotHeight=$slotHeight');
 				
 				// TODO
 				texture = createEmptyTexture(slotsX * slotWidth, slotsY * slotHeight);
@@ -112,7 +110,7 @@ class Texture
 	public inline function reserveImageSlot(img:Image):Void
 	{
 		if (autoSlots) img.slot = slotHoles.getHole();
-		trace("~~~~~~~~~> reserveImageSlot _>"+img.slot);
+		//trace("~~~~~~~~~> reserveImageSlot _>"+img.slot);
 		//img.tx += (img.slot % slotsX) * slotWidth;
 		//img.ty += Math.floor(img.slot / slotsX) * slotHeight;
 	}
@@ -169,10 +167,10 @@ class Texture
 		if (maxTextureSize == null) maxTextureSize = GL.getParameter(GL.MAX_TEXTURE_SIZE);
 		
         maxTextureSize = Math.ceil( Math.log(maxTextureSize) / Math.log(2) );
-        trace('maxTextureSize: ${1<<maxTextureSize}');
-        trace('Texture-slots:${slots}');
-        trace('slot width : ${slotWidth}');
-        trace('slot height: ${slotHeight}');
+        //trace('maxTextureSize: ${1<<maxTextureSize}');
+        //trace('Texture-slots:${slots}');
+        //trace('slot width : ${slotWidth}');
+        //trace('slot height: ${slotHeight}');
         
         var a:Int = Math.ceil( Math.log(slots * slotWidth * slotHeight ) / Math.log(2) );  //trace(a);
         
@@ -233,7 +231,7 @@ class Texture
 			param.slots = param.sx * param.sy;
 			param.w = 1 << w;
 			param.h = 1 << h;
-            trace('${param.sx * param.sy} Slots (${param.sx} * ${param.sy}) on ${1<<w} x ${1<<h} Texture'); 
+            //trace('${param.sx * param.sy} Slots (${param.sx} * ${param.sy}) on ${1<<w} x ${1<<h} Texture'); 
         }
         else
 		{

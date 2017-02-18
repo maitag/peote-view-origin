@@ -128,12 +128,12 @@ class PeoteView
 		textures = new Vector<Texture>(param.maxTextures);
 		imageCache = new ImageCache(param.maxImages, textures);
 		
-		programCache = new ProgramCache( param.maxPrograms + 1, textures ); // last one is DEFAULT Program
+		programCache = new ProgramCache( param.maxPrograms, textures );
 		
 		
 		startDisplaylist = null;
 		displaylist = new Vector<I_Displaylist>(param.maxDisplaylists);
-		
+
 		// for background-GL-quad
 		createBackgroundBuffer();
 		
@@ -144,7 +144,7 @@ class PeoteView
 	// ------------------------------------------------------------------------------------------------------
 	// ---------------------------------- TEXTURE -----------------------------------------------------------
 	// ------------------------------------------------------------------------------------------------------
-	public inline function setTexture(param:TextureParam):Void
+	public function setTexture(param:TextureParam):Void
 	{
 		if (textures.get(param.texture) == null)
 		{
@@ -153,7 +153,7 @@ class PeoteView
 		else trace("re-set Texture ist not implemented yet");
 	}
 	
-	public inline function delTexture(param:TextureParam):Void
+	public function delTexture(param:TextureParam):Void
 	{
 		trace("not fully implemented yet");
 		/*var t:Texture = textures.get(param.texture);
@@ -167,7 +167,7 @@ class PeoteView
 	// ------------------------------------------------------------------------------------------------------
 	// -------------------------------- DISPLAYLIST ---------------------------------------------------------
 	// ------------------------------------------------------------------------------------------------------
-	public inline function setDisplaylist(param:DisplaylistParam):Void
+	public function setDisplaylist(param:DisplaylistParam):Void
 	{
 		var d:I_Displaylist = displaylist.get(param.displaylist);
 		
@@ -253,7 +253,7 @@ class PeoteView
 		}
 	}
 
-	public inline function delDisplaylist(param:DisplaylistParam):Void
+	public function delDisplaylist(param:DisplaylistParam):Void
 	{
 		var d:I_Displaylist = displaylist.get(param.displaylist);
 		
@@ -265,7 +265,7 @@ class PeoteView
 		}
 	}
 
-	public inline function getDisplaylist(param:DisplaylistParam):I_Displaylist
+	public function getDisplaylist(param:DisplaylistParam):I_Displaylist
 	{
 		return displaylist.get( (param.displaylist != null) ? param.displaylist : elementDefaults.displaylist );
 	}
@@ -277,24 +277,32 @@ class PeoteView
 	//public inline function setProgram(param:ProgramParam):Void
 	public function setProgram(param:ProgramParam):Void
 	{
-		if (param.fshaderSrc == null && param.fshader != null) {
-			param.fshaderSrc = programCache.loadShader(param.fshader);
-		}		
-		if (param.vshaderSrc == null && param.vshader != null) {
-			param.vshaderSrc = programCache.loadShader(param.vshader);
+		if (param.program != null)
+		{
+			if (programCache.program.length > param.program)
+			{
+				if (param.fshaderSrc == null && param.fshader != null) {
+					param.fshaderSrc = programCache.loadShader(param.fshader);
+				}		
+				if (param.vshaderSrc == null && param.vshader != null) {
+					param.vshaderSrc = programCache.loadShader(param.vshader);
+				}
+				programCache.setProgram(param);
+			}
+			else trace('ERROR in setProgram({program:${param.program}}): program:${param.program} is out of bounds, please check maxPrograms inside PeoteView');
 		}
-		programCache.setProgram(param);
+		else trace("ERROR in setProgram(): no program number specified");
 	}
 	
 	// ------------------------------------------------------------------------------------------------------
 	// -------------------------------- IMAGE ---------------------------------------------------------------
 	// ------------------------------------------------------------------------------------------------------
-	public inline function setImage(param:ImageParam):Void
+	public function setImage(param:ImageParam):Void
 	{
 		imageCache.setImage(param);
 	}
 	
-	public inline function delImage(param:ImageParam):Void
+	public function delImage(param:ImageParam):Void
 	{
 		// TODO
 		trace("not implemented yet");
@@ -310,7 +318,7 @@ class PeoteView
 	{		
 		if (param.element != null)
 			displaylist.get( (param.displaylist!=null) ? param.displaylist : elementDefaults.displaylist ).setElement(param);
-		else trace("ERROR: no element specified");
+		else trace("ERROR in setElement(): no element number specified");
 	}
 	
 	public function getElement(param:ElementParam):ElementParam
@@ -318,7 +326,7 @@ class PeoteView
 		var p:ElementParam = {};
 		if (param.element != null)
 			p = displaylist.get( (param.displaylist != null) ? param.displaylist : elementDefaults.displaylist ).getElement(param.element);
-		else trace("ERROR: no element specified");
+		else trace("ERROR in getElement(): no element number specified");
 		return p;
 	}
 	
@@ -327,19 +335,19 @@ class PeoteView
 		return (param.element == null) ? false : displaylist.get( (param.displaylist != null) ? param.displaylist : elementDefaults.displaylist ).hasElement(param.element);
 	}
 	
-	public inline function delElement(param:ElementParam):Void
+	public function delElement(param:ElementParam):Void
 	{
 		if (param.element != null)
 			displaylist.get( (param.displaylist!=null) ? param.displaylist : elementDefaults.displaylist ).delElement(param.element);
 		else trace("ERROR: no element specified");
 	}
 	
-	public inline function delAllElement(param:ElementParam):Void
+	public function delAllElement(param:ElementParam):Void
 	{
 		displaylist.get( (param.displaylist!=null) ? param.displaylist : elementDefaults.displaylist ).delAllElement();
 	}
 	
-	public inline function setElementDefaults(param:ElementParam):Void
+	public function setElementDefaults(param:ElementParam):Void
 	{
 		if (param.displaylist != null) elementDefaults.displaylist = param.displaylist;	
 		if (param.program != null) elementDefaults.program = param.program;
@@ -369,7 +377,7 @@ class PeoteView
 		GL.clearColor(0.0, 0.0, 0.0, 1.0); // TODO: maybe alpha to 0.0 ?
 		//GL.clearDepth(0.0);
 		GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT); //GL.STENCIL_BUFFER_BIT
-		
+
 		// loop over enabled displaylists
 		dl = startDisplaylist;
 		while (dl != null)

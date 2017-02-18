@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 	
-	<meta title="PeoteView" package="de.peote.view" version="0.6.0" company="Sylvio Sell - maitag" />
+	<meta title="PeoteView" package="peote.view" version="0.6.1" company="Sylvio Sell - maitag" />
 	
 	<!-- choose sample to build: -->
     <app main="samples.StartNewSample"      path="Export" file="NewSample" />
@@ -14,17 +14,12 @@
 	<!-- <app main="samples.Picking"             path="Export" file="Picking" /> -->
 	<!-- <app main="samples.Multitexture"        path="Export" file="Multitexture" /> -->
 	
-	<!--
-	<window fps="60" width="800" height="600" vsync="true" antialiasing="4" resizable="true" hardware="true" allow-shaders="true" require-shaders="true" depth-buffer="true" stencil-buffer="false" />
-	-->  <!-- does not run native with some parameters here: -->
 	<window fps="60" width="800" height="600" vsync="true" resizable="true" hardware="true" allow-shaders="true" require-shaders="true" depth-buffer="true" stencil-buffer="false" />
-	
 	<window if="html5" fps="60" width="0" height="0" />
 	
 	<source path="Source" />
 	
 	<haxelib name="lime" />
-	<!-- <haxelib name="format" /> -->
 	
 	<!-- this is for optimize interleave vertex stride (filled auto up to 8 bytecount) .. may buggy on some device -->
 	<!--<haxedef name="peote_fillstride" />-->
@@ -33,17 +28,8 @@
 	<haxedef name="peote_vert_medium_precision" if="html5||rpi||android" />
 	<haxedef name="peote_frag_medium_precision" if="html5||rpi||android" />
 	<!-- <haxedef name="debugshader" /> -->
-
-	<!-- -Dwebgl -debug -->
-	
-	<!-- <haxedef name="dce-debug" if="cpp" /> -->
-	<!-- <haxedef name="absolute-path" if="cpp" /> -->
-	<!-- <haxedef name="no-inline" if="cpp" /> -->
-	<!-- <haxedef name="no-opt"  if="cpp" /> -->
 	
 	<!-- <haxedef name="no-traces" /> -->
-	
-	<!-- <haxedef name="HXCPP_M64" if="cpp" /> -->
 	
 	<!-- full dead code elimination on html5 reduces js-code (default dce is std only) -->
 	<!-- <haxeflag name="-dce" value="full" if="android||html5" /> -->
