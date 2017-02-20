@@ -275,22 +275,17 @@ little Graphic inside Displaylist-Area (like a c64-sprite)
 
 #####How to optimize render-loop:
 
-- order displaylists functional:
-	1) game-gfx 
-	2) user-interface (DisplaylistType.PICK to interact with Elements)
-	
+- order displaylists functional: 1) game-gfx, 2) user-interface (DisplaylistType.PICK to interact with Elements)
 - elements with same program will be drawn fastest (throught opengl drawarray)
 - use only 1 bufferSegment in Displaylist if there is only one program
 - for nested animations use "renderToTexture" in Displaylists
 
 
-
 ####Todo
 
-- new scaling-type for displaylists and elements (float values for positions and sizes)
-- defaults to reduce repeating parameters in setElement() 
-- more simple samples, usability and platform tests, api improvement, optimization
+- better font-rendering
 - tile animation on gpu
+- more simple samples, usability and platform tests, api improvement, optimization
 - more demos ;)
 
 
