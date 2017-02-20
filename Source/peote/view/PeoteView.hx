@@ -170,6 +170,9 @@ class PeoteView
 	public function setDisplaylist(param:DisplaylistParam):Void
 	{
 		var d:I_Displaylist = displaylist.get(param.displaylist);
+			
+		// need Framebuffer?
+		if (param.renderToTexture && framebuffer == null) createFramebuffer();
 		
 		if (d == null) // create new Displaylist
 		{
@@ -429,14 +432,7 @@ class PeoteView
 	public inline function createFramebuffer():Void
 	{
 		fb_texture = Texture.createEmptyTexture(1, 1);
-
 		framebuffer = GL.createFramebuffer();
-		GL.bindFramebuffer(GL.FRAMEBUFFER, framebuffer);
-		
-		GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, fb_texture, 0);
-		
-		GL.bindFramebuffer(GL.FRAMEBUFFER, null);
-		
 	}
 
 	// ------------------------------------------------------------------------------------------------------
@@ -469,10 +465,10 @@ class PeoteView
 		sy = Std.int( Math.max(0, Math.min(height, sy)) );
 		sh = Std.int( Math.max(0, Math.min(height-sy, sh)) );
 
-		GL.scissor(sx, height-sh-sy, sw, sh);		
+		GL.scissor(sx, height - sh - sy, sw, sh);
 	}
 	
-	private inline function render_segments(dl:I_Displaylist, time:Float, width:Int, height:Int, zoom:Int, xOffset:Int, yOffset:Int):Void
+	private inline function render_segments(dl:I_Displaylist, time:Float, width:Int, height:Int, zoom:Int, xOffset:Int = 0, yOffset:Int = 0):Void
 	{
 		var ap:ActiveProgram;
 		GL.bindBuffer(GL.ARRAY_BUFFER, dl.elemBuff.glBuff); // TODO: put this into dl.elemBuff and may try optimize with SOA (multiple buffer)
@@ -500,7 +496,10 @@ class PeoteView
 			GL.uniform2f (ap.program.uniforms.get(Program.uRESOLUTION), width, height);
 			GL.uniform1f (ap.program.uniforms.get(Program.uTIME),  time);
 			GL.uniform1f (ap.program.uniforms.get(Program.uZOOM),  dl.zoom * zoom);
-			GL.uniform2f (ap.program.uniforms.get(Program.uDELTA), dl.x + dl.xOffset + xOffset, dl.y + dl.yOffset + yOffset);
+			if (dl.renderToTexture)
+				GL.uniform2f (ap.program.uniforms.get(Program.uDELTA), dl.xOffset, dl.yOffset + height);
+			else 
+				GL.uniform2f (ap.program.uniforms.get(Program.uDELTA), dl.x + dl.xOffset + xOffset, dl.y + dl.yOffset + yOffset);
 			
 			if (ap.program.customUniforms != null) ap.program.customUniforms.update();
 			
@@ -522,18 +521,20 @@ class PeoteView
 		
 		var dl:I_Displaylist = startDisplaylist;
 		while (dl != null)
-		{	//trace(dl.type);
-			// TODO: render to framebuffer
-			/* if (dl.renderToImage) {
-				//GL.activeTexture (GL.TEXTURE0); // 1 ????????????
-				GL.bindTexture (GL.TEXTURE_2D, texture);
-				GL.bindFramebuffer(GL.FRAMEBUFFER, dl.framebuffer);
-			}*/
-			// width und height und scissor-werte entsprechend der texture im texturecache (fuer image-slot) setzen
+		{	
+			// start rendering to framebuffer
+			if (dl.renderToTexture)
+			{
+				GL.bindFramebuffer(GL.FRAMEBUFFER, framebuffer);
+				GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, textures.get(dl.texture).texture, 0);
+				
+				GL.viewport (0, 0, dl.w, dl.h);
+				GL.scissor (0, 0, dl.w, dl.h);
+				GL.clearColor(0.0, 0.0, 0.0, 1.0); // TODO: maybe alpha to 0.0 ?
+				GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT); //GL.STENCIL_BUFFER_BIT
+			}
+			else render_scissor(dl, width, height, zoom, xOffset, yOffset);
 
-			// max/min values, optimize
-			render_scissor(dl, width, height, zoom, xOffset, yOffset);
-			
 			// TODO TODO -> depends on blend (and hardware diff webgl/cpp)
 			//if (dl.blend == 0) {
 				if (dl.type & DisplaylistType.ZINDEX != 0)
@@ -552,10 +553,19 @@ class PeoteView
 				GL.enable(GL.BLEND); GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
 			} else {GL.disable(GL.BLEND);}
 			
-
 			if (dl.renderBackground) renderBackground ( dl.r, dl.g, dl.b, dl.a );
+						
+			// stop rendering to framebuffer
+			if (dl.renderToTexture)
+			{
+				render_segments(dl, time, dl.w, -dl.h, 1, -dl.x, height-dl.y-yOffset);
 			
-			render_segments(dl, time, width, height, zoom, xOffset, yOffset);
+				if (GL.checkFramebufferStatus(GL.FRAMEBUFFER) != GL.FRAMEBUFFER_COMPLETE) trace("PICKING ERROR: Framebuffer not complete");
+				GL.bindFramebuffer(GL.FRAMEBUFFER, null);
+				GL.viewport (0, 0, width, height); // zurueckgesetzt fuer nachfolgende dl
+			}
+			else render_segments(dl, time, width, height, zoom, xOffset, yOffset);
+
 			
 			dl = (dl.next != startDisplaylist) ? dl.next : null; // next displaylist in loop
 		}
@@ -576,6 +586,7 @@ class PeoteView
 		
 		// render to framebuffer
 		GL.bindFramebuffer(GL.FRAMEBUFFER, framebuffer);
+		GL.framebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0, GL.TEXTURE_2D, fb_texture, 0);
 
 		render_init(width, height);
 		

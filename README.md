@@ -45,7 +45,7 @@ for variation, animation or combining Imagedata!
 
 ####Steps
 
-To be near OpenGl, all that items are numbered by index to speed up rendering.
+To be near OpenGl, all items are accessible by an index.
 
 ```
 	peoteView = new PeoteView();
@@ -224,7 +224,8 @@ rectangular screen-areas to display lots of elements
 		
 		r: 0.5, g:0, b:0, a:0.9         // background colors/alpha
 		
-		renderToTexture: 0, // TODO: texture to render content in
+		//renderToTexture: true,        // render content into a texture every frame
+		//texture:0,                    // texture index to use (should have same width and height)
 		
 		enable: true
 	});
@@ -279,14 +280,15 @@ little Graphic inside Displaylist-Area (like a c64-sprite)
 	2) user-interface (DisplaylistType.PICK to interact with Elements)
 	
 - elements with same program will be drawn fastest (throught opengl drawarray)
-- use only 1 bufferSegment in Displaylist if there is only one program ;)
+- use only 1 bufferSegment in Displaylist if there is only one program
+- for nested animations use "renderToTexture" in Displaylists
 
 
 
 ####Todo
 
-- render to texture
-- more defaults to display simple image only
+- new scaling-type for displaylists and elements (float values for positions and sizes)
+- defaults to reduce repeating parameters in setElement() 
 - more simple samples, usability and platform tests, api improvement, optimization
 - tile animation on gpu
 - more demos ;)

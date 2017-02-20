@@ -40,6 +40,9 @@ interface I_Displaylist
 	public var renderBackground:Bool;
 	public var enable:Bool;
 
+	public var renderToTexture:Bool;
+	public var texture:Int;
+
 	
 	public var buffer:Buffer;
 	public var elemBuff:I_ElementBuffer;

@@ -87,6 +87,9 @@ class Displaylist<ELEMENT:haxe.Constraints.Constructible<Void->Void>, BUFFER:hax
 	public var renderBackground:Bool = false;
 	public var enable:Bool = true;
 	
+	public var renderToTexture:Bool = false;
+	public var texture:Int = 0;
+	
 	// -----------
 	
 	public var element:Vector<I_Element>;
@@ -145,6 +148,8 @@ class Displaylist<ELEMENT:haxe.Constraints.Constructible<Void->Void>, BUFFER:hax
 		if (param.b != null) b = param.b;		
 		if (param.a != null) a = param.a;		
 		if (param.renderBackground != null) renderBackground = param.renderBackground;		
+		if (param.renderToTexture != null) renderToTexture = param.renderToTexture;		
+		if (param.texture != null) texture = param.texture;		
 	}
 
 	public inline function setElement(param:ElementParam):Void

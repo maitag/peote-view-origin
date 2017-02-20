@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 	
-	<meta title="PeoteView" package="peote.view" version="0.6.1" company="Sylvio Sell - maitag" />
+	<meta title="PeoteView" package="peote.view" version="0.6.2" company="Sylvio Sell - maitag" />
 	
 	<!-- choose sample to build: -->
     <app main="samples.StartNewSample"      path="Export" file="NewSample" />
+	<!-- <app main="samples.RenderToTexture"            path="Export" file="RenderToTexture" /> -->         
 	<!-- <app main="samples.GlyphUnicodeTextRendering"  path="Export" file="GlyphUnicodeTextRendering" /> -->         
-	<!-- <app main="samples.GlyphTextRendering"  path="Export" file="GlyphTextRendering" /> -->         
-	<!-- <app main="samples.MassAnim"            path="Export" file="MassAnim" /> -->
-	<!-- <app main="samples.Bunnys"              path="Export" file="Bunnys" /> -->
-	<!-- <app main="samples.BunnysTextureSwitch" path="Export" file="BunnysTextureSwitch" /> --> 
-	<!-- <app main="samples.RandomLetter"        path="Export" file="RandomLetter" /> -->
-	<!-- <app main="samples.Picking"             path="Export" file="Picking" /> -->
-	<!-- <app main="samples.Multitexture"        path="Export" file="Multitexture" /> -->
+	<!-- <app main="samples.GlyphTextRendering"         path="Export" file="GlyphTextRendering" /> -->         
+	<!-- <app main="samples.MassAnim"                   path="Export" file="MassAnim" /> -->
+	<!-- <app main="samples.Bunnys"                     path="Export" file="Bunnys" /> -->
+	<!-- <app main="samples.BunnysTextureSwitch"        path="Export" file="BunnysTextureSwitch" /> --> 
+	<!-- <app main="samples.RandomLetter"               path="Export" file="RandomLetter" /> -->
+	<!-- <app main="samples.Picking"                    path="Export" file="Picking" /> -->
+	<!-- <app main="samples.Multitexture"               path="Export" file="Multitexture" /> -->
 	
 	<window fps="60" width="800" height="600" vsync="true" resizable="true" hardware="true" allow-shaders="true" require-shaders="true" depth-buffer="true" stencil-buffer="false" />
 	<window if="html5" fps="60" width="0" height="0" />

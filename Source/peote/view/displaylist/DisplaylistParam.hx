@@ -32,5 +32,8 @@ typedef DisplaylistParam =
 	?g:Float,
 	?b:Float,
 	?a:Float,
-	?renderBackground:Bool
+	?renderBackground:Bool,
+	
+	?renderToTexture:Bool,
+	?texture:Int
 }
