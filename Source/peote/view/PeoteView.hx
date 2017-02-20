@@ -496,10 +496,7 @@ class PeoteView
 			GL.uniform2f (ap.program.uniforms.get(Program.uRESOLUTION), width, height);
 			GL.uniform1f (ap.program.uniforms.get(Program.uTIME),  time);
 			GL.uniform1f (ap.program.uniforms.get(Program.uZOOM),  dl.zoom * zoom);
-			if (dl.renderToTexture)
-				GL.uniform2f (ap.program.uniforms.get(Program.uDELTA), dl.xOffset, dl.yOffset + height);
-			else 
-				GL.uniform2f (ap.program.uniforms.get(Program.uDELTA), dl.x + dl.xOffset + xOffset, dl.y + dl.yOffset + yOffset);
+			GL.uniform2f (ap.program.uniforms.get(Program.uDELTA), dl.x + dl.xOffset + xOffset, dl.y + dl.yOffset + yOffset);
 			
 			if (ap.program.customUniforms != null) ap.program.customUniforms.update();
 			
@@ -558,7 +555,7 @@ class PeoteView
 			// stop rendering to framebuffer
 			if (dl.renderToTexture)
 			{
-				render_segments(dl, time, dl.w, -dl.h, 1, -dl.x, height-dl.y-yOffset);
+				render_segments(dl, time, dl.w, -dl.h, 1, -dl.x, -dl.y-dl.h);
 			
 				if (GL.checkFramebufferStatus(GL.FRAMEBUFFER) != GL.FRAMEBUFFER_COMPLETE) trace("PICKING ERROR: Framebuffer not complete");
 				GL.bindFramebuffer(GL.FRAMEBUFFER, null);
