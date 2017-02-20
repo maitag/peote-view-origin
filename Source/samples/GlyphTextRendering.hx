@@ -186,8 +186,7 @@ class GlyphTextRendering extends Sample
 					
 					end: {
 						x:penX + Math.floor(info.metrics[id].left * scale),
-						//y: penY +  Math.floor(( info.height - info.metrics[id].height + info.metrics[id].top ) * scale),
-						y: penY +  Math.floor(( info.height - info.metrics[id].top ) * scale),
+						y:penY +  Math.floor(( info.height - info.metrics[id].top ) * scale),
 						
 						w:Math.ceil(w),
 						h:Math.ceil(h),

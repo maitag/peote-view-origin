@@ -73,10 +73,10 @@ void main(void) {
 	}
 	#end_PICKING
 	
-	vTexCoord = aTexCoord;
+	vTexCoord = aTexCoord/16.0;
 	
-	vec2 VertexPosStart = vec2 ( aPosition ); //vec2 (aPosition.x, aPosition.y);
-	vec2 VertexPosEnd   = vec2 ( aPosition.z, aPosition.w);
+	vec2 VertexPosStart = vec2 ( aPosition )/16.0; //vec2 (aPosition.x, aPosition.y);
+	vec2 VertexPosEnd   = vec2 ( aPosition.z, aPosition.w)/16.0;
 	
 	#if_ROTATION
 	float alpha = mix(aRotation.x, aRotation.y, clamp( (uTime-aTime.x)/(aTime.y - aTime.x), 0.0, 1.0));
@@ -97,8 +97,8 @@ void main(void) {
 	float zoom = uZoom;
 	float width = uResolution.x;
 	float height = uResolution.y;
-	float deltaX = floor(uDelta.x);
-	float deltaY = floor(uDelta.y);
+	float deltaX = uDelta.x;
+	float deltaY = uDelta.y;
 	
 	float right = width-deltaX*zoom;
 	float left = -deltaX*zoom;

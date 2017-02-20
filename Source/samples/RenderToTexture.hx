@@ -46,21 +46,23 @@ class RenderToTexture extends Sample
 			enable:true
 		});
 		
-		peoteView.setElement( { element:0, displaylist:0,
-			x:0, y:0, w:128, h:128, pivotX:64, pivotY:64, end:{x:128, rotation:90, time:t+2},
-			program:0, image:0,	tile:65
+		peoteView.setElementDefaults({ displaylist:0, program:0, image:0, pivotX:64, pivotY:64 });
+		
+		peoteView.setElement( { element:0,
+			x:0, y:0, w:128, h:128, end:{x:128, rotation:270, time:t+2},
+			tile:65
 		});
-		peoteView.setElement( { element:1, displaylist:0,
-			x:128, y:0, w:128, h:128, pivotX:64, pivotY:64, end:{y:128, rotation:90, time:t+2},
-			program:0, image:0,	tile:66
+		peoteView.setElement( { element:1,
+			x:128, y:0, w:128, h:128, end:{y:128, rotation:270, time:t+2},
+			tile:66
 		});
-		peoteView.setElement( { element:2, displaylist:0,
-			x:0, y:128, w:128, h:128, pivotX:64, pivotY:64, end:{y:0, rotation:-90, time:t+2},
-			program:0, image:0,	tile:67
+		peoteView.setElement( { element:2,
+			x:0, y:128, w:128, h:128, end:{y:0, rotation:-90, time:t+2},
+			tile:67
 		});
-		peoteView.setElement( { element:3, displaylist:0,
-			x:128, y:128, w:128, h:128, pivotX:64, pivotY:64, end:{x:0, rotation:-90, time:t+2},
-			program:0, image:0,	tile:68
+		peoteView.setElement( { element:3,
+			x:128, y:128, w:128, h:128, end:{x:0, rotation:-90, time:t+2},
+			tile:68
 		});
 		
 		// -------------- DISPLAYLIST  that contains element with texture that was rendererd to --------------
@@ -74,9 +76,10 @@ class RenderToTexture extends Sample
 			enable:true
 		});
 		
-		peoteView.setElement( { element:0, displaylist:1,
-			x:0, y:0, w:256, h:256, end:{x:370, y:150, rotation:60, time:t+2},
-			program:1
+		peoteView.setElementDefaults({ displaylist:1, program:1, image:-1 });
+		
+		peoteView.setElement( { element:0,
+			x:0, y:0, w:256, h:256, end:{x:296, y:185, rotation:60, time:t+2}
 		});
 
 		

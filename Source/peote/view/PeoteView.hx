@@ -355,14 +355,20 @@ class PeoteView
 		if (param.displaylist != null) elementDefaults.displaylist = param.displaylist;	
 		if (param.program != null) elementDefaults.program = param.program;
 		
-		if (param.image != null) elementDefaults.image = param.image;	
-		if (param.tile != null) elementDefaults.tile = param.tile;	
+		if (param.image != null) elementDefaults.image = (param.image==-1) ? null : param.image;
+		if (param.tile != null) elementDefaults.tile = (param.tile==-1) ? null : param.tile;	
 		
-		if (param.x != null) elementDefaults.x = param.x;	
-		if (param.y != null) elementDefaults.y = param.y;	
-		if (param.w != null) elementDefaults.w = param.w;	
-		if (param.h != null) elementDefaults.h = param.h;	
-		if (param.z != null) elementDefaults.z = param.z;	
+		if (param.x != null) elementDefaults.x = param.x;
+		if (param.y != null) elementDefaults.y = param.y;
+		if (param.w != null) elementDefaults.w = param.w;
+		if (param.h != null) elementDefaults.h = param.h;
+		if (param.z != null) elementDefaults.z = param.z;
+		
+		if (param.rotation != null) elementDefaults.rotation = param.rotation;
+		if (param.pivotX != null) elementDefaults.pivotX = param.pivotX;
+		if (param.pivotY != null) elementDefaults.pivotY = param.pivotY;
+		
+		if (param.rgba != null) elementDefaults.rgba = param.rgba;
 	}
 	
 	// ------------------------------------------------------------------------------
@@ -468,7 +474,7 @@ class PeoteView
 		GL.scissor(sx, height - sh - sy, sw, sh);
 	}
 	
-	private inline function render_segments(dl:I_Displaylist, time:Float, width:Int, height:Int, zoom:Int, xOffset:Int = 0, yOffset:Int = 0):Void
+	private inline function render_segments(dl:I_Displaylist, time:Float, width:Int, height:Int, zoom:Int, xOffset:Int, yOffset:Int):Void
 	{
 		var ap:ActiveProgram;
 		GL.bindBuffer(GL.ARRAY_BUFFER, dl.elemBuff.glBuff); // TODO: put this into dl.elemBuff and may try optimize with SOA (multiple buffer)
@@ -486,17 +492,15 @@ class PeoteView
 			{
 				GL.activeTexture (ActiveTextures.slot[j]); //GL.activeTexture (GL.TEXTURE0);
 				GL.bindTexture (GL.TEXTURE_2D, ap.textures.texture[j].texture);
-				//GL.enable(GL.TEXTURE_2D); // is default
+				//GL.enable(GL.TEXTURE_2D); // is default ?
 				GL.uniform1i (ap.program.uniforms.get(Program.uTEXTURE[j]), j); // Uniform 2d Sampler
 			}
 			
 			// UNIFORMS
-			//GL.uniform2f (ap.program.uniforms.get(Program.uMOUSE),(mouseX / width) * 2 - 1,(mouseY / height) * 2 - 1); // remap from -1 to +1
-			//GL.uniform2f (ap.program.uniforms.get(Program.uRESOLUTION), (dl.w!=0) ? dl.w : width, (dl.h != 0) ? dl.h : height);
 			GL.uniform2f (ap.program.uniforms.get(Program.uRESOLUTION), width, height);
 			GL.uniform1f (ap.program.uniforms.get(Program.uTIME),  time);
 			GL.uniform1f (ap.program.uniforms.get(Program.uZOOM),  dl.zoom * zoom);
-			GL.uniform2f (ap.program.uniforms.get(Program.uDELTA), dl.x + dl.xOffset + xOffset, dl.y + dl.yOffset + yOffset);
+			GL.uniform2f (ap.program.uniforms.get(Program.uDELTA), (dl.x + dl.xOffset + xOffset)/dl.zoom, (dl.y + dl.yOffset + yOffset)/dl.zoom);
 			
 			if (ap.program.customUniforms != null) ap.program.customUniforms.update();
 			
@@ -557,7 +561,7 @@ class PeoteView
 			{
 				render_segments(dl, time, dl.w, -dl.h, 1, -dl.x, -dl.y-dl.h);
 			
-				if (GL.checkFramebufferStatus(GL.FRAMEBUFFER) != GL.FRAMEBUFFER_COMPLETE) trace("PICKING ERROR: Framebuffer not complete");
+				if (GL.checkFramebufferStatus(GL.FRAMEBUFFER) != GL.FRAMEBUFFER_COMPLETE) trace("ERROR while RenderToTexture: Framebuffer not complete");
 				GL.bindFramebuffer(GL.FRAMEBUFFER, null);
 				GL.viewport (0, 0, width, height); // zurueckgesetzt fuer nachfolgende dl
 			}
@@ -598,11 +602,10 @@ class PeoteView
 		
 		
 		GL.disable(GL.BLEND); // disable alpha blend for picking
-		
+	
 		GL.clear( GL.DEPTH_BUFFER_BIT );
 
 		render_segments(dl, time, width, height, zoom, xOffset, yOffset);
-		
 		
 		// read picked pixel (element-number)
 		if (GL.checkFramebufferStatus(GL.FRAMEBUFFER) == GL.FRAMEBUFFER_COMPLETE) {

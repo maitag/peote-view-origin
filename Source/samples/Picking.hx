@@ -22,8 +22,7 @@ class Picking extends Sample
 		});
 		
 
-		// --------------------- TEXTURECACHES -----------------
-		
+		// --------------------- TEXTURECACHES -----------------		
 		peoteView.setTexture( {
 			texture: 0,
 			w:   512,        // Texture width
@@ -31,69 +30,60 @@ class Picking extends Sample
 		});
 
 		// ------------------- IMAGES --------------------------
-
 		peoteView.setImage({
 			image: 0,
 			texture: 0,
-			filename: "assets/peote_tiles.png",
-			//w:512, h:512,
+			filename: "assets/peote_tiles.png"
 		});
 		
 		// ---------------- PROGRAM SHADER ---------------------
-
 		peoteView.setProgram( {
 			program: 0,
 			texture: 0
 		});
 		
-		// ---------------- DISPLAYLISTS -----------------------
-		
+		// ---------------- DISPLAYLISTS -----------------------		
 		peoteView.setDisplaylist( {
 			displaylist:0,
-			type:DType.ANIM|DType.RGBA|DType.ROTATION|DType.PICKING, //|DType.ZINDEX
-			maxElements:1000,
+			type:DType.ANIM|DType.RGBA|DType.ROTATION|DType.PICKING|DType.ZINDEX,
+			maxElements:3,
 			x:0, y:0,
-			w:512, h:512,
-			z:0,
+			w:512, h:384,
 			renderBackground:true,
-			r:0.1,g:0.5,b:0.8, a:0.8,
-			enable:true
+			r:0.1,g:0.5,b:0.8, a:0.8
 		});
 
 		
-		// ---------------- ELEMENTS ---------------------------
+		// ---------------- ELEMENTS ---------------------------		
+		peoteView.setElementDefaults( { displaylist:0, program:0, image:0, w:100, h:100 } );
 		
-		peoteView.setElementDefaults( { displaylist:0, image:0, w:100, h:100 } );
-		
-		peoteView.setElement( { element:0,
+		peoteView.setElement({
+			element:0,
 			x:0, y:0,
 			rgba:0xffff00ff,
 			pivotX:50,
-			pivotY:50,rotation:360,
+			pivotY:50,
+			rotation:360,
 			end: {
 				x:400,
 				rotation:180,
 				time: Timer.stamp() - startTime + 20,
 				rgba:0x00ffffff
 			},
-			program: 0,
-			image:0,
 			tile:1
 		});
-		peoteView.setElement( { element:1,
+		peoteView.setElement({
+			element:1,
 			x:100, y:100,
 			pivotX:50, pivotY:50,
 			rotation: -90,
-			program: 0,
-			image:0,
 			tile:2
 		});
-		peoteView.setElement( { element:2,
+		peoteView.setElement({
+			element:2,
 			x:150, y:100,
 			pivotX:50, pivotY:50,
 			rotation:135,
-			program: 0,
-			image:0,
 			tile:3
 		});
 
@@ -113,17 +103,13 @@ class Picking extends Sample
 	}
 	/*
 	public override function onMouseMove (window:Window, x:Float, y:Float):Void
-	{
-		
+	{		
 		super.onMouseMove(window, x, y);
 
-		// pick element number from displaylist 0
 		var e:Int = peoteView.pick(0, Timer.stamp() - startTime, mouse_x, mouse_y, zoom, xOffset, yOffset);
 		if (e != -1)
 		{
-			peoteView.setElement( { element:e,
-				tile: peoteView.getElement({element:e}).tile+1
-			});
+			trace('MouseOver Element: $e');
 		}
 		
 	}

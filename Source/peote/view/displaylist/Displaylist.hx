@@ -65,16 +65,16 @@ class Displaylist<ELEMENT:haxe.Constraints.Constructible<Void->Void>, BUFFER:hax
 	public var next:I_Displaylist = this; // next displaylist (in order)
 	
 	// params
-	public var x:Int=0; // x Position
-	public var y:Int=0; // y Position
-	public var w:Int=0; // width
-	public var h:Int=0; // height
-	public var z:Int=0; // z order
+	public var x:Int = 0; // x Position
+	public var y:Int = 0; // y Position
+	public var w:Int = 0; // width
+	public var h:Int = 0; // height
+	public var z:Int = 0; // z order
 
-	public var xOffset:Int=0; // x Offset for all Elements
-	public var yOffset:Int=0; // y Offset for all Elements
+	public var xOffset:Float = 0.0; // x Offset for all Elements
+	public var yOffset:Float = 0.0; // y Offset for all Elements
 
-	public var zoom:Int=1; // zoom level
+	public var zoom:Float = 1.0; // zoom level
 
 	public var blend:Int = 1; // alpha blending (TODO)
 	
@@ -160,6 +160,7 @@ class Displaylist<ELEMENT:haxe.Constraints.Constructible<Void->Void>, BUFFER:hax
 
 			if (e == null) // create new Element
 			{
+				if (param.program == null) param.program = PeoteView.elementDefaults.program;
 				if (param.program != null)
 				{
 					if( programCache.program.length > param.program)

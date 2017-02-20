@@ -25,10 +25,10 @@ interface I_Displaylist
 	
 	public var z:Int; // z order
 
-	public var xOffset:Int; // x Offset for all Elements
-	public var yOffset:Int; // y Offset for all Elements
+	public var xOffset:Float; // x Offset for all Elements
+	public var yOffset:Float; // y Offset for all Elements
 
-	public var zoom:Int; // zoom level
+	public var zoom:Float; // zoom level
 
 	public var blend:Int; // blend mode
 

@@ -42,7 +42,7 @@ void main(void)
 	//float dfdx = texture2D(uTexture0, (vTexCoord + vec2(delta,0.0)) / #MAX_TEXTURE0).r - current;
 	//float dfdy = texture2D(uTexture0, (vTexCoord + vec2(0.0,delta)) / #MAX_TEXTURE0).r - current;
 	// TODO: store size of tile to do antialiasing
-	float dfdx = texture2D(uTexture0, (vTexCoord + 1.3) / #MAX_TEXTURE0).r - current;
+	float dfdx = texture2D(uTexture0, (vTexCoord + 1.0) / #MAX_TEXTURE0).r - current;
 	float dfdy = texture2D(uTexture0, (vTexCoord + 1.0) / #MAX_TEXTURE0).r - current;
 	float E = abs(dfdx/delta)+abs(dfdy/delta);
 	

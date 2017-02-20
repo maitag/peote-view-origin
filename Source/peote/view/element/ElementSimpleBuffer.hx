@@ -340,8 +340,8 @@ class ElementSimpleBuffer implements I_ElementBuffer
 			float zoom = uZoom;
 			float width = uResolution.x;
 			float height = uResolution.y;
-			float deltaX = floor(uDelta.x);
-			float deltaY = floor(uDelta.y);
+			float deltaX = uDelta.x;// floor(uDelta.x);
+			float deltaY = uDelta.y;// floor(uDelta.y);
 			
 			float right = width-deltaX*zoom;
 			float left = -deltaX*zoom;

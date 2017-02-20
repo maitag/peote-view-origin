@@ -21,10 +21,10 @@ typedef DisplaylistParam =
 
 	?z:Int,
 	
-	?xOffset:Int,
-	?yOffset:Int,
+	?xOffset:Float,
+	?yOffset:Float,
 	
-	?zoom:Int,
+	?zoom:Float,
 	
 	?blend:Int,
 	

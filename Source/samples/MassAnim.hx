@@ -35,27 +35,16 @@ class MassAnim extends Sample
 			maxImages:       4
 		});
 		
-	
-		peoteView.setTexture( {
-			texture:0,
-			slots:2,
-			w:512,h:512
-		});
+		// set texture
+		peoteView.setTexture({ texture:0, slots:2, w:512,h:512 });
 
 		// set images
 		peoteView.setImage({ w:512,h:512, image:0, texture:0, filename:"assets/peote_font_green.png" });
 		peoteView.setImage({ w:512,h:512, image:1, texture:0, filename:"assets/peote_tiles.png" });
 		
 		// set shaders
-		peoteView.setProgram( {
-			program: 0,
-			fshader: 'assets/lyapunov_01.frag'
-		});
-			
-		peoteView.setProgram({
-			program: 1,
-			texture: 0,
-		});
+		peoteView.setProgram({ program:0, fshader:'assets/lyapunov_01.frag' });
+		peoteView.setProgram({ program:1, texture: 0 });
 		
 		// new Displaylist
 		peoteView.setDisplaylist( {
@@ -70,8 +59,6 @@ class MassAnim extends Sample
 			displaylist:1,
 			type:DisplaylistType.ANIM,
 			maxElements: w * h,
-			//renderBackground:true,
-			//r:.5,
 			z: 1
 		});
 		
@@ -79,7 +66,6 @@ class MassAnim extends Sample
 		peoteView.setElement( { element:0, displaylist:0,
 			time:t,
 			x:0, y:0, w:3000, h:3000,
-			//z: -2,
 			program:0, tw:1000, th:1000,
 			end: {
 				x: -5500, y: -5500, w:20000, h:20000,

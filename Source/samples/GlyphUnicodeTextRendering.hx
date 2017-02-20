@@ -91,7 +91,7 @@ class GlyphUnicodeTextRendering extends Sample
 			#else
 			fshader:'assets/gl3font.frag',
 			#end
-			//vshader:'assets/unifont/smooth.vert'
+			vshader:'assets/unifont/smooth.vert'
 		});
 		
 		
@@ -110,8 +110,7 @@ class GlyphUnicodeTextRendering extends Sample
 
 			renderBackground:true,
 
-			// TODO: more alternatives like -> backgroundColor:[0.1, 0.5, 0.8, 0.8]
-			r:0.2, g:0, b:0, //a:0.8,
+			r:0.1, g:0, b:0, //a:0.8,
 			blend:1 // alpha blending
 		});
 		
@@ -130,8 +129,8 @@ class GlyphUnicodeTextRendering extends Sample
 			var tw:Int = 2048;
 			var th:Int = 1994;
 			
-			renderTextLine("PeoteView glyph textrendering with ttfcompiled Unifont", info, 18, 0, 20, tw, th); 
-			renderTextLine("--------------------------------------------------------------------", info, 18, 20, 16, tw, th); 
+			renderTextLine("PeoteView glyph textrendering with ttfcompiled Unifont:", info, 18, -10, 24, tw, th); 
+			renderTextLine("----------------------------------------------------------------------------------", info, 18, 20, 16, tw, th); 
 			
 			var i:Int = 0;
 			var l:Int = 40;
@@ -141,8 +140,8 @@ class GlyphUnicodeTextRendering extends Sample
 				s.addChar( char );
 				i++;
 				if (i > 100) {
-					renderTextLine(s.toString(), info, 20, l, 30, tw, th);
-					i = 0; s = new haxe.Utf8(); l += 32;
+					renderTextLine(s.toString(), info, 20, l, 24, tw, th);
+					i = 0; s = new haxe.Utf8(); l += 26;
 				}
 			}		
 	}
@@ -181,21 +180,21 @@ class GlyphUnicodeTextRendering extends Sample
 				var starty:Int = random(1000) - 400;
 				peoteView.setElement({
 					element:element_nr++,
-					x:startx,
-					y:starty,
-					w:Math.ceil(w*4),
-					h:Math.ceil(h*4),
+					x:startx*16,
+					y:starty*16,
+					w:Math.ceil(w*4*16),
+					h:Math.ceil(h*4*16),
 					rgba:random(256) << 24 | random(256) << 16 | random(256) << 8 | 128+random(128),
 					rotation:2000-random(4000),
 					pivotX:Math.ceil(w*2),
 					pivotY:Math.ceil(h*2),
 					time:t,
 					end: {
-						x:penX + Math.floor(info.metrics[id].left * scale),
-						y:penY + Math.floor(( info.height - info.metrics[id].top ) * scale),
+						x:Math.floor((penX + info.metrics[id].left * scale )*16),
+						y:Math.floor((penY + ( info.height - info.metrics[id].top ) * scale )*16),
 						
-						w:Math.ceil(w),
-						h:Math.ceil(h),
+						w:Math.ceil(w*16),
+						h:Math.ceil(h*16),
 						rgba:0xFEFD12FF,
 						rotation:0,
 						pivotX:Math.ceil(w / 2),
@@ -204,10 +203,10 @@ class GlyphUnicodeTextRendering extends Sample
 					},
 					displaylist:0,
 					program:0,
-					tx:Math.floor(tx),
-					ty:Math.floor(ty),
-					tw:Math.ceil(tw),
-					th:Math.ceil(th),
+					tx:Math.floor(tx*16),
+					ty:Math.floor(ty*16),
+					tw:Math.ceil(tw*16),
+					th:Math.ceil(th*16),
 					image:0,
 				});
 				penX += Math.ceil(info.metrics[id].advance * scale);
