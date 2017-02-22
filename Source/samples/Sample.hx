@@ -66,7 +66,7 @@ class Sample extends Application {
 	public override function render(renderer:Renderer):Void
 	{
 		//switch (renderer.context) { case OPENGL (gl): }
-		peoteView.render(Timer.stamp() - startTime, width, height, mouse_x, mouse_y, zoom, xOffset, yOffset);
+		peoteView.render(Timer.stamp() - startTime, width, height, zoom, xOffset, yOffset);
 	}
 
 	
@@ -170,8 +170,8 @@ class Sample extends Application {
 	// ------------------------------------------------------------
 	
 	public function setOffsets():Void {
-		xOffset = Std.int( - width*(zoom-1)/zoom * mouse_x/width);
-		yOffset = Std.int( - height*(zoom-1)/zoom * mouse_y/height);
+		xOffset = -mouse_x;
+		yOffset = -mouse_y;
 	}
 
 	

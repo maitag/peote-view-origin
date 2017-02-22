@@ -271,8 +271,6 @@ class Image
 				top = Math.floor(Math.min(0, top));
 				bottom = Math.floor(Math.min(0, bottom));
 			}
-			x = left;
-			y = top;
 		}
 		
 		//trace('============> tx=$tx, ty=$ty - tw=$tw, th=$th');

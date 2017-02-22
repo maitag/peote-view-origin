@@ -111,6 +111,10 @@ A Texture reserves space on GPU-Ram for storing Images into same sized Slots.
 
 		w:     512,       // slot width
 		h:     512,       // slot height
+		
+		mipmap:true,
+		magFilter:1
+		minFilter:1
 	});
 ```	
 	
@@ -148,15 +152,15 @@ if some element use an image, it's data will be load into free Image-Slot of ass
 		
 		fit: "in",                   // "in", "out" or "exact" fitting loaded image into slot size
 		
-		// or posit directly inside texture-slot to create own texture-atlas:
-		// ------------------------------------------------------------------
+		// or set position/size directly to create own texture-atlas:
+		// ----------------------------------------------------------
 		
 		x:  10,                      // Position from left
 		y:  10,                      // Position from top
 		w: 100,                      // new image width
 		h: 100,                      // new image height
+		keep: true,                  // keep existing pixels in slot (for fit:"in" this works to)
                                      
-		keep: true,                  // keep existing pixels in slot if image is smaller that slot-size
 		r: 0.5, g:0, b:0, a:0.9      // background colors/alpha for border if not exactly fit
 	});
 	
@@ -227,6 +231,10 @@ rectangular screen-areas to display lots of elements
 		//renderToTexture: true,        // render content into a texture every frame
 		//texture:0,                    // texture index to use (should have same width and height)
 		
+		//zoom:1                        // zoom level (2.0 is double sized, 0.5 half size)
+		//pivotX:0                      // x center of zoom
+		//pivotY:0                      // y center of zoom
+		
 		enable: true
 	});
 ```
@@ -254,9 +262,15 @@ little Graphic inside Displaylist-Area (like a c64-sprite)
 		y: 10,           // pixels from top displaylist border
 		w: 100,          // width
 		h: 100,          // height
-		z: 0             // z-order   ( 0 <= z <= 32767 )
+		z: 0,            // z-order   ( 0 <= z <= 32767 )
 		
-		// (rotation, animation, coloring ... -> see samples)
+		rotation:45      // rotation in degrees (clockwise)
+		pivotX:0,        // x center of rotation
+		pivotY:0,        // y center of rotation
+		
+		rgba:0xff0000ff  // color (multiply)
+		
+		// (for animation -> see samples)
 		
 		// Texture Mapping ---------------
 		
@@ -266,7 +280,7 @@ little Graphic inside Displaylist-Area (like a c64-sprite)
 		
 		tile:  0,        // (0..255) texture coordinates will be splittet into 16x16 tiles
 		
-		// tx, ty,       // manual setting texture-coordinate (todo:shifting)
+		// tx, ty,       // manual setting texture-coordinate position inside texture(-slot)
 		// tw ,th        // manual setting texture-coordinates size
 	});
 ```

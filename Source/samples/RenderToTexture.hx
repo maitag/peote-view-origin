@@ -22,12 +22,12 @@ class RenderToTexture extends Sample
 		});
 		
 		// ------------------- Font texture + image-------------------------		
-		peoteView.setTexture({ texture:0, w:512, h:512  });
+		peoteView.setTexture({ texture:0, w:512, h:512, mipmaps:true, magFilter:1, minFilter:1  });
 		peoteView.setImage  ({ texture:0, image:0, filename:"assets/peote_font_white.png" });
 		peoteView.setProgram({ texture:0, program:0 });
 		
 		// ------------------- TEXTURE to Render IN ------------------------		
-		peoteView.setTexture({ texture:1, slots:1, w:256, h:256 });
+		peoteView.setTexture({ texture:1, slots:1, w:256, h:256, mipmaps:false, magFilter:0, minFilter:0 });
 		peoteView.setProgram({ texture:1, program:1 });
 		
 		// ---------------- DISPLAYLIST renderToTexture---------------------
@@ -79,7 +79,7 @@ class RenderToTexture extends Sample
 		peoteView.setElementDefaults({ displaylist:1, program:1, image:-1 });
 		
 		peoteView.setElement( { element:0,
-			x:0, y:0, w:256, h:256, end:{x:296, y:185, rotation:60, time:t+2}
+			x:0, y:0, w:100, h:100, slot:0, end:{x:296, y:185, w:256, h:256, rotation:60, time:t+2}
 		});
 
 		

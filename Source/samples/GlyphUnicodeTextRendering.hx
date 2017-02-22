@@ -65,6 +65,8 @@ class GlyphUnicodeTextRendering extends Sample
 			texture: 0,
 			w:   2048,        // Texture width
 			h:   1994,        // Texture height
+			//mipmaps:true, minFilter:1, magFilter:1,
+			magFilter:1,
 		});
 		
 		// -----------------------------------------------------
@@ -75,6 +77,7 @@ class GlyphUnicodeTextRendering extends Sample
 			image: 0,
 			texture:0,
 			filename: "assets/unifont/unifont_0000.png",
+			x:0, y:0,
 			w:   2048,        // Texture width
 			h:   1994,        // Texture height
 			//preload:true
@@ -180,21 +183,21 @@ class GlyphUnicodeTextRendering extends Sample
 				var starty:Int = random(1000) - 400;
 				peoteView.setElement({
 					element:element_nr++,
-					x:startx*16,
-					y:starty*16,
-					w:Math.ceil(w*4*16),
-					h:Math.ceil(h*4*16),
+					x:startx,
+					y:starty,
+					w:Math.ceil(w*4),
+					h:Math.ceil(h*4),
 					rgba:random(256) << 24 | random(256) << 16 | random(256) << 8 | 128+random(128),
 					rotation:2000-random(4000),
 					pivotX:Math.ceil(w*2),
 					pivotY:Math.ceil(h*2),
 					time:t,
 					end: {
-						x:Math.floor((penX + info.metrics[id].left * scale )*16),
-						y:Math.floor((penY + ( info.height - info.metrics[id].top ) * scale )*16),
+						x:Math.floor((penX + info.metrics[id].left * scale )),
+						y:Math.floor((penY + ( info.height - info.metrics[id].top ) * scale )),
 						
-						w:Math.ceil(w*16),
-						h:Math.ceil(h*16),
+						w:Math.ceil(w),
+						h:Math.ceil(h),
 						rgba:0xFEFD12FF,
 						rotation:0,
 						pivotX:Math.ceil(w / 2),
@@ -203,10 +206,10 @@ class GlyphUnicodeTextRendering extends Sample
 					},
 					displaylist:0,
 					program:0,
-					tx:Math.floor(tx*16),
-					ty:Math.floor(ty*16),
-					tw:Math.ceil(tw*16),
-					th:Math.ceil(th*16),
+					tx:Math.floor(tx),
+					ty:Math.floor(ty),
+					tw:Math.ceil(tw),
+					th:Math.ceil(th),
 					image:0,
 				});
 				penX += Math.ceil(info.metrics[id].advance * scale);

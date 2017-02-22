@@ -11,4 +11,7 @@ typedef TextureParam =
 	?slots:    Int,
 	w:         Int,
 	h:         Int,
+	?mipmaps:Bool,
+	?magFilter:Int,
+	?minFilter:Int,
 }

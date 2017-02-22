@@ -25,6 +25,8 @@ typedef DisplaylistParam =
 	?yOffset:Float,
 	
 	?zoom:Float,
+	?pivotX:Float,
+	?pivotY:Float,
 	
 	?blend:Int,
 	

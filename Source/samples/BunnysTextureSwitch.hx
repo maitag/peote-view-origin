@@ -321,13 +321,13 @@ class BunnysTextureSwitch extends Sample
 	
 	public override function render(renderer:Renderer):Void
 	{
-		peoteView.render(Timer.stamp() - startTime, width, height, mouse_x, mouse_y, 1, 0, 0);
+		peoteView.render(Timer.stamp() - startTime, width, height, 1, 0, 0);
 		frames++;
 	}
 	
 	public override function setOffsets():Void {
 		super.setOffsets();
-		peoteView.setDisplaylist( { displaylist:0, zoom:zoom, xOffset:xOffset, yOffset:yOffset } );
+		peoteView.setDisplaylist( { displaylist:0, zoom:zoom, pivotX:mouse_x, pivotY:mouse_y  } );
 	}
 
 	// keyboard input

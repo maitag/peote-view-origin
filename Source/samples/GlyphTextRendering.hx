@@ -65,8 +65,8 @@ class GlyphTextRendering extends Sample
 			texture: 0,
 			w:   600,        // Texture width
 			h:   591,        // Texture height
-			//w:   1024,        // Texture width
-			//h:   1024,        // Texture height
+			//mipmaps:true, minFilter:1, magFilter:1,
+			magFilter:1
 		});
 		
 		// -----------------------------------------------------
@@ -171,7 +171,8 @@ class GlyphTextRendering extends Sample
 				var tx:Float = info.metrics[id].u * texturewidth ;
 				var ty:Float = info.metrics[id].v * textureheight;
 				var tw:Float = info.metrics[id].w * texturewidth ;
-				var th:Float = info.metrics[id].h * textureheight; // trace(charcode, "h:"+info.metrics[id].height, "t:"+info.metrics[id].top );
+				var th:Float = info.metrics[id].h * textureheight; trace(info.metrics[id]);
+				//trace(charcode, "h:"+info.metrics[id].height, "t:"+info.metrics[id].top );
 				peoteView.setElement({
 					element:element_nr++,
 					x:random(1024),

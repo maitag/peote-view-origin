@@ -88,10 +88,6 @@ class ImageCache
 			
 			if (texture != null)
 			{
-				//if (param.w == null) param.w = texture.segment_width;
-				//if (param.h == null) param.h = texture.segment_height;
-				// TODO: load into defined texture-slot
-				
 				images.set(param.image, new Image(param, texture) );
 				
 				// preload
@@ -146,7 +142,7 @@ class ImageCache
 	
 	public inline function getImage(image_nr:Int):Image 
 	{
-		return images.get(image_nr);	
+		return ( (images.length>image_nr) ? images.get(image_nr) : null );	
 	}
 	
 	public inline function useImage(image_nr:Int):Image // by Element
@@ -159,7 +155,6 @@ class ImageCache
 			//trace("useImage: "+image_nr+" img.used= "+(img.used+1)+" ---");
 			if (img.used++ == 0) // first use
 			{	
-				//trace(" first use");
 				if (img.slot == -1 || !img.texture.autoSlots) // not loaded into GL Texture yet
 				{	
 					var success:Bool = true;
@@ -218,7 +213,7 @@ class ImageCache
 	
 	private function onImageLoad(img:Image, data:UInt8Array):Void
 	{
-		//trace("onImageLoad: " + img.url + " gl-texture: " + img.texture+" to holePos:" + img.slot);
+		//trace("onImageLoad: " + img.url + "\nImage: " + img+"\n -> to holePos:" + img.slot);
 		if (img.slot > -1)
 		{
 			img.texture.storeImage(img, data);

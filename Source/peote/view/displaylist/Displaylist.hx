@@ -73,8 +73,12 @@ class Displaylist<ELEMENT:haxe.Constraints.Constructible<Void->Void>, BUFFER:hax
 
 	public var xOffset:Float = 0.0; // x Offset for all Elements
 	public var yOffset:Float = 0.0; // y Offset for all Elements
+	public var xOff:Float = 0.0; // only for setting
+	public var yOff:Float = 0.0; // only for setting
 
 	public var zoom:Float = 1.0; // zoom level
+	public var pivotX:Float = 0.0;
+	public var pivotY:Float = 0.0;
 
 	public var blend:Int = 1; // alpha blending (TODO)
 	
@@ -139,9 +143,13 @@ class Displaylist<ELEMENT:haxe.Constraints.Constructible<Void->Void>, BUFFER:hax
 		if (param.y != null) y = param.y;		
 		if (param.w != null) w = param.w;		
 		if (param.h != null) h = param.h;		
-		if (param.xOffset != null) xOffset = param.xOffset;
-		if (param.yOffset != null) yOffset = param.yOffset;		
 		if (param.zoom != null) zoom = param.zoom;
+		if (param.pivotX != null) pivotX = param.pivotX;
+		if (param.pivotY != null) pivotY = param.pivotY;		
+		if (param.xOffset != null) xOff = param.xOffset;
+		if (param.yOffset != null) yOff = param.yOffset;
+		xOffset = xOff - pivotX * (zoom - 1);
+		yOffset = yOff - pivotY * (zoom - 1);
 		if (param.blend != null) blend = param.blend;
 		if (param.r != null) r = param.r;		
 		if (param.g != null) g = param.g;		

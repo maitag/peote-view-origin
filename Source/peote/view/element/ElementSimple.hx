@@ -101,23 +101,40 @@ class ElementSimple implements I_Element
 		
 		if (slot != -1)
 		{	
-			var texture = programCache.textures.get(act_program.program_nr);
-			param.tx = (slot % texture.slotsX) * texture.slotWidth - ( (param.tx == null) ? 0 : param.tx);
-			param.ty = Math.floor(slot / texture.slotsX) * texture.slotHeight - ((param.ty == null) ? 0 : param.ty);
-			if (param.tw == null) param.tw = texture.slotWidth;
-			if (param.th == null) param.th = texture.slotHeight;
+			if (programCache.textures.length > act_program.program_nr)
+			{
+				var texture = programCache.textures.get(act_program.program_nr);
+				if (texture != null)
+				{	
+					var texture = programCache.textures.get(act_program.program_nr);
+					param.tx = (slot % texture.slotsX) * texture.slotWidth - ( (param.tx == null) ? 0 : param.tx);
+					param.ty = Math.floor(slot / texture.slotsX) * texture.slotHeight - ((param.ty == null) ? 0 : param.ty);
+					if (param.tw == null) param.tw = texture.slotWidth;
+					if (param.th == null) param.th = texture.slotHeight;
+				}
+			}
 		}
 		else if (image != -1)
-		{	
+		{	//TODO:optimize
 			var img = imageCache.getImage(image);
-			//param.tx = img.tx + img.x + ((param.tx == null) ? 0 : param.tx);
-			//param.ty = img.ty + img.y + ((param.ty == null) ? 0 : param.ty);
-			param.tx = (img.slot % img.texture.slotsX) * img.texture.slotWidth  + img.x + ((param.tx == null) ? 0 : param.tx);
-			param.ty = Math.floor(img.slot / img.texture.slotsX) * img.texture.slotHeight + img.y + ((param.ty == null) ? 0 : param.ty);
-			//if (param.tw == null) param.tw = img.w;
-			//if (param.th == null) param.th = img.h;
-			if (param.tw == null) param.tw = ( (img.w != 0) ? img.w : img.texture.slotWidth);
-			if (param.th == null) param.th = ( (img.h != 0) ? img.h : img.texture.slotHeight);
+			if (img != null)
+			{
+				if (img.fit == 'none') {
+					param.tx = (img.slot % img.texture.slotsX) * img.texture.slotWidth
+						+ Math.floor(Math.max(0, Math.min(img.texture.slotWidth, img.x + ((param.tx == null) ? 0 : param.tx))));
+					param.ty = Math.floor(img.slot / img.texture.slotsX) * img.texture.slotHeight
+						+ Math.floor(Math.max(0, Math.min(img.texture.slotHeight, img.y + ((param.ty == null) ? 0 : param.ty))));
+					if (param.tw == null) param.tw = Math.floor(Math.max(0, Math.min(img.texture.slotWidth
+						- Math.floor(Math.max(0, Math.min(img.texture.slotWidth, img.x ))) , ((img.w != 0) ? img.w : img.texture.slotWidth)  )));
+					if (param.th == null) param.th = Math.floor(Math.max(0, Math.min(img.texture.slotHeight
+						- Math.floor(Math.max(0, Math.min(img.texture.slotHeight, img.y ))), ((img.h != 0) ? img.h : img.texture.slotHeight) )));
+				} else {
+					param.tx = (img.slot % img.texture.slotsX) * img.texture.slotWidth;
+					param.ty = Math.floor(img.slot / img.texture.slotsX) * img.texture.slotHeight;
+					if (param.tw == null) param.tw = img.texture.slotWidth;
+					if (param.th == null) param.th = img.texture.slotHeight;
+				}
+			} else trace('ERROR in setElement({element:${param.element}}): image $image is not defined');
 		}
 		else 
 		{
@@ -129,9 +146,9 @@ class ElementSimple implements I_Element
 			{
 				var texture = programCache.textures.get(act_program.program_nr);
 				if (texture != null)
-				{
-					if (param.tw == null) param.tw = texture.max_texture_width;
-					if (param.th == null) param.th = texture.max_texture_height;
+				{	
+					param.tw = texture.max_texture_width;
+					param.th = texture.max_texture_height;
 				}
 			}
 		}

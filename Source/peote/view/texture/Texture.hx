@@ -55,6 +55,8 @@ class Texture
 	
 	public var autoSlots:Null<Bool> = null;
 	
+	public var mipmaps:Bool = false;
+	
 	public function new(param:TextureParam) 
 	{
 		slotWidth = param.w;
@@ -83,7 +85,13 @@ class Texture
 				//trace('TextureCache: slotsX=$slotsX, slotWidth=$slotWidth, slotsY=$slotsY, slotHeight=$slotHeight');
 				
 				// TODO
-				texture = createEmptyTexture(slotsX * slotWidth, slotsY * slotHeight);
+				if (param.mipmaps != null) mipmaps = param.mipmaps;
+				texture = createEmptyTexture(
+					slotsX * slotWidth, slotsY * slotHeight,
+					mipmaps,
+					(param.magFilter != null) ? param.magFilter : 0,
+					(param.minFilter != null) ? param.minFilter : 0
+				);
 			}
 			else {
 				trace("Error: can't create Texture ${param.texture}");
@@ -111,8 +119,6 @@ class Texture
 	{
 		if (autoSlots) img.slot = slotHoles.getHole();
 		//trace("~~~~~~~~~> reserveImageSlot _>"+img.slot);
-		//img.tx += (img.slot % slotsX) * slotWidth;
-		//img.ty += Math.floor(img.slot / slotsX) * slotHeight;
 	}
 		
 	public inline function storeImage(img:Image, data:UInt8Array):Void
@@ -131,21 +137,38 @@ class Texture
 		slotHoles.addHole( img.slot );
 	}
 	
-	public static inline function createEmptyTexture(width:Int, height:Int):GLTexture
+	public static inline function createEmptyTexture(width:Int, height:Int, mipmap:Bool=false, magFilter:Int=0, minFilter:Int=0):GLTexture
 	{
 		var t:GLTexture = GL.createTexture();
 		GL.bindTexture(GL.TEXTURE_2D, t);
+				
 		GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, width, height, 0, GL.RGBA, GL.UNSIGNED_BYTE, null);
 		
-		//GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
-		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
-		//GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR_MIPMAP_LINEAR);
+		// magnification filter (only this values usual):
+		switch (magFilter) {
+			default:GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST); //bilinear
+			case 1: GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);  //trilinear
+		}
 		
-		//GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
-		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
-		//GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_LINEAR);
-
-		// firefox needs this for GL.texSubImage2D if non power of 2 imagesize
+		// minification filter:
+		if (mipmap)
+		{
+			switch (minFilter) {
+				default:GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_NEAREST); //bilinear
+				case 1: GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_LINEAR);  //trilinear
+				case 2:	GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST_MIPMAP_NEAREST);
+				case 3:	GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST_MIPMAP_LINEAR);				
+			}
+		}
+		else
+		{
+			switch (minFilter) {
+				default:GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
+				case 1:	GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR);
+			}
+		}
+		
+		// firefox needs this texture wrapping for GL.texSubImage2D if imagesize is non power of 2 
 		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
 		GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
 
@@ -157,8 +180,13 @@ class Texture
 	private inline function createSubTexture(t:GLTexture, x:Int, y:Int, w:Int, h:Int, data:UInt8Array):Void
 	{
 		GL.bindTexture(GL.TEXTURE_2D, t);
-		//GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, w, h, 0, GL.RGBA, GL.UNSIGNED_BYTE, data);
 		GL.texSubImage2D(GL.TEXTURE_2D, 0, x, y, w, h, GL.RGBA, GL.UNSIGNED_BYTE, data);
+		
+		if (mipmaps) {
+			//GL.hint(GL.GENERATE_MIPMAP_HINT, GL.NICEST);
+			//GL.hint(GL.GENERATE_MIPMAP_HINT, GL.FASTEST);
+			GL.generateMipmap(GL.TEXTURE_2D);
+		}
 		GL.bindTexture(GL.TEXTURE_2D, null);
 	}
 	
@@ -231,7 +259,7 @@ class Texture
 			param.slots = param.sx * param.sy;
 			param.w = 1 << w;
 			param.h = 1 << h;
-            //trace('${param.sx * param.sy} Slots (${param.sx} * ${param.sy}) on ${1<<w} x ${1<<h} Texture'); 
+            trace('${param.sx * param.sy} Slots (${param.sx} * ${param.sy}) on ${1<<w} x ${1<<h} Texture'); 
         }
         else
 		{

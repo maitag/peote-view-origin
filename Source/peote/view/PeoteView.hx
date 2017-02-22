@@ -456,12 +456,12 @@ class PeoteView
 		GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT); //GL.STENCIL_BUFFER_BIT
 	}
 
-	private inline function render_scissor(dl:I_Displaylist, width:Int, height:Int, zoom:Int, xOffset:Int, yOffset:Int):Void
+	private inline function render_scissor(dl:I_Displaylist, width:Int, height:Int, zoom:Float, xOffset:Float, yOffset:Float):Void
 	{
-		var sx:Int = (dl.x + xOffset) * zoom;
-		var sy:Int = (dl.y + yOffset) * zoom;
-		var sw:Int = (dl.w != 0) ? dl.w * zoom: width * zoom;
-		var sh:Int = (dl.h != 0) ? dl.h * zoom: height * zoom;
+		var sx:Int = Math.floor((dl.x + xOffset) * zoom);
+		var sy:Int = Math.floor((dl.y + yOffset) * zoom);
+		var sw:Int = Math.floor((dl.w != 0) ? dl.w * zoom: width * zoom);
+		var sh:Int = Math.floor((dl.h != 0) ? dl.h * zoom: height * zoom);
 		
 		if (sx < 0) sw += sx;
 		sx = Std.int( Math.max(0, Math.min(width, sx)) );
@@ -474,7 +474,7 @@ class PeoteView
 		GL.scissor(sx, height - sh - sy, sw, sh);
 	}
 	
-	private inline function render_segments(dl:I_Displaylist, time:Float, width:Int, height:Int, zoom:Int, xOffset:Int, yOffset:Int):Void
+	private inline function render_segments(dl:I_Displaylist, time:Float, width:Int, height:Int, zoom:Float, xOffset:Float, yOffset:Float):Void
 	{
 		var ap:ActiveProgram;
 		GL.bindBuffer(GL.ARRAY_BUFFER, dl.elemBuff.glBuff); // TODO: put this into dl.elemBuff and may try optimize with SOA (multiple buffer)
@@ -499,8 +499,9 @@ class PeoteView
 			// UNIFORMS
 			GL.uniform2f (ap.program.uniforms.get(Program.uRESOLUTION), width, height);
 			GL.uniform1f (ap.program.uniforms.get(Program.uTIME),  time);
-			GL.uniform1f (ap.program.uniforms.get(Program.uZOOM),  dl.zoom * zoom);
-			GL.uniform2f (ap.program.uniforms.get(Program.uDELTA), (dl.x + dl.xOffset + xOffset)/dl.zoom, (dl.y + dl.yOffset + yOffset)/dl.zoom);
+			GL.uniform1f (ap.program.uniforms.get(Program.uZOOM),  zoom*dl.zoom);
+			//GL.uniform2f (ap.program.uniforms.get(Program.uDELTA), (dl.x + dl.xOffset + xOffset)/dl.zoom, (dl.y + dl.yOffset + yOffset)/dl.zoom  );
+			GL.uniform2f (ap.program.uniforms.get(Program.uDELTA), (dl.x + dl.xOffset + xOffset)/dl.zoom, (dl.y + dl.yOffset + yOffset)/dl.zoom  );
 			
 			if (ap.program.customUniforms != null) ap.program.customUniforms.update();
 			
@@ -516,8 +517,10 @@ class PeoteView
 		GL.bindTexture (GL.TEXTURE_2D, null); // try without here to optimize
 	}
 
-	public inline function render(time:Float, width:Int, height:Int, mouseX:Int, mouseY:Int, zoom:Int = 1, xOffset:Int = 0, yOffset:Int = 0):Void
+	public inline function render(time:Float, width:Int, height:Int, zoom:Float = 1.0, xOffset:Float = 0, yOffset:Float = 0):Void
 	{	
+		xOffset = xOffset * (zoom-1)/zoom;
+		yOffset = yOffset * (zoom-1)/zoom;
 		render_init(width, height);
 		
 		var dl:I_Displaylist = startDisplaylist;
@@ -563,6 +566,14 @@ class PeoteView
 			
 				if (GL.checkFramebufferStatus(GL.FRAMEBUFFER) != GL.FRAMEBUFFER_COMPLETE) trace("ERROR while RenderToTexture: Framebuffer not complete");
 				GL.bindFramebuffer(GL.FRAMEBUFFER, null);
+				if (textures.get(dl.texture).mipmaps) {
+					GL.bindTexture(GL.TEXTURE_2D, textures.get(dl.texture).texture); // todo: optimize "get" see above
+					//GL.hint(GL.GENERATE_MIPMAP_HINT, GL.NICEST);
+					//GL.hint(GL.GENERATE_MIPMAP_HINT, GL.FASTEST);
+					GL.generateMipmap(GL.TEXTURE_2D);
+					GL.bindTexture(GL.TEXTURE_2D, null);
+				}
+
 				GL.viewport (0, 0, width, height); // zurueckgesetzt fuer nachfolgende dl
 			}
 			else render_segments(dl, time, width, height, zoom, xOffset, yOffset);
@@ -576,14 +587,14 @@ class PeoteView
 	
 
 	// ------------------------ OPENGL PICKING -----------------------------------------
-	public inline function pick(displaylist_nr:Int, time:Float, mouseX:Int, mouseY:Int, zoom:Int, xOffset:Int = 0, yOffset:Int = 0):Int
+	public inline function pick(displaylist_nr:Int, time:Float, mouseX:Int, mouseY:Int, zoom:Int, xOffset:Float = 0, yOffset:Float = 0):Int
 	{	
 		var dl:I_Displaylist = displaylist.get(displaylist_nr);
 		
 		var width:Int = 1;
 		var height:Int = 1;
-		xOffset -= Math.round(mouseX / zoom);
-		yOffset -= Math.round(mouseY / zoom);
+		xOffset = xOffset * (zoom-1)/zoom - mouseX / zoom;
+		yOffset = yOffset * (zoom-1)/zoom - mouseY / zoom;
 		
 		// render to framebuffer
 		GL.bindFramebuffer(GL.FRAMEBUFFER, framebuffer);
