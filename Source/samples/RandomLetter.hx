@@ -36,6 +36,12 @@ import peote.view.displaylist.DisplaylistType;
 class RandomLetter extends Sample
 {
 	
+	var w:Int = 34; //162;
+	var h:Int = 20; //110;
+	var s:Int = 30; //12;
+	var timer:Timer;
+	var firstrun:Bool = true;
+		
 	public override function run() 
 	{
 		startTime = Timer.stamp();
@@ -44,82 +50,60 @@ class RandomLetter extends Sample
 			maxImages: 2
 		});
 		
-		var w:Int = 34;// 162;
-		var h:Int = 20;// 110;
-		var s:Int = 30;//12;
-	
-			
-		// --------------------- TEXTURECACHES -----------------
-		
-		peoteView.setTexture( {  texture: 0,
-			slots: 2,
-			w:   512,         // Texture slot width
-			h:   512,         // Texture slot height
-		});
+		// ------------------- TEXTURE ------------------------
+		peoteView.setTexture({ texture:0, slots:2, w:512, h:512 });
+
 		// ------------------- IMAGES --------------------------
-		
 		peoteView.setImage({image:0, texture:0, filename:"assets/peote_font_white.png"});
 		peoteView.setImage({image:1, texture:0, filename:"assets/peote_tiles.png"});
 		
-		// ---------------- PROGRAM SHADER ---------------------
+		// ------------------- PROGRAM -------------------------
+		peoteView.setProgram({ program:0, texture:0 });
 		
-		peoteView.setProgram( {
-			program: 0,
-			texture: 0,
-		});
+		// ---------------- DISPLAYLIST -----------------------
+		peoteView.setDisplaylist({ displaylist:0, type:DisplaylistType.RGBA, maxElements:w*h  });
 		
-		// ---------------- DISPLAYLISTS -----------------------
-		
-		peoteView.setDisplaylist( { displaylist:0, type:DisplaylistType.RGBA,
-			maxElements:w * h,
-			//w:1920, h:1280,
-			z:0,
-			enable:true
-		});
-		// -----------------------------------------------------
 		// ---------------- ELEMENTS ---------------------------
-		// -----------------------------------------------------
+		peoteView.setElementDefaults({ displaylist:0, z:0, program:0, image:0 });
 		
-		peoteView.setElementDefaults({ displaylist:0, z:0, image:0 });
-		
-		var timer = new Timer(60);
-		var firstrun:Bool = true;
-		timer.run = function()
-		{
-			for (x in 0...w)
-			{	for (y in 0...h)
-				{	
-					var nr:Int = y * w + x;
-					if ( !firstrun )
-					{	
-						var t:Int =  peoteView.getElement( { element:nr } ).tile;
-						if (
-						     ( (nr--) % 7 == 0 && t == 72) ||
-						     ( (nr--) % 7 == 0 && t == 65) ||
-						     ( (nr--) % 7 == 0 && t == 88) ||
-						     ( (nr--) % 7 == 0 && t == 69) ||
-						     ( (nr--) % 7 == 0 && t == 85) ||
-						     ( (nr--) % 7 == 0 && t == 73) ||
-						     ( (nr--) % 7 == 0 && t == 3)
-						   )
-							continue;
-					}
-					peoteView.setElement( { element: y * w + x,
-						x: x*s,
-						y: y*s - s,
-						w:s,
-						h:s,
-						program: 0,
-						image:0,
-						tile:random(256),
-						rgba: random(34) << 24 | random(55) << 16 | random(256) << 8 | 128+random(128)
-					});		
-				}
-			}
-			firstrun = false;
-		}
-		
-		
+		timer = new Timer(1);
+		timer.run = randomizeLetters;
 	}
 	
+	private function randomizeLetters():Void
+	{
+		timer.stop();
+		for (x in 0...w)
+		{	for (y in 0...h)
+			{	
+				var nr:Int = y * w + x;
+				if ( !firstrun )
+				{	
+					var t:Int =  peoteView.getElement( { element:nr } ).tile;
+					if (
+						 ( (nr--) % 7 == 0 && t == 72) ||
+						 ( (nr--) % 7 == 0 && t == 65) ||
+						 ( (nr--) % 7 == 0 && t == 88) ||
+						 ( (nr--) % 7 == 0 && t == 69) ||
+						 ( (nr--) % 7 == 0 && t == 85) ||
+						 ( (nr--) % 7 == 0 && t == 73) ||
+						 ( (nr--) % 7 == 0 && t == 3)
+					   )
+					continue;
+				}
+				peoteView.setElement( { element: y * w + x,
+					x:x*s,
+					y:y*s - s,
+					w:s,
+					h:s,
+					tile:random(256),
+					rgba: random(34) << 24 | random(55) << 16 | random(256) << 8 | 128+random(128)
+				});		
+			}
+		}
+		firstrun = false;
+		timer = new Timer(1);
+		timer.run = randomizeLetters;
+	}
+
 }
