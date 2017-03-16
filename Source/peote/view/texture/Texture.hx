@@ -33,6 +33,7 @@ import haxe.ds.Vector;
 import lime.graphics.opengl.GL;
 import lime.graphics.opengl.GLTexture;
 import lime.utils.UInt8Array;
+import lime.utils.ArrayBufferView;
 
 import peote.tools.Holes;
 
@@ -141,8 +142,8 @@ class Texture
 	{
 		var t:GLTexture = GL.createTexture();
 		GL.bindTexture(GL.TEXTURE_2D, t);
-				
-		GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, width, height, 0, GL.RGBA, GL.UNSIGNED_BYTE, null);
+		
+		GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, width, height, 0, GL.RGBA, GL.UNSIGNED_BYTE, 0);
 		
 		// magnification filter (only this values usual):
 		switch (magFilter) {
@@ -180,7 +181,7 @@ class Texture
 	private inline function createSubTexture(t:GLTexture, x:Int, y:Int, w:Int, h:Int, data:UInt8Array):Void
 	{
 		GL.bindTexture(GL.TEXTURE_2D, t);
-		GL.texSubImage2D(GL.TEXTURE_2D, 0, x, y, w, h, GL.RGBA, GL.UNSIGNED_BYTE, data);
+		GL.texSubImage2D(GL.TEXTURE_2D, 0, x, y, w, h, GL.RGBA, GL.UNSIGNED_BYTE,  data );
 		
 		if (mipmaps) {
 			//GL.hint(GL.GENERATE_MIPMAP_HINT, GL.NICEST);

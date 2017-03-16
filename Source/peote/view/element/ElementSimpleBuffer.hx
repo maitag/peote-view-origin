@@ -28,18 +28,18 @@
 
 package peote.view.element;
 
+import haxe.io.Bytes;
+import haxe.ds.Vector;
+import lime.graphics.opengl.GL;
+import lime.graphics.opengl.GLBuffer;
+import lime.utils.ArrayBufferView;
+import lime.utils.BytePointer;
+
 import peote.view.program.ProgramCache;
 import peote.view.displaylist.DisplaylistType;
 import peote.view.program.Program;
 import peote.view.Buffer;
 
-import lime.graphics.opengl.GL;
-import lime.graphics.opengl.GLBuffer;
-import lime.utils.ArrayBufferView;
-import haxe.ds.Vector;
-
-//import lime.utils.Float32Array;
-//import lime.utils.Int16Array;
 @:keep
 class ElementSimpleBuffer implements I_ElementBuffer
 {
@@ -48,14 +48,11 @@ class ElementSimpleBuffer implements I_ElementBuffer
 	public var attr:Vector<Int> = null;
 	public var glBuff:GLBuffer;
 		
-	var emptyBuffFull:BufferData;
-	var buffFull:BufferData;
-	/*
-	var buffTex_0:BufferData;
-	var buffTex_1:BufferData;
-	var buffTex_2:BufferData;
-	var buffTex_3:BufferData;
-	*/
+	var emptyBuffFull:Bytes;
+	var buffFull:Bytes;
+	var buffFull_pos:Int;
+	var buffSize:Int;
+
 	var type:Int;
 	
 	var ZINDEX_OFFSET:Int;
@@ -76,24 +73,19 @@ class ElementSimpleBuffer implements I_ElementBuffer
 		TEX_OFFSET    = offset; offset += 4;
 		VERTEX_STRIDE = offset;
 		
-		
-		var full = new BufferData(b.max_segments * b.segment_size * VERTEX_COUNT * VERTEX_STRIDE);
+		buffSize = VERTEX_COUNT * VERTEX_STRIDE;
+		var size:Int = b.max_segments * b.segment_size * buffSize;
+		var full:Bytes = Bytes.alloc(size);
 
 		// create new opengl buffer 
 		glBuff = GL.createBuffer();
 		GL.bindBuffer (GL.ARRAY_BUFFER, glBuff);
-		GL.bufferData (GL.ARRAY_BUFFER, full.dataView , GL.STATIC_DRAW); // GL.DYNAMIC_DRAW GL.STREAM_DRAW
+		GL.bufferData (GL.ARRAY_BUFFER, size, new BytePointer(full) , GL.STATIC_DRAW); // GL.DYNAMIC_DRAW GL.STREAM_DRAW
 		GL.bindBuffer (GL.ARRAY_BUFFER, null);
 		
-		// ------------ BufferViews pre initialized -----------------
-		buffFull      = new BufferData (VERTEX_COUNT * VERTEX_STRIDE);
-		emptyBuffFull = new BufferData (VERTEX_COUNT * VERTEX_STRIDE);
-		/*
-		buffTex_0     = new BufferData (4);
-		buffTex_1     = new BufferData (4);
-		buffTex_2     = new BufferData (4);
-		buffTex_3     = new BufferData (4);
-		*/
+		buffFull      = Bytes.alloc(buffSize);
+		emptyBuffFull = Bytes.alloc(buffSize);
+		emptyBuffFull.fill(0, buffSize, 0);		
 	}
 	
 	public inline function delete():Void
@@ -126,18 +118,10 @@ class ElementSimpleBuffer implements I_ElementBuffer
 		GL.vertexAttribPointer (attr.get(Program.aTEXTCOORD),2, GL.SHORT, false, VERTEX_STRIDE, TEX_OFFSET );// TODO: evtl. optimize mit medium_float
 	}
 
-	/*
-	public inline function bufferDataTex( b:BufferData, tx:Int, ty:Int ):Void
-	{
-		b.setByteOffset( 0 );
-		b.write_2_Short( tx, ty );   // TEXT COORD 
-		b.setByteOffset( 0 );
-	}
-	*/
 	public inline function del(e:I_Element):Void
 	{
 		GL.bindBuffer (GL.ARRAY_BUFFER, glBuff);
-		GL.bufferSubData(GL.ARRAY_BUFFER, e.buf_pos * VERTEX_STRIDE , emptyBuffFull.dataView);
+		GL.bufferSubData(GL.ARRAY_BUFFER, e.buf_pos * VERTEX_STRIDE , buffSize, new BytePointer(emptyBuffFull));
 		GL.bindBuffer (GL.ARRAY_BUFFER, null);
 		
 	}
@@ -200,52 +184,64 @@ class ElementSimpleBuffer implements I_ElementBuffer
 		
 		// TODO: Optimize -> write only changed values to buffer ( start / end counter ) -> Array of pre-sized buffers!
 		
-		buffFull.setByteOffset( 0 );
+		//buffFull.setByteOffset( 0 );
 		
-		buffFull.write_2_Short( xw, yh );                          // VERTEX_POSITION_START
-		if (type & DisplaylistType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
-		if (type & DisplaylistType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
-		if (type & DisplaylistType.PICKING != 0) buffFull.write_1_UInt( param.element ); // ELEMENT
-		buffFull.write_2_Short( txw, tyh );                        // TEXT COORD 
+		buffFull_pos = 0;
 		
-		buffFull.write_2_Short( xw, yh );                          // VERTEX_POSITION_START
-		if (type & DisplaylistType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
-		if (type & DisplaylistType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
-		if (type & DisplaylistType.PICKING != 0) buffFull.write_1_UInt( param.element ); // ELEMENT
-		buffFull.write_2_Short( txw, tyh );                        // TEXT COORD 
+		write_2_Short( xw, yh );                                                // VERTEX_POSITION_START
+		if (type & DisplaylistType.ZINDEX  != 0) write_1_Float( z );            // Z INDEX
+		if (type & DisplaylistType.RGBA    != 0) write_1_UInt( rgba );          // RGBA
+		if (type & DisplaylistType.PICKING != 0) write_1_UInt( param.element ); // ELEMENT
+		write_2_Short( txw, tyh );                                              // TEXT COORD 
 		
-		buffFull.write_2_Short( x1, yh1 );                           // VERTEX_POSITION_START
-		if (type & DisplaylistType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
-		if (type & DisplaylistType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
-		if (type & DisplaylistType.PICKING != 0) buffFull.write_1_UInt( param.element ); // ELEMENT
-		buffFull.write_2_Short( tx, tyh );                         // TEXT COORD 
+		write_2_Short( xw , yh );                                               // VERTEX_POSITION_START
+		if (type & DisplaylistType.ZINDEX  != 0) write_1_Float(  z );           // Z INDEX
+		if (type & DisplaylistType.RGBA    != 0) write_1_UInt(  rgba );         // RGBA
+		if (type & DisplaylistType.PICKING != 0) write_1_UInt(  param.element );// ELEMENT
+		write_2_Short( txw , tyh );                                             // TEXT COORD 
 		
-		buffFull.write_2_Short( xw1, y1 );                           // VERTEX_POSITION_START
-		if (type & DisplaylistType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
-		if (type & DisplaylistType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
-		if (type & DisplaylistType.PICKING != 0) buffFull.write_1_UInt( param.element ); // ELEMENT
-		buffFull.write_2_Short( txw, ty );                         // TEXT COORD 
+		write_2_Short( x1 , yh1 );                                              // VERTEX_POSITION_START
+		if (type & DisplaylistType.ZINDEX  != 0) write_1_Float(  z );           // Z INDEX
+		if (type & DisplaylistType.RGBA    != 0) write_1_UInt(  rgba );         // RGBA
+		if (type & DisplaylistType.PICKING != 0) write_1_UInt(  param.element );// ELEMENT
+		write_2_Short( tx , tyh );                                              // TEXT COORD 
 		
-		buffFull.write_2_Short( x, y );                            // VERTEX_POSITION_START
-		if (type & DisplaylistType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
-		if (type & DisplaylistType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
-		if (type & DisplaylistType.PICKING != 0) buffFull.write_1_UInt( param.element ); // ELEMENT
-		buffFull.write_2_Short( tx, ty );                          // TEXT COORD 
+		write_2_Short( xw1 , y1 );                                              // VERTEX_POSITION_START
+		if (type & DisplaylistType.ZINDEX  != 0) write_1_Float(  z );           // Z INDEX
+		if (type & DisplaylistType.RGBA    != 0) write_1_UInt(  rgba );         // RGBA
+		if (type & DisplaylistType.PICKING != 0) write_1_UInt(  param.element );// ELEMENT
+		write_2_Short( txw , ty );                                              // TEXT COORD 
 		
-		buffFull.write_2_Short( x, y );                            // VERTEX_POSITION_START
-		if (type & DisplaylistType.ZINDEX != 0) buffFull.write_1_Float( z ); // Z INDEX
-		if (type & DisplaylistType.RGBA   != 0) buffFull.write_1_UInt( rgba ); // RGBA
-		if (type & DisplaylistType.PICKING != 0) buffFull.write_1_UInt( param.element ); // ELEMENT
-		buffFull.write_2_Short( tx, ty );                          // TEXT COORD 
+		write_2_Short( x , y );                                                 // VERTEX_POSITION_START
+		if (type & DisplaylistType.ZINDEX  != 0) write_1_Float(  z );           // Z INDEX
+		if (type & DisplaylistType.RGBA    != 0) write_1_UInt(  rgba );         // RGBA
+		if (type & DisplaylistType.PICKING != 0) write_1_UInt(  param.element );// ELEMENT
+		write_2_Short(  tx , ty );                                              // TEXT COORD 
 		
-		buffFull.setByteOffset( 0 );
+		write_2_Short( x , y );                                                 // VERTEX_POSITION_START
+		if (type & DisplaylistType.ZINDEX  != 0) write_1_Float(  z );           // Z INDEX
+		if (type & DisplaylistType.RGBA    != 0) write_1_UInt(  rgba );         // RGBA
+		if (type & DisplaylistType.PICKING != 0) write_1_UInt(  param.element );// ELEMENT
+		write_2_Short( tx , ty );                                               // TEXT COORD 
+		
 		
 		GL.bindBuffer (GL.ARRAY_BUFFER, glBuff);
-		GL.bufferSubData(GL.ARRAY_BUFFER, buf_pos * VERTEX_STRIDE , buffFull.dataView);
+		GL.bufferSubData(GL.ARRAY_BUFFER, buf_pos * VERTEX_STRIDE , buffSize, new BytePointer(buffFull));
 		GL.bindBuffer (GL.ARRAY_BUFFER, null);
 	}
 
-
+	inline function write_2_Short( a:Int, b:Int ):Void {
+		buffFull.setUInt16(buffFull_pos, a); buffFull_pos += 2;
+		buffFull.setUInt16(buffFull_pos, b); buffFull_pos += 2;
+	}
+	inline function write_1_Float( a:Float ):Void {
+		buffFull.setFloat(buffFull_pos, a ); buffFull_pos += 4;
+	}
+	inline function write_1_UInt( a:Int ):Void {
+		buffFull.setInt32(buffFull_pos, a ); buffFull_pos += 4;
+	}
+	
+	
 	/*
 	public inline function setTexCoord(e:I_Element, param:Param):Void
 	{

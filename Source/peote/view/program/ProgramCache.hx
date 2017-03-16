@@ -28,6 +28,7 @@
 
 package peote.view.program;
 
+import lime.tools.helpers.StringHelper;
 import peote.view.displaylist.DisplaylistType;
 import peote.view.element.ElementAnimBuffer;
 import peote.view.element.ElementSimpleBuffer;
@@ -42,7 +43,8 @@ import haxe.ds.Vector;
 import haxe.ds.IntMap;
 import haxe.ds.StringMap;
 
-import lime.Assets;
+import lime.utils.Assets;
+import lime.utils.AssetLibrary;
 
 class ProgramCache
 {
@@ -232,13 +234,18 @@ class ProgramCache
 		req.open('GET', url, false);
 		req.send();
 		shadersrc = req.responseText;
+		/*
+		Assets.loadText(url).onComplete (function (s) {
+			shadersrc = s; trace(s);
+		});*/
+		// need synced:
+		//shadersrc = Assets.loadText(url).result();
 		#else
-		shadersrc = Assets.getText(url);
-		//shadersrc = Assets.getBytes(url).asString(); // TODO: getText dont work with windows-target
+		//shadersrc = Assets.getText(url);
+		//shadersrc = Assets.loadText(url).result();
+		shadersrc = sys.io.File.getBytes(url).toString();
 		#end
 		return(shadersrc);
 	}
-
-
 	
 }

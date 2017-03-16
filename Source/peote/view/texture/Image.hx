@@ -168,6 +168,8 @@ class Image
 			var image:lime.graphics.Image = lime.graphics.Image.fromBytes(sys.io.File.getBytes(url));
 			onload( this, resize(image) );
 			
+			// works only after preload:
+			//var image:lime.graphics.Image = lime.graphics.Image.loadFromFile (url).result();
 			/*
 			// load from assets
 			var future = Assets.loadImage(url,true);

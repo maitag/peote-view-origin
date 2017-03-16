@@ -1,6 +1,7 @@
 package samples;
 
 import haxe.Timer;
+import lime.graphics.opengl.WebGLContext;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 
@@ -36,12 +37,26 @@ class Sample extends Application {
 	{
 		switch (window.renderer.context) {
 			case OPENGL (gl):
+				var gl:WebGLContext = gl;
 				width = window.width;
 				height = window.height;
+				trace ("gl.version:"+gl.version);
+				trace ("gl.type:"+gl.type);
 				run(); // start Example Code (override by child example classes)				
 			default:
 				trace("only opengl supported");
 		}
+	}
+	
+	public override function onPreloadProgress (loaded:Int, total:Int):Void
+	{		
+		trace(" --------- onPreloadProgress ----------- ");		
+	}
+	
+	public override function onPreloadComplete ():Void
+	{	
+		trace(" --------- onPreloadComplete ----------- ");
+		//run(); // start Example Code (override by child example classes)				
 	}
 	
 	public function run() //override in Samples
@@ -53,18 +68,12 @@ class Sample extends Application {
 	}
 	*/
 	
-	// -- Math-Stuff
-	private inline function random(n:Int):Int
-	{
-		return Math.floor(Math.random() * n);
-	}
-	
 	// ------------------------------------------------------------
 	// ------------------------------------------------------------
 	
 	// ----------- Render Loop ------------------------------------
 	public override function render(renderer:Renderer):Void
-	{
+	{	
 		//switch (renderer.context) { case OPENGL (gl): }
 		peoteView.render(Timer.stamp() - startTime, width, height, zoom, xOffset, yOffset);
 	}
@@ -126,16 +135,6 @@ class Sample extends Application {
 		trace(" --------- onRenderContextRestored ----------- ");		
 	}
 	
-	public override function onPreloadProgress (loaded:Int, total:Int):Void
-	{		
-		//trace(" --------- onPreloadProgress ----------- ");		
-	}
-	
-	public override function onPreloadComplete ():Void
-	{		
-		//trace(" --------- onPreload Complete ----------- ");
-	}
-	
 	public override function onKeyDown (window:Window, keyCode:KeyCode, modifier:KeyModifier):Void
 	{
 		switch (keyCode) {
@@ -174,5 +173,11 @@ class Sample extends Application {
 		yOffset = -mouse_y;
 	}
 
+	// -- Math-Stuff
+	private inline function random(n:Int):Int
+	{
+		return Math.floor(Math.random() * n);
+	}
+	
 	
 }

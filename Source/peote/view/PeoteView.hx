@@ -28,6 +28,9 @@
 
 package peote.view;
 
+import haxe.io.Bytes;
+import haxe.io.BytesData;
+import lime.utils.BytePointer;
 import peote.view.displaylist.Displaylist;
 import peote.view.displaylist.DisplaylistParam;
 import peote.view.displaylist.DisplaylistType;
@@ -133,7 +136,7 @@ class PeoteView
 		
 		startDisplaylist = null;
 		displaylist = new Vector<I_Displaylist>(param.maxDisplaylists);
-
+		
 		// for background-GL-quad
 		createBackgroundBuffer();
 		
@@ -405,16 +408,23 @@ class PeoteView
 		background_aPosition = GL.getAttribLocation (background_program, "aPosition");
 		background_uRGBA = GL.getUniformLocation (background_program, "uRGBA");
 		
-		var data = [
+		var bytes:Bytes = Bytes.alloc(8 * 4);
+
+		bytes.setFloat(0,  1);bytes.setFloat(4,  1);
+		bytes.setFloat(8,  0);bytes.setFloat(12, 1);
+		bytes.setFloat(16, 1);bytes.setFloat(20, 0);
+		bytes.setFloat(24, 0);bytes.setFloat(28, 0);
+		/*data = [
 			1, 1,
 			0, 1,
 			1, 0,
 			0, 0
-		];
+		];*/
 		
 		background_buffer = GL.createBuffer ();
 		GL.bindBuffer (GL.ARRAY_BUFFER, background_buffer);
-		GL.bufferData (GL.ARRAY_BUFFER, new Float32Array (data), GL.STATIC_DRAW);
+		//GL.bufferData (GL.ARRAY_BUFFER, new Float32Array (data), GL.STATIC_DRAW);
+		GL.bufferData (GL.ARRAY_BUFFER, 8*4, new BytePointer(bytes), GL.STATIC_DRAW);
 		GL.bindBuffer (GL.ARRAY_BUFFER, null);
 	}
 	

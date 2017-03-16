@@ -69,7 +69,7 @@ class Bunnys extends Sample
 	{
 		// set Time
 		startTime = Timer.stamp();
-
+		
 		peoteView = new PeoteView({
 			maxDisplaylists:     6,
 			maxPrograms:         3,
@@ -278,7 +278,7 @@ class Bunnys extends Sample
 	}
 	
 	public override function render(renderer:Renderer):Void
-	{
+	{	
 		peoteView.render(Timer.stamp() - startTime, width, height, 1, 0, 0);
 		frames++;
 	}

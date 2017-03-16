@@ -66,7 +66,7 @@ class GlyphTextRendering extends Sample
 			w:   600,        // Texture width
 			h:   591,        // Texture height
 			//mipmaps:true, minFilter:1, magFilter:1,
-			magFilter:1
+			minFilter:1,magFilter:1
 		});
 		
 		// -----------------------------------------------------
@@ -171,7 +171,7 @@ class GlyphTextRendering extends Sample
 				var tx:Float = info.metrics[id].u * texturewidth ;
 				var ty:Float = info.metrics[id].v * textureheight;
 				var tw:Float = info.metrics[id].w * texturewidth ;
-				var th:Float = info.metrics[id].h * textureheight; trace(info.metrics[id]);
+				var th:Float = info.metrics[id].h * textureheight; //trace(info.metrics[id]);
 				//trace(charcode, "h:"+info.metrics[id].height, "t:"+info.metrics[id].top );
 				peoteView.setElement({
 					element:element_nr++,
@@ -186,8 +186,8 @@ class GlyphTextRendering extends Sample
 					time:t+1,
 					
 					end: {
-						x:penX + Math.floor(info.metrics[id].left * scale),
-						y:penY +  Math.floor(( info.height - info.metrics[id].top ) * scale),
+						x: penX + Math.ceil(info.metrics[id].left * scale),
+						y: penY + Math.ceil(( info.height - info.metrics[id].top ) * scale),
 						
 						w:Math.ceil(w),
 						h:Math.ceil(h),
@@ -199,10 +199,10 @@ class GlyphTextRendering extends Sample
 					},
 					displaylist:0,
 					program:0,
-					tx:Math.floor(tx),
-					ty:Math.floor(ty),
-					tw:Math.ceil(tw),
-					th:Math.ceil(th),
+					tx:Math.floor(tx-0.5),
+					ty:Math.floor(ty-0.5),
+					tw:Math.ceil(tw+0.5),
+					th:Math.ceil(th+0.5),
 					image:0,
 				});
 				penX += Math.ceil(info.metrics[id].advance * scale);

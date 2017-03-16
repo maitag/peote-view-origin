@@ -45,7 +45,8 @@ for variation, animation or combining Imagedata!
 
 ####Steps
 
-To be near OpenGl, all items are accessible by an index.
+This API was original designed for easy network-sync, so all items are accessible by an index.  
+(could change in future versions)
 
 ```
 	peoteView = new PeoteView();
@@ -297,7 +298,6 @@ little Graphic inside Displaylist-Area (like a c64-sprite)
 
 ####Todo
 
-- better font-rendering
 - tile animation on gpu
 - more simple samples, usability and platform tests, api improvement, optimization
 - more demos ;)

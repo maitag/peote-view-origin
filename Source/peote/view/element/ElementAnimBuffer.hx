@@ -28,18 +28,18 @@
 
 package peote.view.element;
 
+import haxe.io.Bytes;
+import haxe.ds.Vector;
+import lime.graphics.opengl.GL;
+import lime.graphics.opengl.GLBuffer;
+import lime.utils.ArrayBufferView;
+import lime.utils.BytePointer;
+
 import peote.view.program.ProgramCache;
 import peote.view.displaylist.DisplaylistType;
 import peote.view.program.Program;
 import peote.view.Buffer;
 
-import lime.graphics.opengl.GL;
-import lime.graphics.opengl.GLBuffer;
-import lime.utils.ArrayBufferView;
-import haxe.ds.Vector;
-
-//import lime.utils.Float32Array;
-//import lime.utils.Int16Array;
 @:keep
 class ElementAnimBuffer implements I_ElementBuffer
 {
@@ -48,14 +48,11 @@ class ElementAnimBuffer implements I_ElementBuffer
 	public var attr:Vector<Int> = null;
 	public var glBuff:GLBuffer;
 		
-	var emptyBuffFull:BufferData;
-	var buffFull:BufferData;
-	/*
-	var buffTex_0:BufferData;
-	var buffTex_1:BufferData;
-	var buffTex_2:BufferData;
-	var buffTex_3:BufferData;
-	*/
+	var emptyBuffFull:Bytes;
+	var buffFull:Bytes;
+	var buffFull_pos:Int;
+	var buffSize:Int;
+
 	var type:Int;
 	
 	var ZINDEX_OFFSET:Int;
@@ -105,23 +102,19 @@ class ElementAnimBuffer implements I_ElementBuffer
 		trace("VERTEX_STRIDE "+VERTEX_STRIDE);
 		#end
 		
-		var full = new BufferData(b.max_segments * b.segment_size * VERTEX_COUNT * VERTEX_STRIDE);
+		buffSize = VERTEX_COUNT * VERTEX_STRIDE;
+		var size:Int = b.max_segments * b.segment_size * buffSize;
+		var full:Bytes = Bytes.alloc(size);
 
 		// create new opengl buffer 
 		glBuff = GL.createBuffer();
 		GL.bindBuffer (GL.ARRAY_BUFFER, glBuff);
-		GL.bufferData (GL.ARRAY_BUFFER, full.dataView , GL.STATIC_DRAW); // GL.DYNAMIC_DRAW GL.STREAM_DRAW
+		GL.bufferData (GL.ARRAY_BUFFER, size, new BytePointer(full) , GL.STATIC_DRAW); // GL.DYNAMIC_DRAW GL.STREAM_DRAW
 		GL.bindBuffer (GL.ARRAY_BUFFER, null);
 		
-		// ------------ BufferViews pre initialized -----------------
-		buffFull      = new BufferData (VERTEX_COUNT * VERTEX_STRIDE);
-		emptyBuffFull = new BufferData (VERTEX_COUNT * VERTEX_STRIDE);
-		/*
-		buffTex_0     = new BufferData (4);
-		buffTex_1     = new BufferData (4);
-		buffTex_2     = new BufferData (4);
-		buffTex_3     = new BufferData (4);
-		*/
+		buffFull      = Bytes.alloc(buffSize);
+		emptyBuffFull = Bytes.alloc(buffSize);
+		emptyBuffFull.fill(0, buffSize, 0);		
 	}
 	
 	public inline function delete():Void
@@ -189,18 +182,10 @@ class ElementAnimBuffer implements I_ElementBuffer
 		// TODO: -> stupid  ;)=   i need dummy here ?
 	}
 
-	/*
-	public inline function bufferDataTex( b:BufferData, tx:Int, ty:Int ):Void
-	{
-		b.setByteOffset( 0 );
-		b.write_2_Short( tx, ty );               // TEXT COORD 
-		b.setByteOffset( 0 );
-	}
-	*/
 	public inline function del(e:I_Element):Void
 	{
 		GL.bindBuffer (GL.ARRAY_BUFFER, glBuff);
-		GL.bufferSubData(GL.ARRAY_BUFFER, e.buf_pos * VERTEX_STRIDE , emptyBuffFull.dataView);
+		GL.bufferSubData(GL.ARRAY_BUFFER, e.buf_pos * VERTEX_STRIDE , buffSize, new BytePointer(emptyBuffFull));
 		GL.bindBuffer (GL.ARRAY_BUFFER, null);
 		
 	}
@@ -243,145 +228,156 @@ class ElementAnimBuffer implements I_ElementBuffer
 		var pivot_x2:Int = x2 + param.end.pivotX;
 		var pivot_y2:Int = y2 + param.end.pivotY;
 		
-		param.element+=1;
+		param.element += 1;
 		
 		
-		buffFull.setByteOffset( 0 );
-		
-		buffFull.write_2_Short( xw1, yh1 );	// VERTEX_POSITION_START
-		buffFull.write_2_Short( xw2, yh2 );	// VERTEX_POSITION_END
+		buffFull_pos = 0;
+				
+		write_2_Short( xw1, yh1 );	// VERTEX_POSITION_START
+		write_2_Short( xw2, yh2 );	// VERTEX_POSITION_END
 		if (type & DisplaylistType.ZINDEX != 0)
-			buffFull.write_1_Float( z ); 	// Z INDEX
+			write_1_Float( z ); 	// Z INDEX
 		if (type & DisplaylistType.RGBA   != 0) {
-			buffFull.write_1_UInt( rgba1 ); // RGBA START
-			buffFull.write_1_UInt( rgba2 ); // RGBA END
+			write_1_UInt( rgba1 ); // RGBA START
+			write_1_UInt( rgba2 ); // RGBA END
 		}
 		if (type & DisplaylistType.ROTATION != 0) {
-			buffFull.write_2_Float( rotation1, rotation2 ); // Rotation START/END
-			buffFull.write_2_Short( pivot_x1, pivot_y1 ); // PIVOT START
-			buffFull.write_2_Short( pivot_x2, pivot_y2 ); // PIVOT END
+			write_2_Float( rotation1, rotation2 ); // Rotation START/END
+			write_2_Short( pivot_x1, pivot_y1 ); // PIVOT START
+			write_2_Short( pivot_x2, pivot_y2 ); // PIVOT END
 		}
 		if (type & DisplaylistType.PICKING != 0) {
-			buffFull.write_1_UInt( param.element ); // ELEMENT
+			write_1_UInt( param.element ); // ELEMENT
 		}
-		buffFull.write_2_Float( t1, t2   ); // TIME
-		buffFull.write_2_Short( txw, tyh );	// TEXT COORD 
+		write_2_Float( t1, t2   ); // TIME
+		write_2_Short( txw, tyh );	// TEXT COORD 
 		
-		if (fill_bytes) buffFull.write_1_Float( 0.0 ); // DUMMY -----------------------
+		if (fill_bytes) write_1_Float( 0.0 ); // DUMMY -----------------------
 		
-		buffFull.write_2_Short( xw1, yh1 );	// VERTEX_POSITION_START
-		buffFull.write_2_Short( xw2, yh2 );	// VERTEX_POSITION_END
+		write_2_Short( xw1, yh1 );	// VERTEX_POSITION_START
+		write_2_Short( xw2, yh2 );	// VERTEX_POSITION_END
 		if (type & DisplaylistType.ZINDEX != 0)
-			buffFull.write_1_Float( z );	// Z INDEX
+			write_1_Float( z );	// Z INDEX
 		if (type & DisplaylistType.RGBA   != 0) {
-			buffFull.write_1_UInt( rgba1 ); // RGBA START
-			buffFull.write_1_UInt( rgba2 ); // RGBA END
+			write_1_UInt( rgba1 ); // RGBA START
+			write_1_UInt( rgba2 ); // RGBA END
 		}
 		if (type & DisplaylistType.ROTATION != 0) {
-			buffFull.write_2_Float( rotation1, rotation2 ); // Rotation START/END
-			buffFull.write_2_Short( pivot_x1, pivot_y1 ); // PIVOT START
-			buffFull.write_2_Short( pivot_x2, pivot_y2 ); // PIVOT END
+			write_2_Float( rotation1, rotation2 ); // Rotation START/END
+			write_2_Short( pivot_x1, pivot_y1 ); // PIVOT START
+			write_2_Short( pivot_x2, pivot_y2 ); // PIVOT END
 		}
 		if (type & DisplaylistType.PICKING != 0) {
-			buffFull.write_1_UInt( param.element ); // ELEMENT
+			write_1_UInt( param.element ); // ELEMENT
 		}
-		buffFull.write_2_Float( t1, t2   ); // TIME
-		buffFull.write_2_Short( txw, tyh );	// TEXT COORD 
+		write_2_Float( t1, t2   ); // TIME
+		write_2_Short( txw, tyh );	// TEXT COORD 
 		
-		if (fill_bytes) buffFull.write_1_Float( 0.0 ); // DUMMY -----------------------
+		if (fill_bytes) write_1_Float( 0.0 ); // DUMMY -----------------------
 		
-		buffFull.write_2_Short( x1, yh1 );	// VERTEX_POSITION_START
-		buffFull.write_2_Short( x2, yh2 );	// VERTEX_POSITION_END
+		write_2_Short( x1, yh1 );	// VERTEX_POSITION_START
+		write_2_Short( x2, yh2 );	// VERTEX_POSITION_END
 		if (type & DisplaylistType.ZINDEX != 0)
-			buffFull.write_1_Float( z );	// Z INDEX
+			write_1_Float( z );	// Z INDEX
 		if (type & DisplaylistType.RGBA   != 0) {
-			buffFull.write_1_UInt( rgba1 ); // RGBA START
-			buffFull.write_1_UInt( rgba2 ); // RGBA END
+			write_1_UInt( rgba1 ); // RGBA START
+			write_1_UInt( rgba2 ); // RGBA END
 		}
 		if (type & DisplaylistType.ROTATION != 0) {
-			buffFull.write_2_Float( rotation1, rotation2 ); // Rotation START/END
-			buffFull.write_2_Short( pivot_x1, pivot_y1 ); // PIVOT START
-			buffFull.write_2_Short( pivot_x2, pivot_y2 ); // PIVOT END
+			write_2_Float( rotation1, rotation2 ); // Rotation START/END
+			write_2_Short( pivot_x1, pivot_y1 ); // PIVOT START
+			write_2_Short( pivot_x2, pivot_y2 ); // PIVOT END
 		}
 		if (type & DisplaylistType.PICKING != 0) {
-			buffFull.write_1_UInt( param.element ); // ELEMENT
+			write_1_UInt( param.element ); // ELEMENT
 		}
-		buffFull.write_2_Float( t1, t2   ); // TIME
-		buffFull.write_2_Short( tx, tyh );	// TEXT COORD 
+		write_2_Float( t1, t2   ); // TIME
+		write_2_Short( tx, tyh );	// TEXT COORD 
 		
-		if (fill_bytes) buffFull.write_1_Float( 0.0 ); // DUMMY -----------------------
+		if (fill_bytes) write_1_Float( 0.0 ); // DUMMY -----------------------
 		
-		buffFull.write_2_Short( xw1, y1 );	// VERTEX_POSITION_START
-		buffFull.write_2_Short( xw2, y2 );	// VERTEX_POSITION_END
+		write_2_Short( xw1, y1 );	// VERTEX_POSITION_START
+		write_2_Short( xw2, y2 );	// VERTEX_POSITION_END
 		if (type & DisplaylistType.ZINDEX != 0)
-			buffFull.write_1_Float( z );	// Z INDEX
+			write_1_Float( z );	// Z INDEX
 		if (type & DisplaylistType.RGBA   != 0) {
-			buffFull.write_1_UInt( rgba1 ); // RGBA START
-			buffFull.write_1_UInt( rgba2 ); // RGBA END
+			write_1_UInt( rgba1 ); // RGBA START
+			write_1_UInt( rgba2 ); // RGBA END
 		}
 		if (type & DisplaylistType.ROTATION != 0) {
-			buffFull.write_2_Float( rotation1, rotation2 ); // Rotation START/END
-			buffFull.write_2_Short( pivot_x1, pivot_y1 ); // PIVOT START
-			buffFull.write_2_Short( pivot_x2, pivot_y2 ); // PIVOT END
+			write_2_Float( rotation1, rotation2 ); // Rotation START/END
+			write_2_Short( pivot_x1, pivot_y1 ); // PIVOT START
+			write_2_Short( pivot_x2, pivot_y2 ); // PIVOT END
 		}
 		if (type & DisplaylistType.PICKING != 0) {
-			buffFull.write_1_UInt( param.element ); // ELEMENT
+			write_1_UInt( param.element ); // ELEMENT
 		}
-		buffFull.write_2_Float( t1, t2   ); // TIME
-		buffFull.write_2_Short( txw, ty );	// TEXT COORD 
+		write_2_Float( t1, t2   ); // TIME
+		write_2_Short( txw, ty );	// TEXT COORD 
 		
-		if (fill_bytes) buffFull.write_1_Float( 0.0 ); // DUMMY -----------------------
+		if (fill_bytes) write_1_Float( 0.0 ); // DUMMY -----------------------
 		
-		buffFull.write_2_Short( x1, y1 );	// VERTEX_POSITION_START
-		buffFull.write_2_Short( x2, y2 );	// VERTEX_POSITION_END
+		write_2_Short( x1, y1 );	// VERTEX_POSITION_START
+		write_2_Short( x2, y2 );	// VERTEX_POSITION_END
 		if (type & DisplaylistType.ZINDEX != 0)
-			buffFull.write_1_Float( z );	// Z INDEX
+			write_1_Float( z );	// Z INDEX
 		if (type & DisplaylistType.RGBA   != 0) {
-			buffFull.write_1_UInt( rgba1 ); // RGBA START
-			buffFull.write_1_UInt( rgba2 ); // RGBA END
+			write_1_UInt( rgba1 ); // RGBA START
+			write_1_UInt( rgba2 ); // RGBA END
 		}
 		if (type & DisplaylistType.ROTATION != 0) {
-			buffFull.write_2_Float( rotation1, rotation2 ); // Rotation START/END
-			buffFull.write_2_Short( pivot_x1, pivot_y1 ); // PIVOT START
-			buffFull.write_2_Short( pivot_x2, pivot_y2 ); // PIVOT END
+			write_2_Float( rotation1, rotation2 ); // Rotation START/END
+			write_2_Short( pivot_x1, pivot_y1 ); // PIVOT START
+			write_2_Short( pivot_x2, pivot_y2 ); // PIVOT END
 		}
 		if (type & DisplaylistType.PICKING != 0) {
-			buffFull.write_1_UInt( param.element ); // ELEMENT
+			write_1_UInt( param.element ); // ELEMENT
 		}
-		buffFull.write_2_Float( t1, t2   ); // TIME
-		buffFull.write_2_Short( tx, ty );	// TEXT COORD 
+		write_2_Float( t1, t2   ); // TIME
+		write_2_Short( tx, ty );	// TEXT COORD 
 		
-		if (fill_bytes) buffFull.write_1_Float( 0.0 ); // DUMMY -----------------------
+		if (fill_bytes) write_1_Float( 0.0 ); // DUMMY -----------------------
 		
-		buffFull.write_2_Short( x1, y1 );	// VERTEX_POSITION_START
-		buffFull.write_2_Short( x2, y2 );	// VERTEX_POSITION_END
+		write_2_Short( x1, y1 );	// VERTEX_POSITION_START
+		write_2_Short( x2, y2 );	// VERTEX_POSITION_END
 		if (type & DisplaylistType.ZINDEX != 0)
-			buffFull.write_1_Float( z );	// Z INDEX
+			write_1_Float( z );	// Z INDEX
 		if (type & DisplaylistType.RGBA   != 0) {
-			buffFull.write_1_UInt( rgba1 ); // RGBA START
-			buffFull.write_1_UInt( rgba2 ); // RGBA END
+			write_1_UInt( rgba1 ); // RGBA START
+			write_1_UInt( rgba2 ); // RGBA END
 		}
 		if (type & DisplaylistType.ROTATION != 0) {
-			buffFull.write_2_Float( rotation1, rotation2 ); // Rotation START/END
-			buffFull.write_2_Short( pivot_x1, pivot_y1 ); // PIVOT START
-			buffFull.write_2_Short( pivot_x2, pivot_y2 ); // PIVOT END
+			write_2_Float( rotation1, rotation2 ); // Rotation START/END
+			write_2_Short( pivot_x1, pivot_y1 );   // PIVOT START
+			write_2_Short( pivot_x2, pivot_y2 );   // PIVOT END
 		}
 		if (type & DisplaylistType.PICKING != 0) {
-			buffFull.write_1_UInt( param.element ); // ELEMENT
+			write_1_UInt( param.element ); // ELEMENT
 		}
-		buffFull.write_2_Float( t1, t2   ); // TIME
-		buffFull.write_2_Short( tx, ty );	// TEXT COORD
+		write_2_Float( t1, t2 );    // TIME
+		write_2_Short( tx, ty );	// TEXT COORD
 		
-		//if (fill_bytes) buffFull.write_1_Float( 0.0 ); // DUMMY
-
-		
-		buffFull.setByteOffset( 0 );
+		if (fill_bytes) write_1_Float( 0.0 ); // DUMMY
 		
 		GL.bindBuffer (GL.ARRAY_BUFFER, glBuff);
-		GL.bufferSubData(GL.ARRAY_BUFFER, buf_pos * VERTEX_STRIDE , buffFull.dataView);
+		GL.bufferSubData(GL.ARRAY_BUFFER, buf_pos * VERTEX_STRIDE , buffSize, new BytePointer(buffFull));
 		GL.bindBuffer (GL.ARRAY_BUFFER, null);
 	}
 
+	inline function write_2_Short( a:Int, b:Int ):Void {
+		buffFull.setUInt16(buffFull_pos, a); buffFull_pos += 2;
+		buffFull.setUInt16(buffFull_pos, b); buffFull_pos += 2;
+	}
+	inline function write_1_Float( a:Float ):Void {
+		buffFull.setFloat(buffFull_pos, a ); buffFull_pos += 4;
+	}
+	inline function write_2_Float( a:Float ,b:Float ):Void {
+		buffFull.setFloat(buffFull_pos, a ); buffFull_pos += 4;
+		buffFull.setFloat(buffFull_pos, b ); buffFull_pos += 4;
+	}
+	inline function write_1_UInt( a:Int ):Void {
+		buffFull.setInt32(buffFull_pos, a ); buffFull_pos += 4;
+	}
 
 	/*
 	public inline function setTexCoord(e:I_Element, param:Param):Void
