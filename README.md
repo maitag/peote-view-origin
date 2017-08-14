@@ -1,7 +1,7 @@
 # Peote View - 2D OpenGL Render Library
 
-This library is written with [Haxe](http://haxe.org) syntactic sugar and  
-runs inside reliable [Lime](https://github.com/openfl/lime) environment.
+This library is written with [Haxe](http://haxe.org) syntactic sugar  
+and runs inside reliable [Lime](https://github.com/openfl/lime) environment.
 
 
 
