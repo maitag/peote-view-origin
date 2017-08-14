@@ -1,24 +1,18 @@
-###Peote View - 2D OpenGL Render Library
+#Peote View - 2D OpenGL Render Library
 
 This library is written with the syntactic sugar of [Haxe](http://haxe.org),  
 together with power of great [Lime](https://github.com/openfl/lime) multiplatform work.  
 
-####Installation:
+
+##Installation:
 ```
 haxelib git peote-view https://github.com/maitag/peote-view
 ```
 
-To use from javascript look here -> [peoteView.js](https://github.com/maitag/peoteView.js).  
+Please look here for samples -> [peote-view-samples](https://github.com/maitag/peote-view-samples)
 
 
-####Build [Samples (^_^) <-](http://maitag.github.io/peote-view/)
-
-- check: [peoteView.lime](https://github.com/maitag/peote-view/blob/master/peoteView.lime#L10) to see what will be compiled
-- build: `lime build peoteView.lime linux` ( | html5 | windows | android | raspi | rpi | ...)
-- start new sample and play around
-
-
-####Why this tool ?
+##Why this tool ?
 
 - handle imagedata and procedural shadercode equally
 - the power of haxe-lime multiplatform code generation ( haxe -> cpp+js+.+..+... )
@@ -27,7 +21,7 @@ To use from javascript look here -> [peoteView.js](https://github.com/maitag/peo
 - transition-rendering by gpu to reduce datatransfer (more time for game-logic on cpu)
 
 
-####Names to wrapp around opengl
+##Names to wrapp around opengl
 
 ```
 "Displaylist"  contains "Element"s
@@ -41,12 +35,13 @@ You will be able to display "massive" graphic elements and use your own shaderco
 for variation, animation or combining Imagedata!
 
 
-###How to use
 
-####Steps
+##How to use
 
 This API was original designed for easy network-sync, so all items are accessible by an index.  
-(could change in future versions)
+(could change in future versions!)
+
+###First Steps
 
 ```
 	peoteView = new PeoteView();
@@ -82,9 +77,10 @@ This API was original designed for easy network-sync, so all items are accessibl
 	});
 ```
 
-####Parameters in Detail
 
-#####0) Initialize
+##Parameters in Detail
+
+###0) Initialize
 ```
 	peoteView = new PeoteView({
 		
@@ -97,7 +93,7 @@ This API was original designed for easy network-sync, so all items are accessibl
 ```
 	
 
-#####1) Textures
+###1) Textures
 
 A Texture reserves space on GPU-Ram for storing Images into same sized Slots.
 
@@ -124,7 +120,7 @@ Check peoteView.MAX_TEXTURE_SIZE to see whats possible on your hardware.
 
 
 
-#####2) Image-Data
+###2) Image-Data
 
 Images holds url- or file-referenz, where imagedata will be "load on demand", so
 if some element use an image, it's data will be load into free Image-Slot of assigned Texture.
@@ -169,7 +165,7 @@ if some element use an image, it's data will be load into free Image-Slot of ass
 
 
 
-#####3) Program
+###3) Program
 
 opengl-shadercode and textures that can be use in fragment-shader
 
@@ -199,7 +195,7 @@ opengl-shadercode and textures that can be use in fragment-shader
 
 
 
-#####4) Displaylist
+###4) Displaylist
 
 rectangular screen-areas to display lots of elements
 
@@ -242,7 +238,7 @@ rectangular screen-areas to display lots of elements
 
 
 
-#####5) Element
+###5) Element
 
 little Graphic inside Displaylist-Area (like a c64-sprite)
 
@@ -286,9 +282,10 @@ little Graphic inside Displaylist-Area (like a c64-sprite)
 	});
 ```
 
+To use from javascript look here -> [peoteView.js](https://github.com/maitag/peoteView.js).  
 
 
-#####How to optimize render-loop:
+###How to optimize render-loop:
 
 - order displaylists functional: 1) game-gfx, 2) user-interface (DisplaylistType.PICK to interact with Elements)
 - elements with same program will be drawn fastest (throught opengl drawarray)
@@ -296,7 +293,8 @@ little Graphic inside Displaylist-Area (like a c64-sprite)
 - for nested animations use "renderToTexture" in Displaylists
 
 
-####Todo
+
+###Todo
 
 - tile animation on gpu
 - more simple samples, usability and platform tests, api improvement, optimization

@@ -229,7 +229,7 @@ class ProgramCache
 	public inline function loadShader(url:String):String
 	{
 		var shadersrc:String = '';
-		#if js
+		#if html5
 		var req = js.Browser.createXMLHttpRequest();
 		req.open('GET', url, false);
 		req.send();
@@ -241,9 +241,9 @@ class ProgramCache
 		// need synced:
 		//shadersrc = Assets.loadText(url).result();
 		#else
-		//shadersrc = Assets.getText(url);
+		shadersrc = Assets.getText(url);
 		//shadersrc = Assets.loadText(url).result();
-		shadersrc = sys.io.File.getBytes(url).toString();
+		//shadersrc = sys.io.File.getBytes(url).toString();
 		#end
 		return(shadersrc);
 	}

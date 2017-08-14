@@ -192,15 +192,14 @@ class Program
 		#end
  
 		// TODO:
-		#if cpp
+		#if (cpp || android)
 		fragmentShaderSrc = "#extension GL_OES_standard_derivatives : enable\n"+fragmentShaderSrc;
 		#end
-		//trace("OES_standard_derivatives support:" + GL.getExtension('OES_standard_derivatives'));
-
 		
 		// reformat to debug
 		var r:EReg = new EReg(";", "g");
 		#if debugshader
+		trace("OES_standard_derivatives support:" + GL.getExtension('OES_standard_derivatives'));
 		trace("EXTENSIONS:\n"+GL.getSupportedExtensions());
 		trace("VERTEXSHADER:\n"+r.replace(vertexShaderSrc, ";\n"));
 		trace("FRAGMENTSHADER:\n"+r.replace(fragmentShaderSrc, ";\n"));

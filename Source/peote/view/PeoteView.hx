@@ -30,6 +30,7 @@ package peote.view;
 
 import haxe.io.Bytes;
 import haxe.io.BytesData;
+import lime.Lib;
 import lime.utils.BytePointer;
 import peote.view.displaylist.Displaylist;
 import peote.view.displaylist.DisplaylistParam;
@@ -108,9 +109,24 @@ class PeoteView
 	var fb_texture:GLTexture;
 	var picked:UInt8Array;
 
+	static function timestamp():Float { return Timer.stamp(); }
+
+	var startTime:Float;
+	public var time(get,set):Float;
+	public inline function get_time():Float
+	{
+		return PeoteView.timestamp() - startTime;
+	}
+	public inline function set_time(t:Float):Float
+	{
+		startTime = PeoteView.timestamp() - t;
+		return t;
+	}
 	
 	public function new(param:PeoteViewParam) // TODO -> PARAM 
 	{	
+		time = 0;
+		
 		if (param.maxDisplaylists == null) param.maxDisplaylists = 1;
 		if (param.maxPrograms == null) param.maxPrograms = 1;
 		if (param.maxTextures == null) param.maxTextures = 1;
@@ -484,7 +500,7 @@ class PeoteView
 		GL.scissor(sx, height - sh - sy, sw, sh);
 	}
 	
-	private inline function render_segments(dl:I_Displaylist, time:Float, width:Int, height:Int, zoom:Float, xOffset:Float, yOffset:Float):Void
+	private inline function render_segments(dl:I_Displaylist, width:Int, height:Int, zoom:Float, xOffset:Float, yOffset:Float):Void
 	{
 		var ap:ActiveProgram;
 		GL.bindBuffer(GL.ARRAY_BUFFER, dl.elemBuff.glBuff); // TODO: put this into dl.elemBuff and may try optimize with SOA (multiple buffer)
@@ -527,7 +543,7 @@ class PeoteView
 		GL.bindTexture (GL.TEXTURE_2D, null); // try without here to optimize
 	}
 
-	public inline function render(time:Float, width:Int, height:Int, zoom:Float = 1.0, xOffset:Float = 0, yOffset:Float = 0):Void
+	public inline function render(width:Int, height:Int, zoom:Float = 1.0, xOffset:Float = 0, yOffset:Float = 0):Void
 	{	
 		xOffset = xOffset * (zoom-1)/zoom;
 		yOffset = yOffset * (zoom-1)/zoom;
@@ -572,7 +588,7 @@ class PeoteView
 			// stop rendering to framebuffer
 			if (dl.renderToTexture)
 			{
-				render_segments(dl, time, dl.w, -dl.h, 1, -dl.x, -dl.y-dl.h);
+				render_segments(dl, dl.w, -dl.h, 1, -dl.x, -dl.y-dl.h);
 			
 				if (GL.checkFramebufferStatus(GL.FRAMEBUFFER) != GL.FRAMEBUFFER_COMPLETE) trace("ERROR while RenderToTexture: Framebuffer not complete");
 				GL.bindFramebuffer(GL.FRAMEBUFFER, null);
@@ -586,7 +602,7 @@ class PeoteView
 
 				GL.viewport (0, 0, width, height); // zurueckgesetzt fuer nachfolgende dl
 			}
-			else render_segments(dl, time, width, height, zoom, xOffset, yOffset);
+			else render_segments(dl, width, height, zoom, xOffset, yOffset);
 
 			
 			dl = (dl.next != startDisplaylist) ? dl.next : null; // next displaylist in loop
@@ -597,7 +613,7 @@ class PeoteView
 	
 
 	// ------------------------ OPENGL PICKING -----------------------------------------
-	public inline function pick(displaylist_nr:Int, time:Float, mouseX:Int, mouseY:Int, zoom:Int, xOffset:Float = 0, yOffset:Float = 0):Int
+	public inline function pick(displaylist_nr:Int, mouseX:Int, mouseY:Int, zoom:Int, xOffset:Float = 0, yOffset:Float = 0):Int
 	{	
 		var dl:I_Displaylist = displaylist.get(displaylist_nr);
 		
@@ -626,7 +642,7 @@ class PeoteView
 	
 		GL.clear( GL.DEPTH_BUFFER_BIT );
 
-		render_segments(dl, time, width, height, zoom, xOffset, yOffset);
+		render_segments(dl, width, height, zoom, xOffset, yOffset);
 		
 		// read picked pixel (element-number)
 		if (GL.checkFramebufferStatus(GL.FRAMEBUFFER) == GL.FRAMEBUFFER_COMPLETE) {

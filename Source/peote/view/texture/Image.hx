@@ -113,7 +113,7 @@ class Image
 	}
 	
 	// TODO: how to cancel loading ?
-	#if js
+	#if html5
 	public function load(onload:Image->UInt8Array->Void, onerror:String->Void):Void
 	{
 		
@@ -131,6 +131,9 @@ class Image
 			reqest.onload = function() {
 				var blob = reqest.response;
 				var fr = new FileReader();
+				fr.onprogress = function(progress) {
+					trace ("Loading Image Progress: ", progress);
+				};
 				fr.onloadend = function() {
 					image.src = fr.result;
 				};
@@ -140,7 +143,10 @@ class Image
 		}
 		else
 		{
-			image.src = url;			
+			image.onprogress  = function(progress) {
+				trace ("Loading Image Progress: ", progress);
+			};
+			image.src = url;
 		}
 		
 		
@@ -163,23 +169,23 @@ class Image
 		}
 		else
 		{
+			//var image:lime.graphics.Image = lime.graphics.Image.fromBytes(sys.io.File.getBytes(url));
 			
-			
-			var image:lime.graphics.Image = lime.graphics.Image.fromBytes(sys.io.File.getBytes(url));
-			onload( this, resize(image) );
-			
-			// works only after preload:
+			//works only after preload:
 			//var image:lime.graphics.Image = lime.graphics.Image.loadFromFile (url).result();
-			/*
+
+			//onload( this, resize(image) );
+			
+			
 			// load from assets
-			var future = Assets.loadImage(url,true);
-			//future.onProgress (function (progress) trace ("Loading Image Progress: " + progress));
+			var future = Assets.loadImage(url);
+			future.onProgress (function (progress,b) trace ("Loading Image Progress: ",progress,b));
 			future.onError (onerror);
 			
 			future.onComplete (function (image) {
 				onload( this, resize(image) );
 			});
-			*/
+			
 		}
 		
 	}
@@ -187,7 +193,7 @@ class Image
 	
 	
 	function resize(#if js image:js.html.ImageElement #else image:lime.graphics.Image #end):UInt8Array
-	{
+	{	
 		var sourceWidth:Int  = image.width;
 		var sourceHeight:Int = image.height;
 		
@@ -279,7 +285,7 @@ class Image
 		//trace('sourceWidth=$sourceWidth, sourceHeight=$sourceHeight - destWidth=$destWidth, destHeight=$destHeight');
 		//trace('left=$left, right=$right - top=$top, bottom=$bottom');
 		// -------------------- Javascript ----------------------
-		#if js
+		#if html5
 		var tmp_canvas = js.Browser.document.createCanvasElement();
 		tmp_canvas.width = destWidth;
 		tmp_canvas.height = destHeight;
