@@ -87,7 +87,7 @@ class Uniforms
 		var i:Int = names.indexOf(activeUniform.name);
 		if (i > -1)
 		{
-			trace("uniforms:",activeUniform.name,type);
+			//trace("uniforms:",activeUniform.name,type);
 			uniforms[i].type = type;
 			uniforms[i].id = GL.getUniformLocation(glProgram, activeUniform.name);
 		}

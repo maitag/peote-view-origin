@@ -109,17 +109,15 @@ class PeoteView
 	var fb_texture:GLTexture;
 	var picked:UInt8Array;
 
-	static function timestamp():Float { return Timer.stamp(); }
-
 	var startTime:Float;
 	public var time(get,set):Float;
 	public inline function get_time():Float
 	{
-		return PeoteView.timestamp() - startTime;
+		return Timer.stamp() - startTime;
 	}
 	public inline function set_time(t:Float):Float
 	{
-		startTime = PeoteView.timestamp() - t;
+		startTime = Timer.stamp() - t;
 		return t;
 	}
 	
