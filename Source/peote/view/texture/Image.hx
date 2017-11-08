@@ -178,7 +178,8 @@ class Image
 			
 			
 			// load from assets
-			var future = Assets.loadImage(url);
+			
+			var future = Assets.loadImage(url,false);
 			future.onProgress (function (progress,b) trace ("Loading Image Progress: ",progress,b));
 			future.onError (onerror);
 			

@@ -183,7 +183,7 @@ class Program
 		#else
 		vertexShaderSrc = "precision highp float;" + vertexShaderSrc;
 		#end
-	
+		
 		fragmentShaderSrc = parseType(type, textureUnits, fragmentShaderSrc);
 		#if peote_frag_medium_precision
 		fragmentShaderSrc = "precision mediump float;" + fragmentShaderSrc;

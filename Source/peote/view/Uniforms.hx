@@ -69,7 +69,7 @@ class Uniforms
 	}
 	
 	public function setUniformLocation(activeUniform:GLActiveInfo, glProgram:GLProgram) 
-	{	trace("setUniformLocation");
+	{	//trace("setUniformLocation");
 		var type:Int = -1;
 		switch (activeUniform.type)
 		{

@@ -108,7 +108,7 @@ class Displaylist<ELEMENT:haxe.Constraints.Constructible<Void->Void>, BUFFER:hax
 	// -----------
 	
 	public function new(param:DisplaylistParam, programCache:ProgramCache, imageCache:ImageCache) 
-	{
+	{	
 		this.imageCache = imageCache;
 		this.programCache = programCache;
 		this.type = param.type;

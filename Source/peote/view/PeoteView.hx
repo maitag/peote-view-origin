@@ -187,7 +187,7 @@ class PeoteView
 	public function setDisplaylist(param:DisplaylistParam):Void
 	{
 		var d:I_Displaylist = displaylist.get(param.displaylist);
-			
+		
 		// need Framebuffer?
 		if (param.renderToTexture && framebuffer == null) createFramebuffer();
 		

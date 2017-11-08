@@ -195,7 +195,7 @@ class ProgramCache
 			{	
 				customUniforms = new Uniforms(param.vars);
 				programUniforms.set(param.program, customUniforms );
-			}
+			} else customUniforms = programUniforms.get(param.program);
 			
 			for (type in pmap.keys())
 			{
@@ -210,19 +210,21 @@ class ProgramCache
 					default_fs = ElementSimpleBuffer.defaultFragmentShaderSrc;
 					default_vs = ElementSimpleBuffer.defaultVertexShaderSrc;
 				}
-				trace("setShaderSrc:" + type);
+				//trace("setShaderSrc:" + type , param.program);
 				
 				if (param.fshaderSrc == '' )
 					pmap.get(type).compile(null, type, textureUnits, customUniforms, default_fs, param.vshaderSrc, onerror);
 				else if (param.vshaderSrc == '' )
 					pmap.get(type).compile(null, type, textureUnits, customUniforms, param.fshaderSrc, default_vs, onerror);
-				else
-					pmap.get(type).compile(null, type, textureUnits, customUniforms, param.fshaderSrc, param.vshaderSrc, onerror);
-				
+				else 
+					pmap.get(type).compile(null, type, textureUnits, customUniforms, 
+						(param.fshaderSrc!=null) ? param.fshaderSrc : ((fragmentShaderSrc.get(param.program)!=null)?fragmentShaderSrc.get(param.program):default_fs),
+						(param.vshaderSrc!=null) ? param.vshaderSrc : ((vertexShaderSrc.get(param.program)!=null)?vertexShaderSrc.get(param.program):default_vs),
+						onerror);
 			}
 			
-			if (param.fshaderSrc != '' ) fragmentShaderSrc.set(param.program, param.fshaderSrc);
-			if (param.vshaderSrc != '' ) vertexShaderSrc.set(param.program, param.vshaderSrc);	
+			if (param.fshaderSrc != '') fragmentShaderSrc.set(param.program, param.fshaderSrc);
+			if (param.vshaderSrc != '') vertexShaderSrc.set(param.program, param.vshaderSrc);
 		}
 	}
 
