@@ -29,8 +29,6 @@
 package peote.view;
 
 import haxe.io.Bytes;
-import haxe.io.BytesData;
-import lime.Lib;
 import lime.utils.BytePointer;
 import peote.view.displaylist.Displaylist;
 import peote.view.displaylist.DisplaylistParam;
@@ -54,17 +52,12 @@ import lime.utils.UInt8Array;
 import haxe.ds.Vector;
 import haxe.Timer;
 import lime.graphics.opengl.GLUniformLocation;
-import lime.utils.Float32Array;
-import lime.math.Matrix3;
 import lime.graphics.opengl.GL;
 import lime.graphics.opengl.GLBuffer;
 import lime.graphics.opengl.GLProgram;
 import lime.graphics.opengl.GLTexture;
 import lime.graphics.opengl.GLFramebuffer;
 import lime.utils.GLUtils;
-
-import peote.view.displaylist.*;
-import peote.view.element.*;
 
 @:keep 
 class PeoteView
