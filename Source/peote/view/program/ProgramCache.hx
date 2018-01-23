@@ -28,7 +28,6 @@
 
 package peote.view.program;
 
-import lime.tools.helpers.StringHelper;
 import peote.view.displaylist.DisplaylistType;
 import peote.view.element.ElementAnimBuffer;
 import peote.view.element.ElementSimpleBuffer;
