@@ -28,10 +28,8 @@
 
 package peote.view.program;
 
-import peote.view.displaylist.Displaylist;
 import peote.view.displaylist.DisplaylistType;
 import peote.view.element.I_ElementBuffer;
-import peote.view.texture.Texture;
 import lime.graphics.opengl.GLActiveInfo;
 import peote.view.ActiveTextures;
 import peote.view.Uniforms;
@@ -39,7 +37,6 @@ import peote.view.Uniforms;
 import haxe.ds.Vector;
 import lime.graphics.opengl.GL;
 import lime.graphics.opengl.GLProgram;
-import lime.graphics.opengl.GLShader;
 import lime.graphics.opengl.GLUniformLocation;
 
 class Program

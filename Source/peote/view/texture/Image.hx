@@ -30,11 +30,7 @@ package peote.view.texture;
 
 //import format.png.Reader;
 //import format.png.Tools;
-import lime.app.Future;
-import lime.graphics.opengl.GLTexture;
 
-
-import haxe.io.BytesInput;
 import haxe.io.Bytes;
 
 import lime.utils.UInt8Array;

@@ -29,7 +29,6 @@
 package peote.view;
 
 import peote.tools.Holes;
-import lime.graphics.opengl.GLTexture;
 import peote.view.program.Program;
 
 class ActiveProgram

@@ -40,10 +40,8 @@ import peote.view.Uniforms;
 
 import haxe.ds.Vector;
 import haxe.ds.IntMap;
-import haxe.ds.StringMap;
 
 import lime.utils.Assets;
-import lime.utils.AssetLibrary;
 
 class ProgramCache
 {

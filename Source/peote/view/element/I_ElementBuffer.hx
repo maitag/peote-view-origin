@@ -4,10 +4,9 @@ package peote.view.element;
  * @author Sylvio Sell
  */
 
+import haxe.ds.Vector;
 import lime.graphics.opengl.GLBuffer;
 
-import peote.view.program.ProgramCache;
-import haxe.ds.Vector;
 @:keep
 interface I_ElementBuffer
 {

@@ -32,10 +32,8 @@ import haxe.io.Bytes;
 import haxe.ds.Vector;
 import lime.graphics.opengl.GL;
 import lime.graphics.opengl.GLBuffer;
-import lime.utils.ArrayBufferView;
 import lime.utils.BytePointer;
 
-import peote.view.program.ProgramCache;
 import peote.view.displaylist.DisplaylistType;
 import peote.view.program.Program;
 import peote.view.Buffer;

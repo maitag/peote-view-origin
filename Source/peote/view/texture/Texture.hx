@@ -28,12 +28,9 @@
 
 package peote.view.texture;
 
-import haxe.ds.IntMap;
-import haxe.ds.Vector;
 import lime.graphics.opengl.GL;
 import lime.graphics.opengl.GLTexture;
 import lime.utils.UInt8Array;
-import lime.utils.ArrayBufferView;
 
 import peote.tools.Holes;
 

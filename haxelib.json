@@ -4,11 +4,11 @@
 	"license": "MIT",
 	"tags": ["peote", "opengl", "2d", "shader", "glsl"],
 	"description": "2D Graphics Library for OpenGl",
-	"version": "0.6.5",
+	"version": "0.6.6",
 	"classPath": "Source/",
 	"releasenote": "samples now in separate repository",
 	"contributors": ["Sylvio Sell - maitag"],
 	"dependencies": {
-		"lime": "5.3.0"
+		"lime": ""
 	}
 }

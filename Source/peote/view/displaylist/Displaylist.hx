@@ -28,22 +28,14 @@
 
 package peote.view.displaylist;
 
-import peote.view.program.Program;
 import peote.view.program.ProgramCache;
-import peote.view.texture.Image;
 import peote.view.texture.ImageCache;
 import peote.view.element.ElementParam;
 import peote.view.element.I_Element;
 import peote.view.element.I_ElementBuffer;
-import lime.graphics.opengl.GLTexture;
 import peote.view.Buffer;
 
-import lime.graphics.opengl.GLProgram;
-import lime.graphics.opengl.GLShader;
-import lime.graphics.opengl.GL;
-
 import haxe.ds.Vector;
-import haxe.Http;
 
 
 @:keep
