@@ -2,8 +2,9 @@
 ## old origin version from 2018
 
 This is the origin version of peote-view that needs some older haxe (3) and Lime (6) versions to run.  
-The new (remastered;) and up to date repository is here: [peote-view](https://github.com/maitag/peote-view).
+The new (remastered;) and up to date repository is here -> [peote-view](https://github.com/maitag/peote-view)
 
+---------------
 
 ## Installation:
 ```
