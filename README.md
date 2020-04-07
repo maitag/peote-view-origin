@@ -1,16 +1,16 @@
 # Peote View - 2D OpenGL Render Library
+## old origin version from 2018
 
-This library is written with [Haxe](http://haxe.org) syntactic sugar  
-and runs inside reliable [Lime](https://github.com/openfl/lime) environment.
-
+This is the origin version of peote-view that needs some older haxe (3) and Lime (6) versions to run,  
+the new (remastered;) and up to date repository is: [peote-view](https://github.com/maitag/peote-view).
 
 
 ## Installation:
 ```
-haxelib git peote-view https://github.com/maitag/peote-view
+haxelib git peote-view-origin https://github.com/maitag/peote-view-origin
 ```
 
-Please look here for samples -> [peote-view-samples](https://github.com/maitag/peote-view-samples)
+Please look here for samples -> [peote-view-origin-samples](https://github.com/maitag/peote-view-origin-samples)
 
 
 ## Why this tool ?
